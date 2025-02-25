@@ -1,0 +1,10 @@
+/* src/components/HeroSection.css */
+.hero-section {
+    background-image: url('../assets/home page pic.png'); /* استبدل بمسار الصورة اللي عندك */
+    background-size: cover;
+    height: 600px; /* تعديل الارتفاع حسب التصميم الجديد */
+    border-radius: 16px; /* زوايا مدورة زي التصميم */
+    width : 99% ;
+    margin: auto;
+    
+  }
