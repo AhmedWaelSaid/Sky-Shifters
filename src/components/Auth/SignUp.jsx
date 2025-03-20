@@ -5,7 +5,7 @@ import Select from 'react-select';
 import countries from 'i18n-iso-countries';
 import en from 'i18n-iso-countries/langs/en.json';
 import { useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query'; // استيراد useMutation
+import { useMutation } from '@tanstack/react-query';
 
 countries.registerLocale(en);
 const countryOptions = Object.entries(countries.getNames('en', { select: 'official' })).map(([code, name]) => ({
@@ -13,12 +13,11 @@ const countryOptions = Object.entries(countries.getNames('en', { select: 'offici
   label: name,
 }));
 
-// دالة لإرسال طلب إنشاء الحساب
-const registerUser = async ({ username, email, password, country, birthDate }) => {
-  const response = await fetch('/api/register', {
+const registerUser = async ({ firstName, lastName, email, password, phoneNumber, country, birthdate }) => {
+  const response = await fetch('http://13.81.120.153/users/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, email, password, country, birthDate }),
+    body: JSON.stringify({ firstName, lastName, email, password, phoneNumber, country, birthdate }),
   });
 
   if (!response.ok) {
@@ -29,44 +28,107 @@ const registerUser = async ({ username, email, password, country, birthDate }) =
   return response.json();
 };
 
+// دالة لإعادة إرسال رابط التحقق
+const resendVerificationEmail = async (email) => {
+  const response = await fetch('http://13.81.120.153/users/resend-verification', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to resend verification email');
+  }
+
+  return response.json();
+};
+
 const SignUp = memo(function SignUp({ onToggle, onLogin }) {
-  const [username, setUsername] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [country, setCountry] = useState(null);
-  const [birthDate, setBirthDate] = useState('');
+  const [birthdate, setBirthdate] = useState('');
+  const [isEmailVerificationRequired, setIsEmailVerificationRequired] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
+
   const navigate = useNavigate();
 
-  // استخدام useMutation لإنشاء الحساب
-  const { mutate, isPending, error } = useMutation({
+  const { mutate: registerMutate, isPending: isRegisterPending, error: registerError } = useMutation({
     mutationFn: registerUser,
     onSuccess: (data) => {
-      const userData = {
-        name: data.user?.username || username,
-        email: data.user?.email || email,
-        avatar: data.user?.avatar || 'https://via.placeholder.com/40',
-        suspended: data.user?.suspended || false,
-        country: country ? country.label : '',
-        birthDate,
-      };
-      onLogin(userData);
-      navigate('/');
+      if (data.message && data.message.includes('verify your email')) {
+        setIsEmailVerificationRequired(true);
+      } else {
+        const userData = {
+          name: data.user?.firstName || firstName,
+          email: data.user?.email || email,
+          avatar: data.user?.avatar || 'https://via.placeholder.com/40',
+          suspended: data.user?.suspended || false,
+          country: country ? country.label : '',
+          birthdate,
+        };
+        onLogin(userData);
+        navigate('/');
+      }
     },
     onError: (error) => {
       console.error('Error:', error);
     },
   });
 
+  const { mutate: resendMutate, isPending: isResendPending } = useMutation({
+    mutationFn: resendVerificationEmail,
+    onSuccess: (data) => {
+      setResendMessage(data.message || 'Verification email resent successfully! Please check your inbox.');
+    },
+    onError: (error) => {
+      setResendMessage(`Error: ${error.message}`);
+    },
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    mutate({
-      username,
+    setResendMessage('');
+    registerMutate({
+      firstName,
+      lastName,
       email,
       password,
-      country: country ? country.value : '',
-      birthDate,
-    }); // استدعاء الـ mutation
+      phoneNumber,
+      country: country ? country.label : '',
+      birthdate,
+    });
   };
+
+  const handleResendEmail = () => {
+    setResendMessage('');
+    resendMutate(email);
+  };
+
+  if (isEmailVerificationRequired) {
+    return (
+      <div className="container__form container--signup">
+        <div className="form">
+          <h2 className="form__title">Verify Your Email</h2>
+          <p>
+            We have sent a verification link to <strong>{email}</strong>. Please check your email (including the spam/junk folder) and click the link to activate your account.
+          </p>
+          <button onClick={handleResendEmail} className="btn" disabled={isResendPending}>
+            {isResendPending ? 'Resending...' : 'Resend Verification Email'}
+          </button>
+          {resendMessage && <p className={resendMessage.includes('Error') ? 'error' : 'success'}>{resendMessage}</p>}
+          <p>
+            Already verified?{' '}
+            <a href="#" onClick={(e) => { e.preventDefault(); onToggle(); }}>Sign In</a>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container__form container--signup">
@@ -74,11 +136,20 @@ const SignUp = memo(function SignUp({ onToggle, onLogin }) {
         <h2 className="form__title">Sign Up</h2>
         <input
           type="text"
-          id="signupUsername"
-          placeholder="User"
+          id="signupFirstName"
+          placeholder="First Name"
           className="input"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          id="signupLastName"
+          placeholder="Last Name"
+          className="input"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
           required
         />
         <input
@@ -99,6 +170,15 @@ const SignUp = memo(function SignUp({ onToggle, onLogin }) {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+        <input
+          type="tel"
+          id="signupPhoneNumber"
+          placeholder="Phone Number"
+          className="input"
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
+          required
+        />
         <Select
           id="signupCountry"
           options={countryOptions}
@@ -111,16 +191,16 @@ const SignUp = memo(function SignUp({ onToggle, onLogin }) {
         />
         <input
           type="date"
-          id="signupBirthDate"
+          id="signupBirthdate"
           placeholder="Birth Date"
           className="input"
-          value={birthDate}
-          onChange={(e) => setBirthDate(e.target.value)}
+          value={birthdate}
+          onChange={(e) => setBirthdate(e.target.value)}
           required
         />
-        {error && <p className="error">{error.message}</p>}
-        <button type="submit" className="btn" disabled={isPending}>
-          {isPending ? 'Loading...' : 'Sign Up'}
+        {registerError && <p className="error">{registerError.message}</p>}
+        <button type="submit" className="btn" disabled={isRegisterPending}>
+          {isRegisterPending ? 'Loading...' : 'Sign Up'}
         </button>
         <p className="auth-link">
           Already have an account?{' '}

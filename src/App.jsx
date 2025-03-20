@@ -4,6 +4,8 @@ import { Suspense, lazy } from 'react';
 import Header from './components/Header';
 import { ThemeProvider } from './components/context/ThemeContext'; 
 import { MenuProvider } from './components/context/menuContext';
+import ResetPassword from './components/Auth/ResetPassword';
+import ForgotPassword from './components/Auth/ForgotPassword';
 const HeroSection = lazy(() => import('./components/Find-Flight/HeroSection'));
 const FlightSearchForm = lazy(() => import('./components/Find-Flight/FlightSearchForm'));
 const TravelOffers = lazy(() => import('./components/Find-Flight/TravelOffers'));
@@ -23,6 +25,8 @@ export default function App() {
           <Route path="/" element={<><HeroSection /><FlightSearchForm /><TravelOffers /></>} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/UserProfile" element={<UserProfile />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} /> {/* أضفنا الـ Route الجديد */}
+        <Route path="/reset-password" element={<ResetPassword />} /> {/* أضفنا الـ Route الجديد */}
           
         </Routes>
       </Suspense>
