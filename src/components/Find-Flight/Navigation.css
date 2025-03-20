@@ -1,6 +1,7 @@
 .nav-container {
     display: flex;
     gap: 20px;
+    text-decoration: none;
   }
   
   .nav-link {
@@ -14,5 +15,6 @@
     width: 25px;
     height: 25px;
     margin-right: 8px;
+    text-decoration: none;
   }
   

@@ -1,0 +1,322 @@
+/* src/components/UserProfile.css */
+
+.navigation-card {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* المسافة بين الأيقونات */
+  }
+  
+  .tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    text-decoration: none;
+  }
+  
+  .svgIcon {
+    width: 24px;
+    height: 24px;
+  }
+  
+  /* تنسيق أيقونة الجرس */
+  .bell {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+  }
+  
+  /* أنيميشن الرنين عند الـ hover */
+  .tab:hover .bell {
+    animation: bellRing 0.9s both;
+  }
+  
+  /* bell ringing animation keyframes */
+  @keyframes bellRing {
+    0%,
+    100% {
+      transform-origin: top;
+    }
+  
+    15% {
+      transform: rotateZ(10deg);
+    }
+  
+    30% {
+      transform: rotateZ(-10deg);
+    }
+  
+    45% {
+      transform: rotateZ(5deg);
+    }
+  
+    60% {
+      transform: rotateZ(-5deg);
+    }
+  
+    75% {
+      transform: rotateZ(2deg);
+    }
+  }
+  .notifications-dropdown {
+  position: absolute;
+  top: 94px;
+  right: 20px;
+  width: 300px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  color: #0d6c97;
+ 
+}
+
+.dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid #333;
+}
+
+.connected-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  color: #0085ff;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #0085ff;
+  border-radius: 50%;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.dropdown-content {
+  padding: 20px;
+  text-align: center;
+  
+}
+
+.caught-up-image {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 10px;
+}
+
+.dropdown-content h3 {
+  font-size: 18px;
+  margin: 10px 0;
+}
+
+.dropdown-content p {
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+.view-all-btn {
+  background-color:#0085ff;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.view-all-btn:hover {
+  background-color: #444;
+}
+  
+  /* تنسيق الـ plane-switch */
+  .plane-switch {
+    --dot: #fff;
+    --street: #6B6D76;
+    --street-line: #A8AAB4;
+    --street-line-mid: #C0C2C8;
+    --sky-1: #60A7FA;
+    --sky-2: #2F8EFC;
+    --light-1: rgba(255, 233, 0, 1);
+    --light-2: rgba(255, 233, 0, 0.3);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .plane-switch input {
+    display: none;
+  }
+  
+  .plane-switch input + div {
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    position: relative;
+    overflow: hidden;
+    width: 40px; /* نفس حجم الأيقونات التانية */
+    height: 20px;
+    padding: 1px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--street) 0%, var(--street) 25%, var(--sky-1) 75%, var(--sky-2) 100%) left var(--p, 0%) top 0;
+    background-position-x: var(--p, 0%);
+    background-size: 400% auto;
+    transition: background-position 0.6s;
+  }
+  
+  .plane-switch input + div:before,
+  .plane-switch input + div:after {
+    content: "";
+    display: block;
+    position: absolute;
+    transform: translateX(var(--s, 0));
+    transition: transform 0.3s;
+  }
+  
+  .plane-switch input + div:before {
+    width: 34px;
+    right: 2px;
+    top: 3px;
+    height: 1px;
+    background: var(--street-line);
+    box-shadow: 0 13px 0 0 var(--street-line);
+  }
+  
+  .plane-switch input + div:after {
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    left: 18px;
+    top: 1px;
+    -webkit-animation: lights2 2s linear infinite;
+    animation: lights2 2s linear infinite;
+    box-shadow: inset 0 0 0 2px var(--light-1), 0 17px 0 var(--light-1), 6px 0 0 var(--light-2), 6px 17px 0 var(--light-2), 12px 0 0 var(--light-2), 12px 17px 0 var(--light-2);
+  }
+  
+  .plane-switch input + div span {
+    display: block;
+    position: absolute;
+  }
+  
+  .plane-switch input + div span.street-middle {
+    top: 10px;
+    left: 17px;
+    width: 2px;
+    height: 1px;
+    transform: translateX(var(--s, 0));
+    background: var(--street-line-mid);
+    box-shadow: 4px 0 0 var(--street-line-mid), 8px 0 0 var(--street-line-mid), 12px 0 0 var(--street-line-mid), 16px 0 0 var(--street-line-mid), 20px 0 0 var(--street-line-mid);
+    transition: transform 0.3s;
+  }
+  
+  .plane-switch input + div span.cloud {
+    width: 10px;
+    height: 3px;
+    border-radius: 2px;
+    background: #fff;
+    position: absolute;
+    top: var(--ct, 6px);
+    left: 100%;
+    opacity: var(--co, 0);
+    transition: opacity 0.3s;
+    -webkit-animation: clouds2 2s linear infinite var(--cd, 0s);
+    animation: clouds2 2s linear infinite var(--cd, 0s);
+  }
+  
+  .plane-switch input + div span.cloud:before,
+  .plane-switch input + div span.cloud:after {
+    content: "";
+    position: absolute;
+    transform: translateX(var(--cx, 0));
+    border-radius: 50%;
+    width: var(--cs, 4px);
+    height: var(--cs, 4px);
+    background: #fff;
+    bottom: 1px;
+    left: 1px;
+  }
+  
+  .plane-switch input + div span.cloud:after {
+    --cs: 5px;
+    --cx: 3px;
+  }
+  
+  .plane-switch input + div span.cloud.two {
+    --ct: 16px;
+    --cd: 1s;
+    opacity: var(--co-2, 0);
+  }
+  
+  .plane-switch input + div div {
+    display: table;
+    position: relative;
+    z-index: 1;
+    padding: 4px;
+    border-radius: 50%;
+    background: var(--dot);
+    transform: translateX(var(--x, 0));
+    transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.35, 1.2);
+  }
+  
+  .plane-switch input + div div svg {
+    width: 10px;
+    height: 10px;
+    display: block;
+    color: var(--c, var(--street));
+    transition: color 0.6s;
+  }
+  
+  .plane-switch input:checked + div {
+    --p: 100%;
+    --x: 20px;
+    --s: -40px;
+    --c: var(--sky-2);
+    --co: 0.8;
+    --co-2: 0.6;
+  }
+  
+  @keyframes lights2 {
+    20%,
+    30% {
+      box-shadow: inset 0 0 0 2px var(--light-2), 0 17px 0 var(--light-2), 6px 0 0 var(--light-1), 6px 17px 0 var(--light-1), 12px 0 0 var(--light-2), 12px 17px 0 var(--light-2);
+    }
+  
+    55%,
+    65% {
+      box-shadow: inset 0 0 0 2px var(--light-2), 0 17px 0 var(--light-2), 6px 0 0 var(--light-2), 6px 17px 0 var(--light-2), 12px 0 0 var(--light-1), 12px 17px 0 var(--light-1);
+    }
+  
+    90%,
+    100% {
+      box-shadow: inset 0 0 0 2px var(--light-1), 0 17px 0 var(--light-1), 6px 0 0 var(--light-2), 6px 17px 0 var(--light-2), 12px 0 0 var(--light-2), 12px 17px 0 var(--light-2);
+    }
+  }
+  
+  @keyframes clouds2 {
+    97% {
+      transform: translateX(-58px);
+      visibility: visible;
+    }
+  
+    98%,
+    100% {
+      visibility: hidden;
+    }
+  
+    99% {
+      transform: translateX(-58px);
+    }
+  
+    100% {
+      transform: translateX(0);
+    }
+  }
+  

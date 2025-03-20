@@ -1,0 +1,55 @@
+/* src/components/Auth/SignUp.css */
+.container__form.container--signup {
+  left: 0;
+  opacity: 0;
+  width: 50%;
+  z-index: 1;
+}
+
+.container.right-panel-active .container--signup {
+  animation: show 1s;
+  opacity: 1;
+  transform: translateX(100%);
+  z-index: 5;
+  transition: 1s;
+}
+
+@keyframes show {
+  0%,
+  49.99% {
+    opacity: 0;
+    z-index: 1;
+  }
+  50%,
+  100% {
+    opacity: 1;
+    z-index: 5;
+  }
+}
+select ,input  {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='gray'><path d='M7 10l5 5 5-5H7z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+  cursor: pointer;
+  width: 260px;
+  height: 75px;
+  padding: 8px 35px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  white-space: normal !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  display: block;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  margin-top: 5px;
+
+}
+

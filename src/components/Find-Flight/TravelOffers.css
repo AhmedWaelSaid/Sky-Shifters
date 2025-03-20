@@ -1,18 +1,15 @@
-/* src/components/TravelOffers.css */
 .travel-offers {
   background: #ffffff;
   padding: 2rem;
-  margin: 2rem auto;
-  width: fit-content;
+  margin: 2rem auto 0;
+  width: 100%;
   margin-top: 150px;
-  margin-bottom: 0;
+  
 }
 
 .offers-section {
-  margin-bottom: 4rem;
   border-radius: 8px;
   overflow: hidden;
-  margin-bottom: 0;
 }
 
 .offers-header {
@@ -20,11 +17,14 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
+ 
 }
 
 .offers-header-text {
   display: flex;
   flex-direction: column;
+  margin-left: 210px;
+ 
 }
 
 .offers-header h2 {
@@ -32,7 +32,6 @@
   font-weight: 600;
   line-height: 52px;
   color: #333;
-  margin-left: 210px;
   margin-bottom: 0;
 }
 
@@ -40,7 +39,7 @@
   font-size: 20px;
   font-weight: 400;
   color: #666;
-  margin-left: 210px;
+  margin-bottom: 0;
 }
 
 .see-all-btn {
@@ -53,7 +52,6 @@
   border-radius: 8px;
   cursor: pointer;
   font-size: 20px;
-  line-height: 24px;
   font-weight: 300;
   font-family: "Inter", sans-serif;
   margin-right: 200px;
@@ -65,36 +63,25 @@
 }
 
 .map-container {
-  margin-bottom: 2rem;
-  margin-top: 60px;
+  margin: 60px auto 2rem;
   text-align: center;
+  border-radius: 20px;
+}
+.Mapframe{
+  border-radius: 20px;
 }
 
-.map-image {
-  width: 1440px;
+/* .map-image {
+  width: 100%;
+  max-width: 1440px;
   height: 353px;
-}
+} */
 
 .offers-flex {
   display: flex;
   gap: 1rem;
-  flex-wrap: wrap; /* للسماح بكسر الصفوف على الشاشات الصغيرة */
-  justify-content: center; /* ركز العناصر أفقيًا */
-}
-
-
-
-.london-flex {
-  /* لـ London Adventure (4 بطاقات) */
-  flex-direction: row; /* بطاقات في صف واحد */
   flex-wrap: wrap;
-}
-
-.bangladesh-flex {
-  /* لـ Backpacking Bangladesh */
-  flex-direction: row; /* بطاقة Bangladesh و الصور في صف واحد */
-  flex-wrap: wrap;
-  align-items: flex-start; /* ركز العناصر من أعلى */
+  justify-content: center;
 }
 
 .offer-card {
@@ -103,20 +90,20 @@
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  
-  width: 600px; /* عرض أقصى لكل بطاقة */
+  width: 600px;
+  margin-bottom: 20px;
+ 
 }
 
 .offer-image {
   width: 298px;
-  height: 179px  ;
+  height: 179px;
   object-fit: cover;
   border-radius: 16px;
 }
 
 .offer-details {
   padding: 1rem;
-  
 }
 
 .offer-details h3 {
@@ -125,89 +112,195 @@
   margin-bottom: 0.5rem;
 }
 
+.offer-details span {
+  padding: 10px;
+  display: block;
+  font-weight: 500;
+}
+
+.offer-duration {
+  font-size: 14px;
+  opacity: 90%;
+}
+
 .offer-details p {
-  font-size: 1rem;
-  color: #666;
+  font-size: 1rem ;
   margin-bottom: 0.5rem;
 }
 
+
 .offer-price {
   font-size: 1.2rem;
-  color: #2563eb;
+  color: #0085FF;
   font-weight: bold;
   display: block;
   margin-left: 200px;
 }
-
-.book-btn {
-  background-color: #2563eb;
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  width: 100%;
+.more-offers{
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 50px;
 }
+.more-offers-card{
+  position: relative;
+  width: 300px; /* أو أي عرض تريده */
+  height: 380px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  
+}
+
+.more-offers-image{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-size: cover;
+}
+.moreoffers-details{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  color: white;
+  padding: 10px;  
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  
+}
+.moreoffers-details h3 {
+  font-size: 21px;
+}
+
+.moreoffers-details p {
+  
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.moreoffers-details span{
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: bold;
+  position: absolute;
+  bottom: 80px;
+  right: 15px;
+  font-family: 'Inter', sans-serif;
+}
+.book-btn {
+  
+  background-color: #0085FF;
+  padding: 8px;
+  height: 50px;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  
+  
+}
+
+
 
 .book-btn:hover {
   background-color: #1e40af;
 }
 
-.london-card {
-  height: 100%;
+.hot-offers{
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+  column-gap: 80px;
+
 }
 
-.bangladesh-card {
-  background: #4a90e2;
+.AD-card {
+  position: relative;
+  background-color: #023D4C;
   color: white;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%;
-  flex: 1 1 600px; /* عرض أكبر لـ Bangladesh */
-  max-width: 600px;
+  width: 700px;
+  height: 425px;
+  border-radius: 20px;
+  
+}
+.AD-Dbtn{
+  position: absolute;
+  margin-bottom: 10px;
+  height: fit-content;
+  margin-top: 20px;
+  width: fit-content;
+  top: 85%;
+  left: 50%;
+  transform: translate(-50% ,-50%);
+    
+}
+.AD-btn{
+  background-color: #0085FF;
+  padding: 8px;
+  height: 50px;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  width: 500px;
+  font-family: 'Inter', sans-serif;
 }
 
-.bangladesh-content {
-  text-align: center;
-}
 
 .bangladesh-content h3 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 45px;
+}
+.bangladesh-content.AD-disc {
+  font-size: 30px;
+  font-weight: bold;
+  
 }
 
-.bangladesh-content p {
-  font-size: 1rem;
-  margin-bottom: 1rem;
-  opacity: 0.9;
+
+.AD-price {
+  background-color: #0A6D86; 
+  color: white;
+  padding: 15px;
+  border-radius: 5px;
+  font-size: 20px;
+  position: absolute;
+  top: 1px;
+  right: 10px;
 }
 
-.bangladesh-images {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+.offers-images {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 30px;
 }
 
 .bangladesh-image {
-  width: 100%;
-  height: 100px;
   object-fit: cover;
-  border-radius: 4px;
-  flex: 1 1 100px; /* عرض 100px لكل صورة مع مرونة */
-  max-width: 100px;
+  border-radius: 20px;
+  width: 350px;
+  height: 200px;
 }
 
-/* Media Queries للـ Responsive Design */
+/* Media Queries */
 @media (max-width: 1024px) {
   .offers-flex {
     gap: 0.8rem;
   }
 
   .offer-card {
-    display: flex;
     max-width: 250px;
   }
 
@@ -222,19 +315,16 @@
     height: 80px;
   }
 
-  .map-image {
-    width: 100%;
-    height: 250px;
+  .offers-header-text {
+    margin-left: 150px;
   }
 
   .offers-header h2 {
     font-size: 32px;
-    margin-left: 150px;
   }
 
   .offers-header p {
     font-size: 16px;
-    margin-left: 150px;
   }
 
   .see-all-btn {
@@ -253,21 +343,12 @@
     margin-top: 100px;
   }
 
-  .offers-section {
-    margin-bottom: 3rem;
-  }
-
   .offers-flex {
-    gap: 0.6rem;
-    flex-direction: column; /* بطاقات في عمود واحد على الهواتف */
+    flex-direction: column;
     align-items: center;
   }
 
-  .offer-card {
-    flex: 1 1 100%;
-    max-width: 100%;
-  }
-
+  .offer-card,
   .bangladesh-card {
     flex: 1 1 100%;
     max-width: 100%;
@@ -284,29 +365,8 @@
     height: 60px;
   }
 
-  .map-image {
-    width: 100%;
-    height: 200px;
-  }
+  
 
-  .offers-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .offers-header-text {
-    margin-left: 0;
-    margin-bottom: 1rem;
-  }
-
-  .offers-header h2 {
-    font-size: 24px;
-    margin-bottom: 0.5rem;
-  }
-
-  .offers-header p {
-    font-size: 14px;
-  }
 
   .see-all-btn {
     width: 90px;

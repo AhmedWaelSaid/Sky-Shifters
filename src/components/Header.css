@@ -1,12 +1,16 @@
 
 .header {
   background-color: #ffffff;
-  padding: 1rem;
+  padding-top: 16px;
+  padding-bottom: 5px;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: 10px; /* حواف دائرية */
+ 
+  position: fixed;
+  z-index: 20;
+  border-bottom: 1px solid rgba(2, 75, 97, 0.226);
 }
 
 .logo {
@@ -33,11 +37,13 @@
 }
 .login {
   color:#0085FF;
+  text-decoration: none;
 }
 .sign-up {
   background: #0085FF;
   color: white;
   padding: 8px 24px 8px 24px;
   border-radius: 40px;
+  text-decoration: none;
 }
 

@@ -1,22 +1,40 @@
 import './Header.css';
-import Logo from "./logo"; // لاحظ أن الاسم يتطابق مع اسم الملف
-import Navigation from './Navigation';
-
+import Logo from "./logo";
+import Navigation from './Find-Flight/Navigation';
+import { Link } from 'react-router-dom';
+import UserProfile from './UserProfile/UserProfile';
+import { useAuth } from './context/AuthContext';
+import SidebarMenu from './UserProfile/SidebarMenu';
 
 export default function Header() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <header className="header">
       <div className="logo">
-       <Logo/>
+        <Link to="/" className="logo-link" aria-label="Go to Home Page">
+          <Logo />
+        </Link>
       </div>
-
-      <div className="Finds">
-       <Navigation/>
+      <div className="finds">
+        <Navigation />
       </div>
-
       <div className="signs">
-        <a href="#" className="nav-link login">Login</a>
-        <a href="#" className="nav-link sign-up">Sign Up</a>
+        {isAuthenticated ? (
+          <>
+            <UserProfile />
+            <SidebarMenu />
+          </>
+        ) : (
+          <>
+            <Link to="/auth" className="login" aria-label="Go to Login Page">
+              Login
+            </Link>
+            <Link to="/auth?panel=signup" className="sign-up" aria-label="Go to Sign Up Page">
+              Sign Up
+            </Link>
+          </>
+        )}
       </div>
     </header>
   );
