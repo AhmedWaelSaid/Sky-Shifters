@@ -13,8 +13,9 @@ const countryOptions = Object.entries(countries.getNames('en', { select: 'offici
   label: name,
 }));
 
+// دالة التسجيل باستخدام المتغير VITE_API_URL
 const registerUser = async ({ firstName, lastName, email, password, phoneNumber, country, birthdate }) => {
-  const response = await fetch('http://13.81.120.153/users/register', {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/users/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ firstName, lastName, email, password, phoneNumber, country, birthdate }),
@@ -28,9 +29,9 @@ const registerUser = async ({ firstName, lastName, email, password, phoneNumber,
   return response.json();
 };
 
-// دالة لإعادة إرسال رابط التحقق
+// دالة لإعادة إرسال رابط التحقق باستخدام المتغير VITE_API_URL
 const resendVerificationEmail = async (email) => {
-  const response = await fetch('http://13.81.120.153/users/resend-verification', {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/users/resend-verification`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
