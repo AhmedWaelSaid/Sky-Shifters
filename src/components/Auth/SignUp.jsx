@@ -14,7 +14,7 @@ const countryOptions = Object.entries(countries.getNames('en', { select: 'offici
 }));
 
 const registerUser = async ({ firstName, lastName, email, password, phoneNumber, country, birthdate }) => {
-  const response = await fetch('https://13.81.120.153/users/register', {
+  const response = await fetch('http://13.81.120.153/users/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ firstName, lastName, email, password, phoneNumber, country, birthdate }),
