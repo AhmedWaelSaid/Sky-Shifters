@@ -15,6 +15,9 @@ const countryOptions = Object.entries(countries.getNames('en', { select: 'offici
 
 // دالة التسجيل باستخدام المتغير VITE_API_URL
 const registerUser = async ({ firstName, lastName, email, password, phoneNumber, country, birthdate }) => {
+  console.log('Sending request to:', `${import.meta.env.VITE_API_URL}/users/register`);
+  console.log('Payload:', { firstName, lastName, email, password, phoneNumber, country, birthdate });
+
   const response = await fetch(`${import.meta.env.VITE_API_URL}/users/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -23,14 +26,20 @@ const registerUser = async ({ firstName, lastName, email, password, phoneNumber,
 
   if (!response.ok) {
     const errorData = await response.json();
+    console.error('Error response from server:', errorData);
     throw new Error(errorData.message || 'Registration failed');
   }
 
-  return response.json();
+  const data = await response.json();
+  console.log('Success response from server:', data);
+  return data;
 };
 
 // دالة لإعادة إرسال رابط التحقق باستخدام المتغير VITE_API_URL
 const resendVerificationEmail = async (email) => {
+  console.log('Sending resend verification request to:', `${import.meta.env.VITE_API_URL}/users/resend-verification`);
+  console.log('Payload:', { email });
+
   const response = await fetch(`${import.meta.env.VITE_API_URL}/users/resend-verification`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -39,10 +48,13 @@ const resendVerificationEmail = async (email) => {
 
   if (!response.ok) {
     const errorData = await response.json();
+    console.error('Error response from server:', errorData);
     throw new Error(errorData.message || 'Failed to resend verification email');
   }
 
-  return response.json();
+  const data = await response.json();
+  console.log('Success response from server:', data);
+  return data;
 };
 
 const SignUp = memo(function SignUp({ onToggle, onLogin }) {
@@ -68,7 +80,6 @@ const SignUp = memo(function SignUp({ onToggle, onLogin }) {
           name: data.user?.firstName || firstName,
           email: data.user?.email || email,
           avatar: data.user?.avatar || 'https://via.placeholder.com/40',
-          suspended: data.user?.suspended || false,
           country: country ? country.label : '',
           birthdate,
         };
@@ -77,7 +88,7 @@ const SignUp = memo(function SignUp({ onToggle, onLogin }) {
       }
     },
     onError: (error) => {
-      console.error('Error:', error);
+      console.error('Mutation error:', error);
     },
   });
 
