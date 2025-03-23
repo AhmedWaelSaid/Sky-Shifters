@@ -5,7 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 
 const loginUser = async ({ email, password }) => {
-  const response = await fetch('http://13.81.120.153/users/login', {
+  console.log('Sending request to:', `${import.meta.env.VITE_API_URL}/users/login`);
+  console.log('Payload:', { email, password });
+
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/users/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
@@ -13,15 +16,21 @@ const loginUser = async ({ email, password }) => {
 
   if (!response.ok) {
     const errorData = await response.json();
+    console.error('Error response from server:', errorData);
     throw new Error(errorData.message || 'Login failed');
   }
 
-  return response.json();
+  const data = await response.json();
+  console.log('Success response from server:', data);
+  return data;
 };
 
 // دالة لإعادة إرسال رابط التحقق
 const resendVerificationEmail = async (email) => {
-  const response = await fetch('http://13.81.120.153/users/resend-verification', {
+  console.log('Sending resend verification request to:', `${import.meta.env.VITE_API_URL}/users/resend-verification`);
+  console.log('Payload:', { email });
+
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/users/resend-verification`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
@@ -29,10 +38,13 @@ const resendVerificationEmail = async (email) => {
 
   if (!response.ok) {
     const errorData = await response.json();
+    console.error('Error response from server:', errorData);
     throw new Error(errorData.message || 'Failed to resend verification email');
   }
 
-  return response.json();
+  const data = await response.json();
+  console.log('Success response from server:', data);
+  return data;
 };
 
 const SignIn = memo(function SignIn({ onToggle, onLogin }) {
@@ -59,7 +71,7 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
       navigate('/');
     },
     onError: (error) => {
-      console.error('Error:', error);
+      console.error('Mutation error:', error);
       if (error.message.includes('verify your email')) {
         setEmailNotVerified(true);
       }
