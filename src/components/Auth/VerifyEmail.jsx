@@ -34,7 +34,7 @@ const VerifyEmail = () => {
   const { mutate: verifyMutate, isPending } = useMutation({
     mutationFn: verifyEmail,
     onSuccess: () => {
-      navigate('/authpanel-signin');
+      navigate('/auth');
     },
     onError: (error) => {
       if (error.message.includes('Failed to fetch')) {
