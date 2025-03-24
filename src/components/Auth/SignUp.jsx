@@ -35,7 +35,7 @@ const registerUser = async ({ firstName, lastName, email, password, phoneNumber,
   return data;
 };
 
-const SignUp = memo(function SignUp({ onToggle, onLogin }) {
+const SignUp = memo(function SignUp({ onToggle }) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -49,26 +49,11 @@ const SignUp = memo(function SignUp({ onToggle, onLogin }) {
 
   const { mutate: registerMutate, isPending: isRegisterPending, error: registerError } = useMutation({
     mutationFn: registerUser,
-    onSuccess: (data) => {
-      if (data.message && data.message.includes('verify your email')) {
-        setResendMessage('A verification code has been sent to your email. Redirecting to verify...');
-        setTimeout(() => {
-          navigate('/verify-email', { state: { email } });
-        }, 2000); // إعادة توجيه بعد 2 ثانية
-      } else {
-        const userData = {
-          firstName: data.user?.firstName || firstName,
-          lastName: data.user?.lastName || lastName,
-          name: `${data.user?.firstName || firstName} ${data.user?.lastName || lastName}`.trim(),
-          email: data.user?.email || email,
-          phoneNumber: data.user?.phoneNumber || phoneNumber,
-          country: data.user?.country || (country ? country.label : ''),
-          birthdate: data.user?.birthdate || birthdate,
-          token: data.token || '',
-        };
-        onLogin(userData);
-        navigate('/');
-      }
+    onSuccess: (_) => {
+      setResendMessage('A verification code has been sent to your email. Redirecting to verify...');
+      setTimeout(() => {
+        navigate('/verify-email', { state: { email } });
+      }, 2000);
     },
     onError: (error) => {
       console.error('Mutation error:', error);
@@ -173,7 +158,6 @@ const SignUp = memo(function SignUp({ onToggle, onLogin }) {
 
 SignUp.propTypes = {
   onToggle: PropTypes.func.isRequired,
-  onLogin: PropTypes.func.isRequired,
 };
 
 export default SignUp;
