@@ -35,28 +35,6 @@ const registerUser = async ({ firstName, lastName, email, password, phoneNumber,
   return data;
 };
 
-// دالة لإعادة إرسال رابط التحقق باستخدام المتغير VITE_API_URL
-const resendVerificationEmail = async (email) => {
-  console.log('Sending resend verification request to:', `${import.meta.env.VITE_API_URL}/users/resend-verification`);
-  console.log('Payload:', { email });
-
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/users/resend-verification`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    console.error('Error response from server:', errorData);
-    throw new Error(errorData.message || 'Failed to resend verification email');
-  }
-
-  const data = await response.json();
-  console.log('Success response from server:', data);
-  return data;
-};
-
 const SignUp = memo(function SignUp({ onToggle, onLogin }) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -65,7 +43,6 @@ const SignUp = memo(function SignUp({ onToggle, onLogin }) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [country, setCountry] = useState(null);
   const [birthdate, setBirthdate] = useState('');
-  const [isEmailVerificationRequired, setIsEmailVerificationRequired] = useState(false);
   const [resendMessage, setResendMessage] = useState('');
 
   const navigate = useNavigate();
@@ -74,14 +51,20 @@ const SignUp = memo(function SignUp({ onToggle, onLogin }) {
     mutationFn: registerUser,
     onSuccess: (data) => {
       if (data.message && data.message.includes('verify your email')) {
-        setIsEmailVerificationRequired(true);
+        setResendMessage('A verification code has been sent to your email. Redirecting to verify...');
+        setTimeout(() => {
+          navigate('/verify-email', { state: { email } });
+        }, 2000); // إعادة توجيه بعد 2 ثانية
       } else {
         const userData = {
-          name: data.user?.firstName || firstName,
+          firstName: data.user?.firstName || firstName,
+          lastName: data.user?.lastName || lastName,
+          name: `${data.user?.firstName || firstName} ${data.user?.lastName || lastName}`.trim(),
           email: data.user?.email || email,
-          avatar: data.user?.avatar || 'https://via.placeholder.com/40',
-          country: country ? country.label : '',
-          birthdate,
+          phoneNumber: data.user?.phoneNumber || phoneNumber,
+          country: data.user?.country || (country ? country.label : ''),
+          birthdate: data.user?.birthdate || birthdate,
+          token: data.token || '',
         };
         onLogin(userData);
         navigate('/');
@@ -89,16 +72,6 @@ const SignUp = memo(function SignUp({ onToggle, onLogin }) {
     },
     onError: (error) => {
       console.error('Mutation error:', error);
-    },
-  });
-
-  const { mutate: resendMutate, isPending: isResendPending } = useMutation({
-    mutationFn: resendVerificationEmail,
-    onSuccess: (data) => {
-      setResendMessage(data.message || 'Verification email resent successfully! Please check your inbox.');
-    },
-    onError: (error) => {
-      setResendMessage(`Error: ${error.message}`);
     },
   });
 
@@ -115,32 +88,6 @@ const SignUp = memo(function SignUp({ onToggle, onLogin }) {
       birthdate,
     });
   };
-
-  const handleResendEmail = () => {
-    setResendMessage('');
-    resendMutate(email);
-  };
-
-  if (isEmailVerificationRequired) {
-    return (
-      <div className="container__form container--signup">
-        <div className="form">
-          <h2 className="form__title">Verify Your Email</h2>
-          <p>
-            We have sent a verification link to <strong>{email}</strong>. Please check your email (including the spam/junk folder) and click the link to activate your account.
-          </p>
-          <button onClick={handleResendEmail} className="btn" disabled={isResendPending}>
-            {isResendPending ? 'Resending...' : 'Resend Verification Email'}
-          </button>
-          {resendMessage && <p className={resendMessage.includes('Error') ? 'error' : 'success'}>{resendMessage}</p>}
-          <p>
-            Already verified?{' '}
-            <a href="#" onClick={(e) => { e.preventDefault(); onToggle(); }}>Sign In</a>
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="container__form container--signup">
@@ -211,6 +158,7 @@ const SignUp = memo(function SignUp({ onToggle, onLogin }) {
           required
         />
         {registerError && <p className="error">{registerError.message}</p>}
+        {resendMessage && <p className={resendMessage.includes('Error') ? 'error' : 'success'}>{resendMessage}</p>}
         <button type="submit" className="btn" disabled={isRegisterPending}>
           {isRegisterPending ? 'Loading...' : 'Sign Up'}
         </button>

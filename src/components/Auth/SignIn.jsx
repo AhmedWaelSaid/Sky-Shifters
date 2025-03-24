@@ -25,32 +25,9 @@ const loginUser = async ({ email, password }) => {
   return data;
 };
 
-// دالة لإعادة إرسال رابط التحقق
-const resendVerificationEmail = async (email) => {
-  console.log('Sending resend verification request to:', `${import.meta.env.VITE_API_URL}/users/resend-verification`);
-  console.log('Payload:', { email });
-
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/users/resend-verification`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    console.error('Error response from server:', errorData);
-    throw new Error(errorData.message || 'Failed to resend verification email');
-  }
-
-  const data = await response.json();
-  console.log('Success response from server:', data);
-  return data;
-};
-
 const SignIn = memo(function SignIn({ onToggle, onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [emailNotVerified, setEmailNotVerified] = useState(false);
   const [resendMessage, setResendMessage] = useState('');
   const navigate = useNavigate();
 
@@ -58,14 +35,14 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
     mutationFn: loginUser,
     onSuccess: (data) => {
       const userData = {
-        firstName: data.user?.firstName || '', // نستخدم firstName من الـ API
-        lastName: data.user?.lastName || '',   // نستخدم lastName من الـ API
-        name: `${data.user?.firstName || ''} ${data.user?.lastName || ''}`.trim() || email.split('@')[0], // ندمج firstName و lastName في name
-        email: data.user?.email || email,      // نستخدم email من الـ API
-        phoneNumber: data.user?.phoneNumber || '', // نضيف phoneNumber
-        country: data.user?.country || '',     // نضيف country
-        birthdate: data.user?.birthdate || '', // نضيف birthdate
-        token: data.token || '',               // نضيف token لو بتستخدمه للـ Authentication
+        firstName: data.user?.firstName || '',
+        lastName: data.user?.lastName || '',
+        name: `${data.user?.firstName || ''} ${data.user?.lastName || ''}`.trim() || email.split('@')[0],
+        email: data.user?.email || email,
+        phoneNumber: data.user?.phoneNumber || '',
+        country: data.user?.country || '',
+        birthdate: data.user?.birthdate || '',
+        token: data.token || '',
       };
       onLogin(userData);
       navigate('/');
@@ -73,52 +50,19 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
     onError: (error) => {
       console.error('Mutation error:', error);
       if (error.message.includes('verify your email')) {
-        setEmailNotVerified(true);
+        setResendMessage('Your email is not verified. Redirecting to verify...');
+        setTimeout(() => {
+          navigate('/verify-email', { state: { email } });
+        }, 2000); // إعادة توجيه بعد 2 ثانية
       }
-    },
-  });
-
-  const { mutate: resendMutate, isPending: isResendPending } = useMutation({
-    mutationFn: resendVerificationEmail,
-    onSuccess: (data) => {
-      setResendMessage(data.message || 'Verification email resent successfully! Please check your inbox.');
-    },
-    onError: (error) => {
-      setResendMessage(`Error: ${error.message}`);
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setEmailNotVerified(false);
     setResendMessage('');
     loginMutate({ email, password });
   };
-
-  const handleResendEmail = () => {
-    setResendMessage('');
-    resendMutate(email);
-  };
-
-  if (emailNotVerified) {
-    return (
-      <div className="container__form container--signin">
-        <div className="form">
-          <h2 className="form__title">Verify Your Email</h2>
-          <p>
-            Your email <strong>{email}</strong> is not verified. Please check your email (including the spam/junk folder) for a verification link to activate your account.
-          </p>
-          <button onClick={handleResendEmail} className="btn" disabled={isResendPending}>
-            {isResendPending ? 'Resending...' : 'Resend Verification Email'}
-          </button>
-          {resendMessage && <p className={resendMessage.includes('Error') ? 'error' : 'success'}>{resendMessage}</p>}
-          <p>
-            <a href="#" onClick={(e) => { e.preventDefault(); onToggle(); }}>Back to Sign Up</a>
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="container__form container--signin">
@@ -142,7 +86,8 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        {loginError && <p className="error">{loginError.message}</p>}
+        {loginError && !resendMessage && <p className="error">{loginError.message}</p>}
+        {resendMessage && <p className={resendMessage.includes('Error') ? 'error' : 'success'}>{resendMessage}</p>}
         <a href="/forgot-password" className="link">
           Forgot your password?
         </a>
