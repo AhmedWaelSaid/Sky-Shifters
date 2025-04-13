@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
 import { useAuth } from '../context/AuthContext'; // Import useAuth
+import signphoto from '../../assets/pexels-pixabay-38238.jpg'
 
 const Auth = memo(function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -26,6 +27,7 @@ const Auth = memo(function Auth() {
 
   return (
     <section className='sign-sec'>
+    <img src={signphoto} alt="" className='signphoto' />
       <div className={`container ${isSignUp ? 'right-panel-active' : ''}`}>
         <SignUp onToggle={handleToggle} onLogin={login} />
         <SignIn onToggle={handleToggle} onLogin={login} />

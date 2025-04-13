@@ -1,8 +1,10 @@
+// src/components/SignIn.jsx
 import './SignIn.css';
 import { useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
+import { FaEnvelope, FaLock } from 'react-icons/fa'; // استيراد الأيقونات
 
 const loginUser = async ({ email, password }) => {
   console.log('Sending request to:', `${import.meta.env.VITE_API_URL}/users/login`);
@@ -68,24 +70,32 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
     <div className="container__form container--signin">
       <form className="form" onSubmit={handleSubmit}>
         <h2 className="form__title">Sign In</h2>
-        <input
-          type="email"
-          id="signinEmail"
-          placeholder="Email"
-          className="input"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          id="signinPassword"
-          placeholder="Password"
-          className="input"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+        {/* Email */}
+        <div className="input-container">
+          <FaEnvelope className="input-icon" />
+          <input
+            type="email"
+            id="signinEmail"
+            placeholder="Email"
+            className="input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        {/* Password */}
+        <div className="input-container">
+          <FaLock className="input-icon" />
+          <input
+            type="password"
+            id="signinPassword"
+            placeholder="Password"
+            className="input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
         {loginError && !resendMessage && <p className="error">{loginError.message}</p>}
         {resendMessage && <p className={resendMessage.includes('Error') ? 'error' : 'success'}>{resendMessage}</p>}
         <a href="/forgot-password" className="link">
@@ -96,7 +106,9 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
         </button>
         <p className="auth-link">
           Don’t have an account?{' '}
-          <a href="#" onClick={(e) => { e.preventDefault(); onToggle(); }}>Sign Up</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); onToggle(); }}>
+            Sign Up
+          </a>
         </p>
       </form>
     </div>

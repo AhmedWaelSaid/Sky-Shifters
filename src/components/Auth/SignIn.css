@@ -1,11 +1,11 @@
 /* src/components/Auth/SignIn.css */
 .container__form.container--signin {
   left: 0;
-  width: 50%;
-  z-index: 2;
-  transition: .8s;
+	width: 50%;
+	z-index: 2;
   
 }
+
 
 .container.right-panel-active .container--signin {
   transform: translateX(100%);
@@ -15,4 +15,5 @@
 text-decoration: none;
 color: #0088c7;
 
-}
+} 
+
