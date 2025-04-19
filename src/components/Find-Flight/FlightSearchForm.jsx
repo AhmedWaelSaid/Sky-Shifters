@@ -1,8 +1,10 @@
-// src/components/FlightSearchForm.jsx
 import { FaPlaneDeparture, FaPlaneArrival, FaCalendarAlt, FaUser } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom'; // استيراد useNavigate
 import styles from './FlightSearchForm.module.css';
 
 export default function FlightSearchForm() {
+  const navigate = useNavigate(); // استخدام useNavigate للتنقل
+
   return (
     <>
       <div className={styles.flyFormContainer}>
@@ -50,7 +52,13 @@ export default function FlightSearchForm() {
           </div>
         </form>
         <div className={styles.showFlights}>
-          <button className={styles.flights} type="submit">Show Flights</button>
+          <button
+            className={styles.flights}
+            type="submit"
+            onClick={() => navigate('/selected-flights')} // التنقل لصفحة /selected-flights
+          >
+            Show Flights
+          </button>
         </div>
       </div>
     </>
