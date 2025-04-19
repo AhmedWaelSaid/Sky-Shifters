@@ -5,7 +5,7 @@ import { FaHeart, FaCreditCard, FaLock, FaCog, FaQuestionCircle, FaInfoCircle, F
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import HamburgerMenu from './HamburgerMenu';
-import planeIcon from '../../assets/user.png';
+import planeIcon from '../../assets/images.png';
 
 export default function SidebarMenu() {
   const [isOpen, setIsOpen] = useState(false);
