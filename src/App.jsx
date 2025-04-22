@@ -6,7 +6,7 @@ import { ThemeProvider } from './components/context/ThemeContext';
 import { MenuProvider } from './components/context/menuContext';
 import ResetPassword from './components/Auth/ResetPassword';
 import ForgotPassword from './components/Auth/ForgotPassword';
-import VerifyEmail from './components/Auth/VerifyEmail'; // استيراد VerifyEmail
+import VerifyEmail from './components/Auth/VerifyEmail'; 
 import MobileBlocker from './services/MobileBlocker/MobileBlocker'
 
 
@@ -35,7 +35,7 @@ export default function App() {
   if (isMobile) return <MobileBlocker />;
 
   return (
-    <div className="app">
+    <div className="app" id='light'>
       <ThemeProvider>
         <MenuProvider>
           <Header />
@@ -46,7 +46,7 @@ export default function App() {
               <Route path="/UserProfile" element={<UserProfile />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/verify-email" element={<VerifyEmail />} /> {/* إضافة المسار */}
+              <Route path="/verify-email" element={<VerifyEmail />} /> 
             </Routes>
           </Suspense>
           <Footer />

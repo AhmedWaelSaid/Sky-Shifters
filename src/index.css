@@ -2,17 +2,20 @@ body {
   margin: 0;
   padding: 0;
   font-size: 16px;
-  background-color: #f8f9fa;
-  color: #333;
+  background-color:var(--bg-color);
+  color: #000000;
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
   height: 100vh;
+  
+
 }
 
 * {
   box-sizing: border-box;
+  transition: background-color .5s ease, color .5s ease;
 }
 
 html {
@@ -21,40 +24,33 @@ html {
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  
-  
-
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
+  --Btnbg-color: #0085FF;
+  --AuthBtn-color : #1a9ff1
+  --DarkyellowText-color: black;
+  --whiteyellowText-color: rgb(255, 255, 255);
+  --LightDarktext-color:  #333;
+  --LightText-color: white;
+  --DarkText-color: rgb(0, 0, 0);
+  --bg-color: white;
+    font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* src/index.css أو src/components/UserProfile.css */
 
-/* Light Mode (الافتراضي) */
-body.light {
-  background-color: #f5f5f5;
-  color: #000;
-}
-
-/* Dark Mode */
 body.dark {
-  background-color: #1a1a1a;
-  color: #fff;
+  --AuthBtn-color : #fbd684 ;
+  --bg-color: #222127;     
+  --DarkyellowText-color: #fbd684;        
+  --whiteyellowText-color :  #fbd684 ; 
+  --Btnbg-color:#fbd684;            
+  --Darktext-color: #ffffff;    
+  --LightDarktext-color: #a0a0a0;  
+  --LightText-color: #000000;       
 }
 
-/* تنسيق الأيقونات في الـ Dark Mode */
-body.dark .svgIcon path {
-  fill: white; /* غير لون الأيقونات للأبيض في الـ Dark Mode */
-}
 
-/* تنسيق الـ navigation-card في الـ Dark Mode */
-body.dark .navigation-card {
-  background-color: #2a2a2a;
-}
 

@@ -1,125 +1,3 @@
-/* 
-
-.FlyFormContainer{
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-
-.flight-search-form {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #ffffff;
-  padding: 2rem;
-  border-radius: 8px;
-  
-  max-width: fit-content;
-  
-  position: relative;
-  
-  gap: 10px;
-}
-
-.form-title {
-  
-  font-size: 27px;
-  font-weight: 700;
-  margin-left: 30px;
-  
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.input-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.icon-form {
-  position: absolute;
-  left: 10px;
-  font-size: 20px;
-  color: #007bff;
-}
-
-
-select ,input{
-  -webkit-appearance: none;
-  appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='gray'><path d='M7 10l5 5 5-5H7z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 20px;
-  cursor: pointer;
-  width: 260px;
-  height: 75px;
-  padding: 8px 35px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-  white-space: normal !important;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  display: block;
-  color: #000000;
-  font-size: 14px;
-  font-weight: 500;
-  background-color: #ffffff;
-  font-family: 'Inter', sans-serif;
-  margin-top: 5px;
-
-}
-
-
-input[type="date"]::-webkit-calendar-picker-indicator {
-    display: block;
-    position: absolute;
-    right: 10px;
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-  
-    
-}
-
-
-.show-flights{
-  display: flex;
-  justify-content: center;
-}
-
-
-  .Flights {
-  background-color:#0085FF;
-  width: 169px;
-  height: 56px;
-  color: white;
-  padding: 16px 24px 16px 24px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 20px;
-  line-height: 24px;
-  font-weight: 300;
-  font-family: 'Inter', sans-serif;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
- */
-
- /* src/components/FlightSearchForm.module.css */
 
 /* src/components/FlightSearchForm.module.css */
 
@@ -127,7 +5,7 @@ button:hover {
   position: absolute;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: white;
+  background-color:var(--bg-color);
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
@@ -137,7 +15,7 @@ button:hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #ffffff;
+  background-color:var(--bg-color);
   padding: 2rem;
   border-radius: 8px;
   max-width: fit-content;
@@ -149,6 +27,7 @@ button:hover {
   font-size: 27px;
   font-weight: 700;
   margin-left: 30px;
+  color: var(--Darktext-color);
 }
 
 .formGroup {
@@ -159,7 +38,7 @@ button:hover {
 .formGroup label {
   font-size: 14px;
   font-weight: 500;
-  color: #333;
+  color: var(--LightDarktext-color);
 }
 
 .inputContainer {
@@ -172,7 +51,7 @@ button:hover {
   position: absolute;
   left: 10px;
   font-size: 20px;
-  color: #007bff;
+  color: var(--Btnbg-color);
 }
 
 .baseInput {
@@ -186,10 +65,10 @@ button:hover {
   word-wrap: break-word;
   overflow-wrap: break-word;
   display: block;
-  color: #000000;
+  color: var(--Darktext-color);
   font-size: 14px;
   font-weight: 500;
-  background-color: #ffffff;
+  background-color:var(--bg-color);
   font-family: 'Inter', sans-serif;
   margin-top: 5px;
 }
@@ -224,13 +103,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .showFlights {
   display: flex;
   justify-content: center;
+  
 }
 
 .flights {
-  background-color: #0085FF;
+  background-color: var(--Btnbg-color);
   width: 169px;
   height: 56px;
-  color: white;
+  color: var(--LightText-color);
   padding: 16px 24px;
   border: none;
   border-radius: 8px;

@@ -3,6 +3,11 @@ import newYorkImg from "../../assets/new-york.jpg";
 import losAngelesImg from "../../assets/los-angeles.jpg";
 import bangladesh2 from "../../assets/Image frame (2).png";
 import bangladesh3 from "../../assets/Image frame (3).png";
+import { useEffect, useRef } from "react";
+import mapboxgl from "mapbox-gl";
+import 'mapbox-gl/dist/mapbox-gl.css';
+
+mapboxgl.accessToken = "pk.eyJ1IjoiYWhtZWR3YWVsMzE1IiwiYSI6ImNtOXNzcGg5ZjA0cjEyaXNkOHdwdzRramcifQ.HYZyW_BX-tqJa-qcntCbUw"; 
 
 const offersData = [
   {
@@ -33,6 +38,26 @@ const londonOffers = Array.from({ length: 4 }, (_, index) => ({
 const bangladeshImages = [bangladesh3, bangladesh2, bangladesh3, bangladesh3];
 
 export default function TravelOffers() {
+  const mapContainer = useRef(null);
+
+  useEffect(() => {
+    const map = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: "mapbox://styles/ahmedwael315/cm9sv08xa00js01sb9wd35jsx", 
+      center: [29.773725, 26.351252], 
+      zoom: 5.26,
+      pitch :  59.00 ,
+      bearing : 0.00 
+
+    });
+
+    new mapboxgl.Marker()
+      .setLngLat([31.257847, 30.143224])
+      .addTo(map);
+
+    return () => map.remove();
+  }, []);
+
   return (
     <section className="travel-offers">
       <div className="offers-section">
@@ -46,18 +71,11 @@ export default function TravelOffers() {
           </div>
           <button className="see-all-btn">See all</button>
         </div>
-        <div className="map-container">
-          <iframe
-            className="Mapframe"
-            src="https://www.google.com/maps/embed?pb=!1m10!1m8!1m3!1d3155066.41193981!2d-80.48244!3d39.44403!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1740766554293!5m2!1sen!2sus"
-            width="1440"
-            height="353"
-            style={{ border: 0 }}
-            allowFullScreen=""
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
-        </div>
+        <div
+          ref={mapContainer}
+          className="map-container"
+          style={{ width: "90%", height: "450px", borderRadius: "20px" }}
+        />
         <div className="offers-flex home-flex">
           {offersData.map((offer) => (
             <div key={offer.id} className="offer-card">

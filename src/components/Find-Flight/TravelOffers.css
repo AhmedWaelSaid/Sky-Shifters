@@ -1,5 +1,5 @@
 .travel-offers {
-  background: #ffffff;
+  background: var(--bg-color);
   padding: 2rem;
   margin: 2rem auto 0;
   width: 100%;
@@ -31,7 +31,7 @@
   font-size: 40px;
   font-weight: 600;
   line-height: 52px;
-  color: #333;
+  color:var(--Darktext-color);
   margin-bottom: 0;
 }
 
@@ -43,10 +43,10 @@
 }
 
 .see-all-btn {
-  background-color: #0085ff;
+  background-color: var(--Btnbg-color);
   width: 130px;
   height: 56px;
-  color: white;
+  color: var(--LightText-color);
   padding: 16px 24px;
   border: none;
   border-radius: 8px;
@@ -86,7 +86,7 @@
 
 .offer-card {
   display: flex;
-  background: white;
+  background: var(--bg-color);
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -108,7 +108,7 @@
 
 .offer-details h3 {
   font-size: 1.5rem;
-  color: #333;
+  color: var(--Darktext-color);
   margin-bottom: 0.5rem;
 }
 
@@ -121,17 +121,19 @@
 .offer-duration {
   font-size: 14px;
   opacity: 90%;
+  color: var(--Btnbg-color);
 }
 
-.offer-details p {
+.offer-details  {
   font-size: 1rem ;
   margin-bottom: 0.5rem;
+  color: var(--Darktext-color);
 }
 
 
 .offer-price {
   font-size: 1.2rem;
-  color: #0085FF;
+  color: var(--Btnbg-color);
   font-weight: bold;
   display: block;
   margin-left: 200px;
@@ -144,7 +146,7 @@
 }
 .more-offers-card{
   position: relative;
-  width: 300px; /* أو أي عرض تريده */
+  width: 300px; 
   height: 380px;
   border-radius: 12px;
   overflow: hidden;
@@ -164,7 +166,7 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  color: white;
+  color:var(--whiteyellowText-color);
   padding: 10px;  
   text-align: left;
   font-family: 'Inter', sans-serif;
@@ -181,7 +183,7 @@
 }
 
 .moreoffers-details span{
-  color: #ffffff;
+  color:var(--whiteyellowText-color);
   font-size: 24px;
   font-weight: bold;
   position: absolute;
@@ -191,10 +193,10 @@
 }
 .book-btn {
   
-  background-color: #0085FF;
+  background-color: var(--Btnbg-color);
   padding: 8px;
   height: 50px;
-  color: white;
+  color:var(--LightText-color);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -221,8 +223,8 @@
 
 .AD-card {
   position: relative;
-  background-color: #023D4C;
-  color: white;
+  background-color: #035a70;
+  color:var(--LightText-color);
   padding: 1rem;
   display: flex;
   flex-direction: column;
@@ -244,10 +246,10 @@
     
 }
 .AD-btn{
-  background-color: #0085FF;
+  background-color: var(--Btnbg-color);
   padding: 8px;
   height: 50px;
-  color: white;
+  color:var(--LightText-color);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -271,7 +273,7 @@
 
 .AD-price {
   background-color: #0A6D86; 
-  color: white;
+  color:var(--LightText-color);
   padding: 15px;
   border-radius: 5px;
   font-size: 20px;

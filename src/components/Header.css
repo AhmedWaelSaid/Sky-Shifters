@@ -1,6 +1,6 @@
 
 .header {
-  background-color: #ffffff;
+  background-color:var(--bg-color);
   padding-top: 16px;
   padding-bottom: 5px;
   width: 100%;
@@ -30,18 +30,18 @@
 }
 
 .nav-link {
-  color: black; /* لون أزرق متناسق مع التصميم */
+  color: var(--DarkyellowText-color); 
   text-decoration: none;
   font-weight: 500;
   font-size: 16px;
 }
 .login {
-  color:#0085FF;
+  color:var(--Btnbg-color);
   text-decoration: none;
 }
 .sign-up {
-  background: #0085FF;
-  color: white;
+  background-color: var(--Btnbg-color);
+  color: var(--LightText-color);
   padding: 8px 24px 8px 24px;
   border-radius: 40px;
   text-decoration: none;

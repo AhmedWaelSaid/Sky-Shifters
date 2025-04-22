@@ -1,5 +1,5 @@
 
-import './MobileBlocker.css'; // هنضيف شوية ستايلات كمان
+import './MobileBlocker.css'; 
 
 export default function MobileBlocker() {
   return (

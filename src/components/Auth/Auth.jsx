@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
 import { useAuth } from '../context/AuthContext'; // Import useAuth
-import signphoto from '../../assets/pexels-pixabay-38238.jpg'
+import signphoto from '../../assets/pexels-pixabay-237272.jpg'
 
 const Auth = memo(function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);

@@ -40,8 +40,9 @@ height: 100vh;
   transform: translate(-50%,-50%);
   width: 100%;
   display: flex;
-  
-  
+}
+body.dark .container {
+  background-color: #222127;
 }
 
 .container__form {
@@ -132,6 +133,12 @@ height: 100vh;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   margin-top: 5px;
 }
+body.dark .btn {
+  background-color: #fbd684;
+  background-image: linear-gradient(90deg, var(--AuthBtn-color) 0%, var(--AuthBtn-color) 74%);
+  border: 1px solid #fbd684;
+  color: #000000;
+}
 
 .btn:active {
   transform: scale(0.95);
@@ -156,6 +163,7 @@ height: 100vh;
   font-weight: 300;
   margin: 0;
   margin-bottom: 1.25rem;
+  color : var(--DarkyellowText-color);
 }
 
 .input {
