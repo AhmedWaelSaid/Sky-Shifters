@@ -10,8 +10,8 @@
   right: -250px; /* مخفي على اليمين في البداية */
   width: 250px;
   height: fit-content;
-  background: #fff;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* الظل من اليسار بدل اليمين */
+  background: --bg-color;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); 
   transition: right 0.5s ease; /* حركة سلسة من اليمين */
   z-index: 1000;
   padding-top: 15px; /* مساحة للهيدر */
@@ -94,4 +94,15 @@
 
 .link:focus {
   outline: none;
+}
+
+body.dark {
+  --AuthBtn-color : #fbd684 ;
+  --bg-color: #222127;     
+  --DarkyellowText-color: #fbd684;        
+  --whiteyellowText-color :  #fbd684 ; 
+  --Btnbg-color:#fbd684;            
+  --Darktext-color: #ffffff;    
+  --LightDarktext-color: #a0a0a0;  
+  --LightText-color: #000000;       
 }

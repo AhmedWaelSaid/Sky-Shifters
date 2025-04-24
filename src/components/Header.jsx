@@ -1,7 +1,7 @@
 import './Header.css';
 import Logo from "./logo";
 import { useState, useContext } from "react";
-import Navigation from './Find-Flight/Navigation';
+import Navigation from '../pages/Home/Navigation';
 import { Link } from 'react-router-dom';
 import UserProfile from './UserProfile/UserProfile';
 import { useAuth } from './context/AuthContext';
@@ -26,6 +26,7 @@ export default function Header() {
       </div>
       <div className="finds">
         <Navigation />
+        
       </div>
       <div className="signs">
         {isAuthenticated ? (
