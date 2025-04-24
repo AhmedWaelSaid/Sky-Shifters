@@ -5,6 +5,7 @@ import MainLayout from '../layout/MainLayout';
 import HeroSection from '../pages/Home/HeroSection';
 import FlightSearchForm from '../pages/Home/FlightSearchForm';
 import TravelOffers from '../pages/Home/TravelOffers';
+import SelectedFlights from "../pages/SelectedFlights/Container";
 
 import Auth from '../components/Auth/Auth';
 import ForgotPassword from '../components/Auth/ForgotPassword';
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
       {
         path: 'auth/verify-email',
         element: <VerifyEmail />,
+      },
+      {
+        path: 'selected-flights',
+        element: <SelectedFlights />,
       },
     ],
   },

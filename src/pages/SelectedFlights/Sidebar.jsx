@@ -1,0 +1,157 @@
+import styles from "./styles/sidebar.module.css";
+
+export default function SideBar({
+  stop,
+  setStop,
+  setCurrentPage,
+  setAirLinesChecked,
+  airLinesChecked,
+  setPrice,
+  price,
+  setFlightDuration,
+  flightDuration,
+  objectOfPriceAndDuration,
+}) {
+  const formattedFlightDurationValue = (flightDuration) =>{
+    const hours = Math.floor(parseFloat(flightDuration));
+    const minutes = Math.round((parseFloat(flightDuration)-hours)*60);
+    return `${hours} hr ${minutes} min`;
+  }
+  const resetState = () => {
+    return Object.keys(airLinesChecked).reduce((acc, key) => {
+      acc[key] = false;
+      return acc;
+    }, {});
+  };
+  const priceHandler = (e) => {
+    setPrice(e.target.value);
+  };
+  const sortResetHandler = () => {
+    setPrice(2000);
+  };
+  const stopHandler = (e) => {
+    setStop(() => e.target.value);
+    setCurrentPage(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const airLinesHandler = (e) => {
+    const { value, checked } = e.target;
+    setAirLinesChecked((prev) => ({ ...prev, [value]: checked }));
+  };
+  const flightHandler= (e)=> {
+    setFlightDuration(e.target.value) 
+  }
+  const filterResetHandler = () => {
+    setStop("");
+    setAirLinesChecked(resetState());
+    setFlightDuration(22);
+  };
+  
+
+  return (
+    <div className={styles["side-bar"]}>
+      <div className={styles.sort}>
+        <h2>Sort By</h2>
+        <button className={styles.reset} onClick={sortResetHandler}>
+          Reset
+        </button>
+        <hr />
+        <div className={styles.price}>
+          <h3>Price</h3>
+          <input
+            type="range"
+            min={100}
+            max={2000}
+            step={5}
+            value={price}
+            onChange={(e) => priceHandler(e)}
+            className={styles["price-slider"]}
+          />
+          <div className={styles["price-range-indicator-low"]}>100 USD </div>
+          <div className={styles["price-range-indicator-high"]}>2000 USD</div>
+          <div className={styles.priceValue}>{price}</div>
+        </div>
+      </div>
+      <div className={styles.filter}>
+        <h2>Filters</h2>
+        <button className={styles.reset} onClick={filterResetHandler}>
+          Reset
+        </button>
+        <hr />
+        <div className={styles.stops}>
+          <h3>Stops</h3>
+          <form>
+            <div>
+              <input
+                type="radio"
+                id="direct"
+                name="stop"
+                value="Direct"
+                checked={stop == "Direct"}
+                onChange={(e) => stopHandler(e)}
+              />
+              <label htmlFor="direct">Direct</label>
+              <label htmlFor="direct">30 USD</label>
+            </div>
+            <div>
+              <input
+                type="radio"
+                id="1-stop"
+                name="stop"
+                value="1 Stop"
+                checked={stop == "1 Stop"}
+                onChange={(e) => stopHandler(e)}
+              />
+              <label htmlFor="1-stop">1 Stop</label>
+              <label htmlFor="1-stop">45 USD</label>
+            </div>
+          </form>
+        </div>
+        <hr />
+        <div className={styles["air-lines"]}>
+          <h3>Air Lines</h3>
+          <form>
+            <div>
+              <input
+                type="checkbox"
+                id="emirates"
+                name="emirates"
+                value="Emirates"
+                checked={airLinesChecked.Emirates}
+                onChange={(e) => airLinesHandler(e)}
+              />
+              <label htmlFor="emirates">Emirates</label>
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="qatar"
+                name="qatar"
+                value="Qatar"
+                checked={airLinesChecked.Qatar}
+                onChange={(e) => airLinesHandler(e)}
+              />
+              <label htmlFor="qatar">Qatar</label>
+            </div>
+          </form>
+        </div>
+        <hr />
+        <div className={styles["flight-duration"]}>
+          <h3>Flight duration</h3>
+          <input
+            type="range"
+            min={objectOfPriceAndDuration.lowestFlightDuration}
+            step={0.1}
+            max={objectOfPriceAndDuration.highestFlightDuration}
+            value={flightDuration}
+            onChange={(e)=>flightHandler(e)}
+            className={styles["flight-slider"]}
+          />
+          <div className={styles["flight-range-indicator-low"]}>{formattedFlightDurationValue(objectOfPriceAndDuration.lowestFlightDuration)}</div>
+          <div className={styles["flight-range-indicator-high"]}>{formattedFlightDurationValue(objectOfPriceAndDuration.highestFlightDuration)}</div>
+          <div className={styles.flightRangeValue}>{formattedFlightDurationValue(flightDuration)}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
