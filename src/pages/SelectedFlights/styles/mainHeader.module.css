@@ -4,7 +4,7 @@
   --height-select: 36px;
   font-size: 0.875rem;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif !important; 
-  font-weight: 500;
+  
 }
 .main-header-container select {
   display: inline-block;
