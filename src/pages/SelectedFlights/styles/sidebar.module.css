@@ -45,7 +45,7 @@ hr {
 }
 .side-bar .price::after, .side-bar .filter > div::after { /*up icon*/
   content: "";
-  background-image: url(../assets/up.png);
+  background-image: url(../../../assets/up.png);
   display: inline-block;
   width: 20px;
   height: 20px;
@@ -66,7 +66,7 @@ hr {
 }
 .side-bar .sort::after {
   content: "";
-  background-image: url(../assets/Sort-tool-1.png);
+  background-image: url(../../../assets/Sort-tool-1.png);
   display: inline-block;
   width: 16px;
   height: 16px;
@@ -93,10 +93,7 @@ hr {
   bottom: 0;
   right: 0;
 }
-.price-slider {
-  width: 100%;
-  
-}
+
 .priceValue {
   position: absolute;
   top: 5px;
@@ -117,7 +114,7 @@ hr {
 }
 .filter::after {
   content: "";
-  background-image: url(../assets/Filter-1.png);
+  background-image: url(../../../assets/Filter-1.png);
   display: inline-block;
   position: absolute;
   top: var(--header-icons-top);
@@ -145,10 +142,6 @@ hr {
   right: 0;
   
 }
-.filter .flight-slider {
-  width: 100%;
- 
-}
 .flight-range-indicator-high {
   position: absolute;
   right: 0;
@@ -159,4 +152,35 @@ hr {
   position: absolute;
   right: 110px;
   bottom: 10px;
+}
+
+.price-slider,.flight-slider { /*Sliders*/
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(to right, #0085FF 0%, #0085FF var(--fill-percent), #ddd var(--fill-percent), #ddd 100%);
+  outline: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.price-slider:hover,.flight-slider:hover{
+  opacity: 1;
+}
+.price-slider::-webkit-slider-thumb,.flight-slider::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  appearance: none;
+  background: white;
+  border: 2px solid #0085FF; 
+  cursor: pointer; 
+  width: 25px; 
+  height: 25px;
+  border-radius: 50%;
+}
+.price-slider::-moz-range-thumb,.flight-slider::-moz-range-thumb{
+  background: white;
+  border: 2px solid #0085FF; 
+  cursor: pointer; 
+  width: 25px; 
+  height: 25px;
+  border-radius: 50%;
 }

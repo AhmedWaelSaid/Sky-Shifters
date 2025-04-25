@@ -44,7 +44,7 @@
 .way::after,
 .seat::before {
   content: "";
-  background: url(../assets/arrow-dropdown.png) no-repeat;
+  background: url(../../../assets/arrow-dropdown.png) no-repeat;
   width: 10px;
   height: 5px;
   position: absolute;
@@ -61,7 +61,7 @@
 }
 .group::after {
   content: "";
-  background: url(../assets/group-number.png) no-repeat;
+  background: url(../../../assets/group-number.png) no-repeat;
   width: 20px;
   height: 20px;
   position: absolute;
@@ -83,7 +83,7 @@
 }
 .seat::after {
   content: "";
-  background: url(../assets/seat.png) no-repeat;
+  background: url(../../../assets/seat.png) no-repeat;
   width: 20px;
   height: 20px;
   position: absolute;
@@ -118,7 +118,7 @@
 
 .from::after, .to::after {
     content: "";
-    background: url(../assets/location-icon.png) no-repeat;
+    background: url(../../../assets/location-icon.png) no-repeat;
     width: 16px;
     height: 16px;
     position: absolute;
@@ -130,7 +130,7 @@
     gap: 10px;
 }
 .between {
-    background: url(../assets/location-between.png) no-repeat;
+    background: url(../../../assets/location-between.png) no-repeat;
     width: 20px;
     height: 20px;
     margin-top: 10px;
@@ -244,7 +244,7 @@ background-color: #1a9ff1;
 }
 .baggage::after {
   content: "";
-  background:url(../assets/weight.png) no-repeat;
+  background:url(../../../assets/weight.png) no-repeat;
   width: 12px;
   height: 12px;
   position: absolute;
@@ -257,7 +257,7 @@ background-color: #1a9ff1;
 }
 .totalFlightTime::after{
   content: "";
-  background: url(../assets/time.png) no-repeat;
+  background: url(../../../assets/time.png) no-repeat;
   width: 12px;
   height: 12px;
   position: absolute;
@@ -278,7 +278,7 @@ background-color: #1a9ff1;
 }
 .stops div::after {
   content: "";
-  background: url(../assets/flightStop.png) no-repeat;
+  background: url(../../../assets/flightStop.png) no-repeat;
   width: 12px;
   height: 12px;
   position: absolute;
