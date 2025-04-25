@@ -4,7 +4,6 @@ import styles from "./styles/container.module.css";
 import { useState } from "react";
 import { data } from "./data.jsx";
 import {getDurationAndPrice} from "./data.jsx"
-import FlightSearchForm from './../Home/FlightSearchForm';
 
 function updateSpecificDate(date) {
   return data.filter((value) => {
@@ -18,12 +17,13 @@ export default function Container() {
     Emirates: false,
     Qatar: false,
   });
-  const [price, setPrice] = useState(2000);
-  const [flightDuration, setFlightDuration] = useState("22");
-  const [currentPage, setCurrentPage] = useState(1);
   const [flightsData, setFlightsData] = useState(
     updateSpecificDate("2025-04-21")
   );
+  const [price, setPrice] = useState(getDurationAndPrice(flightsData).highestPrice);
+  const [flightDuration, setFlightDuration] = useState(getDurationAndPrice(flightsData).highestFlightDuration);
+  const [currentPage, setCurrentPage] = useState(1);
+  
   function filteredData(data) {
     let filteredFlights = data;
     if (stop !== "") {
@@ -55,10 +55,8 @@ export default function Container() {
   }
   
   let filteredFlights = filteredData(flightsData);
-  const objectOfPriceAndDuration = getDurationAndPrice(filteredFlights);
+  const objectOfPriceAndDuration = getDurationAndPrice(flightsData);
   return (
-    <>
-    {/* <FlightSearchForm/> */}
     <div className={styles.container}>
       <SideBar
         stop={stop}
@@ -80,6 +78,5 @@ export default function Container() {
         setFlightsData={setFlightsData}
       />
     </div>
-    </>
   );
 }
