@@ -1,38 +1,48 @@
 .flight-calendar {
-    font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     max-width: 650px;
     margin: 20px auto;
     border: 1px solid #e1e1e1;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    
   }
-  
+
   .calendar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    background-color: #1a73e8;
-    color: white;
+    background-color: var(--Btnbg-color);
+    color: var(--LightText-color);
   }
   
   .header-date {
     display: flex;
     align-items: center;
     gap: 15px;
+    color: var(--LightText-color);
   }
   
   .header-date h2 {
     margin: 0;
     font-size: 1.3rem;
     font-weight: 500;
+    color: var(--LightText-color);
   }
-  
+    /* --Btnbg-color: #0085FF;
+  --AuthBtn-color : #1a9ff1
+  --DarkyellowText-color: black;
+  --whiteyellowText-color: rgb(255, 255, 255);
+  --LightDarktext-color:  #333;
+  --LightText-color: white;
+  --DarkText-color: rgb(0, 0, 0);
+  --bg-color: white; */
   .nav-button {
     background: none;
     border: none;
-    color: white;
+    color: var(--LightText-color);
     cursor: pointer;
     padding: 8px;
     border-radius: 50%;
@@ -45,17 +55,19 @@
   
   .nav-button svg {
     fill: currentColor;
+    
   }
   
   .today-button {
     background: rgba(255, 255, 255, 0.2);
     border: none;
-    color: white;
+    background-color: var();
     padding: 5px 12px;
     border-radius: 4px;
     font-size: 0.8rem;
     cursor: pointer;
     transition: background-color 0.2s;
+    color: var(--LightText-color);
   }
   
   .today-button:hover {
@@ -65,7 +77,8 @@
   .week-days-header {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    background-color: #f8f9fa;
+    background-color: var(--Btnbg-color);
+    
     border-bottom: 1px solid #e1e1e1;
   }
   
@@ -73,7 +86,7 @@
     text-align: center;
     padding: 10px 0;
     font-weight: 500;
-    color: #5f6368;
+    color: var(--LightText-color);
     font-size: 0.9rem;
   }
   
@@ -83,6 +96,7 @@
   }
   
   .day-cell {
+    color: var(--DarkyellowText-color);
     padding: 15px 5px;
     text-align: center;
     border-right: 1px solid #e1e1e1;
@@ -111,7 +125,7 @@
   }
   
   .day-price {
-    color: #1a73e8;
+    color: var(--DarkyellowText-color);
     font-weight: 600;
     font-size: 0.95rem;
   }
@@ -120,15 +134,21 @@
     color: #1a73e8;
     font-weight: 600;
   }
-  
+   body.dark .today.day-date{
+    color: #3a1206;
+    font-weight: 600;
+  }
   .selected {
-    background-color: #e8f0fe;
-    border: 2px solid #1a73e8;
+    background-color: var(--Btnbg-color);
+    /* border: 2px solid #1a73e8; */
+    color: #000;
+    
   }
   
   .cheapest .day-price {
     color: #0d652d;
     font-weight: 700;
+    
   }
   
   .price-badge {

@@ -1,14 +1,7 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  body {
-    line-height: 1.5;
-  }
+
   .container {
     display: flex;
     justify-content: center;
-    margin-top: 32px;
-    gap: 17px;
+    margin-top: 150px;
+    gap: 25px;
   }

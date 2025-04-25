@@ -4,6 +4,7 @@ import styles from "./styles/container.module.css";
 import { useState } from "react";
 import { data } from "./data.jsx";
 import {getDurationAndPrice} from "./data.jsx"
+import FlightSearchForm from './../Home/FlightSearchForm';
 
 function updateSpecificDate(date) {
   return data.filter((value) => {
@@ -56,6 +57,8 @@ export default function Container() {
   let filteredFlights = filteredData(flightsData);
   const objectOfPriceAndDuration = getDurationAndPrice(filteredFlights);
   return (
+    <>
+    {/* <FlightSearchForm/> */}
     <div className={styles.container}>
       <SideBar
         stop={stop}
@@ -77,5 +80,6 @@ export default function Container() {
         setFlightsData={setFlightsData}
       />
     </div>
+    </>
   );
 }

@@ -18,7 +18,8 @@ export default function Header() {
     toggleTheme();
   };
   return (
-    <header className="header">
+ <div className="headercont" >
+     <header className="header">
       <div className="logo">
         <Link to="/" className="logo-link" aria-label="Go to Home Page">
           <Logo />
@@ -62,5 +63,6 @@ export default function Header() {
         )}
       </div>
     </header>
+ </div>
   );
 }

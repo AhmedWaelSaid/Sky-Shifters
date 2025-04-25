@@ -1,4 +1,6 @@
 
+
+
 .header {
   background-color:var(--bg-color);
   padding-top: 16px;
@@ -7,10 +9,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
- 
   position: fixed;
   z-index: 20;
   border-bottom: 1px solid rgba(2, 75, 97, 0.226);
+  top: 0;
+  
 }
 
 .logo {

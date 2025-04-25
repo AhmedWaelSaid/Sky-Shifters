@@ -3,6 +3,7 @@
   --border-radius-select: 18px;
   --height-select: 36px;
   font-size: 0.875rem;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 .main-header-container select {
   display: inline-block;
@@ -10,6 +11,8 @@
   -webkit-appearance: none; /* Safari fix */
   -moz-appearance: none; /* Firefox fix */
   font-size: inherit;
+  color: var(--DarkyellowText-color);
+  background: var(--bg-color);
 }
 /*-------------------form------------------------*/
 .form {
@@ -23,12 +26,15 @@
   gap: 16px;
 }
 .way select {
-  background: #f3f4f6;
+  color: var(--DarkyellowText-color);
+  background: var(--bg-color);
   width: 127px;
   height: var(--height-select);
   padding: 8px;
   border-radius: var(--border-radius-select);
+  
 }
+
 .way,
 .group,
 .seat {
@@ -99,14 +105,16 @@
     position: relative;
 }
 .from select, .to select {
-  background-color: white;
+  background-color: var(--bg-color);
   width: var(--second-row-width);
   height: var(--height-select);
   border-radius: var(--border-radius-select);
   border-width: var(--border-width);
   padding: var(--text-padding);
   padding-left: 34px;
+  color: var(--blackText-color);
 }
+
 .from::after, .to::after {
     content: "";
     background: url(../assets/location-icon.png) no-repeat;
@@ -129,6 +137,7 @@
 .date-picker:not(:focus){
   opacity: 0.7;
 }
+
 .calender .date-picker {
   height: var(--height-select);
   border-radius: var(--border-radius-select);
@@ -136,24 +145,27 @@
   padding: var(--text-padding);
   padding-left: 25px;
   border-width: var(--border-width);
+  color: var(--blackText-color);
+  background: var(--bg-color);
 }
 :global(.react-datepicker__calendar-icon) {
   top: 3px;
 }
 .form-submit button {
-  background-color: #0085FF;
+  background-color: var(--Btnbg-color);
   width: 36px;
   height: 36px;
   border-radius: 18px;
   border: 0px;
+  
 }
 .form-submit button:hover {
   cursor: pointer;
 }
 /****************************Dates-and-prices************************/
 .calender-price-container {
-  background: #0085FF;
-  color: white;
+  background: var(--Btnbg-color);
+  color: rgb(15, 3, 3);
   display: grid;
   grid-template-columns: repeat(5,1fr);
   min-height: 67px;
@@ -178,6 +190,7 @@
   background-color: inherit;
   border: none;
   margin-top: 13px;
+ 
 }
 .calenderIcon button img {
   width: 24px;
@@ -187,11 +200,12 @@
   cursor: pointer;
 }
 .calender-element:hover:not(.selected){
-background-color: #03a9f4;
+background-color: #1a9ff1;
 }
+
 .selected {
   background-color: white;
-  color: green;
+  color: rgb(13, 14, 13);
 }
 
 /**************Main-body******************/
@@ -203,6 +217,7 @@ background-color: #03a9f4;
   margin-bottom: 200px;
   position: relative;
   padding-bottom: 50px;
+  color:var(--blackText-color);
 }
 .flight {
   display: grid;
@@ -249,7 +264,7 @@ background-color: #03a9f4;
 }
 .flightPrice{
   font-size: 1.25rem;
-  color: #FF912B;
+  color: var( --DarkyellowText-color);
   padding-left: 10px;
 }
 .stops div {
@@ -265,6 +280,7 @@ background-color: #03a9f4;
   left: 0;
   top: 6px;
 }
+
 .detailsBtn{
 position: absolute;
 right: 13px;
@@ -273,16 +289,17 @@ width: 116px;
 height: 36px;
 border-radius: 4px;
 border: 1px solid #323842;
-background: #FFFFFF;
+background:var(--Btnbg-color);
 transition: background-color 0.3s;
+color: var(--LightText-color);
 }
 .detailsBtn:hover{
   cursor: pointer;
-  background-color: beige;
+  background-color: rgb(10, 85, 170);
 }
 .pagination .active {
-  background-color: #11D396;
-  color: white;
+  background-color: var(--Btnbg-color);
+  color: var(--LightText-color);
   border: none;
 }
 .pagination {
@@ -296,6 +313,7 @@ transition: background-color 0.3s;
   margin-right: 4px;
   background: #FFFFFF;
   border: 1px solid #DEE1E6;
+  color: black;
 }
 .pagination button:hover {
   cursor: pointer;

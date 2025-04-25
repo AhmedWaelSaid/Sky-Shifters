@@ -27,12 +27,13 @@ html {
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   --Btnbg-color: #0085FF;
-  --AuthBtn-color : #1a9ff1
+  --AuthBtn-color : #1a9ff1 ;
   --DarkyellowText-color: black;
   --whiteyellowText-color: rgb(255, 255, 255);
   --LightDarktext-color:  #333;
   --LightText-color: white;
-  --DarkText-color: rgb(0, 0, 0);
+  --blackText-color: rgb(0, 0, 0);
+  
   --bg-color: white;
     font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -47,9 +48,10 @@ body.dark {
   --DarkyellowText-color: #fbd684;        
   --whiteyellowText-color :  #fbd684 ; 
   --Btnbg-color:#fbd684;            
-  --Darktext-color: #ffffff;    
+  --Darktext-color: white;    
   --LightDarktext-color: #a0a0a0;  
-  --LightText-color: #000000;       
+  --LightText-color: #000000;     
+  --blackText-color: rgb(255, 255, 255);  
 }
 
 
