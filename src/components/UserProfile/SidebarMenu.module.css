@@ -10,11 +10,15 @@
   right: -250px; /* مخفي على اليمين في البداية */
   width: 250px;
   height: fit-content;
-  background: --bg-color;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); 
+  background: var(--bg-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: right 0.5s ease; /* حركة سلسة من اليمين */
   z-index: 1000;
   padding-top: 15px; /* مساحة للهيدر */
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+
+  
 }
 
 .sidebar.open {
@@ -45,24 +49,34 @@
     font-size: 18px;
     font-weight: 600;
     margin: 0;
+    color: var(--blackText-color);
   }
+      /* --Btnbg-color: #0085FF;
+  --AuthBtn-color : #1a9ff1 ;
+  --DarkyellowText-color: black;
+  --whiteyellowText-color: rgb(255, 255, 255);
+  --LightDarktext-color:  #333;
+  --LightText-color: white;
+  --blackText-color: rgb(0, 0, 0);
+  --bg-color: #222127;
+   */
   
   .userBalance {
     font-size: 16px;
-    color: #333;
+    color: var(--LightDarktext-color);
     margin: 5px 0 0;
   }
 .menuList {
   list-style: none;
   padding: 0;
   margin: 0;
-}
+ }
 
 .menuItem {
   display: flex;
   align-items: center;
   padding: 15px 20px;
-  color: #333;
+  color: var(--LightDarktext-color);
   text-decoration: none;
   font-size: 16px;
   border-bottom: 1px solid #eee;
@@ -74,7 +88,7 @@
 
 .icon {
   margin-right: 10px;
-  color: #007bff;
+  color: var(--Btnbg-color);
 }
 
 .link {
@@ -85,6 +99,7 @@
   background: none;
   cursor: pointer;
   font-family: 'Inter', sans-serif;
+  color:var(--blackText-color);
 }
 
 .arrow {

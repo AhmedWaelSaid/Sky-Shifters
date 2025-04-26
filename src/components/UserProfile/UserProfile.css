@@ -13,23 +13,31 @@
     width: 40px;
     height: 40px;
     text-decoration: none;
+    
   }
   
   .svgIcon {
     width: 24px;
     height: 24px;
+    
   }
-  
+
   /* تنسيق أيقونة الجرس */
   .bell {
-    width: 24px;
-    height: 24px;
+    width: 25px;
+    height: 25px;
     cursor: pointer;
+    background-color: var(--whiteyellowText-color);
+    border-radius: 100%;
+    padding: 1px;
+    
   }
   
   /* أنيميشن الرنين عند الـ hover */
   .tab:hover .bell {
     animation: bellRing 0.9s both;
+   
+    
   }
   
   /* bell ringing animation keyframes */
@@ -59,16 +67,17 @@
       transform: rotateZ(2deg);
     }
   }
+
   .notifications-dropdown {
   position: absolute;
   top: 94px;
   right: 20px;
   width: 300px;
-  background-color: #ffffff;
+  background-color: var( --bg-color);
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
-  color: #0d6c97;
+  color: var(--Btnbg-color);
  
 }
 
@@ -85,20 +94,20 @@
   align-items: center;
   gap: 5px;
   font-size: 14px;
-  color: #0085ff;
+  color: var(--Btnbg-color);
 }
 
 .status-dot {
   width: 8px;
   height: 8px;
-  background-color: #0085ff;
+  background-color: var(--Btnbg-color);
   border-radius: 50%;
 }
 
 .close-btn {
   background: none;
   border: none;
-  color: #fff;
+  color: var(--Btnbg-color);
   font-size: 16px;
   cursor: pointer;
 }
@@ -127,8 +136,8 @@
 }
 
 .view-all-btn {
-  background-color:#0085ff;
-  color: #fff;
+  background-color:var(--Btnbg-color);
+  color: var(--LightText-color);
   border: none;
   padding: 8px 16px;
   border-radius: 5px;

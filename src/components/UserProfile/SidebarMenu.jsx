@@ -23,7 +23,7 @@ export default function SidebarMenu() {
         <div className={styles.userProfile}>
           <img src= {planeIcon}  alt="" className={styles.avatar} />
           <div className={styles.userInfo}>
-            <h3 className={styles.userName}>{user?.name || 'User'}</h3>
+            <h3 className={styles.userName}>{user?.firstName|| 'User'}</h3>
             <p className={styles.userBalance}>${user?.balance || '0.00'}</p>
           </div>
         </div>
