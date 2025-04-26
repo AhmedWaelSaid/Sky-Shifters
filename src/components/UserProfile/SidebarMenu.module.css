@@ -75,7 +75,7 @@
 }
 
 .menuItem:hover {
-  background: #f5f5f5;
+  background:var(--menuHover-color);
 }
 
 .icon {

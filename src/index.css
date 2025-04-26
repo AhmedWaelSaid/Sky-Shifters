@@ -33,8 +33,9 @@ html {
   --LightDarktext-color:  #333;
   --LightText-color: white;
   --blackText-color: rgb(0, 0, 0);
-  
   --bg-color: white;
+  --menuHover-color:   #f5f5f5 ;
+
     font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -52,6 +53,7 @@ body.dark {
   --LightDarktext-color: #a0a0a0;  
   --LightText-color: #000000;     
   --blackText-color: rgb(255, 255, 255);  
+  --menuHover-color:   #333 ;
 }
 
 
