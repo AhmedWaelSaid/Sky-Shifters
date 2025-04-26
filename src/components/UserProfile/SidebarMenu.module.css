@@ -51,15 +51,7 @@
     margin: 0;
     color: var(--blackText-color);
   }
-      /* --Btnbg-color: #0085FF;
-  --AuthBtn-color : #1a9ff1 ;
-  --DarkyellowText-color: black;
-  --whiteyellowText-color: rgb(255, 255, 255);
-  --LightDarktext-color:  #333;
-  --LightText-color: white;
-  --blackText-color: rgb(0, 0, 0);
-  --bg-color: #222127;
-   */
+
   
   .userBalance {
     font-size: 16px;
@@ -111,13 +103,3 @@
   outline: none;
 }
 
-body.dark {
-  --AuthBtn-color : #fbd684 ;
-  --bg-color: #222127;     
-  --DarkyellowText-color: #fbd684;        
-  --whiteyellowText-color :  #fbd684 ; 
-  --Btnbg-color:#fbd684;            
-  --Darktext-color: #ffffff;    
-  --LightDarktext-color: #a0a0a0;  
-  --LightText-color: #000000;       
-}

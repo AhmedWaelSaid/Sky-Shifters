@@ -27,8 +27,7 @@ export default function Header() {
       </div>
       <div className="finds">
         <Navigation />
-        <UserProfile />
-            <SidebarMenu />
+        
       </div>
       <div className="signs">
         {isAuthenticated ? (
