@@ -1,12 +1,9 @@
-/*--------global--------*/
-  /* --Btnbg-color: #0085FF;
-  --AuthBtn-color : #1a9ff1
-  --DarkyellowText-color: black;
-  --whiteyellowText-color: rgb(255, 255, 255);
-  --LightDarktext-color:  #333;
-  --LightText-color: white;
-  --DarkText-color: rgb(0, 0, 0);
-  --bg-color: white; */
+* {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+
+
 .side-bar {
   width: 328px;
   min-width: 214px;
@@ -16,7 +13,7 @@
   --header-icons-top: 23px;
   --header-icons-left: 13px;
   --sub-body-margin: 15px 20px 0 15px;
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif !important; 
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif ; 
   
 }
 .side-bar h2 {
@@ -34,10 +31,12 @@ hr {
   background-color: var(--Btnbg-color);
   color: var(--LightText-color);
   border: 0px;
+  border-radius: 10px;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif ; 
   
 }
 .reset:hover {
-    background-color: #03a9f412;
+    background-color: var(--AuthBtn-color);
     cursor: pointer;
 }
 .side-bar input[type="checkbox"],.side-bar input[type="radio"]{
@@ -57,7 +56,7 @@ hr {
 /*---------Sort--------*/
 .side-bar .sort {
   position: relative;
-  border: 1px solid #ffffff;
+  border: 1px solid var(--whiteyellowText-color);
   box-shadow: 0px 0px 1px 0px #171a1f12, 0px 0px 2px 0px #171a1f1f;
   border-radius: var(--card-border-radius);
   margin-bottom: 16px;
@@ -129,7 +128,7 @@ hr {
 }
 .filter h3 {
   margin-bottom: 10px;
-  color:var() ;
+  
 }
 .filter > div{
   padding-bottom: 10px;
@@ -154,15 +153,21 @@ hr {
   bottom: 10px;
 }
 
-.price-slider,.flight-slider { /*Sliders*/
+.price-slider, .flight-slider {
   width: 100%;
   -webkit-appearance: none;
   appearance: none;
-  background: linear-gradient(to right, #0085FF 0%, #0085FF var(--fill-percent), #ddd var(--fill-percent), #ddd 100%);
+  background: linear-gradient(to right,#fbd684 0%, #0085FF var(--fill-percent), #ddd var(--fill-percent), #ddd 100%);
   outline: none;
   opacity: 0.7;
   transition: opacity 0.2s;
+  border-radius: 10px;
+  height: 10px;
+  margin-bottom: 10px;
 }
+
+
+
 .price-slider:hover,.flight-slider:hover{
   opacity: 1;
 }
@@ -172,9 +177,10 @@ hr {
   background: white;
   border: 2px solid #0085FF; 
   cursor: pointer; 
-  width: 25px; 
-  height: 25px;
+  width: 20px; 
+  height: 20px;
   border-radius: 50%;
+ 
 }
 .price-slider::-moz-range-thumb,.flight-slider::-moz-range-thumb{
   background: white;

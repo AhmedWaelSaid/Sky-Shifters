@@ -1,4 +1,7 @@
 /*----------main-header----------*/
+* {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
 .main-header-container {
   --border-radius-select: 18px;
   --height-select: 36px;

@@ -1,3 +1,7 @@
+
+* {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
 .flight-calendar {
       max-width: 650px;
     margin: 20px auto;
@@ -5,9 +9,6 @@
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif !important; 
-  
-    
   }
 
   .calendar-header {
@@ -32,14 +33,7 @@
     font-weight: 500;
     color: var(--LightText-color);
   }
-    /* --Btnbg-color: #0085FF;
-  --AuthBtn-color : #1a9ff1
-  --DarkyellowText-color: black;
-  --whiteyellowText-color: rgb(255, 255, 255);
-  --LightDarktext-color:  #333;
-  --LightText-color: white;
-  --DarkText-color: rgb(0, 0, 0);
-  --bg-color: white; */
+
   .nav-button {
     background: none;
     border: none;

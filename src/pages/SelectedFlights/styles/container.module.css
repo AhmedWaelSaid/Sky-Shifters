@@ -1,4 +1,7 @@
 
+* {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
   .container {
     display: flex;
     justify-content: center;

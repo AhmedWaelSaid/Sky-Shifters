@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import './VerifyEmail.css';
+import signphoto from '../../assets/pexels-pixabay-237272.jpg'
 
 const verifyEmail = async ({ email, code }) => {
   console.log('Sending request to:', `${import.meta.env.VITE_API_URL}/users/verify-email`);
@@ -57,6 +58,7 @@ const VerifyEmail = () => {
 
   return (
     <div className="verify-sec">
+    <img src={signphoto} alt="" className='signphoto' />
       <div className="verify-container">
         <div className="verify-container__form">
           <form className="verify-form" onSubmit={handleSubmit}>
@@ -85,7 +87,7 @@ const VerifyEmail = () => {
             </button>
             <p className="verify-auth-link">
               Already verified?{' '}
-              <a href="/authpanel-signin" onClick={(e) => { e.preventDefault(); navigate('/authpanel-signin'); }}>
+              <a href="/authpanel-signin" onClick={(e) => { e.preventDefault(); navigate('/auth'); }}>
                 Go to Sign In
               </a>
             </p>
@@ -97,7 +99,7 @@ const VerifyEmail = () => {
             <div className="verify-overlay__panel verify-overlay--right">
               <button
                 className="verify-btn"
-                onClick={() => navigate('/authpanel-signup')}
+                onClick={() => navigate('/auth')}
               >
                 Sign Up
               </button>
