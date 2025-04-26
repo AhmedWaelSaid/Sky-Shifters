@@ -56,7 +56,7 @@ const SignUp = memo(function SignUp({ onToggle }) {
     onSuccess: (_) => {
       setResendMessage('A verification code has been sent to your email. Redirecting to verify...');
       setTimeout(() => {
-        navigate('/verify-email', { state: { email } });
+        navigate('/auth/verify-email', { state: { email } });
       }, 2000);
     },
     onError: (error) => {
