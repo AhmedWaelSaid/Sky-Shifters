@@ -14,9 +14,8 @@ export default function FlightSearchForm() {
   const [airports, setAirports] = useState([]);
   const [originFocus, setOriginFocus] = useState(false);
   const [destFocus, setDestFocus] = useState(false);
-  const [origin, setOrigin] = useState({});
-  const [dest, setDest] = useState({});
-  const [isSelecting, setIsSelecting] = useState(false);
+  const [origin, setOrigin] = useState({text:""});
+  const [dest, setDest] = useState({text:""});
 
   const navigate = useNavigate(); // استخدام useNavigate للتنقل
   useEffect(() => {
@@ -48,13 +47,14 @@ export default function FlightSearchForm() {
                   setOriginFocus(false);
                 }}
                 value={origin.text}
-                onChange={(e) => setOrigin(e.target.value)}
+                onChange={(e) => setOrigin((prev) => ({ ...prev, text: e.target.value }))}
                 placeholder="Origin"
               />
               {originFocus && (
                 <ShowTopSearch
                   set={setOrigin}
-                  setIsSelecting={setIsSelecting}
+                  keyWord={origin.text}
+                  airports={airports}
                 />
               )}
             </div>
@@ -76,7 +76,7 @@ export default function FlightSearchForm() {
                 }
                 placeholder="Destination"
               />
-              {destFocus && <ShowTopSearch set={setDest} />}
+              {destFocus && <ShowTopSearch set={setDest} keyWord={dest.text} airports={airports}/>}
             </div>
           </div>
 

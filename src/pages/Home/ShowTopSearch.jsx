@@ -119,20 +119,33 @@ function getValues(airport) {
     text: airport.city + `, ` + airport.country + ` - ` + airport.name,
   };
 }
-export function ShowTopSearch({ set }) {
+export function ShowTopSearch({ set, keyWord, airports }) {
+  const filteredAirports =
+    keyWord.length >= 3
+      ? airports.filter(
+          (airport) =>
+            airport.country.toLowerCase().includes(keyWord.toLowerCase()) ||
+            airport.city.toLowerCase().includes(keyWord.toLowerCase()) ||
+            airport.name.toLowerCase().includes(keyWord.toLowerCase()) 
+        )
+      : data;
+
   return (
     <div className={styles.showTopContainer}>
-      <h3 className={styles.showTopHeader}>Top Searches!</h3>
-      {data.map((airport) => (
+      <h3 className={styles.showTopHeader}>
+        {keyWord.length >= 3 ? "Search Results" : "Top Searches!"}
+      </h3>
+
+      {filteredAirports.map((airport) => (
         <div
           key={airport.id}
           className={styles.showTopAirport}
-          onMouseDown={() => {
-            set(getValues(airport));
-          }}
+          onMouseDown={() => set(getValues(airport))}
         >
           <div>
-            <div>{airport.city + `, ` + airport.country}</div>
+            <div>
+              {airport.city}, {airport.country}
+            </div>
             <div>{airport.iata}</div>
           </div>
           <div>{airport.name}</div>
