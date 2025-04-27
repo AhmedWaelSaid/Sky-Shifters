@@ -14,8 +14,9 @@ export default function FlightSearchForm() {
   const [airports, setAirports] = useState([]);
   const [originFocus, setOriginFocus] = useState(false);
   const [destFocus, setDestFocus] = useState(false);
-  const [origin,setOrigin] = useState({});
-  const [dest,setDest] = useState({});
+  const [origin, setOrigin] = useState({});
+  const [dest, setDest] = useState({});
+  const [isSelecting, setIsSelecting] = useState(false);
 
   const navigate = useNavigate(); // استخدام useNavigate للتنقل
   useEffect(() => {
@@ -42,13 +43,20 @@ export default function FlightSearchForm() {
                 name="origin"
                 id="origin"
                 className={styles.cityInput}
-                onFocus={()=> setOriginFocus(true)}
-                onBlur={()=> setOriginFocus(false)}
+                onFocus={() => setOriginFocus(true)}
+                onBlur={() => {
+                  setOriginFocus(false);
+                }}
                 value={origin.text}
-                onChange={(e)=> setOrigin((prev)=> ({...prev,text:e.target.value}))}
+                onChange={(e) => setOrigin(e.target.value)}
                 placeholder="Origin"
               />
-              {originFocus && <ShowTopSearch set={setOrigin} />}
+              {originFocus && (
+                <ShowTopSearch
+                  set={setOrigin}
+                  setIsSelecting={setIsSelecting}
+                />
+              )}
             </div>
           </div>
           <div className={styles.formGroup}>
@@ -60,13 +68,15 @@ export default function FlightSearchForm() {
                 name="destination"
                 id="destination"
                 className={styles.cityInput}
-                onFocus={()=> setDestFocus(true)}
-                onBlur={()=> setDestFocus(false)}
+                onFocus={() => setDestFocus(true)}
+                onBlur={() => setDestFocus(false)}
                 value={dest.text}
-                onChange={(e)=> setDest((prev)=> ({...prev,text:e.target.value}))}
+                onChange={(e) =>
+                  setDest((prev) => ({ ...prev, text: e.target.value }))
+                }
                 placeholder="Destination"
               />
-              {destFocus && <ShowTopSearch set={setDest}/>}
+              {destFocus && <ShowTopSearch set={setDest} />}
             </div>
           </div>
 

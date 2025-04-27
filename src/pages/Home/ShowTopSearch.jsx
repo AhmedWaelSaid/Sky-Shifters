@@ -113,18 +113,27 @@ const data = [
   },
 ];
 import styles from "./ShowTopSearch.module.css";
-function getValues(airport){
-    return {airport, text:airport.city + `, ` + airport.country+` - `+airport.name}
+function getValues(airport) {
+  return {
+    airport,
+    text: airport.city + `, ` + airport.country + ` - ` + airport.name,
+  };
 }
-export function ShowTopSearch({set}) {
+export function ShowTopSearch({ set }) {
   return (
     <div className={styles.showTopContainer}>
       <h3 className={styles.showTopHeader}>Top Searches!</h3>
       {data.map((airport) => (
-        <div key={airport.id} className={styles.showTopAirport}>
-          <div onMouseDown={()=> set(getValues(airport))}>
-            <div >{airport.city + `, ` + airport.country}</div>
-            <div >{airport.iata}</div>
+        <div
+          key={airport.id}
+          className={styles.showTopAirport}
+          onMouseDown={() => {
+            set(getValues(airport));
+          }}
+        >
+          <div>
+            <div>{airport.city + `, ` + airport.country}</div>
+            <div>{airport.iata}</div>
           </div>
           <div>{airport.name}</div>
         </div>
