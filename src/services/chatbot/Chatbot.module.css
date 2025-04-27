@@ -53,9 +53,10 @@
   
   /* الجزء العلوي (لونه ثابت أزرق/سماوي) */
   .topSection {
-    background-color: var(--bg-color);
-    padding-bottom: 20px;
+    background-color: var(--Btnbg-color);
+    padding-bottom: 30px;
     color: var(--LightDarktext-color);
+    
   }
   
   .header {
@@ -66,7 +67,7 @@
   }
   
   .logo {
-    color: var(--blackText-color);
+    color: var(--LightText-color);
     font-size: 20px;
     font-weight: bold;
   }
@@ -74,13 +75,13 @@
   .greeting {
     padding: 0 20px 0;
     text-align: left;
-    color: var(--blackText-color);
+    color: var(--LightText-color);
   }
   
   .greeting h2 {
     font-size: 20px;
     margin: 0;
-    color: var(--blackText-color);
+    color: var(--LightText-color);
     display: flex;
     align-items: center;
     gap: 5px;
@@ -94,7 +95,7 @@
   .greeting p {
     font-size: 16px;
     font-weight: 500;
-    color: var(--blackText-color); 
+    color: var(--LightText-color); 
     margin: 5px 0 0;
   }
   
