@@ -637,7 +637,6 @@ export const data = [
         hasFlights: Object.hasOwn(datePricesFormatted,dateStr),
       };
     });
-    console.log(results)
     return results;
   }
   export function getDurationAndPrice(dataOfTheDay){

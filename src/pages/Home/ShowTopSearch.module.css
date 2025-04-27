@@ -1,0 +1,43 @@
+*{
+    margin: 0px;
+    box-sizing: border-box;
+  }
+.showTopContainer {
+    position: absolute;
+    background-color: var(--bg-color);
+    color: var(--Darktext-color);
+    top: 100%;
+    z-index: 1000;
+    padding: 0 5px 5px 5px;
+}
+.showTopHeader {
+    background-color: var(--Btnbg-color);
+    padding: 10px;
+    color: white;
+}
+.showTopAirport {
+    padding: 5px;
+}
+.showTopAirport:hover {
+    background-color: lightblue;
+    cursor: pointer;
+}
+.showTopAirport + .showTopAirport {
+    border-top: 1px black solid;
+}
+.showTopAirport > div:nth-child(2) { /*AirPort name*/
+    opacity: 0.6;       
+    font-size: 0.8em;
+}
+.showTopAirport > div:nth-child(1) { /*City - Country - IATA*/
+   display: flex;
+   justify-content: space-between;
+}
+.showTopAirport > div:nth-child(1)> div:nth-child(2){
+    background-color: rgb(128, 128, 128,0.8);
+    width: 40px;
+    text-align: center;
+    color: white;
+    font-size: 0.8em;
+    height: 20px;
+}
