@@ -152,7 +152,7 @@ const SignUp = memo(function SignUp({ onToggle }) {
         </div>
 
         {/* Country */}
-        <div className="input-container">
+        <div className="input-container selectcountry">
           <FaGlobe className="input-icon" />
           <Select
             id="signupCountry"

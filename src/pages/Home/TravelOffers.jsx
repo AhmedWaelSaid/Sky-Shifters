@@ -2,7 +2,12 @@ import "./TravelOffers.css";
 import newYorkImg from "../../assets/new-york.jpg";
 import losAngelesImg from "../../assets/los-angeles.jpg";
 import bangladesh2 from "../../assets/Image frame (2).png";
-import bangladesh3 from "../../assets/Image frame (3).png";
+import bangladesh3 from "../../assets/pexels-brett-sayles-2310604.jpg";
+import bangladesh4 from "../../assets/Image frame (5).png";
+import bangladesh5 from "../../assets/pexels-asadphoto-1266831.jpg";
+import bangladesh6 from "../../assets/pexels-pixabay-38238.jpg";
+import bangladesh7 from "../../assets/pexels-pixabay-237272.jpg";
+
 import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -27,15 +32,15 @@ const offersData = [
     image: losAngelesImg,
   },
 ];
-
+const images = [bangladesh7 ,bangladesh3 , bangladesh5 , bangladesh6 ]
 const londonOffers = Array.from({ length: 4 }, (_, index) => ({
   id: index + 1,
   title: "London Adventure",
   price: "$ 200",
-  image: bangladesh2,
+  image: images[index]
 }));
 
-const bangladeshImages = [bangladesh3, bangladesh2, bangladesh3, bangladesh3];
+const bangladeshImages = [losAngelesImg, newYorkImg, bangladesh5 , bangladesh4];
 
 export default function TravelOffers() {
   const mapContainer = useRef(null);
