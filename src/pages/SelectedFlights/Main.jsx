@@ -8,8 +8,15 @@ import stopIcon from "../../assets/stopLine.png";
 import WeeklyPriceCalendar from "./CustomPriceCalender";
 import { format } from "date-fns";
 import { cheapestPrices } from "./data.jsx";
+import PropTypes from "prop-types";
 
-export function Main({ setCurrentPage, currentPage,filteredFlights,setFlightsData,updateSpecificDate }) {
+export function Main({
+  setCurrentPage,
+  currentPage,
+  filteredFlights,
+  setFlightsData,
+  updateSpecificDate,
+}) {
   const flightsPerPage = 8;
 
   const [dateRange, setDateRange] = useState([
@@ -212,3 +219,11 @@ export function Main({ setCurrentPage, currentPage,filteredFlights,setFlightsDat
     </div>
   );
 }
+
+Main.propTypes = {
+  setCurrentPage: PropTypes.func.isRequired,
+  setFlightsData: PropTypes.func.isRequired,
+  updateSpecificDate: PropTypes.func.isRequired,
+  currentPage: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  filteredFlights : PropTypes.arrayOf(PropTypes.object),
+};
