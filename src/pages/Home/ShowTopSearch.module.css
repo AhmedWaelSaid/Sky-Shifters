@@ -9,6 +9,8 @@
     top: 100%;
     z-index: 1000;
     padding: 0 5px 5px 5px;
+    overflow-y: auto;
+    max-height: 425px;
 }
 .showTopHeader {
     background-color: var(--Btnbg-color);
@@ -19,7 +21,7 @@
     padding: 5px;
 }
 .showTopAirport:hover {
-    background-color: lightblue;
+    background-color: rgb(220, 222, 223);
     cursor: pointer;
 }
 .showTopAirport + .showTopAirport {

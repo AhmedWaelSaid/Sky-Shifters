@@ -113,6 +113,7 @@ const data = [
   },
 ];
 import styles from "./ShowTopSearch.module.css";
+import PropTypes from "prop-types";
 function getValues(airport) {
   return {
     airport,
@@ -126,8 +127,18 @@ export function ShowTopSearch({ set, keyWord, airports }) {
           (airport) =>
             airport.country.toLowerCase().includes(keyWord.toLowerCase()) ||
             airport.city.toLowerCase().includes(keyWord.toLowerCase()) ||
-            airport.name.toLowerCase().includes(keyWord.toLowerCase()) 
-        )
+            airport.name.toLowerCase().includes(keyWord.toLowerCase()) || 
+            airport.iata?.toLowerCase().includes(keyWord.toLowerCase())
+        ).sort((a,b)=> {
+          const kw = keyWord.toLowerCase();
+          const getPriority = (airport) => {
+            if (airport.iata?.toLowerCase() == kw) return 0;
+            if (airport.iata?.toLowerCase().includes(kw)) return 1;
+            if (airport.name.toLowerCase().includes(kw)) return 2;
+            return 3;
+          }
+          return getPriority(a)- getPriority(b);
+        })
       : data;
 
   return (
@@ -146,11 +157,17 @@ export function ShowTopSearch({ set, keyWord, airports }) {
             <div>
               {airport.city}, {airport.country}
             </div>
-            <div>{airport.iata}</div>
+            {airport.iata != null && <div>{airport.iata}</div>}
+            {airport.iata == null && <div style={{display : "none"}}></div>}
           </div>
           <div>{airport.name}</div>
         </div>
       ))}
     </div>
   );
+}
+ShowTopSearch.propTypes = {
+  set: PropTypes.func.isRequired,
+  keyWord: PropTypes.string.isRequired,
+  airports: PropTypes.arrayOf(PropTypes.object),
 }

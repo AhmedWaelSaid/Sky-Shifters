@@ -23,7 +23,7 @@ export default function FlightSearchForm() {
       .then((response) => response.text())
       .then((csv) => {
         const airportsArray = csvToJson(csv);
-        console.log(airportsArray.filter((data) => data.iata == "DOH"));
+        console.log(airportsArray);
         setAirports(airportsArray);
       })
       .catch((err) => console.error("Error loading airports", err));
@@ -32,7 +32,7 @@ export default function FlightSearchForm() {
     <>
       <div className={styles.flyFormContainer}>
         <div className={styles.formTitle}>Where are You Flying ?</div>
-        <form className={styles.flightSearchForm}>
+        <form className={styles.flightSearchForm} autoComplete="off">
           <div className={styles.formGroup}>
             <label htmlFor="origin">From</label>
             <div className={styles.inputContainer}>
