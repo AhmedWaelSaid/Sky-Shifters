@@ -3,10 +3,63 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
   .container {
-    display: flex;
-    justify-content: center;
+    display: grid;
     margin-top: 150px;
+    margin-right: auto;
+    margin-left: auto;
     gap: 25px;
+    grid-template-columns: 0.3fr 1fr;
+    grid-template-rows: 100px 1fr;
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif !important; 
- 
+    max-width: 1200px;
+    --skeletonLoadingGradientWidth: 1200px;
+    --skeletonLoadingGradient:linear-gradient(to right, rgba(140, 140, 140, 0.05) 0%, rgba(140, 140, 140, 0.1) 15%, rgba(140, 140, 140, 0.05) 30%);
+  }
+  /*loading stuff*/
+  @keyframes loading {
+    0% {
+      background-position: -1200px 0;
+    }
+    100% {
+      background-position: 1200px 0;
+    }
+  }
+  .loading {
+    animation: loading 3s linear;
+    animation-iteration-count: infinite;
+    background-image: var(--skeletonLoadingGradient);
+    background-size: var(--skeletonLoadingGradientWidth);
+  }
+  .loading.sidebarLoading {
+    width: 100%;
+    height: 6rem;
+  }
+  .loading.sidebarLoading:nth-child(2){
+    height: 20rem;
+  }
+  .loading.sidebarLoading + .loading.sidebarLoading{
+    margin-top: 5px;
+  }
+  .loading.mainLoading {
+    width: 100%;
+    height: 10rem;
+    border-radius: 3px;
+  }
+  .sidebarBase{
+    width: 100%;
+    grid-area: 1/1/3/2;
+  }
+  .mainBase {
+    width: 100%;
+    margin-bottom: 100px;
+  }
+  .loading.mainLoading + .loading.mainLoading{
+    margin-top: 10px;
+  }
+  /*error*/
+  .error {
+    color: red;
+    height: 500px;
+    text-align: center;
+    margin-top: 200px;
   }

@@ -1,6 +1,21 @@
 import styles from "./styles/sidebar.module.css";
 import PropTypes from "prop-types";
 
+function InputCheckBox({ value, name, airLinesChecked, airLinesHandler }) {
+  return (
+    <div>
+      <input
+        type="checkbox"
+        id={name}
+        name={name}
+        value={value}
+        checked={!!airLinesChecked[value]}
+        onChange={(e) => airLinesHandler(e)}
+      />
+      <label htmlFor={name}>{name}</label>
+    </div>
+  );
+}
 export default function SideBar({
   stop,
   setStop,
@@ -11,24 +26,22 @@ export default function SideBar({
   price,
   setFlightDuration,
   flightDuration,
-  objectOfPriceAndDuration,
+  airLines,
 }) {
+  let airLinesArr = [];
+  for (const key in airLines) {
+    airLinesArr.push({ code: key, name: airLines[key] });
+  }
   const formattedFlightDurationValue = (flightDuration) => {
     const hours = Math.floor(parseFloat(flightDuration));
     const minutes = Math.round((parseFloat(flightDuration) - hours) * 60);
     return `${hours}h ${minutes}m`;
   };
-  const resetState = () => {
-    return Object.keys(airLinesChecked).reduce((acc, key) => {
-      acc[key] = false;
-      return acc;
-    }, {});
-  };
   const priceHandler = (e) => {
     setPrice(e.target.value);
   };
   const sortResetHandler = () => {
-    setPrice(objectOfPriceAndDuration.highestPrice);
+    //setPrice(objectOfPriceAndDuration.highestPrice);
   };
   const stopHandler = (e) => {
     setStop(() => e.target.value);
@@ -40,20 +53,19 @@ export default function SideBar({
     setAirLinesChecked((prev) => ({ ...prev, [value]: checked }));
   };
   const flightHandler = (e) => {
-    const rawValue = parseFloat(e.target.value);
-    const {highestFlightDuration} =
-      objectOfPriceAndDuration;
+    //const rawValue = parseFloat(e.target.value);
+    //const { highestFlightDuration } = objectOfPriceAndDuration;
 
-    const nearMax = Math.abs(rawValue - highestFlightDuration) < 0.01;
+    //const nearMax = Math.abs(rawValue - highestFlightDuration) < 0.01;
 
-    const snappedValue = nearMax ? highestFlightDuration : rawValue;
+    //const snappedValue = nearMax ? highestFlightDuration : rawValue;
 
-    setFlightDuration(snappedValue);
+    //setFlightDuration(snappedValue);
   };
   const filterResetHandler = () => {
     setStop("");
-    setAirLinesChecked(resetState());
-    setFlightDuration(objectOfPriceAndDuration.highestFlightDuration);
+    setAirLinesChecked({});
+    //setFlightDuration(objectOfPriceAndDuration.highestFlightDuration);
   };
   return (
     <div className={styles["side-bar"]}>
@@ -67,21 +79,21 @@ export default function SideBar({
           <h3>Price</h3>
           <input
             type="range"
-            min={objectOfPriceAndDuration.lowestPrice}
-            max={objectOfPriceAndDuration.highestPrice}
+            min={1}
+            max={20}
             step={0.01}
             value={price}
             onChange={(e) => priceHandler(e)}
             style={{
-              "--fill-percent": `${((price - objectOfPriceAndDuration.lowestPrice) / (objectOfPriceAndDuration.highestPrice - objectOfPriceAndDuration.lowestPrice)) * 100}%`,
+              "--fill-percent": `100%`,
             }}
             className={styles["price-slider"]}
           />
           <div className={styles["price-range-indicator-low"]}>
-            {objectOfPriceAndDuration.lowestPrice} USD{" "}
+            1 USD{" "}
           </div>
           <div className={styles["price-range-indicator-high"]}>
-            {objectOfPriceAndDuration.highestPrice} USD
+            2 USD
           </div>
           <div className={styles.priceValue}>{price} USD</div>
         </div>
@@ -125,28 +137,15 @@ export default function SideBar({
         <div className={styles["air-lines"]}>
           <h3>Air Lines</h3>
           <form>
-            <div>
-              <input
-                type="checkbox"
-                id="emirates"
-                name="emirates"
-                value="Emirates"
-                checked={airLinesChecked.Emirates}
-                onChange={(e) => airLinesHandler(e)}
+            {airLinesArr.map((airline) => (
+              <InputCheckBox
+                key={airline.code}
+                value={airline.code}
+                name={airline.name}
+                airLinesChecked={airLinesChecked}
+                airLinesHandler={airLinesHandler}
               />
-              <label htmlFor="emirates">Emirates</label>
-            </div>
-            <div>
-              <input
-                type="checkbox"
-                id="qatar"
-                name="qatar"
-                value="Qatar"
-                checked={airLinesChecked.Qatar}
-                onChange={(e) => airLinesHandler(e)}
-              />
-              <label htmlFor="qatar">Qatar</label>
-            </div>
+            ))}
           </form>
         </div>
         <hr />
@@ -154,52 +153,27 @@ export default function SideBar({
           <h3>Flight duration</h3>
           <input
             type="range"
-            min={objectOfPriceAndDuration.lowestFlightDuration}
-            step={
-              (objectOfPriceAndDuration.highestFlightDuration -
-                objectOfPriceAndDuration.lowestFlightDuration) /
-              500
-            }
-            max={objectOfPriceAndDuration.highestFlightDuration}
+            min={0}
+            step={0.1}
+            max={22}
             value={flightDuration}
             onChange={(e) => flightHandler(e)}
             style={{
-              "--fill-percent": `${((flightDuration - objectOfPriceAndDuration.lowestFlightDuration) / (objectOfPriceAndDuration.highestFlightDuration - objectOfPriceAndDuration.lowestFlightDuration)) * 100}%`,
+              "--fill-percent": `100%`,
             }}
             className={styles["flight-slider"]}
           />
           <div className={styles["flight-range-indicator-low"]}>
-            {formattedFlightDurationValue(
-              objectOfPriceAndDuration.lowestFlightDuration
-            )}
+            0
           </div>
           <div className={styles["flight-range-indicator-high"]}>
-            {formattedFlightDurationValue(
-              objectOfPriceAndDuration.highestFlightDuration
-            )}
+            22h
           </div>
           <div className={styles.flightRangeValue}>
-            {formattedFlightDurationValue(flightDuration)}
+            {flightDuration}
           </div>
         </div>
       </div>
     </div>
   );
 }
-SideBar.propTypes = {
-  stop: PropTypes.string.isRequired,
-  setStop: PropTypes.func.isRequired,
-  setCurrentPage: PropTypes.func.isRequired,
-  airLinesChecked: PropTypes.object.isRequired,
-  setAirLinesChecked: PropTypes.func.isRequired,
-  setPrice: PropTypes.func.isRequired,
-  price: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  setFlightDuration: PropTypes.func.isRequired,
-  flightDuration: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  objectOfPriceAndDuration: PropTypes.shape({
-    lowestPrice: PropTypes.number.isRequired,
-    highestPrice: PropTypes.number.isRequired,
-    lowestFlightDuration: PropTypes.number.isRequired,
-    highestFlightDuration: PropTypes.number.isRequired
-  }).isRequired
-};

@@ -1,7 +1,6 @@
 // src/context/AuthContext.js
 import { createContext, useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types'; // إضافة PropTypes
-import { Navigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 

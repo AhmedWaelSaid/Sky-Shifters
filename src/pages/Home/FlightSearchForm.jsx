@@ -9,13 +9,17 @@ import styles from "./FlightSearchForm.module.css";
 import { csvToJson } from "../../helperFun.jsx";
 import { ShowTopSearch } from "./ShowTopSearch.jsx";
 import { useEffect, useState } from "react";
+import {format} from "date-fns";
+import { useData } from "../../components/context/DataContext.jsx";
 
 export default function FlightSearchForm() {
   const [airports, setAirports] = useState([]);
   const [originFocus, setOriginFocus] = useState(false);
   const [destFocus, setDestFocus] = useState(false);
-  const [origin, setOrigin] = useState({text:""});
-  const [dest, setDest] = useState({text:""});
+  const [origin, setOrigin] = useState({ text: "" });
+  const [dest, setDest] = useState({ text: "" });
+  const [date, setDate] = useState(format(new Date(), "u-LL-dd"));
+  const {setSharedData} = useData();
 
   const navigate = useNavigate(); // استخدام useNavigate للتنقل
   useEffect(() => {
@@ -23,16 +27,28 @@ export default function FlightSearchForm() {
       .then((response) => response.text())
       .then((csv) => {
         const airportsArray = csvToJson(csv);
-        console.log(airportsArray);
         setAirports(airportsArray);
       })
       .catch((err) => console.error("Error loading airports", err));
   }, []);
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    if (origin.airport && dest.airport){
+    setSharedData({origin,dest,date});
+    navigate("/selected-flights")
+    }
+  }
+
   return (
     <>
       <div className={styles.flyFormContainer}>
         <div className={styles.formTitle}>Where are You Flying ?</div>
-        <form className={styles.flightSearchForm} autoComplete="off">
+        <form
+          className={styles.flightSearchForm}
+          autoComplete="off"
+          onSubmit={handleSubmit}
+        >
           <div className={styles.formGroup}>
             <label htmlFor="origin">From</label>
             <div className={styles.inputContainer}>
@@ -47,7 +63,9 @@ export default function FlightSearchForm() {
                   setOriginFocus(false);
                 }}
                 value={origin.text}
-                onChange={(e) => setOrigin((prev) => ({ ...prev, text: e.target.value }))}
+                onChange={(e) =>
+                  setOrigin((prev) => ({ ...prev, text: e.target.value }))
+                }
                 placeholder="Origin"
               />
               {originFocus && (
@@ -76,7 +94,13 @@ export default function FlightSearchForm() {
                 }
                 placeholder="Destination"
               />
-              {destFocus && <ShowTopSearch set={setDest} keyWord={dest.text} airports={airports}/>}
+              {destFocus && (
+                <ShowTopSearch
+                  set={setDest}
+                  keyWord={dest.text}
+                  airports={airports}
+                />
+              )}
             </div>
           </div>
 
@@ -86,7 +110,10 @@ export default function FlightSearchForm() {
               <FaCalendarAlt className={styles.iconForm} />
               <input
                 type="date"
-                defaultValue="2025-02-22"
+                defaultValue={date}
+                onChange={(e) => {
+                  setDate(e.target.value);
+                }}
                 className={styles.baseInput}
               />
             </div>
@@ -102,16 +129,16 @@ export default function FlightSearchForm() {
               </select>
             </div>
           </div>
+          <div className={styles.showFlights}>
+            <button
+              className={styles.flights}
+              type="submit"
+              // التنقل لصفحة /selected-flights
+            >
+              Show Flights
+            </button>
+          </div>
         </form>
-        <div className={styles.showFlights}>
-          <button
-            className={styles.flights}
-            type="submit"
-            onClick={() => navigate("/selected-flights")} // التنقل لصفحة /selected-flights
-          >
-            Show Flights
-          </button>
-        </div>
       </div>
     </>
   );

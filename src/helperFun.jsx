@@ -20,5 +20,43 @@ export function csvToJson(csvText) {
             airport[col] = values[i];
           });
           return airport;
-        });
+        }).filter(airport=> airport.iata !== null)
+}
+let amadeusTokenCache = {
+  accessToken: null,
+  expirationTime: 0, // timestamp in ms
+};
+
+export async function getAmadeusAccessToken(clientId, clientSecret) {
+  const now = Date.now();
+
+  if (amadeusTokenCache.accessToken && now < amadeusTokenCache.expirationTime) {
+    return amadeusTokenCache.accessToken;
+  }
+
+  const response = await fetch("https://api.amadeus.com/v1/security/oauth2/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      grant_type: "client_credentials",
+      client_id: clientId,
+      client_secret: clientSecret,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`Failed to fetch token: ${error.error_description || response.statusText}`);
+  }
+
+  const data = await response.json();
+
+  amadeusTokenCache = {
+    accessToken: data.access_token,
+    expirationTime: now + data.expires_in * 1000 - 5000,
+  };
+
+  return data.access_token;
 }
