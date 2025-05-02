@@ -118,7 +118,6 @@ export function Main({
 
 Main.propTypes = {
   setCurrentPage: PropTypes.func.isRequired,
-  setFlightsData: PropTypes.func.isRequired,
   currentPage: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  filteredFlights: PropTypes.arrayOf(PropTypes.object),
+  flightsData: PropTypes.object,
 };

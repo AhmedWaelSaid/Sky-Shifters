@@ -9,63 +9,64 @@ function InputCheckBox({ value, name, airLinesChecked, airLinesHandler }) {
         id={name}
         name={name}
         value={value}
-        checked={!!airLinesChecked[value]}
+        checked={airLinesChecked ? !!airLinesChecked[value] : false}
         onChange={(e) => airLinesHandler(e)}
       />
       <label htmlFor={name}>{name}</label>
     </div>
   );
 }
+InputCheckBox.propTypes = {
+  value: PropTypes.string,
+  name: PropTypes.string,
+  airLinesChecked: PropTypes.object,
+  airLinesHandler: PropTypes.func,
+}
 export default function SideBar({
   stop,
   setStop,
-  setCurrentPage,
   setAirLinesChecked,
   airLinesChecked,
   setPrice,
   price,
   setFlightDuration,
   flightDuration,
+  priceAndDuration,
   airLines,
 }) {
   let airLinesArr = [];
   for (const key in airLines) {
     airLinesArr.push({ code: key, name: airLines[key] });
   }
-  const formattedFlightDurationValue = (flightDuration) => {
-    const hours = Math.floor(parseFloat(flightDuration));
-    const minutes = Math.round((parseFloat(flightDuration) - hours) * 60);
-    return `${hours}h ${minutes}m`;
-  };
+  function readableNum(num) {
+    const string = String(num);
+    if (string.includes(".")) {
+      const hours = Number(string.split(".")[0]);
+      const mins = Math.round(Number("0." + string.split(".")[1]) * 60);
+      return `${hours}h ${mins}m`;
+    }
+    return `${string}h`;
+  }
   const priceHandler = (e) => {
     setPrice(e.target.value);
   };
   const sortResetHandler = () => {
-    //setPrice(objectOfPriceAndDuration.highestPrice);
+    setPrice(priceAndDuration.highestPrice);
   };
   const stopHandler = (e) => {
     setStop(() => e.target.value);
-    setCurrentPage(1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const airLinesHandler = (e) => {
     const { value, checked } = e.target;
     setAirLinesChecked((prev) => ({ ...prev, [value]: checked }));
   };
   const flightHandler = (e) => {
-    //const rawValue = parseFloat(e.target.value);
-    //const { highestFlightDuration } = objectOfPriceAndDuration;
-
-    //const nearMax = Math.abs(rawValue - highestFlightDuration) < 0.01;
-
-    //const snappedValue = nearMax ? highestFlightDuration : rawValue;
-
-    //setFlightDuration(snappedValue);
+    setFlightDuration(e.target.value);
   };
   const filterResetHandler = () => {
     setStop("");
     setAirLinesChecked({});
-    //setFlightDuration(objectOfPriceAndDuration.highestFlightDuration);
+    setFlightDuration(priceAndDuration.highestFlightDuration);
   };
   return (
     <div className={styles["side-bar"]}>
@@ -79,23 +80,23 @@ export default function SideBar({
           <h3>Price</h3>
           <input
             type="range"
-            min={1}
-            max={20}
+            min={priceAndDuration.lowestPrice}
+            max={priceAndDuration.highestPrice}
             step={0.01}
             value={price}
             onChange={(e) => priceHandler(e)}
             style={{
-              "--fill-percent": `100%`,
+              "--fill-percent": `${((price - priceAndDuration.lowestPrice) / (priceAndDuration.highestPrice - priceAndDuration.lowestPrice)) * 100}%`,
             }}
             className={styles["price-slider"]}
           />
           <div className={styles["price-range-indicator-low"]}>
-            1 USD{" "}
+            {priceAndDuration.lowestPrice} EUR
           </div>
           <div className={styles["price-range-indicator-high"]}>
-            2 USD
+            {priceAndDuration.highestPrice} EUR
           </div>
-          <div className={styles.priceValue}>{price} USD</div>
+          <div className={styles.priceValue}>{price} EUR</div>
         </div>
       </div>
       <div className={styles.filter}>
@@ -137,16 +138,16 @@ export default function SideBar({
         <div className={styles["air-lines"]}>
           <h3>Air Lines</h3>
           <form>
-            
-            {airLinesArr.length > 0 && airLinesArr.map((airline) => (
-              <InputCheckBox
-                key={airline.code}
-                value={airline.code}
-                name={airline.name}
-                airLinesChecked={airLinesChecked}
-                airLinesHandler={airLinesHandler}
-              />
-            ))}
+            {airLinesArr.length > 0 &&
+              airLinesArr.map((airline) => (
+                <InputCheckBox
+                  key={airline.code}
+                  value={airline.code}
+                  name={airline.name}
+                  airLinesChecked={airLinesChecked}
+                  airLinesHandler={airLinesHandler}
+                />
+              ))}
           </form>
         </div>
         <hr />
@@ -154,27 +155,45 @@ export default function SideBar({
           <h3>Flight duration</h3>
           <input
             type="range"
-            min={0}
-            step={0.1}
-            max={22}
+            min={priceAndDuration.lowestFlightDuration}
+            step={5}
+            max={priceAndDuration.highestFlightDuration}
             value={flightDuration}
             onChange={(e) => flightHandler(e)}
             style={{
-              "--fill-percent": `100%`,
+              "--fill-percent": `${((flightDuration - priceAndDuration.lowestFlightDuration) / (priceAndDuration.highestFlightDuration - priceAndDuration.lowestFlightDuration)) * 100}%`,
             }}
             className={styles["flight-slider"]}
           />
           <div className={styles["flight-range-indicator-low"]}>
-            0
+            {readableNum(priceAndDuration.lowestFlightDuration / 60)}
           </div>
           <div className={styles["flight-range-indicator-high"]}>
-            22h
+            {readableNum(priceAndDuration.highestFlightDuration / 60)}
           </div>
           <div className={styles.flightRangeValue}>
-            {flightDuration}
+            {readableNum(flightDuration / 60)}
           </div>
         </div>
       </div>
     </div>
   );
 }
+SideBar.propTypes = {
+  stop: PropTypes.string.isRequired,
+  setStop: PropTypes.func.isRequired,
+  setAirLinesChecked: PropTypes.func.isRequired,
+  airLinesChecked: PropTypes.object.isRequired,
+  setPrice: PropTypes.func.isRequired,
+  price: PropTypes.oneOfType([
+    PropTypes.string.isRequired,
+    PropTypes.number.isRequired,
+  ]),
+  setFlightDuration: PropTypes.func.isRequired,
+  flightDuration: PropTypes.oneOfType([
+    PropTypes.string.isRequired,
+    PropTypes.number.isRequired,
+  ]),
+  priceAndDuration: PropTypes.object.isRequired,
+  airLines: PropTypes.object.isRequired,
+};

@@ -2,7 +2,7 @@ import SideBar from "./Sidebar.jsx";
 import { Main } from "./Main.jsx";
 import styles from "./styles/container.module.css";
 import { useState, useEffect } from "react";
-import { getDurationAndPrice } from "./data.jsx";
+import { getDurationAndPrice, dealWithDuration } from "./someFun.jsx";
 import { useData } from "../../components/context/DataContext.jsx";
 import { getAmadeusAccessToken } from "../../helperFun.jsx";
 import { format } from "date-fns";
@@ -73,12 +73,23 @@ export default function Container() {
   const [price, setPrice] = useState(null);
   const [flightDuration, setFlightDuration] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-
+  const [priceAndDuration, setPriceAndDuration] = useState({});
   useEffect(() => {
     setCurrentPage(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [airLinesChecked]);
-
+  }, [airLinesChecked, stop,flightDuration,price]);
+  useEffect(() => {
+    if (
+      flightsData &&
+      Array.isArray(flightsData.data) &&
+      flightsData.data.length > 0
+    ) {
+      const object = getDurationAndPrice(flightsData.data);
+      setPriceAndDuration(object);
+      setPrice(object.highestPrice);
+      setFlightDuration(object.highestFlightDuration);
+    }
+  }, [flightsData]);
   if (loading) return <Loading />;
   if (error && !error.name === "AbortError")
     return <h1 className={styles.error}>Network error detected!</h1>;
@@ -98,37 +109,34 @@ export default function Container() {
     if (activeAirlines.length > 0)
       filteredFlights.data = filteredFlights.data.filter((flight) => {
         return activeAirlines.includes(flight.validatingAirlineCodes[0]);
-      });
-    //filter_airlines
-    /* filteredFlights = filteredFlights.filter((flight) => {
-      const arr = flight.price.split(" ");
-      if (Number(price) >= Number(arr[0])) return true;
-    }); //sort_price
-
-    filteredFlights = filteredFlights.filter(
-      (flight) =>
-        flightDuration >=
-        Number(flight.duration.split(" ")[0]) +
-          parseFloat(flight.duration.split(" ")[2]) / 60
-    ); //filter_duration*/
+      }); //filter_airlines
+    if (price != null) {
+      filteredFlights.data = filteredFlights.data.filter((flight) => {
+        return price >= Number(flight.price.total);
+      }); //sort_price
+    }
+   if (flightDuration != null) {
+      filteredFlights.data = filteredFlights.data.filter(
+        (flight) =>
+          flightDuration >= dealWithDuration(flight.itineraries[0].duration)
+      ); //filter_duration
+    }
     return filteredFlights;
   }
   let filteredFlights = filteredData(flightsData);
-  //const objectOfPriceAndDuration = getDurationAndPrice(flightsData);
   return (
     <div className={styles.container}>
       {
         <SideBar
           stop={stop}
           setStop={setStop}
-          setCurrentPage={setCurrentPage}
           airLinesChecked={airLinesChecked}
           setAirLinesChecked={setAirLinesChecked}
           setPrice={setPrice}
           price={price}
           setFlightDuration={setFlightDuration}
           flightDuration={flightDuration}
-          //objectOfPriceAndDuration={objectOfPriceAndDuration}
+          priceAndDuration={priceAndDuration}
           airLines={flightsData.dictionaries.carriers}
         />
       }
