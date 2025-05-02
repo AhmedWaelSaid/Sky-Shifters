@@ -37,27 +37,32 @@ function useSearchData() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
-
   useEffect(() => {
     const controller = new AbortController();
+    let isMounted = true;
     const fetchFlights = async () => {
-      if (!sharedData || !sharedData.origin.airport || !sharedData.dest.airport)
-        return;
       try {
         setLoading(true);
         const result = await getFlightsFromAPI(sharedData, controller.signal);
-        setData(result);
-        setError(null);
+        if (isMounted) {
+          setData(result);
+          setError(null);
+          setLoading(false); // ← only happens if still mounted
+        }
       } catch (err) {
-        setError(err);
-        setData(null);
-      } finally {
-        setLoading(false);
+        if (isMounted) {
+          setError(err);
+          setData(null);
+          setLoading(false); // ← same here
+        }
       }
     };
     fetchFlights();
 
-    return () => controller.abort();
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
   }, [sharedData]);
   return { data, loading, error };
 }
@@ -73,13 +78,11 @@ export default function Container() {
     setCurrentPage(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [airLinesChecked]);
-  console.log("loading:", loading, "data:", flightsData, "error:", error);
 
   if (loading) return <Loading />;
-  if (error && error.name !== "AbortError") {
+  if (error && !error.name === "AbortError")
     return <h1 className={styles.error}>Network error detected!</h1>;
-  }
-  if (!flightsData) return <Loading />;
+  if (!flightsData) return <h1 className={styles.error}>no flights data!</h1>;
   function filteredData(flights) {
     if (!flights) return null;
     let filteredFlights = { ...flights };
