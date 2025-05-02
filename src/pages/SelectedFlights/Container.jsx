@@ -10,6 +10,7 @@ import MainHeader from "./MainHeader.jsx";
 import Loading from "./Loading.jsx";
 
 async function getFlightsFromAPI(input, signal) {
+  if (!input) return;
   const key = import.meta.env.VITE_API_KEY;
   const secret = import.meta.env.VITE_API_SECRET;
   const accessToken = await getAmadeusAccessToken(key, secret);
@@ -43,6 +44,7 @@ function useSearchData() {
       if (!sharedData || !sharedData.origin.airport || !sharedData.dest.airport)
         return;
       try {
+        setLoading(true);
         const result = await getFlightsFromAPI(sharedData, controller.signal);
         setData(result);
         setError(null);
@@ -57,7 +59,7 @@ function useSearchData() {
 
     return () => controller.abort();
   }, [sharedData]);
-  return { data, loading: loading || (!data && !error), error };
+  return { data, loading, error };
 }
 export default function Container() {
   const { data: flightsData, loading, error } = useSearchData();
@@ -67,13 +69,17 @@ export default function Container() {
   const [flightDuration, setFlightDuration] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(()=>{
+  useEffect(() => {
     setCurrentPage(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  },[airLinesChecked])
+  }, [airLinesChecked]);
+  console.log("loading:", loading, "data:", flightsData, "error:", error);
 
   if (loading) return <Loading />;
-  if (error) return <h1 className={styles.error}>Network error detected!</h1>;
+  if (error && error.name !== "AbortError") {
+    return <h1 className={styles.error}>Network error detected!</h1>;
+  }
+  if (!flightsData) return <Loading />;
   function filteredData(flights) {
     if (!flights) return null;
     let filteredFlights = { ...flights };

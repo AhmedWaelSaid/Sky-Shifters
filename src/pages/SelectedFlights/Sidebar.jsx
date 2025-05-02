@@ -137,7 +137,8 @@ export default function SideBar({
         <div className={styles["air-lines"]}>
           <h3>Air Lines</h3>
           <form>
-            {airLinesArr.map((airline) => (
+            
+            {airLinesArr.length > 0 && airLinesArr.map((airline) => (
               <InputCheckBox
                 key={airline.code}
                 value={airline.code}
