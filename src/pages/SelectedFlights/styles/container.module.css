@@ -60,7 +60,19 @@
   /*error*/
   .error {
     color: red;
-    height: 500px;
-    text-align: center;
-    margin-top: 200px;
+    height: 300px;
+    margin-top: 100px;
+    font-size: 4rem;
+  }
+  .containerError,.containerNoData {
+    margin-top: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .noDataText {
+    height: 300px;
+    margin-top: 100px;
+    font-size: 3rem;
   }

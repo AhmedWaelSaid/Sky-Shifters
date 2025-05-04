@@ -1,4 +1,4 @@
-import SideBar from "./Sidebar.jsx";
+import SideBar from "./SideBar.jsx";
 import { Main } from "./Main.jsx";
 import styles from "./styles/container.module.css";
 import { useState, useEffect } from "react";
@@ -8,6 +8,8 @@ import { getAmadeusAccessToken } from "../../helperFun.jsx";
 import { format } from "date-fns";
 import MainHeader from "./MainHeader.jsx";
 import Loading from "./Loading.jsx";
+import Error from "./Error.jsx";
+import EmptyData from "./EmptyData.jsx";
 
 async function getFlightsFromAPI(input, signal) {
   if (!input) return;
@@ -15,7 +17,7 @@ async function getFlightsFromAPI(input, signal) {
   const secret = import.meta.env.VITE_API_SECRET;
   const accessToken = await getAmadeusAccessToken(key, secret);
   const data = await fetch(
-    `https://api.amadeus.com/v2/shopping/flight-offers?originLocationCode=${input.origin.airport.iata}&destinationLocationCode=${input.dest.airport.iata}&departureDate=${format(input.date, "u-LL-dd")}&adults=1`,
+    `https://api.amadeus.com/v2/shopping/flight-offers?originLocationCode=${input.origin.airport.iata}&destinationLocationCode=${input.dest.airport.iata}&departureDate=${format(input.date, "u-LL-dd")}&adults=1&currencyCode=USD`,
     {
       method: "GET",
       headers: {
@@ -77,7 +79,7 @@ export default function Container() {
   useEffect(() => {
     setCurrentPage(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [airLinesChecked, stop,flightDuration,price]);
+  }, [airLinesChecked, stop, flightDuration, price]);
   useEffect(() => {
     if (
       flightsData &&
@@ -90,10 +92,10 @@ export default function Container() {
       setFlightDuration(object.highestFlightDuration);
     }
   }, [flightsData]);
-  if (loading) return <Loading />;
-  if (error && !error.name === "AbortError")
-    return <h1 className={styles.error}>Network error detected!</h1>;
-  if (!flightsData) return <h1 className={styles.error}>no flights data!</h1>;
+  if (loading) return <Loading />; //loading screen
+  if (error && !error.name === "AbortError") return <Error />; //error screen
+  if (flightsData.data.length === 0 || !flightsData.data) return <EmptyData/>;
+
   function filteredData(flights) {
     if (!flights) return null;
     let filteredFlights = { ...flights };
@@ -115,7 +117,7 @@ export default function Container() {
         return price >= Number(flight.price.total);
       }); //sort_price
     }
-   if (flightDuration != null) {
+    if (flightDuration != null) {
       filteredFlights.data = filteredFlights.data.filter(
         (flight) =>
           flightDuration >= dealWithDuration(flight.itineraries[0].duration)

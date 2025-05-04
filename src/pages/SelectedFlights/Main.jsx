@@ -91,7 +91,7 @@ export function Main({
                   : "Direct"}
               </div>
             </div>
-            <div className={styles.flightPrice}>{value.price.total} EUR</div>
+            <div className={styles.flightPrice}>{value.price.total} USD</div>
             <button className={styles.detailsBtn}>View Details</button>
           </div>
         );

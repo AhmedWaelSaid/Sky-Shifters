@@ -91,12 +91,12 @@ export default function SideBar({
             className={styles["price-slider"]}
           />
           <div className={styles["price-range-indicator-low"]}>
-            {priceAndDuration.lowestPrice} EUR
+            {priceAndDuration.lowestPrice} USD
           </div>
           <div className={styles["price-range-indicator-high"]}>
-            {priceAndDuration.highestPrice} EUR
+            {priceAndDuration.highestPrice} USD
           </div>
-          <div className={styles.priceValue}>{price} EUR</div>
+          <div className={styles.priceValue}>{price} USD</div>
         </div>
       </div>
       <div className={styles.filter}>
