@@ -1,4 +1,7 @@
 
+*{
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
 .page-container {
   margin-top: 80px;
   background-color:var(--bg-color);
