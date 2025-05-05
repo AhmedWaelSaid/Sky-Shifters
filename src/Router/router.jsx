@@ -12,6 +12,7 @@ import ForgotPassword from '../components/Auth/ForgotPassword';
 import ResetPassword from '../components/Auth/ResetPassword';
 import VerifyEmail from '../components/Auth/VerifyEmail';
 import UserProfile from '../components/UserProfile/UserProfile';
+import FlightDetails from '../pages/FlightDetails/FlightDetails'
 
 const router = createBrowserRouter([
   {
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
       {
         path: 'selected-flights',
         element: <SelectedFlights />,
+      },
+      {
+        path: 'FlightDetails',
+        element: <FlightDetails/>,
       },
     ],
   },

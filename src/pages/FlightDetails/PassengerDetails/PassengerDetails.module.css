@@ -1,0 +1,233 @@
+.passengerDetails {
+  margin-bottom: 20px;
+  background-color: var(--bg-color);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.passengerDetails:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.passengerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: var(--menuHover-color);
+  border-bottom: 1px solid var(--menuHover-color);
+}
+
+.passengerInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.passengerIcon {
+  width: 32px;
+  height: 32px;
+  background-color: var(--Btnbg-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--LightText-color);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.removePassengerBtn {
+  background: none;
+  border: none;
+  color: #ff5a5f;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.removePassengerBtn:hover {
+  transform: scale(1.1);
+}
+
+.passengerForm {
+  padding: 24px;
+}
+
+.note {
+  font-size: 14px;
+  color: var(--LightDarktext-color);
+  margin-bottom: 24px;
+  font-style: italic;
+  background-color: var(--menuHover-color);
+  padding: 12px;
+  border-radius: 6px;
+  border-left: 3px solid var(--Btnbg-color);
+}
+
+.personalDetails h3 {
+  font-size: 18px;
+  color: var(--Darktext-color);
+  margin: 0 0 16px;
+  font-weight: 600;
+}
+
+.titleSelector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.titleButton {
+  padding: 10px 24px;
+  background-color: var(--menuHover-color);
+  border: 1px solid var(--menuHover-color);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  color: var(--LightDarktext-color);
+}
+
+.titleButton.selected {
+  background-color: var(--Btnbg-color);
+  color: var(--LightText-color);
+  border-color: var(--Btnbg-color);
+  box-shadow: 0 2px 6px var(--Btnbg-color);
+}
+
+.titleButton:hover:not(.selected) {
+  background-color: var(--menuHover-color);
+}
+
+.formRow {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.formGroup {
+  flex: 1;
+}
+
+.formInput, .formSelect {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--menuHover-color);
+  border-radius: 6px;
+  font-size: 15px;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-color: var(--bg-color);
+  color: var(--Darktext-color);
+}
+
+.formInput:focus, .formSelect:focus {
+  border-color: var(--Btnbg-color);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--Btnbg-color);
+}
+
+.formSelect {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px top 50%;
+  background-size: 16px auto;
+  padding-right: 36px;
+}
+
+.dateSelector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.dateSelector .formGroup {
+  flex: 1;
+}
+
+.passengerCard {
+  margin-bottom: 20px;
+  background-color: var(--bg-color);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.passengerCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.passengerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: var(--menuHover-color);
+  border-bottom: 1px solid var(--menuHover-color);
+}
+
+.passengerHeader h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 18px;
+  color: var(--Darktext-color);
+}
+
+.passengerIcon {
+  width: 32px;
+  height: 32px;
+  background-color: var(--Btnbg-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--LightText-color);
+}
+
+.removeButton {
+  background: none;
+  border: none;
+  color: #ff5a5f;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.removeButton:hover {
+  transform: scale(1.1);
+}
+
+.fullWidth {
+  flex: 1 1 100%;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--Darktext-color);
+  margin: 24px 0 12px;
+}
+
+@media (max-width: 768px) {
+  .formRow {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .titleSelector {
+    flex-wrap: wrap;
+  }
+}

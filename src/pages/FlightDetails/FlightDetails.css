@@ -1,0 +1,19 @@
+
+.page-container {
+  margin-top: 80px;
+  background-color:var(--bg-color);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.booking-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .booking-container {
+    padding: 10px;
+  }
+}

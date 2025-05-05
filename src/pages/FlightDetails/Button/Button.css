@@ -1,0 +1,62 @@
+.btn {
+  padding: 10px 15px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary {
+  background-color: var(--Btnbg-color);
+  color: var(--LightText-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--AuthBtn-color);
+}
+
+.btn-secondary {
+  background-color: #ff5a5f;
+  color: var(--LightText-color);
+}
+
+.btn-secondary:hover {
+  background-color: #ff4146;
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--menuHover-color);
+  color: var(--Darktext-color);
+}
+
+.btn-outline:hover {
+  background-color: var(--menuHover-color);
+}
+
+.btn-default {
+  font-size: 14px;
+  height: 36px;
+}
+
+.btn-sm {
+  font-size: 12px;
+  padding: 6px 12px;
+  height: 30px;
+}
+
+.btn-lg {
+  font-size: 16px;
+  padding: 12px 20px;
+  height: 44px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

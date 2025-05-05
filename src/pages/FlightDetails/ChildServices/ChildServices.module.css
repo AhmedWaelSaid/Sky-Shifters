@@ -1,0 +1,202 @@
+.childServices {
+  background-color: var(--bg-color);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.childServices:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.serviceHeader {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.serviceHeader:hover {
+  background-color: var(--menuHover-color);
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.serviceIcon {
+  width: 40px;
+  height: 40px;
+  background-color: var(--menuHover-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--Btnbg-color);
+}
+
+.toggleButton {
+  width: 24px;
+  height: 24px;
+  background-color: var(--menuHover-color);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--LightDarktext-color);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggleButton:hover {
+  background-color: var(--menuHover-color);
+}
+
+.serviceOptions {
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.serviceDescription {
+  margin: 0 0 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--LightDarktext-color);
+}
+
+.viewBenefits {
+  color: var(--Btnbg-color);
+  text-decoration: none;
+  font-size: 14px;
+  margin-left: 10px;
+  transition: all 0.2s;
+}
+
+.viewBenefits:hover {
+  text-decoration: underline;
+}
+
+.benefitsPanel {
+  background-color: var(--menuHover-color);
+  border-radius: 6px;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.benefitItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--LightDarktext-color);
+}
+
+.benefitItem:last-child {
+  margin-bottom: 0;
+}
+
+.benefitIcon {
+  color: var(--Btnbg-color);
+  margin-top: 2px;
+}
+
+.serviceItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--menuHover-color);
+}
+
+.serviceItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.serviceInfo h4 {
+  margin: 0 0 5px;
+  color: var(--Darktext-color);
+}
+
+.serviceInfo p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--LightDarktext-color);
+}
+
+.serviceActions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.servicePrice {
+  font-weight: 500;
+  color: var(--Btnbg-color);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--menuHover-color);
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--bg-color);
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--Btnbg-color);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--Btnbg-color);
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
