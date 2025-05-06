@@ -1,3 +1,4 @@
+import { useState,useEffect } from "react";
 export function csvToJson(csvText) {
     const columns = [
         "id", "name", "city", "country", "iata", "icao",
@@ -59,4 +60,18 @@ export async function getAmadeusAccessToken(clientId, clientSecret) {
   };
 
   return data.access_token;
+}
+export function useAirports(){
+  const [airports, setAirports]= useState([])
+  useEffect(() => {
+    fetch("/airports.dat")
+      .then((response) => response.text())
+      .then((csv) => {
+        const airportsArray = csvToJson(csv);
+        setAirports(airportsArray);
+      })
+      .catch((err) => console.error("Error loading airports", err));
+  }, []);
+
+  return {airports}
 }

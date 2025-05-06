@@ -1,44 +1,111 @@
 import {
   FaPlaneDeparture,
   FaPlaneArrival,
-  FaCalendarAlt,
   FaUser,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom"; // استيراد useNavigate
 import styles from "./FlightSearchForm.module.css";
-import { csvToJson } from "../../helperFun.jsx";
+import { useAirports } from "../../helperFun.jsx";
 import { ShowTopSearch } from "./ShowTopSearch.jsx";
-import { useEffect, useState } from "react";
-import {format} from "date-fns";
+import { useState, useRef, useEffect } from "react";
+import { format,parseISO } from "date-fns";
 import { useData } from "../../components/context/DataContext.jsx";
+import PropTypes from "prop-types";
+import PassengerClass from "../SelectedFlights/Passengers.jsx";
+import CustomDatePicker from "../SelectedFlights/CustomDatePicker.jsx";
+
+export function AirportInput({
+  name,
+  className,
+  setFocus,
+  setValue,
+  placeholder,
+  value,
+}) {
+  return (
+    <input
+      type="text"
+      name={name}
+      id={name}
+      className={styles[className]}
+      onFocus={() => setFocus(true)}
+      onBlur={() => {
+        setFocus(false);
+      }}
+      value={value.text}
+      onChange={(e) => setValue((prev) => ({ ...prev, text: e.target.value }))}
+      placeholder={placeholder}
+    />
+  );
+}
+
+AirportInput.propTypes = {
+  name: PropTypes.string,
+  className: PropTypes.string,
+  setFocus: PropTypes.func,
+  setValue: PropTypes.func,
+  placeholder: PropTypes.string,
+  value: PropTypes.object,
+};
 
 export default function FlightSearchForm() {
-  const [airports, setAirports] = useState([]);
+  const { airports } = useAirports();
   const [originFocus, setOriginFocus] = useState(false);
   const [destFocus, setDestFocus] = useState(false);
   const [origin, setOrigin] = useState({ text: "" });
   const [dest, setDest] = useState({ text: "" });
-  const [date, setDate] = useState(format(new Date(), "u-LL-dd"));
-  const {setSharedData} = useData();
+  const [dates, setDates] = useState({
+    departure: format(new Date(), "yyyy-MM-dd"),
+    return: null,
+  });
+  const [passengerClass, setPassengerClass] = useState({
+    adults: 1,
+    children: 0,
+    infants: 0,
+    class: { value: "ALL", text: "All" },
+  });
+  const [passengerClassFocus, setPassengerClassFocus] = useState(false);
+  const { setSharedData } = useData();
 
   const navigate = useNavigate(); // استخدام useNavigate للتنقل
-  useEffect(() => {
-    fetch("/airports.dat")
-      .then((response) => response.text())
-      .then((csv) => {
-        const airportsArray = csvToJson(csv);
-        setAirports(airportsArray);
-      })
-      .catch((err) => console.error("Error loading airports", err));
-  }, []);
 
-  async function handleSubmit(event) {
+  function getPassengerNum() {
+    const totalNum =
+      passengerClass.adults + passengerClass.children + passengerClass.infants;
+    if (totalNum == 1)
+      return `${totalNum} Passenger - ${passengerClass.class.text}`;
+    else return `${totalNum} Passengers - ${passengerClass.class.text}`;
+  }
+  function handleSubmit(event) {
     event.preventDefault();
-    if (origin.airport && dest.airport){
-    setSharedData({origin,dest,date});
-    navigate("/selected-flights")
+    // Add additional check to prevent accidental submits
+    if (event.nativeEvent.submitter?.className?.includes(styles.flights)) {
+      if (origin.airport && dest.airport) {
+        setSharedData({ origin, dest, dates, passengerClass });
+        navigate("/selected-flights");
+      }
     }
   }
+  const popupRef = useRef(null);
+  const inputRef = useRef(null);
+
+  // Close popup when clicking outside
+  const handleClickOutside = (event) => {
+    if (popupRef.current && !popupRef.current.contains(event.target)) {
+      // Also check if the click wasn't on the input
+      if (inputRef.current !== event.target) {
+        setPassengerClassFocus(false);
+      }
+    }
+  };
+
+  // Set up event listener
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
@@ -53,20 +120,13 @@ export default function FlightSearchForm() {
             <label htmlFor="origin">From</label>
             <div className={styles.inputContainer}>
               <FaPlaneDeparture className={styles.iconForm} />
-              <input
-                type="text"
+              <AirportInput
                 name="origin"
-                id="origin"
-                className={styles.cityInput}
-                onFocus={() => setOriginFocus(true)}
-                onBlur={() => {
-                  setOriginFocus(false);
-                }}
-                value={origin.text}
-                onChange={(e) =>
-                  setOrigin((prev) => ({ ...prev, text: e.target.value }))
-                }
+                className="cityInput"
+                setFocus={setOriginFocus}
+                setValue={setOrigin}
                 placeholder="Origin"
+                value={origin}
               />
               {originFocus && (
                 <ShowTopSearch
@@ -81,18 +141,13 @@ export default function FlightSearchForm() {
             <label htmlFor="destination">To</label>
             <div className={styles.inputContainer}>
               <FaPlaneArrival className={styles.iconForm} />
-              <input
-                type="text"
+              <AirportInput
                 name="destination"
-                id="destination"
-                className={styles.cityInput}
-                onFocus={() => setDestFocus(true)}
-                onBlur={() => setDestFocus(false)}
-                value={dest.text}
-                onChange={(e) =>
-                  setDest((prev) => ({ ...prev, text: e.target.value }))
-                }
+                className="cityInput"
+                setFocus={setDestFocus}
+                setValue={setDest}
                 placeholder="Destination"
+                value={dest}
               />
               {destFocus && (
                 <ShowTopSearch
@@ -107,14 +162,19 @@ export default function FlightSearchForm() {
           <div className={styles.formGroup}>
             <label>Date</label>
             <div className={styles.inputContainer}>
-              <FaCalendarAlt className={styles.iconForm} />
-              <input
-                type="date"
-                defaultValue={date}
-                onChange={(e) => {
-                  setDate(e.target.value);
+              <CustomDatePicker
+                value={{
+                  departure: parseISO(dates.departure),
+                  return: dates.return ? parseISO(dates.return) : null,
                 }}
-                className={styles.baseInput}
+                onChange={(newDates) => {
+                  setDates({
+                    departure: format(newDates.departure, "yyyy-MM-dd"),
+                    return: newDates.return
+                      ? format(newDates.return, "yyyy-MM-dd")
+                      : null,
+                  });
+                }}
               />
             </div>
           </div>
@@ -123,10 +183,26 @@ export default function FlightSearchForm() {
             <label>Passengers - Class</label>
             <div className={styles.inputContainer}>
               <FaUser className={styles.iconForm} />
-              <select className={styles.selectInput}>
-                <option>2 Passengers - Economy</option>
-                <option>1 Passenger - Business</option>
-              </select>
+              <input
+                type="text"
+                ref={inputRef}
+                className={`${styles.cityInput} ${styles.passengerInput}`}
+                value={getPassengerNum()}
+                onClick={() => setPassengerClassFocus(!passengerClassFocus)}
+                readOnly
+              />
+              {passengerClassFocus && (
+                <div
+                  ref={popupRef}
+                  className={styles.passengerClassContainer}
+                  onMouseDown={(e) => e.preventDefault()} // Prevent input blur
+                >
+                  <PassengerClass
+                    passengerClass={passengerClass}
+                    setPassengerClass={setPassengerClass}
+                  />
+                </div>
+              )}
             </div>
           </div>
           <div className={styles.showFlights}>

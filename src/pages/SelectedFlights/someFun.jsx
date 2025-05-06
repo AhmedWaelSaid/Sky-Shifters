@@ -1,10 +1,15 @@
 export function dealWithDuration(duration) {
-  const hours = Number(duration.split("T")[1].split("H")[0]);
+  let hours = 0;
+  let timeInMinutes;
+  if (duration.includes("H")){
+   hours = Number(duration.split("T")[1].split("H")[0]);
   let minutes = 0;
   if (duration.includes("M"))
     minutes = Number(duration.split("T")[1].split("H")[1].split("M")[0]);
-
-  const timeInMinutes = hours * 60 + minutes;
+   timeInMinutes = hours * 60 + minutes;
+  }
+  if (duration.includes("M") && !duration.includes("H"))
+    timeInMinutes = Number(duration.split("T")[1].split("M")[0]);
   return timeInMinutes;
 }
 export function getDurationAndPrice(data) {

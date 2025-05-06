@@ -12,20 +12,48 @@ import Error from "./Error.jsx";
 import EmptyData from "./EmptyData.jsx";
 
 async function getFlightsFromAPI(input, signal) {
+  const baseUrl = "https://api.amadeus.com/v2/shopping/flight-offers";
+
   if (!input) return;
+
+  const params = new URLSearchParams({
+    originLocationCode: input.origin.airport.iata,
+    destinationLocationCode: input.dest.airport.iata,
+    departureDate: format(input.dates.departure, "u-LL-dd"),
+    currencyCode: "USD",
+  });
+
+  // Add passengers
+  if (input.passengerClass) {
+    params.append("adults", input.passengerClass.adults);
+    params.append("children", input.passengerClass.children);
+    params.append("infants", input.passengerClass.infants);
+
+    if (
+      input.passengerClass.class?.value &&
+      input.passengerClass.class.value !== "ALL"
+    ) {
+      params.append("travelClass", input.passengerClass.class.value);
+    }
+  } else {
+    // Default adults=1 if no passenger info
+    params.append("adults", "1");
+  }
+  if (input.dates.return !=null){
+    params.append("returnDate",input.dates.return);
+  }
+
+  const url = `${baseUrl}?${params.toString()}`;
   const key = import.meta.env.VITE_API_KEY;
   const secret = import.meta.env.VITE_API_SECRET;
   const accessToken = await getAmadeusAccessToken(key, secret);
-  const data = await fetch(
-    `https://api.amadeus.com/v2/shopping/flight-offers?originLocationCode=${input.origin.airport.iata}&destinationLocationCode=${input.dest.airport.iata}&departureDate=${format(input.date, "u-LL-dd")}&adults=1&currencyCode=USD`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      signal,
-    }
-  ).then((response) => {
+  const data = await fetch(url, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    signal,
+  }).then((response) => {
     if (response.status >= 400) {
       throw new Error("server error");
     }
@@ -43,6 +71,10 @@ function useSearchData() {
     const controller = new AbortController();
     let isMounted = true;
     const fetchFlights = async () => {
+      if (!sharedData?.origin || !sharedData?.dest || !sharedData?.dates) {
+        setLoading(false);
+        return;
+      }
       try {
         setLoading(true);
         const result = await getFlightsFromAPI(sharedData, controller.signal);
@@ -78,7 +110,6 @@ export default function Container() {
   const [priceAndDuration, setPriceAndDuration] = useState({});
   useEffect(() => {
     setCurrentPage(1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [airLinesChecked, stop, flightDuration, price]);
   useEffect(() => {
     if (
@@ -94,7 +125,8 @@ export default function Container() {
   }, [flightsData]);
   if (loading) return <Loading />; //loading screen
   if (error && !error.name === "AbortError") return <Error />; //error screen
-  if (flightsData.data.length === 0 || !flightsData.data) return <EmptyData/>;
+  if (!flightsData || flightsData.data.length === 0 || !flightsData.data)
+    return <EmptyData />;
 
   function filteredData(flights) {
     if (!flights) return null;

@@ -34,7 +34,7 @@ export function Main({
 }) {
   const flightsPerPage = 8;
 
-  if (!flightsData) return "";
+  if (!flightsData) return "Data not here";
   const totalPages = Math.ceil(flightsData.data.length / flightsPerPage);
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
   const startIndex = (currentPage - 1) * flightsPerPage;

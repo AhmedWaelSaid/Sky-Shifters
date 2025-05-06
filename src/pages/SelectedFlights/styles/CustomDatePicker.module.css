@@ -1,0 +1,188 @@
+.datePickerContainer {
+    position: relative;
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    height: 100%;
+    margin-top: 5px;
+  }
+  
+  .displayDates {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: white;
+    cursor: pointer;
+    height: 100%;
+  }
+  
+  .dateDisplay {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  
+  .dateDisplay.active {
+    background-color: #f0f7ff;
+    border: 1px solid #007bff;
+  }
+  
+  .dateLabel {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+  }
+  
+  .dateValue {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .dateSeparator {
+    color: #666;
+    font-size: 16px;
+  }
+  
+  .addReturnButton {
+    background: none;
+    border: 1px dashed #ccc;
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: #007bff;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    height: 60px;
+    width: 180px;
+  }
+  
+  .addReturnButton:hover {
+    border-color: #007bff;
+  }
+  
+  .removeReturnButton {
+    background: none;
+    border: none;
+    color: #ff4444;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0 8px;
+  }
+  
+  .calendarPopup {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 300px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    margin-top: 8px;
+    padding: 16px;
+  }
+  
+  .calendarHeader {
+    text-align: center;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: #333;
+  }
+  
+  .calendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  
+  .weekdayHeader {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    padding: 4px;
+  }
+  
+  .calendarDay {
+    text-align: center;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .calendarDay:hover {
+    background-color: #f0f7ff;
+  }
+  
+  .departureDay {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .returnDay {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .inRangeDay {
+    background-color: #e6f2ff;
+  }
+  
+  .disabledDay {
+    color: #ccc;
+    pointer-events: none;
+  }
+  /* Add these to your existing CSS */
+.calendarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  margin-bottom: 12px;
+}
+
+.navButton {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.navButton:hover {
+  background-color: #f0f0f0;
+}
+
+.monthYear {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.otherMonthDay {
+  color: #ccc;
+  pointer-events: none;
+}
+
+/* Update your calendar grid to account for full month display */
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendarDay {
+  padding: 8px;
+  text-align: center;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+

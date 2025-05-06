@@ -1,109 +1,202 @@
-
 import styles from "./styles/mainHeader.module.css";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import submitIcon from "../../assets/submit.png";
-import DatePicker from "react-datepicker";
+import { ShowTopSearch } from "../Home/ShowTopSearch";
+import { useAirports } from "../../helperFun";
+import { useData } from "../../components/context/DataContext";
+import { format, parseISO } from "date-fns";
+import PropTypes from "prop-types";
+import PassengerClass from "./Passengers.jsx";
+import CustomDatePicker from "./CustomDatePicker.jsx";
+import {
+  FaPlaneDeparture,
+  FaPlaneArrival,
+  FaUser,
+} from "react-icons/fa";
+export function AirportInput({
+  name,
+  className,
+  setFocus,
+  setValue,
+  placeholder,
+  value,
+}) {
+  return (
+    <input
+      type="text"
+      name={name}
+      id={name}
+      className={styles[className]}
+      onFocus={() => setFocus(true)}
+      onBlur={() => {
+        setFocus(false);
+      }}
+      value={value.text}
+      onChange={(e) => setValue((prev) => ({ ...prev, text: e.target.value }))}
+      placeholder={placeholder}
+    />
+  );
+}
+
+AirportInput.propTypes = {
+  name: PropTypes.string,
+  className: PropTypes.string,
+  setFocus: PropTypes.func,
+  setValue: PropTypes.func,
+  placeholder: PropTypes.string,
+  value: PropTypes.object,
+};
 
 export default function MainHeader() {
-    const [dateRange, setDateRange] = useState([
-        new Date("2025-04-21"),
-        new Date("2025-04-26"),
-      ]);
-      const [startDate, endDate] = dateRange;
+  const { sharedData, setSharedData } = useData();
+  const [dates, setDates] = useState(
+    sharedData.dates
+      ? sharedData.dates
+      : { departure: format(new Date(), "yyyy-MM-dd"), return: null }
+  );
+  const { airports } = useAirports();
+  const [originFocus, setOriginFocus] = useState(false);
+  const [destFocus, setDestFocus] = useState(false);
+  const [origin, setOrigin] = useState({ text: "" });
+  const [dest, setDest] = useState({ text: "" });
+  const [passengerClass, setPassengerClass] = useState(
+    sharedData.passengerClass
+      ? sharedData.passengerClass
+      : {
+          adults: 1,
+          children: 0,
+          infants: 0,
+          class: { value: "ALL", text: "All" },
+        }
+  );
+  const [passengerClassFocus, setPassengerClassFocus] = useState(false);
+  const popupRef = useRef(null);
+  const inputRef = useRef(null);
 
-    return (
-        <div className={styles["main-header-container"]}>
-        <form action="" className={styles.form}>
-          <div className={styles["first-row"]}>
-            <div className={styles.way}>
-              <select name="way" defaultValue="one-way">
-                <option value="one-way">➜ One way</option>
-                <option value="round-trip">🔄 Round trip</option>
-              </select>
-            </div>
-            <div className={styles.group}>
-              <select name="group-number" defaultValue="1">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-              </select>
-            </div>
-            <div className={styles.seat}>
-              <select name="class" defaultValue="economy">
-                <option value="economy">Economy</option>
-                <option value="premium-economy">Premium </option>
-                <option value="business-class">Business</option>
-                <option value="first-class">First Class</option>
-              </select>
-            </div>
-          </div>
-          <div className={styles["second-row"]}>
-            <div className={styles.location}>
-              <div className={styles.from}>
-                <select name="from" id="from">
-                  <option value="houston">Houston(HOU)</option>
-                  <option value="LA">Los Angeles(LAX)</option>
-                </select>
-              </div>
-              <div className={styles.between}></div>
-              <div className={styles.to}>
-                <select name="to" id="to" defaultValue="LA">
-                  <option value="houston">Houston(HOU)</option>
-                  <option value="LA">Los Angeles(LAX)</option>
-                </select>
-              </div>
-            </div>
-            <div className={styles.calender}>
-              <DatePicker
-                name="date"
-                className={styles["date-picker"]}
-                showIcon
-                selectsRange={true}
-                startDate={startDate}
-                endDate={endDate}
-                onChange={(update) => {
-                  setDateRange(update);
-                }}
-                icon={
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="1em"
-                    height="1em"
-                    viewBox="0 0 48 48"
-                  >
-                    <mask id="ipSApplication0">
-                      <g
-                        fill="none"
-                        stroke="#fff"
-                        strokeLinejoin="round"
-                        strokeWidth="4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          d="M40.04 22v20h-32V22"
-                        ></path>
-                        <path
-                          fill="#fff"
-                          d="M5.842 13.777C4.312 17.737 7.263 22 11.51 22c3.314 0 6.019-2.686 6.019-6a6 6 0 0 0 6 6h1.018a6 6 0 0 0 6-6c0 3.314 2.706 6 6.02 6c4.248 0 7.201-4.265 5.67-8.228L39.234 6H8.845l-3.003 7.777Z"
-                        ></path>
-                      </g>
-                    </mask>
-                    <path
-                      fill="currentColor"
-                      d="M0 0h48v48H0z"
-                      mask="url(#ipSApplication0)"
-                    ></path>
-                  </svg>
-                }
+  // Close popup when clicking outside
+  const handleClickOutside = (event) => {
+    if (popupRef.current && !popupRef.current.contains(event.target)) {
+      // Also check if the click wasn't on the input
+      if (inputRef.current !== event.target) {
+        setPassengerClassFocus(false);
+      }
+    }
+  };
+
+  // Set up event listener
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  function getPassengerNum() {
+    const totalNum =
+      passengerClass.adults + passengerClass.children + passengerClass.infants;
+    if (totalNum == 1)
+      return `${totalNum} Passenger - ${passengerClass.class.text}`;
+    else return `${totalNum} Passengers - ${passengerClass.class.text}`;
+  }
+
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    if (event.nativeEvent.submitter?.name === "flightSubmit") {
+      if (origin.airport && dest.airport) {
+        setSharedData(() => ({
+          origin,
+          dest,
+          dates,
+          passengerClass,
+        }));
+      }
+    }
+  }
+  return (
+    <div className={styles["main-header-container"]}>
+      <form className={styles.form} onSubmit={handleSubmit} autoComplete="off">
+        <div className={styles.from}>
+          <FaPlaneDeparture className={styles.iconForm} />
+          <AirportInput
+            name="origin"
+            className="origin"
+            setFocus={setOriginFocus}
+            setValue={setOrigin}
+            value={origin}
+            placeholder={sharedData.origin ? sharedData.origin.text : "Origin"}
+          />
+          {originFocus && (
+            <ShowTopSearch
+              set={setOrigin}
+              keyWord={origin.text}
+              airports={airports}
+            />
+          )}
+        </div>
+        <div className={styles.to}>
+          <FaPlaneArrival className={styles.iconForm} />
+          <AirportInput
+            name="destination"
+            className="destination"
+            setFocus={setDestFocus}
+            setValue={setDest}
+            value={dest}
+            placeholder={sharedData.dest ? sharedData.dest.text : "Destination"}
+          />
+          {destFocus && (
+            <ShowTopSearch
+              set={setDest}
+              keyWord={dest.text}
+              airports={airports}
+            />
+          )}
+        </div>
+        <div className={styles.calender}>
+            <CustomDatePicker
+              value={{
+                departure: parseISO(dates.departure),
+                return: dates.return ? parseISO(dates.return) : null,
+              }}
+              onChange={(newDates) => {
+                setDates({
+                  departure: format(newDates.departure, "yyyy-MM-dd"),
+                  return: newDates.return
+                    ? format(newDates.return, "yyyy-MM-dd")
+                    : null,
+                });
+              }}
+            />
+        </div>
+        <div className={styles.passengerContainer}>
+          <FaUser className={styles.iconForm} />
+          <input
+            type="text"
+            ref={inputRef}
+            className={`${styles.passengerInput}`}
+            value={getPassengerNum()}
+            onClick={() => setPassengerClassFocus(!passengerClassFocus)}
+            readOnly
+          />
+          {passengerClassFocus && (
+            <div
+              ref={popupRef}
+              className={styles.passengerClassContainer}
+              onMouseDown={(e) => e.preventDefault()} // Prevent input blur
+            >
+              <PassengerClass
+                passengerClass={passengerClass}
+                setPassengerClass={setPassengerClass}
               />
             </div>
-            <div className={styles["form-submit"]}>
-              <button type="submit">
-                <img src={submitIcon} alt="submit" />
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    );
+          )}
+        </div>
+        <div className={styles["form-submit"]}>
+          <button type="submit" name="flightSubmit" className={styles.flights}>
+            <img src={submitIcon} alt="submit" />
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 }

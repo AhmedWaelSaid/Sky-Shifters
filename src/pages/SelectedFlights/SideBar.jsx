@@ -8,7 +8,7 @@ function InputCheckBox({ value, name, airLinesChecked, airLinesHandler }) {
         type="checkbox"
         id={name}
         name={name}
-        value={value}
+        value={value ? value : null}
         checked={airLinesChecked ? !!airLinesChecked[value] : false}
         onChange={(e) => airLinesHandler(e)}
       />
