@@ -1,98 +1,103 @@
-.container div{
-    display: flex;
-    justify-content: space-between;
+.container div {
+  display: flex;
+  justify-content: space-between;
 }
-/* button {
-    background-color: var(--bg-color);
-    border: none;
-    width: 30px;
-    height: 30px;
-    text-align: center;
+
+.actionBtn {
+  background-color: var(--bg-color);
+  border: none;
+  width: 30px;
+  height: 30px;
+  text-align: center;
 }
-button:hover {
-    cursor: pointer;
+
+.actionBtn:hover {
+  cursor: pointer;
 }
-button svg {
-    width: 25px;
-    height: 25px;
-    fill: var(--Btnbg-color);
-} */
-.passengerNum{
-    margin-left: 5px;
+
+.actionBtn svg {
+  width: 25px;
+  height: 25px;
+  fill: var(--Btnbg-color);
 }
-.passengerTitle{
-    margin-bottom: 10px;
+
+.passengerNum {
+  margin-left: 5px;
 }
+
+.passengerTitle {
+  margin-bottom: 10px;
+}
+
 .travelClassContainer {
-    margin-top: 1rem;
-    padding-top: 1rem;
-  }
-  
-  .travelClassLabel {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-    color: #333;
-  }
-  
-  .travelClassOptions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  
-  .radioOption {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    padding: 0.5rem 0;
-  }
-  
-  .radioInput {
-    position: absolute;
-    opacity: 0;
-  }
-  
- /* Replace the existing .radioCustom styles with these */
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.travelClassLabel {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.travelClassOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.radioOption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+
+.radioInput {
+  position: absolute;
+  opacity: 0;
+}
+
 .radioCustom {
-    width: 1.2rem;
-    height: 1.2rem;
-    border: 2px solid #ccc; /* Outer ring */
-    border-radius: 50%;
-    display: inline-block;
-    position: relative;
-    transition: all 0.3s;
-    background: transparent; /* Ensure inner is transparent */
-  }
-  
-  .radioInput:checked + .radioCustom {
-    border-color: #2563eb; /* Outer ring color when selected */
-    background: transparent; /* Keep inner transparent */
-  }
-  
-  .radioInput:checked + .radioCustom::after {
-    content: "";
-    width: 0.6rem;
-    height: 0.6rem;
-    background: #2563eb; /* Filled inner circle color */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    transition: all 0.3s;
-  }
-  
-  /* Hover state */
-  .radioOption:hover .radioCustom {
-    border-color: #2563eb;
-  }
-  
-  .radioOption:hover .radioInput:checked + .radioCustom::after {
-    background: #1d4ed8; /* Darker inner circle on hover */
-  }
-  .container .travelClassContainer{
-    display: flex;
-    flex-direction: column;
-    border-top: 1px solid;
-  }
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  transition: all 0.3s;
+  background: transparent;
+}
+
+.radioInput:checked + .radioCustom {
+  border-color: #2563eb;
+  background: transparent;
+}
+
+.radioInput:checked + .radioCustom::after {
+  content: "";
+  width: 0.6rem;
+  height: 0.6rem;
+  background: #2563eb;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.radioOption:hover .radioCustom {
+  border-color: #2563eb;
+}
+
+.radioOption:hover .radioInput:checked + .radioCustom::after {
+  background: #1d4ed8;
+}
+
+.container .travelClassContainer {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid;
+}

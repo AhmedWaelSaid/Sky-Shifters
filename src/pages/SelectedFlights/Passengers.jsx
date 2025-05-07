@@ -1,23 +1,25 @@
 import PropTypes from "prop-types";
 import styles from "./styles/Passenger.module.css";
+
 export default function PassengerClass({ passengerClass, setPassengerClass }) {
   function adultsPlusChildrenCon() {
     if (passengerClass.adults + passengerClass.children == 9) return false;
     else return true;
   }
+
   function infantsCon() {
     if (passengerClass.adults == passengerClass.infants) return false;
     else return true;
   }
+
   return (
     <div className={styles.container}>
       <div className={styles.passengerTitle}>Travelers</div>
       <div>
         <div>Adults (12+ years)</div>
         <div className={styles.btnContainers}>
-        {styles.btnContainers}
           <button
-            className={styles.minus}
+            className={styles.actionBtn + ' ' + styles.minus}
             onClick={() => {
               if (passengerClass.adults > 1)
                 setPassengerClass((prev) => ({
@@ -33,7 +35,7 @@ export default function PassengerClass({ passengerClass, setPassengerClass }) {
           </button>
           <div className={styles.passengerNum}>{passengerClass.adults}</div>
           <button
-            className={styles.plus}
+            className={styles.actionBtn + ' ' + styles.plus}
             onMouseDown={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -55,7 +57,7 @@ export default function PassengerClass({ passengerClass, setPassengerClass }) {
         <div>Children (2-11 years)</div>
         <div className={styles.btnContainers}>
           <button
-            className={styles.minus}
+            className={styles.actionBtn + ' ' + styles.minus}
             onMouseDown={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -73,7 +75,7 @@ export default function PassengerClass({ passengerClass, setPassengerClass }) {
           </button>
           <div className={styles.passengerNum}>{passengerClass.children}</div>
           <button
-            className={styles.plus}
+            className={styles.actionBtn + ' ' + styles.plus}
             onMouseDown={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -95,7 +97,7 @@ export default function PassengerClass({ passengerClass, setPassengerClass }) {
         <div>Infants (Under 2 years)</div>
         <div className={styles.btnContainers}>
           <button
-            className={styles.minus}
+            className={styles.actionBtn + ' ' + styles.minus}
             onMouseDown={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -113,7 +115,7 @@ export default function PassengerClass({ passengerClass, setPassengerClass }) {
           </button>
           <div className={styles.passengerNum}>{passengerClass.infants}</div>
           <button
-            className={styles.plus}
+            className={styles.actionBtn + ' ' + styles.plus}
             onMouseDown={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -164,6 +166,7 @@ export default function PassengerClass({ passengerClass, setPassengerClass }) {
     </div>
   );
 }
+
 PassengerClass.propTypes = {
   passengerClass: PropTypes.object,
   setPassengerClass: PropTypes.func,
