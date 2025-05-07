@@ -1,18 +1,17 @@
-.nav-container {
+.navContainer {
   display: flex;
   justify-content: center;
   gap: 2rem;
   padding: 1rem;
-  
   border-bottom: 1px solid #ddd;
 }
 
-.nav-link {
+.navLink {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   text-decoration: none;
-  color: var( --DarkyellowText-color);
+  color: var(--DarkyellowText-color);
   font-weight: 500;
   font-size: 1rem;
 }
@@ -20,14 +19,13 @@
 .icon {
   width: 24px;
   height: 24px;
-  color:var(--DarkyellowText-color); 
+  color: var(--DarkyellowText-color);
 }
 
-.nav-link:hover {
+.navLink:hover {
   color: #0085FF;
 }
 
-.nav-link:hover .icon {
+.navLink:hover .icon {
   color: #0085FF;
 }
-

@@ -15,6 +15,7 @@ export default function PassengerClass({ passengerClass, setPassengerClass }) {
       <div>
         <div>Adults (12+ years)</div>
         <div className={styles.btnContainers}>
+        {styles.btnContainers}
           <button
             className={styles.minus}
             onClick={() => {

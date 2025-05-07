@@ -2,7 +2,7 @@
     display: flex;
     justify-content: space-between;
 }
-button {
+/* button {
     background-color: var(--bg-color);
     border: none;
     width: 30px;
@@ -16,7 +16,7 @@ button svg {
     width: 25px;
     height: 25px;
     fill: var(--Btnbg-color);
-}
+} */
 .passengerNum{
     margin-left: 5px;
 }

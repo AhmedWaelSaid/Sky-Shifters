@@ -1,46 +1,44 @@
-
-import './Footer.css';
+import styles from './Footer.module.css';
 import logo from '../assets/logo.png';
-import { FaFacebookF, FaTwitter, FaInstagram } from 'react-icons/fa'; // استيراد أيقونات
+import { FaFacebookF, FaTwitter, FaInstagram } from 'react-icons/fa';
 
 export default function Footer() {
   return (
-    <footer className="footer">
-      <div className="footer-top">
-        <div className="footer-logo">
-          <img src={logo} alt="Sky Shifters Logo" className="footer-logo-img" />
-         
-          <div className="subscribe-form">
-            <input type="email" placeholder="Input your Email" className="email-input-footer" />
-            <button className="subscribe-btn">Subscribe</button>
+    <footer className={styles.footer}>
+      <div className={styles.footerTop}>
+        <div className={styles.footerLogo}>
+          <img src={logo} alt="Sky Shifters Logo" className={styles.footerLogoImg} />
+          <div className={styles.subscribeForm}>
+            <input type="email" placeholder="Input your Email" className={styles.emailInputFooter} />
+            <button className={styles.subscribeBtn}>Subscribe</button>
           </div>
         </div>
-        <div className="footer-links">
-          <div className="footer-column">
+        <div className={styles.footerLinks}>
+          <div className={styles.footerColumn}>
             <h3>About us</h3>
             <ul>
               <li>How to book</li>
               <li>Help center</li>
             </ul>
           </div>
-          <div className="footer-column">
+          <div className={styles.footerColumn}>
             <h3>Flight</h3>
             <ul>
               <li>Booking easily</li>
               <li>Promotions</li>
             </ul>
           </div>
-          <div className="footer-column">
+          <div className={styles.footerColumn}>
             <h3>Contact us</h3>
-            <div className="social-icons">
-              <FaFacebookF className="social-icon" />
-              <FaTwitter className="social-icon" />
-              <FaInstagram className="social-icon" />
+            <div className={styles.socialIcons}>
+              <FaFacebookF className={styles.socialIcon} />
+              <FaTwitter className={styles.socialIcon} />
+              <FaInstagram className={styles.socialIcon} />
             </div>
           </div>
         </div>
       </div>
-      <div className="footer-bottom">
+      <div className={styles.footerBottom}>
         <p>© 2025 Company, Inc. · Privacy · Terms</p>
       </div>
     </footer>
