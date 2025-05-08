@@ -8,7 +8,6 @@ const PassengerDetails = ({
   passengerType, 
   passengerIndex,
   updateDetails,
-  onRemove
 }) => {
   const [details, setDetails] = useState({
     title: '',
@@ -114,19 +113,12 @@ const PassengerDetails = ({
         <h3>
           {passengerType === 'adult' ? (
             <><span className={styles.passengerIcon}><User size={16} /></span> Adult {passengerIndex}</>
-          ) : (
+          ) : passengerType === 'child' ? (
             <><span className={styles.passengerIcon}><Baby size={16} /></span> Child {passengerIndex}</>
+          ): (
+            <><span className={styles.passengerIcon}><Baby size={16} /></span> Infant {passengerIndex}</>
           )}
         </h3>
-        {onRemove && (
-          <button 
-            className={styles.removeButton}
-            onClick={() => onRemove(passengerId)}
-            aria-label="Remove passenger"
-          >
-            <X size={16} />
-          </button>
-        )}
       </div>
 
       <div className={styles.passengerForm}>
@@ -244,25 +236,6 @@ const PassengerDetails = ({
             </select>
           </div>
         </div>
-        
-        {passengerType === 'child' && (
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <select 
-                name="ageGroup"
-                value={details.ageGroup}
-                onChange={handleChange}
-                className={styles.formSelect}
-                required
-              >
-                <option value="">Age Group*</option>
-                <option value="infant">Infant (under 2 years)</option>
-                <option value="child">Child (2-11 years)</option>
-                <option value="adolescent">Adolescent (12+ years)</option>
-              </select>
-            </div>
-          </div>
-        )}
         
         <div className={styles.sectionTitle}>Passport Information</div>
         <div className={styles.formRow}>

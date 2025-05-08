@@ -1,7 +1,6 @@
 
 import React from 'react';
 import styles from './FlightSummary.module.css';
-
 const FlightLeg = ({ type, date, airline, departure, arrival, duration, flightTime }) => {
   return (
     <div className={styles.flightSection}>

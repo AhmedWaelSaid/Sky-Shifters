@@ -39,8 +39,8 @@ async function getFlightsFromAPI(input, signal) {
     // Default adults=1 if no passenger info
     params.append("adults", "1");
   }
-  if (input.dates.return !=null){
-    params.append("returnDate",input.dates.return);
+  if (input.dates.return != null) {
+    params.append("returnDate", input.dates.return);
   }
 
   const url = `${baseUrl}?${params.toString()}`;
@@ -162,6 +162,7 @@ export default function Container() {
     <div className={styles.container}>
       {
         <SideBar
+          flightsData={filteredFlights}
           stop={stop}
           setStop={setStop}
           airLinesChecked={airLinesChecked}

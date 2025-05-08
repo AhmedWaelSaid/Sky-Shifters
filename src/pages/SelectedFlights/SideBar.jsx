@@ -33,7 +33,9 @@ export default function SideBar({
   flightDuration,
   priceAndDuration,
   airLines,
+  flightsData,
 }) {
+  if (!flightsData) return null;
   let airLinesArr = [];
   for (const key in airLines) {
     airLinesArr.push({ code: key, name: airLines[key] });
@@ -196,4 +198,5 @@ SideBar.propTypes = {
   ]),
   priceAndDuration: PropTypes.object.isRequired,
   airLines: PropTypes.object.isRequired,
+  flightsData: PropTypes.object
 };

@@ -7,8 +7,6 @@ import PassengerDetails from '../PassengerDetails/PassengerDetails';
 
 const PassengerDetailsForm = ({ 
   passengers, 
-  onAddPassenger, 
-  onRemovePassenger, 
   onUpdatePassenger, 
   onUpdateForm, 
   formData,
@@ -39,21 +37,28 @@ const PassengerDetailsForm = ({
   };
 
   // Calculate counts for displaying
+  console.log(passengers)
   const adultCount = passengers.filter(p => p.type === 'adult').length;
   const childCount = passengers.filter(p => p.type === 'child').length;
 
   // Create separate indices for adults and children
   const adultIndices = {};
   const childIndices = {};
+  const infantIndices = {};
   
   passengers.forEach(passenger => {
     if (passenger.type === 'adult') {
       if (!adultIndices[passenger.id]) {
         adultIndices[passenger.id] = Object.keys(adultIndices).length + 1;
       }
-    } else {
+    } else if (passenger.type === 'child'){
       if (!childIndices[passenger.id]) {
         childIndices[passenger.id] = Object.keys(childIndices).length + 1;
+      }
+    }
+    else {
+      if (!infantIndices[passenger.id]) {
+        infantIndices[passenger.id] = Object.keys(infantIndices).length + 1;
       }
     }
   });
@@ -75,31 +80,16 @@ const PassengerDetailsForm = ({
               key={passenger.id}
               passengerId={passenger.id}
               passengerType={passenger.type}
-              passengerIndex={passenger.type === 'adult' ? adultIndices[passenger.id] : childIndices[passenger.id]}
+              passengerIndex={passenger.type === 'adult' ? adultIndices[passenger.id] : passenger.type === 'child' ? childIndices[passenger.id] : infantIndices[passenger.id]}
               updateDetails={(id, details) => onUpdatePassenger(id, details)}
-              onRemove={passengers.length > 1 ? onRemovePassenger : null}
             />
           ))}
           
-          <div className="add-passenger-container">
-            <button 
-              className="add-passenger-button adult" 
-              onClick={() => onAddPassenger('adult')}
-            >
-              <Plus size={16} /> Add Adult
-            </button>
-            <button 
-              className="add-passenger-button child" 
-              onClick={() => onAddPassenger('child')}
-            >
-              <Plus size={16} /> Add Child
-            </button>
-          </div>
           
           <div className="contact-section">
             <h3>Contact details</h3>
             <div className="booking-toggle">
-              <span>I'm booking for someone else</span>
+              <span>I`m booking for someone else</span>
               <label className="switch">
                 <input 
                   type="checkbox"

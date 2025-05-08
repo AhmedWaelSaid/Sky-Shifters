@@ -6,18 +6,20 @@ import HeroSection from '../pages/Home/HeroSection';
 import FlightSearchForm from '../pages/Home/FlightSearchForm';
 import TravelOffers from '../pages/Home/TravelOffers';
 import SelectedFlights from "../pages/SelectedFlights/Container";
-
+import Flights from '../pages/SelectedFlights/Flights';
 import Auth from '../components/Auth/Auth';
 import ForgotPassword from '../components/Auth/ForgotPassword';
 import ResetPassword from '../components/Auth/ResetPassword';
 import VerifyEmail from '../components/Auth/VerifyEmail';
 import UserProfile from '../components/UserProfile/UserProfile';
-import FlightDetails from '../pages/FlightDetails/FlightDetails'
+import FlightDetails from '../pages/FlightDetails/FlightDetails';
+import ErrorPage from '../components/ErrorPage';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <MainLayout />,  // MainLayout includes Header, Footer, and an <Outlet />
+    errorElement: <ErrorPage/>,
     children: [
       {
         index: true,
@@ -53,11 +55,17 @@ const router = createBrowserRouter([
       },
       {
         path: 'selected-flights',
-        element: <SelectedFlights />,
-      },
-      {
-        path: 'FlightDetails',
-        element: <FlightDetails/>,
+        element: <Flights/>,
+        children: [
+          {
+            index: true,
+            element: <SelectedFlights />,
+          },
+          {
+            path: 'flight-details',
+            element: <FlightDetails/>,
+          },
+        ]
       },
     ],
   },
