@@ -13,16 +13,14 @@ import EmptyData from "./EmptyData.jsx";
 
 async function getFlightsFromAPI(input, signal) {
   const baseUrl = "https://api.amadeus.com/v2/shopping/flight-offers";
-
   if (!input) return;
-
   const params = new URLSearchParams({
     originLocationCode: input.origin.airport.iata,
     destinationLocationCode: input.dest.airport.iata,
-    departureDate: format(input.dates.departure, "u-LL-dd"),
+    departureDate: format(input.date, "u-LL-dd"),
     currencyCode: "USD",
   });
-
+  console.log("ok233")
   // Add passengers
   if (input.passengerClass) {
     params.append("adults", input.passengerClass.adults);
@@ -39,9 +37,9 @@ async function getFlightsFromAPI(input, signal) {
     // Default adults=1 if no passenger info
     params.append("adults", "1");
   }
-  if (input.dates.return != null) {
+  /*if (input.dates.return != null) {
     params.append("returnDate", input.dates.return);
-  }
+  }*/
 
   const url = `${baseUrl}?${params.toString()}`;
   const key = import.meta.env.VITE_API_KEY;
@@ -62,8 +60,7 @@ async function getFlightsFromAPI(input, signal) {
   console.log(data);
   return data;
 }
-function useSearchData() {
-  const { sharedData } = useData();
+function useSearchData(searchData) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
@@ -71,13 +68,14 @@ function useSearchData() {
     const controller = new AbortController();
     let isMounted = true;
     const fetchFlights = async () => {
-      if (!sharedData?.origin || !sharedData?.dest || !sharedData?.dates) {
+      if (!searchData?.origin || !searchData?.dest || !searchData?.date) {
         setLoading(false);
         return;
       }
       try {
         setLoading(true);
-        const result = await getFlightsFromAPI(sharedData, controller.signal);
+
+        const result = await getFlightsFromAPI(searchData, controller.signal);
         if (isMounted) {
           setData(result);
           setError(null);
@@ -97,17 +95,20 @@ function useSearchData() {
       isMounted = false;
       controller.abort();
     };
-  }, [sharedData]);
+  }, [searchData]);
   return { data, loading, error };
 }
 export default function Container() {
-  const { data: flightsData, loading, error } = useSearchData();
+  const {sharedData} = useData();
+  const [APISearch, setAPISearch] = useState({...sharedData.departure, passengerClass:sharedData.passengerClass})
+  const { data: flightsData, loading, error } = useSearchData(APISearch);
   const [stop, setStop] = useState("");
   const [airLinesChecked, setAirLinesChecked] = useState({});
   const [price, setPrice] = useState(null);
   const [flightDuration, setFlightDuration] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [priceAndDuration, setPriceAndDuration] = useState({});
+  const [isReturn, setIsReturn]= useState(false);
   useEffect(() => {
     setCurrentPage(1);
   }, [airLinesChecked, stop, flightDuration, price]);
@@ -160,7 +161,9 @@ export default function Container() {
   let filteredFlights = filteredData(flightsData);
   return (
     <div className={styles.container}>
-      {
+      <MainHeader isReturn={isReturn} setAPISearch= {setAPISearch}/>
+      {sharedData.return && !isReturn && <h2 className={styles.flightText}>Choose your departure flight!</h2>}
+      {sharedData.return && isReturn && <h2 className={styles.flightText}>Choose your return flight!</h2>}
         <SideBar
           flightsData={filteredFlights}
           stop={stop}
@@ -174,12 +177,13 @@ export default function Container() {
           priceAndDuration={priceAndDuration}
           airLines={flightsData.dictionaries.carriers}
         />
-      }
-      <MainHeader />
       <Main
         setCurrentPage={setCurrentPage}
         currentPage={currentPage}
         flightsData={filteredFlights}
+        setAPISearch= {setAPISearch}
+        setIsReturn={setIsReturn}
+        isReturn={isReturn}
       />
     </div>
   );

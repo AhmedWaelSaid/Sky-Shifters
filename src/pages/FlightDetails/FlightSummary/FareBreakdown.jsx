@@ -1,9 +1,9 @@
 
-import React from 'react';
+import { useOutletContext } from 'react-router-dom';
 import styles from './FlightSummary.module.css';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 
-const FareBreakdown = ({ 
+const FareBreakdown = ({
   passengers = [], 
   formData = {}, 
   onContinue, 
@@ -11,33 +11,31 @@ const FareBreakdown = ({
   showBackButton = false,
   showContinueButton = true 
 }) => {
+  let {flight}= useOutletContext();
   const calculateTotal = () => {
     // Base fare calculations for different age groups in USD
-    let baseFare = 0;
+    let baseFare = {adults:[], children:[], infants:[]};
     
     // Calculate fare based on passenger type and age group
-    passengers.forEach(passenger => {
-      const ageGroup = passenger.details?.ageGroup || '';
-      
+    passengers.forEach((passenger,index) => {
       if (passenger.type === 'adult') {
-        baseFare += 142.50; // Adult full price
+        baseFare.adults.push(flight.data.travelerPricings[index].price.total) // Adult full price
       } else if (passenger.type === 'child') {
-        if (ageGroup === 'infant') {
-          // Infant (under 2): 15% of adult fare
-          baseFare += 142.50 * 0.15;
-        } else if (ageGroup === 'child') {
-          // Child (2-11): 75% of adult fare
-          baseFare += 142.50 * 0.75;
-        } else if (ageGroup === 'adolescent') {
           // Adolescent (12+): Full adult fare
-          baseFare += 142.50;
+          baseFare.children.push(flight.data.travelerPricings[index].price.total)
         } else {
           // Default child fare if age group not specified (75% of adult fare)
-          baseFare += 142.50 * 0.75;
+          baseFare.infants.push(flight.data.travelerPricings[index].price.total)
         }
-      }
-    });
-    
+      });
+    baseFare.total = function (){
+      const adultsTotal = this.adults.reduce((acc,cur)=> (acc+=Number(cur)),0);
+      const childrenTotal = this.children.reduce((acc,cur)=> (acc+=Number(cur)),0);
+      const infantsTotal = this.infants.reduce((acc,cur)=> (acc+=Number(cur)),0);
+      const total = adultsTotal+childrenTotal+infantsTotal;
+      return total;
+    }
+      
     // Service fee
     const serviceFee = 9.95;
     
@@ -70,12 +68,12 @@ const FareBreakdown = ({
     }
     
     return {
-      baseFare,
+      baseFare:baseFare,
       serviceFee,
       addOns,
       specialServices,
       baggageUpgrade: baggageCost,
-      total: baseFare + serviceFee + addOns + specialServices + baggageCost
+      total: Number(baseFare.total()) + serviceFee + addOns + specialServices + baggageCost
     };
   };
   
@@ -87,66 +85,45 @@ const FareBreakdown = ({
 
   // Group passengers by type and age group for display
   const adultPassengers = passengers.filter(p => p.type === 'adult');
-  const infantPassengers = passengers.filter(p => p.type === 'child' && p.details?.ageGroup === 'infant');
-  const childPassengers = passengers.filter(p => p.type === 'child' && (p.details?.ageGroup === 'child' || !p.details?.ageGroup));
-  const adolescentPassengers = passengers.filter(p => p.type === 'child' && p.details?.ageGroup === 'adolescent');
-  
+  const infantPassengers = passengers.filter(p => p.type === 'infant' )
+  const childPassengers = passengers.filter(p => p.type === 'child')
   return (
     <div className={styles.fareBreakdown}>
       <h3>Flight fare breakdown</h3>
       
-      {adultPassengers.length > 0 && (
-        <div className={styles.fareItem}>
+      {adultPassengers.length > 0 && (adultPassengers.map((adult,index )=>(<div key={adult.id} className={styles.fareItem}>
           <div className={styles.fareName}>
-            {adultPassengers.length === 1 
-              ? 'Adult 1' 
-              : `Adults ${adultPassengers.length}`}
+             {"Adult "+(index+1)}
           </div>
           <div className={styles.farePrice}>
-            {formatPrice(142.50 * adultPassengers.length)}
+            {formatPrice(Number(priceDetails.baseFare.adults[index]))}
           </div>
-        </div>
-      )}
+        </div>)
+        
+      ))}
       
-      {infantPassengers.length > 0 && (
-        <div className={styles.fareItem}>
+      {childPassengers.length > 0 && (childPassengers.map((child,index )=>(<div key={child.id} className={styles.fareItem}>
           <div className={styles.fareName}>
-            {infantPassengers.length === 1 
-              ? 'Infant 1 (under 2 years)' 
-              : `Infants ${infantPassengers.length} (under 2 years)`}
+             {"Child "+(index+1)}
           </div>
           <div className={styles.farePrice}>
-            {formatPrice(142.50 * 0.15 * infantPassengers.length)}
+            {formatPrice(Number(priceDetails.baseFare.children[index]))}
           </div>
-        </div>
-      )}
+        </div>)
+        
+      ))}
       
-      {childPassengers.length > 0 && (
-        <div className={styles.fareItem}>
+      {infantPassengers.length > 0 && (infantPassengers.map((infant,index )=>(<div key={infant.id} className={styles.fareItem}>
           <div className={styles.fareName}>
-            {childPassengers.length === 1 
-              ? 'Child 1 (2-11 years)' 
-              : `Children ${childPassengers.length} (2-11 years)`}
+             {"Infant "+(index+1)}
           </div>
           <div className={styles.farePrice}>
-            {formatPrice(142.50 * 0.75 * childPassengers.length)}
+            {formatPrice(Number(priceDetails.baseFare.infants[index]))}
           </div>
-        </div>
-      )}
-      
-      {adolescentPassengers.length > 0 && (
-        <div className={styles.fareItem}>
-          <div className={styles.fareName}>
-            {adolescentPassengers.length === 1 
-              ? 'Adolescent 1 (12+ years)' 
-              : `Adolescents ${adolescentPassengers.length} (12+ years)`}
-          </div>
-          <div className={styles.farePrice}>
-            {formatPrice(142.50 * adolescentPassengers.length)}
-          </div>
-        </div>
-      )}
-      
+        </div>)
+        
+      ))}
+
       {priceDetails.serviceFee > 0 && (
         <div className={styles.fareItem}>
           <div className={styles.fareName}>Service fee</div>

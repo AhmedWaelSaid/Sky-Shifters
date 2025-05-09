@@ -1,14 +1,10 @@
-import {
-  FaPlaneDeparture,
-  FaPlaneArrival,
-  FaUser,
-} from "react-icons/fa";
+import { FaPlaneDeparture, FaPlaneArrival, FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom"; // استيراد useNavigate
 import styles from "./FlightSearchForm.module.css";
 import { useAirports } from "../../helperFun.jsx";
 import { ShowTopSearch } from "./ShowTopSearch.jsx";
 import { useState, useRef, useEffect } from "react";
-import { format,parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { useData } from "../../components/context/DataContext.jsx";
 import PropTypes from "prop-types";
 import PassengerClass from "../SelectedFlights/Passengers.jsx";
@@ -68,7 +64,6 @@ export default function FlightSearchForm() {
   const { setSharedData } = useData();
 
   const navigate = useNavigate(); // استخدام useNavigate للتنقل
-
   function getPassengerNum() {
     const totalNum =
       passengerClass.adults + passengerClass.children + passengerClass.infants;
@@ -80,8 +75,24 @@ export default function FlightSearchForm() {
     event.preventDefault();
     // Add additional check to prevent accidental submits
     if (event.nativeEvent.submitter?.className?.includes(styles.flights)) {
-      if (origin.airport && dest.airport) {
-        setSharedData({ origin, dest, dates, passengerClass });
+      if (origin.airport && dest.airport && dates.departure && !dates.return) {
+        setSharedData({
+          departure: { date: dates.departure, dest, origin },
+          return: null,
+          passengerClass,
+        });
+        navigate("/selected-flights");
+      } else if (
+        origin.airport &&
+        dest.airport &&
+        dates.departure &&
+        dates.return
+      ) {
+        setSharedData({
+          departure: { date: dates.departure, dest, origin },
+          return: { date: dates.return, dest: origin, origin: dest },
+          passengerClass,
+        });
         navigate("/selected-flights");
       }
     }

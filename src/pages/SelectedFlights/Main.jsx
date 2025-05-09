@@ -6,6 +6,7 @@ import { format, parseISO } from "date-fns";
 import PropTypes from "prop-types";
 import { useOutletContext } from "react-router-dom";
 import { formatDuration } from "./someFun";
+import { useData } from "../../components/context/DataContext";
 
 const capitalizeWords = (str) =>
   str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
@@ -20,10 +21,88 @@ function isDurationOneDayOrMore(isoDuration) {
 
   return totalHours >= 24;
 }
+function FlightsUI({ value, btnHandler, flightsData, button }) {
+  return (
+    <div className={styles.flight}>
+      <div className={styles.airLineContainer}>
+        <div
+          className={styles.airLineIcon}
+          style={{ backgroundColor: "orange" }}
+        ></div>
+        <div className={styles.container}>
+          <div className={styles.airLine}>
+            {capitalizeWords(
+              flightsData.dictionaries.carriers[
+                value.itineraries[0].segments[0].carrierCode
+              ]
+            )}
+          </div>
+          <div className={styles.baggage}>zz</div>
+        </div>
+      </div>
+      <div className={styles.flightTime}>
+        {isDurationOneDayOrMore(value.itineraries[0].duration) && (
+          <div className={styles.moreThanADay}>+1</div>
+        )}
+        <div className={styles.arrivalDeparture}>
+          {format(
+            parseISO(value.itineraries[0].segments[0].departure.at),
+            "h:mm a"
+          )}{" "}
+          -{" "}
+          {format(
+            parseISO(
+              value.itineraries[0].segments[
+                value.itineraries[0].segments.length - 1
+              ].arrival.at
+            ),
+            "h:mm a"
+          )}
+        </div>
+        <div className={styles.totalFlightTime}>
+          {formatDuration(value.itineraries[0].duration)}
+        </div>
+      </div>
+      <div className={styles.stops}>
+        <div className={styles.departureName}>
+          {value.itineraries[0].segments[0].departure.iataCode}
+        </div>
+        <div>
+          <img src={stopIcon} alt="stopIcon" />
+          <div className={styles.stop}>
+            {value.itineraries[0].segments.length > 1
+              ? value.itineraries[0].segments.length - 1 + " Stop"
+              : "Direct"}
+          </div>
+        </div>
+        <div className={styles.arrivalName}>
+          {value.itineraries[0].segments.length > 1
+            ? value.itineraries[0].segments[1].arrival.iataCode
+            : value.itineraries[0].segments[0].arrival.iataCode}
+        </div>
+      </div>
+      <div className={styles.flightPrice}>{value.price.total} USD</div>
+      <button
+        className={styles[button.className]}
+        onClick={() => btnHandler(value)}
+      >
+        {button.text}
+      </button>
+    </div>
+  );
+}
 
-export function Main({ setCurrentPage, currentPage, flightsData }) {
+export function Main({
+  setCurrentPage,
+  currentPage,
+  flightsData,
+  setAPISearch,
+  setIsReturn,
+  isReturn,
+}) {
   const navigate = useNavigate();
   const { setFlight } = useOutletContext();
+  const { sharedData } = useData();
   const flightsPerPage = 8;
   if (!flightsData) return "Data not here";
   const totalPages = Math.ceil(flightsData.data.length / flightsPerPage);
@@ -32,77 +111,71 @@ export function Main({ setCurrentPage, currentPage, flightsData }) {
   const endIndex = startIndex + flightsPerPage;
   const currentFlights = flightsData.data.slice(startIndex, endIndex); //filter for pagination
   function detailsBtnHandler(data) {
-    setFlight({
-      data,
-      carrier:
-        flightsData.dictionaries.carriers[
-          data.itineraries[0].segments[0].operating.carrierCode
-        ],
-    });
+    if (!isReturn && !sharedData.return){
+    setFlight((prev) => ({
+      ...prev,
+      departure: {
+        data,
+        carrier:
+          flightsData.dictionaries.carriers[
+            data.itineraries[0].segments[0].operating.carrierCode
+          ],
+      },
+    }));
     navigate("./flight-details");
+  }else if (isReturn){
+    setFlight((prev) => ({
+      ...prev,
+      return: {
+        data,
+        carrier:
+          flightsData.dictionaries.carriers[
+            data.itineraries[0].segments[0].operating.carrierCode
+          ],
+      },
+    }));
+    navigate("./flight-details");
+  }
+  }
+  function selectBtnHandler(data) {
+    setFlight((prev) => ({
+      ...prev,
+      departure: {
+        data,
+        carrier:
+          flightsData.dictionaries.carriers[
+            data.itineraries[0].segments[0].operating.carrierCode
+          ],
+      },
+    }));
+    setAPISearch({...sharedData.return, passengerClass:sharedData.passengerClass});
+    setIsReturn(true);
   }
   return (
     <div className={styles.mainBody}>
-      {currentFlights.map((value) => {
-        return (
-          <div className={styles.flight} key={value.id}>
-            <div className={styles.airLineContainer}>
-              <div
-                className={styles.airLineIcon}
-                style={{ backgroundColor: "orange" }}
-              ></div>
-              <div className={styles.container}>
-                <div className={styles.airLine}>
-                  {capitalizeWords(
-                    flightsData.dictionaries.carriers[
-                      value.itineraries[0].segments[0].carrierCode
-                    ]
-                  )}
-                </div>
-                <div className={styles.baggage}>zz</div>
-              </div>
-            </div>
-            <div className={styles.flightTime}>
-              {isDurationOneDayOrMore(value.itineraries[0].duration) && (
-                <div className={styles.moreThanADay}>+1</div>
-              )}
-              <div className={styles.arrivalDeparture}>
-                {format(
-                  parseISO(value.itineraries[0].segments[0].departure.at),
-                  "h:mm a"
-                )}{" "}
-                -{" "}
-                {format(
-                  parseISO(
-                    value.itineraries[0].segments[
-                      value.itineraries[0].segments.length - 1
-                    ].arrival.at
-                  ),
-                  "h:mm a"
-                )}
-              </div>
-              <div className={styles.totalFlightTime}>
-                {formatDuration(value.itineraries[0].duration)}
-              </div>
-            </div>
-            <div className={styles.stops}>
-              <img src={stopIcon} alt="stopIcon" />
-              <div>
-                {value.itineraries[0].segments.length > 1
-                  ? value.itineraries[0].segments.length - 1 + " Stop"
-                  : "Direct"}
-              </div>
-            </div>
-            <div className={styles.flightPrice}>{value.price.total} USD</div>
-            <button
-              className={styles.detailsBtn}
-              onClick={() => detailsBtnHandler(value)}
-            >
-              View Details
-            </button>
-          </div>
-        );
-      })}
+      {isReturn
+        ? currentFlights.map((value) => {
+            return (
+              <FlightsUI
+                key={value.id}
+                value={value}
+                btnHandler={detailsBtnHandler}
+                flightsData={flightsData}
+                button={{ text: "View Details", className: "detailsBtn" }}
+              />
+            );
+          })
+        : currentFlights.map((value) => {
+            return (
+              <FlightsUI
+                key={value.id}
+                value={value}
+                btnHandler={selectBtnHandler}
+                flightsData={flightsData}
+                button={{ text: "Select flight", className: "selectFlightBtn" }}
+              />
+            );
+          })}
       <div className={styles.pagination}>
         {pages.map((page) => {
           return (
@@ -127,4 +200,13 @@ Main.propTypes = {
   setCurrentPage: PropTypes.func.isRequired,
   currentPage: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   flightsData: PropTypes.object,
+  setAPISearch: PropTypes.func.isRequired,
+  setIsReturn: PropTypes.func.isRequired,
+  isReturn: PropTypes.bool,
+};
+FlightsUI.propTypes = {
+  flightsData: PropTypes.object,
+  value: PropTypes.object,
+  btnHandler: PropTypes.func,
+  button: PropTypes.object,
 };

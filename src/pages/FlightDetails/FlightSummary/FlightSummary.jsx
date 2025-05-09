@@ -16,12 +16,14 @@ function checkPeriod(time) {
   if (hours < 12) return "AM";
   else return "PM";
 }
-function dealWithAirline(airline){
+function dealWithAirline(airline) {
   const arrOfWords = airline.split(" ");
   let newSentence = "";
-  for (let i =0; i<arrOfWords.length; i++){
-  const capitalizeWord =arrOfWords[i].toLowerCase().slice(0,1).toUpperCase()+arrOfWords[i].toLowerCase().slice(1);
-  newSentence +=capitalizeWord+" ";
+  for (let i = 0; i < arrOfWords.length; i++) {
+    const capitalizeWord =
+      arrOfWords[i].toLowerCase().slice(0, 1).toUpperCase() +
+      arrOfWords[i].toLowerCase().slice(1);
+    newSentence += capitalizeWord + " ";
   }
   return newSentence;
 }
@@ -33,16 +35,7 @@ const FlightSummary = ({
   showBackButton = false,
   showContinueButton = true,
 }) => {
-  let context = useOutletContext();
-  const flight = context?.flight || JSON.parse(localStorage.getItem("flight"));
-  useEffect(() => {
-    if (flight) {
-      localStorage.setItem("flight", JSON.stringify(flight));
-    }
-    return () => {
-      localStorage.removeItem("flight");
-    };
-  }, [flight]);
+  let {flight}= useOutletContext();
 
   return (
     <div className={styles.flightSummary}>
@@ -131,8 +124,8 @@ const FlightSummary = ({
           currencySymbol="$"
         />
       )}
-      {flight.data.itineraries.length == 2 && ( //return only appears when there are 2 flights (round trip)
-        flight.data.itineraries[1].segments.length == 1 ? ( //check if its direct or there is a stop
+      {flight.data.itineraries.length == 2 && //return only appears when there are 2 flights (round trip)
+        (flight.data.itineraries[1].segments.length == 1 ? ( //check if its direct or there is a stop
           <FlightLeg
             type="Return"
             date={format(
@@ -146,10 +139,14 @@ const FlightSummary = ({
             }
             departure={{
               time: formatted(
-                flight.data.itineraries[1].segments[0].departure.at.split("T")[1]
+                flight.data.itineraries[1].segments[0].departure.at.split(
+                  "T"
+                )[1]
               ),
               period: checkPeriod(
-                flight.data.itineraries[1].segments[0].departure.at.split("T")[1]
+                flight.data.itineraries[1].segments[0].departure.at.split(
+                  "T"
+                )[1]
               ),
               code: flight.data.itineraries[1].segments[0].departure.iataCode,
             }}
@@ -188,10 +185,14 @@ const FlightSummary = ({
             }
             departure={{
               time: formatted(
-                flight.data.itineraries[1].segments[0].departure.at.split("T")[1]
+                flight.data.itineraries[1].segments[0].departure.at.split(
+                  "T"
+                )[1]
               ),
               period: checkPeriod(
-                flight.data.itineraries[1].segments[0].departure.at.split("T")[1]
+                flight.data.itineraries[1].segments[0].departure.at.split(
+                  "T"
+                )[1]
               ),
               code: flight.data.itineraries[1].segments[0].departure.iataCode,
             }}

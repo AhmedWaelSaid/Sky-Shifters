@@ -62,11 +62,32 @@
   color: var( --DarkyellowText-color);
   padding-left: 10px;
 }
-.stops div {
+.stops {
+  position: relative;
+  display: flex;
+  padding-left: 30px;
+}
+.stops img{
+  width: 80px;
+}
+.departureName{
+  position: absolute;
+  left: 0;
+  top: 3px;
+}
+.departureName, .arrivalName{
+  opacity: 0.7;
+}
+.arrivalName {
+  position: absolute;
+  right: 55px;
+  top: 3px;
+}
+.stops .stop {
   padding-left: 17px;
   position: relative;
 }
-.stops div::after {
+.stops .stop::after {
   content: "";
   background: url(../../../assets/flightStop.png) no-repeat;
   width: 12px;
@@ -83,7 +104,7 @@ bottom: 19px;
 width: 116px;
 height: 36px;
 border-radius: 4px;
-border: 1px solid #323842;
+border: none;
 background:var(--Btnbg-color);
 transition: background-color 0.3s;
 color: var(--LightText-color);
@@ -91,6 +112,14 @@ color: var(--LightText-color);
 .detailsBtn:hover{
   cursor: pointer;
   background-color: rgb(10, 85, 170);
+}
+.selectFlightBtn{
+  composes: detailsBtn;
+  background-color: rgb(248, 113, 113);
+}
+.selectFlightBtn:hover{
+  cursor: pointer;
+  background-color: rgb(247, 93, 93);
 }
 .pagination .active {
   background-color: var(--Btnbg-color);

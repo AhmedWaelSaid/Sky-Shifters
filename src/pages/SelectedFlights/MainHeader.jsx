@@ -8,11 +8,7 @@ import { format, parseISO } from "date-fns";
 import PropTypes from "prop-types";
 import PassengerClass from "./Passengers.jsx";
 import CustomDatePicker from "./CustomDatePicker.jsx";
-import {
-  FaPlaneDeparture,
-  FaPlaneArrival,
-  FaUser,
-} from "react-icons/fa";
+import { FaPlaneDeparture, FaPlaneArrival, FaUser } from "react-icons/fa";
 export function AirportInput({
   name,
   className,
@@ -47,11 +43,14 @@ AirportInput.propTypes = {
   value: PropTypes.object,
 };
 
-export default function MainHeader() {
+export default function MainHeader({isReturn,setAPISearch}) {
   const { sharedData, setSharedData } = useData();
   const [dates, setDates] = useState(
-    sharedData.dates
-      ? sharedData.dates
+    sharedData.departure.date
+      ? {
+          departure: sharedData.departure.date,
+          return: sharedData.return ? sharedData.return.date : null,
+        }
       : { departure: format(new Date(), "yyyy-MM-dd"), return: null }
   );
   const { airports } = useAirports();
@@ -99,17 +98,28 @@ export default function MainHeader() {
     else return `${totalNum} Passengers - ${passengerClass.class.text}`;
   }
 
-
   function handleSubmit(event) {
     event.preventDefault();
     if (event.nativeEvent.submitter?.name === "flightSubmit") {
-      if (origin.airport && dest.airport) {
-        setSharedData(() => ({
-          origin,
-          dest,
-          dates,
+      if (origin.airport && dest.airport && dates.departure && !dates.return) {
+        setSharedData({
+          departure: { date: dates.departure, dest, origin },
+          return: null,
           passengerClass,
-        }));
+        });
+        setAPISearch({date: dates.departure, dest, origin ,passengerClass});
+      } else if (
+        origin.airport &&
+        dest.airport &&
+        dates.departure &&
+        dates.return
+      ) {
+        setSharedData({
+          departure: { date: dates.departure, dest, origin },
+          return: { date: dates.return, dest: origin, origin: dest },
+          passengerClass,
+        });
+        setAPISearch({date: dates.departure, dest, origin ,passengerClass});
       }
     }
   }
@@ -124,7 +134,11 @@ export default function MainHeader() {
             setFocus={setOriginFocus}
             setValue={setOrigin}
             value={origin}
-            placeholder={sharedData.origin ? sharedData.origin.text : "Origin"}
+            placeholder={
+              sharedData.departure.origin
+                ? sharedData.departure.origin.text
+                : "Origin"
+            }
           />
           {originFocus && (
             <ShowTopSearch
@@ -142,7 +156,11 @@ export default function MainHeader() {
             setFocus={setDestFocus}
             setValue={setDest}
             value={dest}
-            placeholder={sharedData.dest ? sharedData.dest.text : "Destination"}
+            placeholder={
+              sharedData.departure.dest
+                ? sharedData.departure.dest.text
+                : "Destination"
+            }
           />
           {destFocus && (
             <ShowTopSearch
@@ -153,20 +171,20 @@ export default function MainHeader() {
           )}
         </div>
         <div className={styles.calender}>
-            <CustomDatePicker
-              value={{
-                departure: parseISO(dates.departure),
-                return: dates.return ? parseISO(dates.return) : null,
-              }}
-              onChange={(newDates) => {
-                setDates({
-                  departure: format(newDates.departure, "yyyy-MM-dd"),
-                  return: newDates.return
-                    ? format(newDates.return, "yyyy-MM-dd")
-                    : null,
-                });
-              }}
-            />
+          <CustomDatePicker
+            value={{
+              departure: parseISO(dates.departure),
+              return: dates.return ? parseISO(dates.return) : null,
+            }}
+            onChange={(newDates) => {
+              setDates({
+                departure: format(newDates.departure, "yyyy-MM-dd"),
+                return: newDates.return
+                  ? format(newDates.return, "yyyy-MM-dd")
+                  : null,
+              });
+            }}
+          />
         </div>
         <div className={styles.passengerContainer}>
           <FaUser className={styles.iconForm} />
@@ -197,6 +215,10 @@ export default function MainHeader() {
           </button>
         </div>
       </form>
+
     </div>
   );
+}
+MainHeader.propTypes = {
+  isReturn: PropTypes.bool,
 }
