@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import styles from "./FlightSummary.module.css";
 import FlightLeg from "./FlightLeg";
 import CancellationPolicy from "./CancellationPolicy";
@@ -6,7 +6,8 @@ import FareBreakdown from "./FareBreakdown";
 import { useOutletContext } from "react-router-dom";
 import { format } from "date-fns";
 import { formatDuration } from "../../SelectedFlights/someFun";
-import DetailsOfTheFlight from '../DetailsOfTheFlight/DetailsOfTheFlight'
+import DetailsOfTheFlight from '../DetailsOfTheFlight/DetailsOfTheFlight';
+import PropTypes from "prop-types";
 
 function formatted(time) {
   let [hours, minutes] = time.split(":");
@@ -74,8 +75,8 @@ const FlightSummary = ({
           )}
           airline={
             dealWithAirline(flight.departure.carrier) +
-            " " +
-            flight.departure.data.itineraries[0].segments[0].aircraft.code
+            " " +flight.departure.data.itineraries[0].segments[0].carrierCode +"-"+
+            flight.departure.data.itineraries[0].segments[0].number
           }
           departure={{
             time: formatted(
@@ -112,12 +113,12 @@ const FlightSummary = ({
           )}
           airline={
             dealWithAirline(flight.departure.carrier) +
-            " " +
-            flight.departure.data.itineraries[0].segments[0].aircraft.code +
+            " " +flight.departure.data.itineraries[0].segments[0].carrierCode +"-"+
+            flight.departure.data.itineraries[0].segments[0].number +
             ", " +
             dealWithAirline(flight.departure.carrier) +
-            " " +
-            flight.departure.data.itineraries[0].segments[1].aircraft.code
+            " " +flight.departure.data.itineraries[0].segments[1].carrierCode +"-"+
+            flight.departure.data.itineraries[0].segments[1].number
           }
           departure={{
             time: formatted(
@@ -156,8 +157,8 @@ const FlightSummary = ({
             )}
             airline={
               dealWithAirline(flight.return.carrier) +
-              " " +
-              flight.return.data.itineraries[0].segments[0].aircraft.code
+              " " +flight.return.data.itineraries[0].segments[0].carrierCode +"-"+
+              flight.return.data.itineraries[0].segments[0].number
             }
             departure={{
               time: formatted(
@@ -198,12 +199,12 @@ const FlightSummary = ({
             )}
             airline={
               dealWithAirline(flight.return.carrier) +
-              " " +
-              flight.return.data.itineraries[0].segments[0].aircraft.code +
+              " " +flight.return.data.itineraries[0].segments[0].carrierCode +"-"+
+              flight.return.data.itineraries[0].segments[0].number +
               ", " +
               dealWithAirline(flight.return.carrier) +
-              " " +
-              flight.return.data.itineraries[0].segments[1].aircraft.code
+              " " +flight.return.data.itineraries[0].segments[1].carrierCode +"-"+
+              flight.return.data.itineraries[0].segments[1].number
             }
             departure={{
               time: formatted(
@@ -249,5 +250,14 @@ const FlightSummary = ({
     </div>
   );
 };
+
+FlightSummary.propTypes= {
+  passengers: PropTypes.array,
+  formData: PropTypes.object,
+  onContinue: PropTypes.func,
+  onBack: PropTypes.func,
+  showBackButton: PropTypes.bool,
+  showContinueButton: PropTypes.bool,
+}
 
 export default FlightSummary;

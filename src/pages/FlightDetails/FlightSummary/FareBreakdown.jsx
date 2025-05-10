@@ -1,6 +1,7 @@
 import { useOutletContext } from "react-router-dom";
 import styles from "./FlightSummary.module.css";
 import { ChevronRight, ChevronLeft } from "lucide-react";
+import PropTypes from "prop-types";
 
 const FareBreakdown = ({
   passengers = [],
@@ -214,4 +215,12 @@ const FareBreakdown = ({
   );
 };
 
+FareBreakdown.propTypes= {
+  passengers: PropTypes.array,
+  formData: PropTypes.object,
+  onContinue: PropTypes.func,
+  onBack: PropTypes.func,
+  showBackButton: PropTypes.bool,
+  showContinueButton: PropTypes.bool,
+}
 export default FareBreakdown;
