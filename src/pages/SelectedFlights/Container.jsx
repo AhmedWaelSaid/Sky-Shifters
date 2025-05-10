@@ -10,6 +10,8 @@ import MainHeader from "./MainHeader.jsx";
 import Loading from "./Loading.jsx";
 import Error from "./Error.jsx";
 import EmptyData from "./EmptyData.jsx";
+import { FlightsUI } from "./Main.jsx";
+import { useOutletContext } from "react-router-dom";
 
 async function getFlightsFromAPI(input, signal) {
   const baseUrl = "https://api.amadeus.com/v2/shopping/flight-offers";
@@ -20,7 +22,6 @@ async function getFlightsFromAPI(input, signal) {
     departureDate: format(input.date, "u-LL-dd"),
     currencyCode: "USD",
   });
-  console.log("ok233")
   // Add passengers
   if (input.passengerClass) {
     params.append("adults", input.passengerClass.adults);
@@ -99,8 +100,11 @@ function useSearchData(searchData) {
   return { data, loading, error };
 }
 export default function Container() {
-  const {sharedData} = useData();
-  const [APISearch, setAPISearch] = useState({...sharedData.departure, passengerClass:sharedData.passengerClass})
+  const { sharedData } = useData();
+  const [APISearch, setAPISearch] = useState({
+    ...sharedData.departure,
+    passengerClass: sharedData.passengerClass,
+  });
   const { data: flightsData, loading, error } = useSearchData(APISearch);
   const [stop, setStop] = useState("");
   const [airLinesChecked, setAirLinesChecked] = useState({});
@@ -108,7 +112,8 @@ export default function Container() {
   const [flightDuration, setFlightDuration] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [priceAndDuration, setPriceAndDuration] = useState({});
-  const [isReturn, setIsReturn]= useState(false);
+  const [isReturn, setIsReturn] = useState(false);
+  const { flight } = useOutletContext();
   useEffect(() => {
     setCurrentPage(1);
   }, [airLinesChecked, stop, flightDuration, price]);
@@ -159,29 +164,55 @@ export default function Container() {
     return filteredFlights;
   }
   let filteredFlights = filteredData(flightsData);
+  console.log(flight);
   return (
     <div className={styles.container}>
-      <MainHeader isReturn={isReturn} setAPISearch= {setAPISearch}/>
-      {sharedData.return && !isReturn && <h2 className={styles.flightText}>Choose your departure flight!</h2>}
-      {sharedData.return && isReturn && <h2 className={styles.flightText}>Choose your return flight!</h2>}
-        <SideBar
-          flightsData={filteredFlights}
-          stop={stop}
-          setStop={setStop}
-          airLinesChecked={airLinesChecked}
-          setAirLinesChecked={setAirLinesChecked}
-          setPrice={setPrice}
-          price={price}
-          setFlightDuration={setFlightDuration}
-          flightDuration={flightDuration}
-          priceAndDuration={priceAndDuration}
-          airLines={flightsData.dictionaries.carriers}
-        />
+      <MainHeader isReturn={isReturn} setAPISearch={setAPISearch} />
+      {sharedData.return && !isReturn && (
+        <div className={styles.flightTextContainer}>
+          <h2>Choose your departure flight!</h2>
+        </div>
+      )}
+      {sharedData.return && isReturn && (
+        <div className={styles.flightTextContainer}>
+          <h2>Choose your return flight!</h2>
+          <div className={styles.departureFlightSelected}>
+            <FlightsUI
+              value={flight.departure.data}
+              flightsData={filteredFlights}
+              button={{
+                text: "Change flight",
+                className: "selectFlightBtn",
+              }}
+              btnHandler={() => {
+                setIsReturn(false);
+                setAPISearch({
+                  ...sharedData.departure,
+                  passengerClass: sharedData.passengerClass,
+                });
+              }}
+            />
+          </div>
+        </div>
+      )}
+      <SideBar
+        flightsData={filteredFlights}
+        stop={stop}
+        setStop={setStop}
+        airLinesChecked={airLinesChecked}
+        setAirLinesChecked={setAirLinesChecked}
+        setPrice={setPrice}
+        price={price}
+        setFlightDuration={setFlightDuration}
+        flightDuration={flightDuration}
+        priceAndDuration={priceAndDuration}
+        airLines={flightsData.dictionaries.carriers}
+      />
       <Main
         setCurrentPage={setCurrentPage}
         currentPage={currentPage}
         flightsData={filteredFlights}
-        setAPISearch= {setAPISearch}
+        setAPISearch={setAPISearch}
         setIsReturn={setIsReturn}
         isReturn={isReturn}
       />

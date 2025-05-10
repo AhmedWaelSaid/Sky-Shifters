@@ -40,17 +40,7 @@ const FlightSummary = ({
   showContinueButton = true,
 }) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  let context = useOutletContext();
-  const flight = context?.flight || JSON.parse(localStorage.getItem("flight"));
-
-  useEffect(() => {
-    if (flight) {
-      localStorage.setItem("flight", JSON.stringify(flight));
-    }
-    return () => {
-      localStorage.removeItem("flight");
-    };
-  }, [flight]);
+  const {flight} = useOutletContext();
 
   const toggleDetails = () => {
     setIsDetailsOpen(!isDetailsOpen);
@@ -75,174 +65,174 @@ const FlightSummary = ({
         <div className={styles.overlay} onClick={toggleDetails} />
       )}
 
-      {flight.data.itineraries[0].segments.length == 1 ? ( //check if its direct or there is a stop
+      {flight.departure.data.itineraries[0].segments.length == 1 ? ( //check if its direct or there is a stop
         <FlightLeg
           type="Departure"
           date={format(
-            flight.data.itineraries[0].segments[0].departure.at.split("T")[0],
+            flight.departure.data.itineraries[0].segments[0].departure.at.split("T")[0],
             "EEE, d	LLL u"
           )}
           airline={
-            dealWithAirline(flight.carrier) +
+            dealWithAirline(flight.departure.carrier) +
             " " +
-            flight.data.itineraries[0].segments[0].aircraft.code
+            flight.departure.data.itineraries[0].segments[0].aircraft.code
           }
           departure={{
             time: formatted(
-              flight.data.itineraries[0].segments[0].departure.at.split("T")[1]
+              flight.departure.data.itineraries[0].segments[0].departure.at.split("T")[1]
             ),
             period: checkPeriod(
-              flight.data.itineraries[0].segments[0].departure.at.split("T")[1]
+              flight.departure.data.itineraries[0].segments[0].departure.at.split("T")[1]
             ),
-            code: flight.data.itineraries[0].segments[0].departure.iataCode,
+            code: flight.departure.data.itineraries[0].segments[0].departure.iataCode,
           }}
           arrival={{
             time: formatted(
-              flight.data.itineraries[0].segments[0].arrival.at.split("T")[1]
+              flight.departure.data.itineraries[0].segments[0].arrival.at.split("T")[1]
             ),
             period: checkPeriod(
-              flight.data.itineraries[0].segments[0].arrival.at.split("T")[1]
+              flight.departure.data.itineraries[0].segments[0].arrival.at.split("T")[1]
             ),
-            code: flight.data.itineraries[0].segments[0].arrival.iataCode,
+            code: flight.departure.data.itineraries[0].segments[0].arrival.iataCode,
           }}
           duration={
-            flight.data.itineraries[0].segments.length == 1
+            flight.departure.data.itineraries[0].segments.length == 1
               ? "Direct"
               : "1 Stop"
           }
-          flightTime={formatDuration(flight.data.itineraries[0].duration)}
+          flightTime={formatDuration(flight.departure.data.itineraries[0].duration)}
           currencySymbol="$"
         />
       ) : (
         <FlightLeg
           type="Departure"
           date={format(
-            flight.data.itineraries[0].segments[0].departure.at.split("T")[0],
+            flight.departure.data.itineraries[0].segments[0].departure.at.split("T")[0],
             "EEE, d	LLL u"
           )}
           airline={
-            dealWithAirline(flight.carrier) +
+            dealWithAirline(flight.departure.carrier) +
             " " +
-            flight.data.itineraries[0].segments[0].aircraft.code +
+            flight.departure.data.itineraries[0].segments[0].aircraft.code +
             ", " +
-            dealWithAirline(flight.carrier) +
+            dealWithAirline(flight.departure.carrier) +
             " " +
-            flight.data.itineraries[0].segments[1].aircraft.code
+            flight.departure.data.itineraries[0].segments[1].aircraft.code
           }
           departure={{
             time: formatted(
-              flight.data.itineraries[0].segments[0].departure.at.split("T")[1]
+              flight.departure.data.itineraries[0].segments[0].departure.at.split("T")[1]
             ),
             period: checkPeriod(
-              flight.data.itineraries[0].segments[0].departure.at.split("T")[1]
+              flight.departure.data.itineraries[0].segments[0].departure.at.split("T")[1]
             ),
-            code: flight.data.itineraries[0].segments[0].departure.iataCode,
+            code: flight.departure.data.itineraries[0].segments[0].departure.iataCode,
           }}
           arrival={{
             time: formatted(
-              flight.data.itineraries[0].segments[1].arrival.at.split("T")[1]
+              flight.departure.data.itineraries[0].segments[1].arrival.at.split("T")[1]
             ),
             period: checkPeriod(
-              flight.data.itineraries[0].segments[1].arrival.at.split("T")[1]
+              flight.departure.data.itineraries[0].segments[1].arrival.at.split("T")[1]
             ),
-            code: flight.data.itineraries[0].segments[1].arrival.iataCode,
+            code: flight.departure.data.itineraries[0].segments[1].arrival.iataCode,
           }}
           duration={
-            flight.data.itineraries[0].segments.length == 1
+            flight.departure.data.itineraries[0].segments.length == 1
               ? "Direct"
               : "1 Stop"
           }
-          flightTime={formatDuration(flight.data.itineraries[0].duration)}
+          flightTime={formatDuration(flight.departure.data.itineraries[0].duration)}
           currencySymbol="$"
         />
       )}
-      {flight.data.itineraries.length == 2 && //return only appears when there are 2 flights (round trip)
-        (flight.data.itineraries[1].segments.length == 1 ? ( //check if its direct or there is a stop
+      {flight.return && //return only appears when there are 2 flights (round trip)
+        (flight.return.data.itineraries[0].segments.length == 1 ? ( //check if its direct or there is a stop
           <FlightLeg
             type="Return"
             date={format(
-              flight.data.itineraries[1].segments[0].departure.at.split("T")[0],
+              flight.return.data.itineraries[0].segments[0].departure.at.split("T")[0],
               "EEE, d	LLL u"
             )}
             airline={
-              dealWithAirline(flight.carrier) +
+              dealWithAirline(flight.return.carrier) +
               " " +
-              flight.data.itineraries[1].segments[0].aircraft.code
+              flight.return.data.itineraries[0].segments[0].aircraft.code
             }
             departure={{
               time: formatted(
-                flight.data.itineraries[1].segments[0].departure.at.split(
+                flight.return.data.itineraries[0].segments[0].departure.at.split(
                   "T"
                 )[1]
               ),
               period: checkPeriod(
-                flight.data.itineraries[1].segments[0].departure.at.split(
+                flight.return.data.itineraries[0].segments[0].departure.at.split(
                   "T"
                 )[1]
               ),
-              code: flight.data.itineraries[1].segments[0].departure.iataCode,
+              code: flight.return.data.itineraries[0].segments[0].departure.iataCode,
             }}
             arrival={{
               time: formatted(
-                flight.data.itineraries[1].segments[0].arrival.at.split("T")[1]
+                flight.return.data.itineraries[0].segments[0].arrival.at.split("T")[1]
               ),
               period: checkPeriod(
-                flight.data.itineraries[1].segments[0].arrival.at.split("T")[1]
+                flight.return.data.itineraries[0].segments[0].arrival.at.split("T")[1]
               ),
-              code: flight.data.itineraries[1].segments[0].arrival.iataCode,
+              code: flight.return.data.itineraries[0].segments[0].arrival.iataCode,
             }}
             duration={
-              flight.data.itineraries[1].segments.length == 1
+              flight.return.data.itineraries[0].segments.length == 1
                 ? "Direct"
                 : "1 Stop"
             }
-            flightTime={formatDuration(flight.data.itineraries[1].duration)}
+            flightTime={formatDuration(flight.return.data.itineraries[0].duration)}
             currencySymbol="$"
           />
         ) : (
           <FlightLeg
             type="Return"
             date={format(
-              flight.data.itineraries[1].segments[0].departure.at.split("T")[0],
+              flight.return.data.itineraries[0].segments[0].departure.at.split("T")[0],
               "EEE, d	LLL u"
             )}
             airline={
-              dealWithAirline(flight.carrier) +
+              dealWithAirline(flight.return.carrier) +
               " " +
-              flight.data.itineraries[1].segments[0].aircraft.code +
+              flight.return.data.itineraries[0].segments[0].aircraft.code +
               ", " +
-              dealWithAirline(flight.carrier) +
+              dealWithAirline(flight.return.carrier) +
               " " +
-              flight.data.itineraries[1].segments[1].aircraft.code
+              flight.return.data.itineraries[0].segments[1].aircraft.code
             }
             departure={{
               time: formatted(
-                flight.data.itineraries[1].segments[0].departure.at.split(
+                flight.return.data.itineraries[0].segments[0].departure.at.split(
                   "T"
                 )[1]
               ),
               period: checkPeriod(
-                flight.data.itineraries[1].segments[0].departure.at.split(
+                flight.return.data.itineraries[0].segments[0].departure.at.split(
                   "T"
                 )[1]
               ),
-              code: flight.data.itineraries[1].segments[0].departure.iataCode,
+              code: flight.return.data.itineraries[0].segments[0].departure.iataCode,
             }}
             arrival={{
               time: formatted(
-                flight.data.itineraries[1].segments[1].arrival.at.split("T")[1]
+                flight.return.data.itineraries[0].segments[1].arrival.at.split("T")[1]
               ),
               period: checkPeriod(
-                flight.data.itineraries[1].segments[1].arrival.at.split("T")[1]
+                flight.return.data.itineraries[0].segments[1].arrival.at.split("T")[1]
               ),
-              code: flight.data.itineraries[1].segments[1].arrival.iataCode,
+              code: flight.return.data.itineraries[0].segments[1].arrival.iataCode,
             }}
             duration={
-              flight.data.itineraries[1].segments.length == 1
+              flight.return.data.itineraries[0].segments.length == 1
                 ? "Direct"
                 : "1 Stop"
             }
-            flightTime={formatDuration(flight.data.itineraries[1].duration)}
+            flightTime={formatDuration(flight.return.data.itineraries[0].duration)}
             currencySymbol="$"
           />
         ))}

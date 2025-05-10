@@ -72,7 +72,7 @@
 }
 .departureName{
   position: absolute;
-  left: 0;
+  left: -5px;
   top: 3px;
 }
 .departureName, .arrivalName{
@@ -80,7 +80,7 @@
 }
 .arrivalName {
   position: absolute;
-  right: 55px;
+  right: 45px;
   top: 3px;
 }
 .stops .stop {

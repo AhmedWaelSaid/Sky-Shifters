@@ -21,7 +21,7 @@ function isDurationOneDayOrMore(isoDuration) {
 
   return totalHours >= 24;
 }
-function FlightsUI({ value, btnHandler, flightsData, button }) {
+export function FlightsUI({ value, btnHandler, flightsData, button }) {
   return (
     <div className={styles.flight}>
       <div className={styles.airLineContainer}>
@@ -101,7 +101,7 @@ export function Main({
   isReturn,
 }) {
   const navigate = useNavigate();
-  const { setFlight } = useOutletContext();
+  const { flight, setFlight } = useOutletContext();
   const { sharedData } = useData();
   const flightsPerPage = 8;
   if (!flightsData) return "Data not here";
@@ -111,35 +111,35 @@ export function Main({
   const endIndex = startIndex + flightsPerPage;
   const currentFlights = flightsData.data.slice(startIndex, endIndex); //filter for pagination
   function detailsBtnHandler(data) {
-    if (!isReturn && !sharedData.return){
-    setFlight((prev) => ({
-      ...prev,
-      departure: {
-        data,
-        carrier:
-          flightsData.dictionaries.carriers[
-            data.itineraries[0].segments[0].operating.carrierCode
-          ],
-      },
-    }));
+    const newFlight =
+      !isReturn && !sharedData.return
+        ? {
+            return: null,
+            departure: {
+              data,
+              carrier:
+                flightsData.dictionaries.carriers[
+                  data.itineraries[0].segments[0].operating.carrierCode
+                ],
+            },
+          }
+        : {
+            ...flight,
+            return: {
+              data,
+              carrier:
+                flightsData.dictionaries.carriers[
+                  data.itineraries[0].segments[0].operating.carrierCode
+                ],
+            },
+          };
+    console.log("zzz");
+    setFlight(newFlight);
     navigate("./flight-details");
-  }else if (isReturn){
-    setFlight((prev) => ({
-      ...prev,
-      return: {
-        data,
-        carrier:
-          flightsData.dictionaries.carriers[
-            data.itineraries[0].segments[0].operating.carrierCode
-          ],
-      },
-    }));
-    navigate("./flight-details");
-  }
   }
   function selectBtnHandler(data) {
-    setFlight((prev) => ({
-      ...prev,
+    setFlight(() => ({
+      return: null,
       departure: {
         data,
         carrier:
@@ -148,13 +148,42 @@ export function Main({
           ],
       },
     }));
-    setAPISearch({...sharedData.return, passengerClass:sharedData.passengerClass});
+    setAPISearch({
+      ...sharedData.return,
+      passengerClass: sharedData.passengerClass,
+    });
     setIsReturn(true);
   }
   return (
     <div className={styles.mainBody}>
-      {isReturn
-        ? currentFlights.map((value) => {
+      {sharedData.return
+        ? isReturn
+          ? currentFlights.map((value) => {
+              return (
+                <FlightsUI
+                  key={value.id}
+                  value={value}
+                  btnHandler={detailsBtnHandler}
+                  flightsData={flightsData}
+                  button={{ text: "View Details", className: "detailsBtn" }}
+                />
+              );
+            })
+          : currentFlights.map((value) => {
+              return (
+                <FlightsUI
+                  key={value.id}
+                  value={value}
+                  btnHandler={selectBtnHandler}
+                  flightsData={flightsData}
+                  button={{
+                    text: "Select flight",
+                    className: "selectFlightBtn",
+                  }}
+                />
+              );
+            })
+        : currentFlights.map((value) => {
             return (
               <FlightsUI
                 key={value.id}
@@ -162,17 +191,6 @@ export function Main({
                 btnHandler={detailsBtnHandler}
                 flightsData={flightsData}
                 button={{ text: "View Details", className: "detailsBtn" }}
-              />
-            );
-          })
-        : currentFlights.map((value) => {
-            return (
-              <FlightsUI
-                key={value.id}
-                value={value}
-                btnHandler={selectBtnHandler}
-                flightsData={flightsData}
-                button={{ text: "Select flight", className: "selectFlightBtn" }}
               />
             );
           })}

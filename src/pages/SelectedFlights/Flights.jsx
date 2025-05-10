@@ -6,6 +6,8 @@ export default function Flights() {
   const [flight, setFlight] = useState(storedFlight);
   console.log(flight);
   useEffect(() => {
+    if (flight)
+      console.log(flight);
     localStorage.setItem("flight", JSON.stringify(flight));
   }, [flight]);
   return <Outlet context={{ flight, setFlight }} />;
