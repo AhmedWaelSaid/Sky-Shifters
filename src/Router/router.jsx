@@ -65,8 +65,9 @@ const router = createBrowserRouter([
             path: 'flight-details',
             element: <FlightDetails/>,
           },
-        ]
+                  ]
       },
+      
     ],
   },
 ]);

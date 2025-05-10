@@ -1,0 +1,1000 @@
+.flightDetailsContainer {
+  max-width: 600px;
+  margin: 0 auto;
+  
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  position: relative;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0ea8d8;
+  transition: transform 0.2s ease;
+}
+
+.closeButton:hover {
+  transform: scale(1.1);
+}
+
+.title {
+  flex-grow: 1;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: #000000e6;
+}
+
+/* Flight Segment */
+.flightSegment {
+  padding: 20px 0;
+  border-bottom: 1px solid #f0f0f0;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.flightHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 20px 15px 20px;
+}
+
+.routeInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.route {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 5px;
+  color: #000000e6;
+}
+
+.duration {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.date {
+  font-size: 14px;
+  color: #666;
+  text-align: right;
+}
+
+/* Flight Card */
+.flightCard {
+  background-color: white;
+  border: 1px solid #ebebeb;
+  border-radius: 8px;
+  margin: 0 20px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.flightCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Location Time Info */
+.locationTimeInfo {
+  display: flex;
+  padding: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.timeInfo {
+  width: 90px;
+  margin-right: 15px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.time {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000000e6;
+}
+
+.day {
+  font-size: 14px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.locationInfo {
+  flex-grow: 1;
+}
+
+.airport {
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000e6;
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #1EAEDB;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.terminal, .city {
+  font-size: 14px;
+  color: #666;
+  margin-left: 18px;
+  margin-bottom: 2px;
+}
+
+/* Flight Info */
+.flightInfo {
+  padding: 15px 20px;
+  background-color: #f9fafc;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.flightDuration {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.duration {
+  font-size: 14px;
+  color: #666;
+}
+
+.stops {
+  margin-bottom: 5px;
+}
+
+.stopsBadge {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #fff0f0;
+  color: #e34051;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-right: 5px;
+}
+
+.stopsDropdownButton {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.stopsDropdownButton:hover {
+  transform: translateY(-2px);
+}
+
+.stopsDropdownContent {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  background-color: #f9f9f9;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  transition: all 0.3s ease-out;
+  margin: 0;
+  padding: 0;
+}
+
+.stopsDropdownContent.expanded {
+  max-height: 200px;
+  opacity: 1;
+  padding: 12px;
+  border-color: #ebebeb;
+  margin-bottom: 15px;
+}
+
+.stopDetail {
+  display: flex;
+  flex-direction: column;
+}
+
+.stopLocation {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.stopDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #e34051;
+  border-radius: 50%;
+  margin-right: 10px;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.stopAirport {
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000e6;
+}
+
+.stopTerminal, .stopCity {
+  font-size: 13px;
+  color: #666;
+}
+
+.stopDuration {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #e8f7f9;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.waitingLabel {
+  font-size: 14px;
+  color: #333;
+}
+
+.waitingTime {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.airlineDetails {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.airlineLogoContainer {
+  position: relative;
+  margin-right: 15px;
+}
+
+.chevron {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  40% {
+    transform: translateX(-50%) translateY(-3px);
+  }
+  60% {
+    transform: translateX(-50%) translateY(-2px);
+  }
+}
+
+.airlineLogo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.airlineLogo:hover {
+  transform: scale(1.1);
+}
+
+.airlineLogo img {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+}
+
+.airlineInfo {
+  flex-grow: 1;
+}
+
+.airlineName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000e6;
+  margin-bottom: 3px;
+}
+
+.aircraftType, .cabinClass {
+  font-size: 14px;
+  color: #666;
+}
+
+.amenities {
+  display: flex;
+  justify-content: space-between;
+}
+
+.servicesDropdownButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  width: 100%;
+  justify-content: space-between;
+  transition: background-color 0.2s ease;
+}
+
+.servicesDropdownButton:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.amenitiesIcons {
+  display: flex;
+  gap: 15px;
+}
+
+.amenityIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.amenityIcon:hover {
+  transform: scale(1.2);
+  color: #1EAEDB;
+}
+
+.servicesDropdownContent {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  transition: all 0.4s ease-out;
+  background-color: #f9f9f9;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.servicesDropdownContent.expanded {
+  max-height: 400px;
+  opacity: 1;
+  margin-top: 12px;
+  padding: 10px;
+  border-color: #ebebeb;
+}
+
+.serviceItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #333;
+  padding: 5px 0;
+  border-bottom: 1px solid #f0f0f0;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 0.3s ease forwards;
+}
+
+.servicesDropdownContent.expanded .serviceItem {
+  animation: fadeInUp 0.3s ease forwards;
+}
+
+.servicesDropdownContent.expanded .serviceItem:nth-child(1) { animation-delay: 0.05s; }
+.servicesDropdownContent.expanded .serviceItem:nth-child(2) { animation-delay: 0.1s; }
+.servicesDropdownContent.expanded .serviceItem:nth-child(3) { animation-delay: 0.15s; }
+.servicesDropdownContent.expanded .serviceItem:nth-child(4) { animation-delay: 0.2s; }
+.servicesDropdownContent.expanded .serviceItem:nth-child(5) { animation-delay: 0.25s; }
+.servicesDropdownContent.expanded .serviceItem:nth-child(6) { animation-delay: 0.3s; }
+.servicesDropdownContent.expanded .serviceItem:nth-child(7) { animation-delay: 0.35s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.serviceItem:last-child {
+  border-bottom: none;
+}
+
+.serviceIcon {
+  color: #1EAEDB;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.redIcon {
+  color: #e34051;
+}
+
+/* Additional Info */
+.additionalInfo {
+  display: flex;
+  gap: 15px;
+  margin: 15px 20px;
+}
+
+.infoCard {
+  flex: 1;
+  background: white;
+  border: 1px solid #ebebeb;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.infoCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.infoCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.infoCardHeader h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 5px;
+  color: #000000e6;
+}
+
+.route {
+  font-size: 12px;
+  color: #666;
+}
+
+.detailsButton {
+  background: none;
+  border: none;
+  color: #1EAEDB;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+}
+
+.detailsButton:after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: #1EAEDB;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.detailsButton:hover:after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.infoCardBody {
+  padding: 15px;
+}
+
+.infoItem {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.infoItem:last-child {
+  margin-bottom: 0;
+}
+
+.checkIcon, .crossIcon {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.checkIcon {
+  background-color: #e8f7ee;
+  color: #36b37e;
+}
+
+.crossIcon {
+  background-color: #fff0f0;
+  color: #e34051;
+}
+
+.itemDetail {
+  font-size: 12px;
+  color: #666;
+  margin-top: 3px;
+}
+
+/* Dialog Styles */
+.dialogOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.detailsDialog {
+  max-width: 550px;
+  width: 90%;
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.dialogHeader {
+  padding: 15px 20px;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.dialogTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0;
+}
+
+.dialogClose {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #333;
+  transition: transform 0.2s ease;
+}
+
+.dialogClose:hover {
+  transform: rotate(90deg);
+}
+
+.tabButtons {
+  display: flex;
+  padding: 10px 20px;
+  gap: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.tabButton {
+  flex: 1;
+  padding: 10px;
+  border-radius: 100px;
+  border: 1px solid #e0e0e0;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.tabButton:hover:not(.activeTab) {
+  background-color: #f5f5f5;
+  transform: translateY(-2px);
+}
+
+.activeTab {
+  background-color: #e8f7f9;
+  border-color: #1EAEDB;
+  color: #1EAEDB;
+}
+
+.dialogContent {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Baggage Dialog Specific Styles */
+.baggageSection {
+  margin-bottom: 20px;
+  background: white;
+  border: 1px solid #ebebeb;
+  border-radius: 8px;
+  padding: 15px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.baggageItem {
+  display: flex;
+  margin-bottom: 15px;
+  animation: slideInRight 0.5s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.baggageItem:last-child {
+  margin-bottom: 0;
+}
+
+.checkIconLarge {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #e8f7ee;
+  color: #36b37e;
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+
+.baggageTitle {
+  font-size: 15px;
+  font-weight: 500;
+  color: #000;
+  margin-bottom: 3px;
+}
+
+.baggageDetail {
+  font-size: 13px;
+  color: #666;
+}
+
+.baggageNote {
+  background-color: #f9f9f9;
+  border: 1px solid #ebebeb;
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  animation: fadeIn 0.5s ease-out 0.2s both;
+}
+
+.noteIcon {
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+
+.infoIcon {
+  width: 30px;
+  height: 30px;
+}
+
+.baggageNote p {
+  margin: 0;
+  font-size: 14px;
+  color: #555;
+  line-height: 1.4;
+}
+
+.dimensionsSection {
+  margin-top: 25px;
+  animation: fadeIn 0.5s ease-out 0.3s both;
+}
+
+.dimensionsSection h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  margin: 0 0 15px;
+}
+
+.dimensionsContainer {
+  display: flex;
+  gap: 20px;
+}
+
+.dimensionItem {
+  flex: 1;
+  background: white;
+  border: 1px solid #ebebeb;
+  border-radius: 8px;
+  padding: 15px;
+  transition: transform 0.3s ease;
+}
+
+.dimensionItem:hover {
+  transform: translateY(-5px);
+}
+
+.dimensionItem h5 {
+  font-size: 14px;
+  font-weight: 500;
+  color: #000;
+  margin: 0 0 15px;
+}
+
+.dimensionImageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.baggageIcon {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: 10px;
+  transition: transform 0.3s ease;
+}
+
+.dimensionItem:hover .baggageIcon {
+  transform: scale(1.1);
+}
+
+.dimensionMeasurements {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  position: relative;
+  margin-top: 10px;
+}
+
+.dimensionMeasurements span {
+  font-size: 12px;
+  color: #666;
+}
+
+.dimensionNote {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+  text-align: center;
+}
+
+/* Cancellation Dialog Specific Styles */
+.policySection {
+  margin-bottom: 20px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.policyHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.policyIcon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.policySection h4 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #000;
+  margin: 0;
+}
+
+.policyTable {
+  border: 1px solid #ebebeb;
+  border-radius: 8px;
+  overflow: hidden;
+  animation: slideInRight 0.5s ease-out;
+}
+
+.policyRow {
+  display: flex;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.policyRow:last-child {
+  border-bottom: none;
+}
+
+.policyCell, .policyCellHeader, .policyCellAmount {
+  padding: 15px;
+  flex: 1;
+}
+
+.policyCellHeader {
+  font-weight: 500;
+  text-align: center;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+.policyCell {
+  border-right: 1px solid #f0f0f0;
+}
+
+.policyCellAmount {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkIconSmall {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #e8f7ee;
+  color: #36b37e;
+  flex-shrink: 0;
+}
+
+.amount {
+  font-weight: 500;
+  color: #36b37e;
+}
+
+.fareDifference {
+  font-size: 13px;
+  color: #666;
+  margin-top: 3px;
+}
+
+.policyNote {
+  background-color: #fff9e6;
+  border: 1px solid #ffe7a0;
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  align-items: flex-start;
+  animation: fadeIn 0.5s ease-out 0.2s both;
+}
+
+.policyNote .noteIcon {
+  margin-right: 15px;
+  flex-shrink: 0;
+  color: #e9b949;
+}
+
+.policyNote p {
+  margin: 0;
+  font-size: 14px;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .flightDetailsContainer {
+    border-radius: 0;
+    max-width: 100%;
+  }
+  
+  .additionalInfo {
+    flex-direction: column;
+  }
+  
+  .locationTimeInfo {
+    flex-direction: column;
+  }
+  
+  .timeInfo {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  .flightHeader {
+    flex-direction: column;
+  }
+  
+  .date {
+    text-align: left;
+    margin-top: 5px;
+  }
+  
+  .stopDetail {
+    flex-direction: column;
+  }
+  
+  .stopDuration {
+    flex-direction: column;
+  }
+  
+  .dimensionsContainer {
+    flex-direction: column;
+  }
+}
