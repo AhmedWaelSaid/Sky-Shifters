@@ -1,6 +1,7 @@
-
 import  { useState } from 'react';
 import styles from './DetailsOfTheFlight.module.css';
+import baggageCabin from '../../../assets/baggage-cabin.png';
+import baggageChecked from '../../../assets/baggage-checked.png';
 
 // Icons defined as SVG components to avoid dependencies
 const ChevronDownIcon = () => (
@@ -91,7 +92,7 @@ const Dialog = ({ open, onClose, children }) => {
   );
 };
 
-const DetailsOfTheFlight = () => {
+const DetailsOfTheFlight = ({ onClose }) => {
   const [expandedStops, setExpandedStops] = useState(false);
   const [expandedServices, setExpandedServices] = useState(false);
   const [expandedReturnStops, setExpandedReturnStops] = useState(false);
@@ -130,7 +131,7 @@ const DetailsOfTheFlight = () => {
     <div className={styles.flightDetailsContainer}>
       {/* Header */}
       <header className={styles.header}>
-        <button className={styles.closeButton}>
+        <button className={styles.closeButton} onClick={onClose}>
           <XIcon />
         </button>
         <h1 className={styles.title}>Flight details</h1>
@@ -597,7 +598,7 @@ const DetailsOfTheFlight = () => {
               <div className={styles.dimensionItem}>
                 <h5>Cabin baggage</h5>
                 <div className={styles.dimensionImageContainer}>
-                  <img src="/lovable-uploads/f93b5994-86b4-4c09-80e8-3aaa06db0aa7.png" alt="Cabin Bag" className={styles.baggageIcon} />
+                  <img src={baggageCabin} alt="Cabin Bag" className={styles.baggageIcon} />
                   <div className={styles.dimensionMeasurements}>
                     <span>56 cm</span>
                     <span>45 cm</span>
@@ -609,7 +610,7 @@ const DetailsOfTheFlight = () => {
               <div className={styles.dimensionItem}>
                 <h5>Checked baggage</h5>
                 <div className={styles.dimensionImageContainer}>
-                  <img src="/lovable-uploads/4cd2eafc-3581-495d-bfef-dd2ab8e0e715.png" alt="Checked Bag" className={styles.baggageIcon} />
+                  <img src={baggageChecked} alt="Checked Bag" className={styles.baggageIcon} />
                   <div className={styles.dimensionNote}>Sum of baggage dimensions (L+W+H) should not be greater than 158 cm</div>
                 </div>
               </div>

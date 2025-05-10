@@ -1,13 +1,11 @@
-
-import React from 'react';
 import styles from './FlightSummary.module.css';
 
-const CancellationPolicy = () => {
+const CancellationPolicy = ({ onDetailsClick }) => {
   return (
     <div className={styles.cancellationSection}>
       <div className={styles.cancelHeader}>
         <span>Cancel & date change</span>
-        <button className={styles.detailsButton}>Details</button>
+        <button className={styles.detailsButton} onClick={onDetailsClick}>Details</button>
       </div>
       
       <div className={styles.cancelInfo}>
