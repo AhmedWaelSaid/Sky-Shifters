@@ -1,11 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import styles from './UpgradeExperience.module.css';
 import FlightSummary from '../FlightSummary/FlightSummary';
 import { ChevronRight, ChevronLeft, CreditCard } from 'lucide-react';
 import InsuranceOption from '../InsuranceOption/InsuranceOption';
 import StayDiscount from '../StayDiscount/StayDiscount';
-import BaggageOptions from '../BaggageOptions/BaggageOptions';
 import ChildServices from '../ChildServices/ChildServices';
 
 const UpgradeExperience = ({ passengers, formData, onUpdateForm, onContinue, onBack }) => {
@@ -113,8 +111,6 @@ const UpgradeExperience = ({ passengers, formData, onUpdateForm, onContinue, onB
           </div>
         </div>
 
-        <BaggageOptions onBaggageSelect={handleBaggageSelection} />
-        
         {/* Show child services only if there are child passengers */}
         {hasChildPassengers && (
           <ChildServices formData={formData} onUpdateForm={onUpdateForm} />
@@ -158,6 +154,7 @@ const UpgradeExperience = ({ passengers, formData, onUpdateForm, onContinue, onB
           onBack={onBack}
           showBackButton={false}
           showContinueButton={true}
+          onUpdateForm={onUpdateForm}
         />
       </div>
     </div>

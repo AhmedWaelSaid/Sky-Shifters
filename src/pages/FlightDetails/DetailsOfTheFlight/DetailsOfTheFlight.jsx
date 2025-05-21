@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import styles from "./DetailsOfTheFlight.module.css";
 import baggageCabin from "../../../assets/baggage-cabin.png";
 import baggageChecked from "../../../assets/baggage-checked.png";
@@ -7,6 +7,7 @@ import { useOutletContext } from "react-router-dom";
 import { useData } from "../../../components/context/DataContext";
 import { formatDuration } from "../../SelectedFlights/someFun";
 import { format } from "date-fns";
+import FareSelection from "../../../components/FareSelection/FareSelection";
 
 // Icons defined as SVG components to avoid dependencies
 const ChevronDownIcon = () => (
@@ -176,6 +177,25 @@ const AirplaneIcon = () => (
     <path d="M21 16V14L13 9V3.5C13 2.67 12.33 2 11.5 2C10.67 2 10 2.67 10 3.5V9L2 14V16L10 13.5V19L8 20.5V22L11.5 21L15 22V20.5L13 19V13.5L21 16Z" />
   </svg>
 );
+
+const InfoIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
+  </svg>
+);
+
 function formatted(time) {
   let amOrPm = "";
   let [hours, minutes] = time.split(":");
@@ -184,24 +204,21 @@ function formatted(time) {
   if (hours > 12) hours -= 12;
   return `${hours}:${minutes} ${amOrPm}`;
 }
-const Dialog = ({ open, onClose }) => {
-  if (!open) return null;
 
-  return (
-    <div className={styles.dialogOverlay} onClick={onClose}>
-      <div
-        className={styles.detailsDialog}
-        onClick={(e) => e.stopPropagation()}
-      ></div>
-    </div>
-  );
-};
-Dialog.propTypes = {
-  onClose: PropTypes.func,
-  open: PropTypes.bool,
+const baggageOptions = {
+  Economy: [
+    { id: 1, name: "Basic Fare (Included)", checkedBags: "1 × Checked Bag (23kg / 50lbs)", cabinBag: "1 × Cabin Bag (7kg / 15lbs, 55×40×20cm)", extraPrice: 0, extraLabel: "$0 (included)" },
+    { id: 2, name: "Extra Bag Option", checkedBags: "2 × Checked Bags (23kg each)", cabinBag: "1 × Cabin Bag (7kg)", extraPrice: 60, extraLabel: "$60 per additional checked bag" },
+    { id: 3, name: "Heavy Bag Option", checkedBags: "1 × Checked Bag (32kg / 70lbs - overweight allowance)", cabinBag: "1 × Cabin Bag (7kg)", extraPrice: 85, extraLabel: "$85 for overweight upgrade" }
+  ],
+  Premium: [
+    { id: 1, name: "Standard Premium (Included)", checkedBags: "2 × Checked Bags (32kg / 70lbs each)", cabinBag: "2 × Cabin Bags (10kg / 22lbs each)", extraPrice: 0, extraLabel: "$0 (included)" },
+    { id: 2, name: "Extra Premium Bag", checkedBags: "3 × Checked Bags (32kg each)", cabinBag: "2 × Cabin Bags (10kg each)", extraPrice: 100, extraLabel: "$100 per additional checked bag" },
+    { id: 3, name: "Luxury Allowance", checkedBags: "2 × Checked Bags (32kg each) + 1 Oversized Bag (up to 158cm / 62in linear)", cabinBag: "2 × Cabin Bags (10kg each)", extraPrice: 150, extraLabel: "$150 for oversized item" }
+  ],
 };
 
-const DetailsOfTheFlight = ({ onClose }) => {
+const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formData }) => {
   const [expandedStops, setExpandedStops] = useState(false);
   const [expandedServices, setExpandedServices] = useState(false);
   const [expandedReturnStops, setExpandedReturnStops] = useState(false);
@@ -211,6 +228,38 @@ const DetailsOfTheFlight = ({ onClose }) => {
   const [selectedRoute, setSelectedRoute] = useState("RUH-MNL");
   const { flight } = useOutletContext();
   const { sharedData } = useData();
+  const [selectedClass, setSelectedClass] = useState("Economy");
+  const [baggageIndex, setBaggageIndex] = useState(0);
+
+  useEffect(() => {
+    const id = formData?.baggageSelection?.selectedId;
+    const options = baggageOptions[selectedClass];
+    const idx = options.findIndex(opt => opt.id === id);
+    setBaggageIndex(idx >= 0 ? idx : 0);
+  }, [formData, selectedClass]);
+
+  const options = baggageOptions[selectedClass];
+  const selectedOption = options[baggageIndex];
+
+  const handleSelectOption = (option) => {
+    if (onUpdateForm && formData) {
+      onUpdateForm("baggageSelection", {
+        ...formData.baggageSelection,
+        selectedId: option.id,
+        price: option.extraPrice,
+        description: option.name,
+      });
+    }
+    if (setExtraBaggagePrice) {
+      setExtraBaggagePrice(option.extraPrice || 0);
+    }
+  };
+
+  const handlePrev = () => setBaggageIndex(i => (i === 0 ? options.length - 1 : i - 1));
+  const handleNext = () => setBaggageIndex(i => (i === options.length - 1 ? 0 : i + 1));
+
+  const totalPrice = useMemo(() => 5000 + (selectedOption?.extraPrice || 0), [selectedOption]);
+
   const toggleStopsDropdown = () => {
     setExpandedStops(!expandedStops);
   };
@@ -880,224 +929,160 @@ const DetailsOfTheFlight = ({ onClose }) => {
         </section>
       )}
 
-      {/* Baggage Allowance Dialog */}
-      <Dialog
-        open={baggageDialogOpen}
-        onClose={() => setBaggageDialogOpen(false)}
-      >
-        <div className={styles.dialogHeader}>
-          <h2 className={styles.dialogTitle}>
-            Baggage Allowance
-            <button
-              className={styles.dialogClose}
-              onClick={() => setBaggageDialogOpen(false)}
-            >
-              <XIcon />
-            </button>
-          </h2>
-        </div>
+      {/* Fare Selection for Departure */}
+      <FareSelection
+        formData={formData}
+        onUpdateForm={onUpdateForm}
+        setExtraBaggagePrice={setExtraBaggagePrice}
+        selectedClass={flight?.departure?.data?.itineraries?.[0]?.segments?.[0]?.cabinClass}
+        direction="departure"
+      />
 
-        <div className={styles.tabButtons}>
-          <button
-            className={`${styles.tabButton} ${selectedRoute === "RUH-MNL" ? styles.activeTab : ""}`}
-            onClick={() => setSelectedRoute("RUH-MNL")}
-          >
-            RUH to MNL
-          </button>
-          <button
-            className={`${styles.tabButton} ${selectedRoute === "MNL-RUH" ? styles.activeTab : ""}`}
-            onClick={() => setSelectedRoute("MNL-RUH")}
-          >
-            MNL to RUH
-          </button>
-        </div>
+      {/* Fare Selection for Return (إذا كانت رحلة عودة) */}
+      {sharedData.return && (
+        <FareSelection
+          formData={formData}
+          onUpdateForm={onUpdateForm}
+          setExtraBaggagePrice={setExtraBaggagePrice}
+          selectedClass={flight?.return?.data?.itineraries?.[0]?.segments?.[0]?.cabinClass}
+          direction="return"
+        />
+      )}
 
-        <div className={styles.dialogContent}>
-          <div className={styles.baggageSection}>
-            <div className={styles.baggageItem}>
-              <span className={styles.checkIconLarge}>
-                <CheckIcon />
-              </span>
-              <div>
-                <div className={styles.baggageTitle}>7 kg cabin baggage</div>
-                <div className={styles.baggageDetail}>1 piece</div>
+      {/* Baggage Dialog */}
+      {baggageDialogOpen && (
+        <div className={styles.dialogOverlay}>
+          <div className={styles.detailsDialog}>
+            <div className={styles.dialogHeader}>
+              <div className={styles.dialogTitle}>
+                Baggage Allowance Details
+                <button className={styles.dialogClose} onClick={() => setBaggageDialogOpen(false)}>
+                  <XIcon />
+                </button>
               </div>
             </div>
-            <div className={styles.baggageItem}>
-              <span className={styles.checkIconLarge}>
-                <CheckIcon />
-              </span>
-              <div>
-                <div className={styles.baggageTitle}>
-                  Checked baggage included
-                </div>
-                <div className={styles.baggageDetail}>
-                  {selectedRoute === "RUH-MNL" ? "2 pieces" : "1 piece"},
-                  airline usually permits 23kg per bag
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.baggageNote}>
-            <div className={styles.noteIcon}>
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/592/592024.png"
-                alt="Luggage"
-                className={styles.infoIcon}
-              />
-            </div>
-            <p>
-              After booking, you can contact a travel advisor to add extra
-              baggage, subject to the airline`s availability & rates.
-            </p>
-          </div>
-
-          <div className={styles.dimensionsSection}>
-            <h4>Baggage dimensions</h4>
-            <div className={styles.dimensionsContainer}>
-              <div className={styles.dimensionItem}>
-                <h5>Cabin baggage</h5>
-                <div className={styles.dimensionImageContainer}>
-                  <img
-                    src={baggageCabin}
-                    alt="Cabin Bag"
-                    className={styles.baggageIcon}
-                  />
-                  <div className={styles.dimensionMeasurements}>
-                    <span>56 cm</span>
-                    <span>45 cm</span>
-                    <span>25 cm</span>
+            <div className={styles.dialogContent}>
+              <div className={styles.baggageSection}>
+                <div className={styles.baggageItem}>
+                  <span className={styles.checkIconLarge}><CheckIcon /></span>
+                  <div>
+                    <div className={styles.baggageTitle}>Cabin baggage</div>
+                    <div className={styles.baggageDetail}>7 kg cabin baggage, 1 piece</div>
                   </div>
                 </div>
-                <p className={styles.dimensionNote}>
-                  1 fully-collapsible baby stroller that can be stowed is
-                  allowed.
-                </p>
+                <div className={styles.baggageItem}>
+                  <span className={styles.checkIconLarge}><CheckIcon /></span>
+                  <div>
+                    <div className={styles.baggageTitle}>Checked baggage</div>
+                    <div className={styles.baggageDetail}>2 pieces, airline usually permits 23kg per bag</div>
+                  </div>
+                </div>
               </div>
-              <div className={styles.dimensionItem}>
-                <h5>Checked baggage</h5>
-                <div className={styles.dimensionImageContainer}>
-                  <img
-                    src={baggageChecked}
-                    alt="Checked Bag"
-                    className={styles.baggageIcon}
-                  />
-                  <div className={styles.dimensionNote}>
-                    Sum of baggage dimensions (L+W+H) should not be greater than
-                    158 cm
+              <div className={styles.baggageNote}>
+                <span className={styles.noteIcon}><InfoIcon /></span>
+                <p>Please check with the airline for the most up-to-date baggage policies.</p>
+              </div>
+              <div className={styles.dimensionsSection}>
+                <h4>Baggage dimensions</h4>
+                <div className={styles.dimensionsContainer}>
+                  <div className={styles.dimensionItem}>
+                    <div className={styles.dimensionImageContainer}>
+                      <img src={baggageCabin} alt="Cabin Bag" className={styles.baggageIcon} />
+                    </div>
+                    <h5>Cabin bag</h5>
+                    <div className={styles.dimensionMeasurements}>
+                      <span>Max 55×40×20cm</span>
+                      <span>Max 7kg</span>
+                    </div>
+                    <div className={styles.dimensionNote}>Fits in overhead bin</div>
+                  </div>
+                  <div className={styles.dimensionItem}>
+                    <div className={styles.dimensionImageContainer}>
+                      <img src={baggageChecked} alt="Checked Bag" className={styles.baggageIcon} />
+                    </div>
+                    <h5>Checked bag</h5>
+                    <div className={styles.dimensionMeasurements}>
+                      <span>Max 158cm (linear)</span>
+                      <span>Max 23kg</span>
+                    </div>
+                    <div className={styles.dimensionNote}>Checked at counter</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </Dialog>
+      )}
 
       {/* Cancellation Dialog */}
-      <Dialog
-        open={cancellationDialogOpen}
-        onClose={() => setCancellationDialogOpen(false)}
-      >
-        <div className={styles.dialogHeader}>
-          <h2 className={styles.dialogTitle}>
-            Cancel & Change
-            <button
-              className={styles.dialogClose}
-              onClick={() => setCancellationDialogOpen(false)}
-            >
-              <XIcon />
-            </button>
-          </h2>
-        </div>
-
-        <div className={styles.tabButtons}>
-          <button
-            className={`${styles.tabButton} ${selectedRoute === "RUH-MNL" ? styles.activeTab : ""}`}
-            onClick={() => setSelectedRoute("RUH-MNL")}
-          >
-            RUH to MNL
-          </button>
-          <button
-            className={`${styles.tabButton} ${selectedRoute === "MNL-RUH" ? styles.activeTab : ""}`}
-            onClick={() => setSelectedRoute("MNL-RUH")}
-          >
-            MNL to RUH
-          </button>
-        </div>
-
-        <div className={styles.dialogContent}>
-          <div className={styles.policySection}>
-            <div className={styles.policyHeader}>
-              <span className={styles.policyIcon}>
-                <CalendarIcon />
-              </span>
-              <h4>Cancel & change details</h4>
-            </div>
-
-            <div className={styles.policyTable}>
-              <div className={styles.policyRow}>
-                <div className={styles.policyCell}></div>
-                <div className={styles.policyCellHeader}>Adult</div>
+      {cancellationDialogOpen && (
+        <div className={styles.dialogOverlay}>
+          <div className={styles.detailsDialog}>
+            <div className={styles.dialogHeader}>
+              <div className={styles.dialogTitle}>
+                Cancel & Change
+                <button className={styles.dialogClose} onClick={() => setCancellationDialogOpen(false)}>
+                  <XIcon />
+                </button>
               </div>
-              <div className={styles.policyRow}>
-                <div className={styles.policyCell}>Cancellation fees</div>
-                <div className={styles.policyCellAmount}>
-                  <span className={styles.checkIconSmall}>
-                    <CheckIcon />
-                  </span>
-                  <span className={styles.amount}>USD 94</span>
+            </div>
+            <div className={styles.tabButtons}>
+              <button className={`${styles.tabButton} ${selectedRoute === "RUH-MNL" ? styles.activeTab : ""}`} onClick={() => setSelectedRoute("RUH-MNL")}>RUH to MNL</button>
+              <button className={`${styles.tabButton} ${selectedRoute === "MNL-RUH" ? styles.activeTab : ""}`} onClick={() => setSelectedRoute("MNL-RUH")}>MNL to RUH</button>
+            </div>
+            <div className={styles.dialogContent}>
+              {/* Cancel & change details */}
+              <div className={styles.policySection}>
+                <div className={styles.policyHeader}>
+                  <span className={styles.policyIcon}><CalendarIcon /></span>
+                  <h4>Cancel & change details</h4>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.policySection}>
-            <div className={styles.policyHeader}>
-              <span className={styles.policyIcon}>
-                <CalendarIcon />
-              </span>
-              <h4>Date Change Fees</h4>
-            </div>
-
-            <div className={styles.policyTable}>
-              <div className={styles.policyRow}>
-                <div className={styles.policyCell}></div>
-                <div className={styles.policyCellHeader}>Adult</div>
-              </div>
-              <div className={styles.policyRow}>
-                <div className={styles.policyCell}>Date change fees</div>
-                <div className={styles.policyCellAmount}>
-                  <span className={styles.checkIconSmall}>
-                    <CheckIcon />
-                  </span>
-                  <div>
-                    <div className={styles.amount}>USD 54</div>
-                    <div className={styles.fareDifference}>
-                      + Fare Difference
-                    </div>
+                <div className={styles.policyTable}>
+                  <div className={styles.policyRow}>
+                    <div className={styles.policyCellHeader}></div>
+                    <div className={styles.policyCellHeader}>Adult</div>
+                  </div>
+                  <div className={styles.policyRow}>
+                    <div className={styles.policyCell}>Cancellation fees</div>
+                    <div className={styles.policyCellAmount}><span className={styles.checkIconSmall}><CheckIcon /></span> <span style={{color:'#36b37e',fontWeight:'bold'}}>USD 94</span></div>
                   </div>
                 </div>
               </div>
+              {/* Date Change Fees */}
+              <div className={styles.policySection}>
+                <div className={styles.policyHeader}>
+                  <span className={styles.policyIcon}><CalendarIcon /></span>
+                  <h4>Date Change Fees</h4>
+                </div>
+                <div className={styles.policyTable}>
+                  <div className={styles.policyRow}>
+                    <div className={styles.policyCellHeader}></div>
+                    <div className={styles.policyCellHeader}>Adult</div>
+                  </div>
+                  <div className={styles.policyRow}>
+                    <div className={styles.policyCell}>Date change fees</div>
+                    <div className={styles.policyCellAmount}><span className={styles.checkIconSmall}><CheckIcon /></span> <span style={{color:'#36b37e',fontWeight:'bold'}}>USD 54</span><span className={styles.fareDifference}>+ Fare Difference</span></div>
+                  </div>
+                </div>
+              </div>
+              {/* Note */}
+              <div className={styles.policyNote} style={{background:'#fff9e6',border:'1px solid #ffe7a0',marginTop:16}}>
+                <span className={styles.noteIcon}><InfoIcon /></span>
+                <p>All fees are applicable up to 48 hours before the outbound flight departure time. Additional fees may apply after that.</p>
+              </div>
             </div>
           </div>
-
-          <div className={styles.policyNote}>
-            <span className={styles.noteIcon}>
-              <CalendarIcon />
-            </span>
-            <p>
-              All fees are applicable up to 48 hours before the outbound flight
-              departure time. Additional fees may apply after that.
-            </p>
-          </div>
         </div>
-      </Dialog>
+      )}
     </div>
   );
 };
 
 DetailsOfTheFlight.propTypes = {
   onClose: PropTypes.func,
+  setExtraBaggagePrice: PropTypes.func,
+  onUpdateForm: PropTypes.func,
+  formData: PropTypes.object,
 };
+
 export default DetailsOfTheFlight;

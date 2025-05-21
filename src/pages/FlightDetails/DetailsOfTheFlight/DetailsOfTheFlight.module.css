@@ -955,6 +955,135 @@
   line-height: 1.4;
 }
 
+/* Fare Type Section */
+.fareTypeSection {
+  background: transparent;
+  border-radius: 0;
+  padding: 24px 0 0 0;
+  margin: 32px 0;
+  color: #222;
+  font-family: inherit;
+}
+
+.fareTypeTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0077c8;
+  margin-bottom: 24px;
+  text-align: left;
+  font-family: inherit;
+}
+
+.fareTypeSubtitle {
+  font-size: 14px;
+  margin-bottom: 20px;
+  color: #e0f7fa;
+}
+
+.fareCardsContainer {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.fareCard {
+  background: #fff;
+  color: #222;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  min-width: 260px;
+  max-width: 280px;
+  flex: 1 0 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0 0 16px 0;
+  border: 2px solid transparent;
+  transition: border 0.2s;
+}
+
+.fareCard.selected, .fareCard:hover {
+  border: 2px solid #1a9ecb;
+}
+
+.fareCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 18px 0 18px;
+}
+
+.fareType {
+  font-weight: bold;
+  font-size: 14px;
+  color: #1a9ecb;
+}
+
+.farePrice {
+  font-weight: bold;
+  font-size: 16px;
+  color: #222;
+}
+
+.fareCardBody {
+  padding: 12px 18px 0 18px;
+}
+
+.fareSection {
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: bold;
+  color: #1a9ecb;
+  margin-bottom: 4px;
+}
+
+.fareFeature {
+  font-size: 13px;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  color: #222;
+}
+
+.checkIcon {
+  color: #36b37e;
+  font-weight: bold;
+  margin-right: 6px;
+  font-size: 15px;
+}
+
+.selectedButton, .selectButton {
+  margin: 16px 18px 0 18px;
+  padding: 8px 0;
+  border-radius: 100px;
+  font-size: 15px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.selectedButton {
+  background: #fff;
+  color: #1a9ecb;
+  border: 2px solid #1a9ecb;
+}
+
+.selectButton {
+  background: #1a9ecb;
+  color: #fff;
+  border: 2px solid #1a9ecb;
+}
+
+.selectButton:hover {
+  background: #fff;
+  color: #1a9ecb;
+}
+
 /* Responsive design */
 @media (max-width: 600px) {
   .flightDetailsContainer {
@@ -997,4 +1126,443 @@
   .dimensionsContainer {
     flex-direction: column;
   }
+}
+
+.classSelector {
+  display: flex;
+  gap: 18px;
+  margin: 24px 0 16px 0;
+  flex-wrap: wrap;
+}
+
+.classRadio {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a9ecb;
+  background: #e0f7fa;
+  border-radius: 100px;
+  padding: 6px 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s, color 0.2s;
+  border: 2px solid transparent;
+}
+.classRadio input[type="radio"] {
+  margin-right: 8px;
+  accent-color: #1a9ecb;
+}
+.classRadio input[type="radio"]:checked + span {
+  color: #fff;
+  background: #1a9ecb;
+}
+.classRadio:has(input[type="radio"]:checked) {
+  background: #1a9ecb;
+  color: #fff;
+  border: 2px solid #1a9ecb;
+}
+
+.baggageSelectorContainer {
+  margin: 24px 0;
+  padding: 24px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+}
+
+.fareTypeTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0077c8;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.fareCardsContainer {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.fareCard {
+  background: #f8fbff;
+  border: 2px solid #e0e7ef;
+  border-radius: 14px;
+  padding: 24px 20px 20px 20px;
+  width: 290px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fareCard.selected {
+  border-color: #0077c8;
+  box-shadow: 0 4px 16px rgba(0,119,200,0.08);
+  background: #eaf6ff;
+}
+
+.fareCard:hover {
+  border-color: #0077c8;
+  box-shadow: 0 4px 16px rgba(0,119,200,0.12);
+}
+
+.fareCardHeader {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0077c8;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.farePrice {
+  font-size: 16px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 12px;
+}
+
+.fareSection {
+  margin-bottom: 18px;
+}
+
+.sectionTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0077c8;
+  margin-bottom: 8px;
+}
+
+.fareFeature {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.checkIcon {
+  color: #36b37e;
+  margin-right: 6px;
+}
+
+.selectButton, .selectedButton {
+  width: 100%;
+  padding: 12px 0;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  border: 2px solid #0077c8;
+  background: #fff;
+  color: #0077c8;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  margin-top: 10px;
+}
+
+.selectButton:hover {
+  background: #eaf6ff;
+}
+
+.selectedButton {
+  background: #0077c8;
+  color: #fff;
+  border: 2px solid #0077c8;
+  cursor: default;
+}
+
+.fareCardSliderBg {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fareCardSlider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 420px;
+}
+
+.fareCardSliderCard {
+  width: 400px;
+  min-width: 400px;
+  max-width: 420px;
+  padding: 32px 28px 28px 28px;
+  font-family: inherit;
+  font-size: 16px;
+}
+
+.arrowButton {
+  background: #fff;
+  border: 1px solid #e0e7ef;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin: 0 18px;
+  cursor: pointer;
+  transition: background 0.2s, border 0.2s;
+}
+.arrowButton:hover {
+  background: #eaf6ff;
+  border: 1.5px solid #0077c8;
+}
+
+.fareTypeTitle {
+  color: #0077c8;
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 24px;
+  text-align: center;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 8px #eaf6ff;
+}
+
+.fareCardSliderCard .fareType,
+.fareCardSliderCard .farePrice {
+  color: #0a223a;
+  font-weight: 700;
+  font-size: 18px;
+  text-shadow: 0 1px 8px #eaf6ff;
+}
+
+.fareCardSliderCard .sectionTitle {
+  color: #0077c8;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.fareCardSliderCard .fareFeature {
+  color: #1a2b3c;
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  text-shadow: 0 1px 8px #f7fbff;
+}
+
+/* Fare Selection Styles */
+.fareSelectionWrapper {
+  background-color: #1A936F;
+  color: white;
+  margin: 20px 20px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.fareSelectionHeader {
+  padding: 20px;
+}
+
+.fareSelectionHeader h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 5px;
+}
+
+.fareSelectionHeader p {
+  font-size: 14px;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.fareNavigation {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.fareNavButton {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.fareNavButton:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.fareIndicators {
+  display: flex;
+  gap: 8px;
+  margin: 0 15px;
+}
+
+.fareIndicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.activeIndicator {
+  background-color: white;
+}
+
+.fareCardContainer {
+  position: relative;
+  height: 320px;
+  overflow: hidden;
+}
+
+.integratedFareCard {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  padding: 20px;
+  color: #333;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.hiddenFareCard {
+  opacity: 0;
+  transform: translateX(100%);
+  pointer-events: none;
+}
+
+.activeFareCard {
+  opacity: 1;
+  transform: translateX(0);
+  z-index: 1;
+}
+
+.fareTypeHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.fareName {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.farePriceContainer {
+  text-align: right;
+}
+
+.farePrice {
+  font-weight: 600;
+  font-size: 18px;
+  color: #1A936F;
+}
+
+.totalLabel {
+  display: block;
+  font-size: 12px;
+  color: #666;
+}
+
+.fareSection {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.fareSection h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+}
+
+.fareDetailItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.fareDetailItem:last-child {
+  margin-bottom: 0;
+}
+
+.checkIcon {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-right: 10px;
+  flex-shrink: 0;
+  background-color: #e8f7ee;
+  color: #36b37e;
+}
+
+.infoIconSmall {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-right: 10px;
+  flex-shrink: 0;
+  color: #1EAEDB;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.selectedFareButton, .selectFareButton {
+  margin-top: auto;
+  width: 100%;
+  border: none;
+  border-radius: 100px;
+  padding: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.selectFareButton {
+  background-color: #1EAEDB;
+  color: white;
+}
+
+.selectFareButton:hover {
+  background-color: #1a9cc5;
+}
+
+.selectedFareButton {
+  background-color: #f0f0f0;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* عطل الأنماط القديمة الخاصة بمنطقة اختيار الأمتعة */
+.fareTypeSection, .fareTypeTitle, .fareCardSliderBg, .fareCardSlider, .fareCardSliderCard, .arrowButton {
+  display: none !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }

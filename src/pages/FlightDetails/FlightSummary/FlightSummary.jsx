@@ -39,9 +39,11 @@ const FlightSummary = ({
   onBack,
   showBackButton = false,
   showContinueButton = true,
+  onUpdateForm,
 }) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const {flight} = useOutletContext();
+  const [extraBaggagePrice, setExtraBaggagePrice] = useState(0);
 
   const toggleDetails = () => {
     setIsDetailsOpen(!isDetailsOpen);
@@ -57,7 +59,7 @@ const FlightSummary = ({
       {/* Details Side Panel */}
       <div className={`${styles.detailsPanel} ${isDetailsOpen ? styles.open : ''}`}>
         <div className={styles.detailsPanelContent}>
-          <DetailsOfTheFlight onClose={toggleDetails} />
+          <DetailsOfTheFlight onClose={toggleDetails} setExtraBaggagePrice={setExtraBaggagePrice} onUpdateForm={onUpdateForm} formData={formData} />
         </div>
       </div>
 
@@ -246,6 +248,7 @@ const FlightSummary = ({
         onBack={onBack}
         showBackButton={showBackButton}
         showContinueButton={showContinueButton}
+        extraBaggagePrice={extraBaggagePrice}
       />
     </div>
   );
@@ -258,6 +261,7 @@ FlightSummary.propTypes= {
   onBack: PropTypes.func,
   showBackButton: PropTypes.bool,
   showContinueButton: PropTypes.bool,
+  onUpdateForm: PropTypes.func,
 }
 
 export default FlightSummary;

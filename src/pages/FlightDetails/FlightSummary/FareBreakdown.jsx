@@ -12,6 +12,9 @@ const FareBreakdown = ({
   showContinueButton = true,
 }) => {
   let { flight } = useOutletContext();
+  // حساب سعر الحقيبة من formData فقط
+  const extraBaggagePrice = formData?.baggageSelection?.price || 0;
+
   const calculateTotal = () => {
     // Base fare calculations for different age groups in USD
     let baseFare = { adults: [], children: [], infants: [] };
@@ -100,13 +103,13 @@ const FareBreakdown = ({
       serviceFee,
       addOns,
       specialServices,
-      baggageUpgrade: baggageCost,
+      baggageUpgrade: extraBaggagePrice,
       total:
         Number(baseFare.total()) +
         serviceFee +
         addOns +
         specialServices +
-        baggageCost,
+        extraBaggagePrice,
     };
   };
 

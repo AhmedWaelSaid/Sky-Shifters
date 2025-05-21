@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import styles from './FinalDetails.module.css';
 import FlightSummary from '../FlightSummary/FlightSummary';
@@ -60,21 +59,12 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
       (formData.specialServices?.childMeal ? 8.99 * passengers.filter(p => p.type === 'child').length : 0) +
       (formData.specialServices?.stroller ? 0 : 0); // Strollers are typically free
     
-    // Baggage calculation based on the new baggageSelection object
-    let baggageCost = 0;
-    
-    if (formData.baggageSelection) {
-      baggageCost += (formData.baggageSelection.outbound?.price || 0);
-      baggageCost += (formData.baggageSelection.inbound?.price || 0);
-    }
-    
     return {
       baseFare,
       addOns,
       specialServices,
-      baggageUpgrade: baggageCost,
       taxes: 18.95 * passengers.length,
-      total: baseFare + addOns + specialServices + baggageCost + (18.95 * passengers.length)
+      total: baseFare + addOns + specialServices + (18.95 * passengers.length)
     };
   };
   

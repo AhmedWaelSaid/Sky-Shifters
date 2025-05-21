@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import './PassengerDetailsForm.css';
 import FlightSummary from '../FlightSummary/FlightSummary';
@@ -156,6 +155,7 @@ const PassengerDetailsForm = ({
             passengers={passengers} 
             formData={formData} 
             onContinue={onContinue}
+            onUpdateForm={onUpdateForm}
           />
         </div>
       </div>
