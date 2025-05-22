@@ -113,7 +113,7 @@
   border-bottom: 1px solid #f0f0f0;
 }
 
-.timeInfo {
+.timeInfo,.timeOfStop,.flightDuration,.waitingStopTime {
   width: 90px;
   margin-right: 15px;
   flex-shrink: 0;
@@ -155,7 +155,10 @@
   border-radius: 50%;
   margin-right: 10px;
 }
-
+.dot1{
+  composes: dot;
+  margin-top: 6px;
+}
 .terminal, .city {
   font-size: 14px;
   color: #666;
@@ -165,16 +168,26 @@
 
 /* Flight Info */
 .flightInfo {
-  padding: 15px 20px;
-  background-color: #f9fafc;
+  padding: 20px;
   border-bottom: 1px solid #f0f0f0;
 }
+.stopDetailsContainer > div+div{
+  margin-top: 20px;
 
-.flightDuration {
+}
+.flightInfo > div+div{
+  margin-top: 20px;
+}
+.stopContainer,.waitingContainer,.stopDeparture,.stopFlight{
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
+}
+.stopFlight{
+  gap: 30px;
+}
+.flightDuration {
+  justify-content: center;
+  margin-right: 5px;
+  gap: 5px;
 }
 
 .duration {
@@ -185,7 +198,16 @@
 .stops {
   margin-bottom: 5px;
 }
-
+.stopDeparture{
+  margin-top: 15px;
+}
+.waitingStopTime{
+margin-top: 8px;
+}
+.fixedTime,.waitingStopTime{
+  font-size: 14px;
+  color: #E91E63;
+}
 .stopsBadge {
   display: inline-block;
   padding: 4px 8px;
@@ -215,20 +237,16 @@
   max-height: 0;
   opacity: 0;
   overflow: hidden;
-  background-color: #f9f9f9;
-  border: 1px solid transparent;
-  border-radius: 6px;
   transition: all 0.3s ease-out;
   margin: 0;
   padding: 0;
+  display: none;
 }
 
 .stopsDropdownContent.expanded {
   max-height: 200px;
   opacity: 1;
-  padding: 12px;
-  border-color: #ebebeb;
-  margin-bottom: 15px;
+  display: flex;
 }
 
 .stopDetail {
@@ -252,24 +270,23 @@
   flex-shrink: 0;
 }
 
-.stopAirport {
+.stopAirport,.stopIATA {
   font-size: 14px;
   font-weight: 500;
   color: #000000e6;
 }
 
-.stopTerminal, .stopCity {
+ .stopCity {
   font-size: 13px;
   color: #666;
 }
 
 .stopDuration {
-  margin-top: 8px;
   padding: 8px;
   background-color: #e8f7f9;
   border-radius: 4px;
-  display: flex;
-  justify-content: space-between;
+  font-size: 10px;
+  opacity: 0.8;
 }
 
 .waitingLabel {
@@ -287,6 +304,7 @@
   display: flex;
   align-items: center;
   margin-bottom: 15px;
+  gap: 5px;
 }
 
 .airlineLogoContainer {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import styles from "./FareSelection.module.css";
+import { useData } from "../context/DataContext";
 
 // SVG icons (بدائل بسيطة)
 const ChevronLeft = (props) => (
@@ -12,72 +13,74 @@ const ChevronRight = (props) => (
 const Check = (props) => (
   <svg width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
 );
+const economyOptions = [
+  {
+    id: 1,
+    name: "Basic Fare (Included)",
+    price: 0,
+    cabinBaggage: "1 × Cabin Bag (7kg / 15lbs, 55×40×20cm)",
+    checkedBaggage: "1 × Checked Bag (23kg / 50lbs)",
+    extraLabel: "$0 (included)",
+  },
+  {
+    id: 2,
+    name: "Extra Bag Option",
+    price: 60,
+    cabinBaggage: "1 × Cabin Bag (7kg)",
+    checkedBaggage: "2 × Checked Bags (23kg each)",
+    extraLabel: "$60 per additional checked bag",
+  },
+  {
+    id: 3,
+    name: "Heavy Bag Option",
+    price: 85,
+    cabinBaggage: "1 × Cabin Bag (7kg)",
+    checkedBaggage: "1 × Checked Bag (32kg / 70lbs - overweight allowance)",
+    extraLabel: "$85 for overweight upgrade",
+  },
+];
 
-const FareSelection = ({ formData, onUpdateForm, setExtraBaggagePrice, selectedClass, direction }) => {
+// خيارات Premium/Business
+const premiumOptions = [
+  {
+    id: 1,
+    name: "Standard Premium (Included)",
+    price: 0,
+    cabinBaggage: "2 × Cabin Bags (10kg / 22lbs each)",
+    checkedBaggage: "2 × Checked Bags (32kg / 70lbs each)",
+    extraLabel: "$0 (included)",
+  },
+  {
+    id: 2,
+    name: "Extra Premium Bag",
+    price: 100,
+    cabinBaggage: "2 × Cabin Bags (10kg each)",
+    checkedBaggage: "3 × Checked Bags (32kg each)",
+    extraLabel: "$100 per additional checked bag",
+  },
+  {
+    id: 3,
+    name: "Luxury Allowance",
+    price: 150,
+    cabinBaggage: "2 × Cabin Bags (10kg each)",
+    checkedBaggage: "2 × Checked Bags (32kg each) + 1 Oversized Bag (up to 158cm / 62in linear)",
+    extraLabel: "$150 for oversized item",
+  },
+];
+
+
+const FareSelection = ({ formData, onUpdateForm, setExtraBaggagePrice }) => {
+  const {sharedData} = useData();
+let fareOptions = [];
+let classStr = (sharedData.passengerClass.class.value || "").toUpperCase();
+if (classStr.includes("ECONOMY")) {
+  fareOptions = economyOptions;
+} else {
+  fareOptions = premiumOptions;
+}
   // خيارات Economy
-  const economyOptions = [
-    {
-      id: 1,
-      name: "Basic Fare (Included)",
-      price: 0,
-      cabinBaggage: "1 × Cabin Bag (7kg / 15lbs, 55×40×20cm)",
-      checkedBaggage: "1 × Checked Bag (23kg / 50lbs)",
-      extraLabel: "$0 (included)",
-    },
-    {
-      id: 2,
-      name: "Extra Bag Option",
-      price: 60,
-      cabinBaggage: "1 × Cabin Bag (7kg)",
-      checkedBaggage: "2 × Checked Bags (23kg each)",
-      extraLabel: "$60 per additional checked bag",
-    },
-    {
-      id: 3,
-      name: "Heavy Bag Option",
-      price: 85,
-      cabinBaggage: "1 × Cabin Bag (7kg)",
-      checkedBaggage: "1 × Checked Bag (32kg / 70lbs - overweight allowance)",
-      extraLabel: "$85 for overweight upgrade",
-    },
-  ];
-
-  // خيارات Premium/Business
-  const premiumOptions = [
-    {
-      id: 1,
-      name: "Standard Premium (Included)",
-      price: 0,
-      cabinBaggage: "2 × Cabin Bags (10kg / 22lbs each)",
-      checkedBaggage: "2 × Checked Bags (32kg / 70lbs each)",
-      extraLabel: "$0 (included)",
-    },
-    {
-      id: 2,
-      name: "Extra Premium Bag",
-      price: 100,
-      cabinBaggage: "2 × Cabin Bags (10kg each)",
-      checkedBaggage: "3 × Checked Bags (32kg each)",
-      extraLabel: "$100 per additional checked bag",
-    },
-    {
-      id: 3,
-      name: "Luxury Allowance",
-      price: 150,
-      cabinBaggage: "2 × Cabin Bags (10kg each)",
-      checkedBaggage: "2 × Checked Bags (32kg each) + 1 Oversized Bag (up to 158cm / 62in linear)",
-      extraLabel: "$150 for oversized item",
-    },
-  ];
-
+  const [activeFareIndex, setActiveFareIndex] = useState(0);
   // تحديد الخيارات حسب cabinClass
-  let fareOptions = [];
-  let classStr = (selectedClass || "").toUpperCase();
-  if (classStr.includes("ECONOMY")) {
-    fareOptions = economyOptions;
-  } else {
-    fareOptions = premiumOptions;
-  }
 
   // إذا لم يوجد خيارات لهذا الكلاس
   if (fareOptions.length === 0) {
@@ -92,21 +95,7 @@ const FareSelection = ({ formData, onUpdateForm, setExtraBaggagePrice, selectedC
   }
 
   // اجعل الاختيار متزامن مع central state
-  const initialIndex = fareOptions.findIndex(
-    (opt) => formData?.baggageSelection?.selectedId === opt.id
-  );
-  const [activeFareIndex, setActiveFareIndex] = useState(initialIndex >= 0 ? initialIndex : 0);
 
-  useEffect(() => {
-    // إذا تغيرت central state من الخارج
-    if (formData?.baggageSelection?.selectedId !== fareOptions[activeFareIndex]?.id) {
-      const idx = fareOptions.findIndex(
-        (opt) => formData?.baggageSelection?.selectedId === opt.id
-      );
-      if (idx >= 0) setActiveFareIndex(idx);
-    }
-    // eslint-disable-next-line
-  }, [formData, selectedClass]);
 
   const handleNextFare = () => {
     const nextIndex = activeFareIndex === fareOptions.length - 1 ? 0 : activeFareIndex + 1;

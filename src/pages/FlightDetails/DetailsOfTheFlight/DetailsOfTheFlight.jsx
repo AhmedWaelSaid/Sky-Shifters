@@ -8,6 +8,8 @@ import { useData } from "../../../components/context/DataContext";
 import { formatDuration } from "../../SelectedFlights/someFun";
 import { format } from "date-fns";
 import FareSelection from "../../../components/FareSelection/FareSelection";
+import { useAirports } from "../../../helperFun";
+import { dealWithAirline } from "../FlightSummary/FlightSummary";
 
 // Icons defined as SVG components to avoid dependencies
 const ChevronDownIcon = () => (
@@ -204,21 +206,94 @@ function formatted(time) {
   if (hours > 12) hours -= 12;
   return `${hours}:${minutes} ${amOrPm}`;
 }
+function getTime(duration) {
+  const hours = duration.split("T")[1].split("H")[0];
+  let mins = 0;
+  if (duration.includes("M")) {
+    mins = duration.split("T")[1].split("H")[1].split("M")[0];
+  }
+  return Number(hours) * 60 + Number(mins);
+}
+function getTimeOfWaiting(flight) {
+  const totalDuration = flight.data.itineraries[0].duration;
+  const firstFlightDuration = flight.data.itineraries[0].segments[0].duration;
+  const secondFlightDuration = flight.data.itineraries[0].segments[1].duration;
+  const totalTime = getTime(totalDuration);
+  const firstFlightTime = getTime(firstFlightDuration);
+  const secondFlightTime = getTime(secondFlightDuration);
+  let waitingTime = totalTime - firstFlightTime - secondFlightTime;
+  let [hours, mins] = [0, 0];
+  while (waitingTime > 60) {
+    hours++;
+    waitingTime -= 60;
+  }
+  mins = waitingTime;
+  return hours + "h " + mins + "m";
+}
 
 const baggageOptions = {
   Economy: [
-    { id: 1, name: "Basic Fare (Included)", checkedBags: "1 × Checked Bag (23kg / 50lbs)", cabinBag: "1 × Cabin Bag (7kg / 15lbs, 55×40×20cm)", extraPrice: 0, extraLabel: "$0 (included)" },
-    { id: 2, name: "Extra Bag Option", checkedBags: "2 × Checked Bags (23kg each)", cabinBag: "1 × Cabin Bag (7kg)", extraPrice: 60, extraLabel: "$60 per additional checked bag" },
-    { id: 3, name: "Heavy Bag Option", checkedBags: "1 × Checked Bag (32kg / 70lbs - overweight allowance)", cabinBag: "1 × Cabin Bag (7kg)", extraPrice: 85, extraLabel: "$85 for overweight upgrade" }
+    {
+      id: 1,
+      name: "Basic Fare (Included)",
+      checkedBags: "1 × Checked Bag (23kg / 50lbs)",
+      cabinBag: "1 × Cabin Bag (7kg / 15lbs, 55×40×20cm)",
+      extraPrice: 0,
+      extraLabel: "$0 (included)",
+    },
+    {
+      id: 2,
+      name: "Extra Bag Option",
+      checkedBags: "2 × Checked Bags (23kg each)",
+      cabinBag: "1 × Cabin Bag (7kg)",
+      extraPrice: 60,
+      extraLabel: "$60 per additional checked bag",
+    },
+    {
+      id: 3,
+      name: "Heavy Bag Option",
+      checkedBags: "1 × Checked Bag (32kg / 70lbs - overweight allowance)",
+      cabinBag: "1 × Cabin Bag (7kg)",
+      extraPrice: 85,
+      extraLabel: "$85 for overweight upgrade",
+    },
   ],
   Premium: [
-    { id: 1, name: "Standard Premium (Included)", checkedBags: "2 × Checked Bags (32kg / 70lbs each)", cabinBag: "2 × Cabin Bags (10kg / 22lbs each)", extraPrice: 0, extraLabel: "$0 (included)" },
-    { id: 2, name: "Extra Premium Bag", checkedBags: "3 × Checked Bags (32kg each)", cabinBag: "2 × Cabin Bags (10kg each)", extraPrice: 100, extraLabel: "$100 per additional checked bag" },
-    { id: 3, name: "Luxury Allowance", checkedBags: "2 × Checked Bags (32kg each) + 1 Oversized Bag (up to 158cm / 62in linear)", cabinBag: "2 × Cabin Bags (10kg each)", extraPrice: 150, extraLabel: "$150 for oversized item" }
+    {
+      id: 1,
+      name: "Standard Premium (Included)",
+      checkedBags: "2 × Checked Bags (32kg / 70lbs each)",
+      cabinBag: "2 × Cabin Bags (10kg / 22lbs each)",
+      extraPrice: 0,
+      extraLabel: "$0 (included)",
+    },
+    {
+      id: 2,
+      name: "Extra Premium Bag",
+      checkedBags: "3 × Checked Bags (32kg each)",
+      cabinBag: "2 × Cabin Bags (10kg each)",
+      extraPrice: 100,
+      extraLabel: "$100 per additional checked bag",
+    },
+    {
+      id: 3,
+      name: "Luxury Allowance",
+      checkedBags:
+        "2 × Checked Bags (32kg each) + 1 Oversized Bag (up to 158cm / 62in linear)",
+      cabinBag: "2 × Cabin Bags (10kg each)",
+      extraPrice: 150,
+      extraLabel: "$150 for oversized item",
+    },
   ],
 };
 
-const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formData }) => {
+const DetailsOfTheFlight = ({
+  onClose,
+  setExtraBaggagePrice,
+  onUpdateForm,
+  formData,
+}) => {
+  const { airports } = useAirports();
   const [expandedStops, setExpandedStops] = useState(false);
   const [expandedServices, setExpandedServices] = useState(false);
   const [expandedReturnStops, setExpandedReturnStops] = useState(false);
@@ -234,7 +309,7 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
   useEffect(() => {
     const id = formData?.baggageSelection?.selectedId;
     const options = baggageOptions[selectedClass];
-    const idx = options.findIndex(opt => opt.id === id);
+    const idx = options.findIndex((opt) => opt.id === id);
     setBaggageIndex(idx >= 0 ? idx : 0);
   }, [formData, selectedClass]);
 
@@ -255,10 +330,15 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
     }
   };
 
-  const handlePrev = () => setBaggageIndex(i => (i === 0 ? options.length - 1 : i - 1));
-  const handleNext = () => setBaggageIndex(i => (i === options.length - 1 ? 0 : i + 1));
+  const handlePrev = () =>
+    setBaggageIndex((i) => (i === 0 ? options.length - 1 : i - 1));
+  const handleNext = () =>
+    setBaggageIndex((i) => (i === options.length - 1 ? 0 : i + 1));
 
-  const totalPrice = useMemo(() => 5000 + (selectedOption?.extraPrice || 0), [selectedOption]);
+  const totalPrice = useMemo(
+    () => 5000 + (selectedOption?.extraPrice || 0),
+    [selectedOption]
+  );
 
   const toggleStopsDropdown = () => {
     setExpandedStops(!expandedStops);
@@ -285,6 +365,19 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
     setSelectedRoute(route);
     setCancellationDialogOpen(true);
   };
+  function getAirportByIATA(iata) {
+    const airport = airports.find((airport) => airport.iata == iata);
+    return airport;
+  }
+  let stopAirportDep = null;
+  if (
+    flight.departure &&
+    flight.departure.data.itineraries[0].segments.length > 1
+  ) {
+    stopAirportDep = getAirportByIATA(
+      flight.departure.data.itineraries[0].segments[0].arrival.iataCode
+    );
+  }
 
   return (
     <div className={styles.flightDetailsContainer}>
@@ -348,7 +441,8 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
               <div className={styles.terminal}>
                 {flight.departure.data.itineraries[0].segments[0].departure
                   .terminal
-                  ? "Terminal "+flight.departure.data.itineraries[0].segments[0].departure
+                  ? "Terminal " +
+                    flight.departure.data.itineraries[0].segments[0].departure
                       .terminal
                   : ""}
               </div>
@@ -360,124 +454,251 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
           </div>
 
           {/* Flight */}
-          <div className={styles.flightInfo}>
-            <div className={styles.flightDuration}>
-              <div className={styles.duration}>01h 20m</div>
-              <div className={styles.stops}>
-                <button
-                  className={styles.stopsDropdownButton}
-                  onClick={toggleStopsDropdown}
-                >
-                  <span className={styles.stopsBadge}>1 Stop</span>
-                  {expandedStops ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                </button>
-              </div>
-            </div>
-
-            <div
-              className={`${styles.stopsDropdownContent} ${expandedStops ? styles.expanded : ""}`}
-            >
-              <div className={styles.stopDetail}>
-                <div className={styles.stopLocation}>
-                  <span className={styles.stopDot}></span>
-                  <div>
-                    <div className={styles.stopAirport}>
-                      Kuwait International Airport (KWI)
+          {flight.departure.data.itineraries[0].segments.length > 1 && (
+            <div className={styles.flightInfo}>
+              <div className={styles.stopContainer}>
+                <div className={styles.flightDuration}>
+                  <div className={styles.fixedTime}>
+                    {formatDuration(
+                      flight.departure.data.itineraries[0].segments[0].duration
+                    )}
+                  </div>
+                  {!expandedStops && (
+                    <div className={styles.stops}>
+                      <span className={styles.stopsBadge}>1 Stop</span>
                     </div>
-                    <div className={styles.stopTerminal}>Terminal 4</div>
-                    <div className={styles.stopCity}>Kuwait, Kuwait</div>
+                  )}
+                </div>
+
+                <div className={styles.airlineDetails}>
+                  <button
+                    className={styles.stopsDropdownButton}
+                    onClick={toggleStopsDropdown}
+                  >
+                    {expandedStops ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                  </button>
+                  <div className={styles.airlineLogoContainer}>
+                    <div className={styles.airlineLogo}>
+                      <img
+                        src="https://i.pinimg.com/originals/db/63/b5/db63b5aa67202c6a027b477a1f93c0f3.png"
+                        alt="Airline Logo"
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.airlineInfo}>
+                    <div className={styles.airlineName}>
+                      {dealWithAirline(flight.departure.carrier) +
+                        " | " +
+                        flight.departure.data.itineraries[0].segments[0]
+                          .carrierCode +
+                        "-" +
+                        flight.departure.data.itineraries[0].segments[0].number}
+                    </div>
+                    <div className={styles.cabinClass}>
+                      {sharedData.passengerClass.class.text}
+                    </div>
                   </div>
                 </div>
-                <div className={styles.stopDuration}>
-                  <span className={styles.waitingLabel}>
-                    Waiting time in Kuwait
-                  </span>
-                  <span className={styles.waitingTime}>06h 30m</span>
-                </div>
               </div>
-            </div>
+              {expandedStops && (
+                <div className={styles.stopDetailsContainer}>
+                  <div
+                    className={`${styles.stopsDropdownContent} ${expandedStops ? styles.expanded : ""}`}
+                  >
+                    <div className={styles.timeOfStop}>
+                      <div className={styles.time}>
+                        {formatted(
+                          flight.departure.data.itineraries[0].segments[0].arrival.at.split(
+                            "T"
+                          )[1]
+                        )}
+                      </div>
+                      <div className={styles.day}>
+                        {format(
+                          flight.departure.data.itineraries[0].segments[0].arrival.at.split(
+                            "T"
+                          )[0],
+                          "d	LLL"
+                        )}
+                      </div>
+                    </div>
+                    <div className={styles.stopDetail}>
+                      <div className={styles.stopLocation}>
+                        <span className={styles.stopDot}></span>
+                        <div>
+                          <div className={styles.stopAirport}>
+                            {stopAirportDep && stopAirportDep.name}
+                          </div>
+                          <div className={styles.stopIATA}>
+                            (
+                            {
+                              flight.departure.data.itineraries[0].segments[0]
+                                .arrival.iataCode
+                            }
+                            )
+                          </div>
+                          <div className={styles.stopCity}>
+                            {stopAirportDep &&
+                              stopAirportDep.city +
+                                ", " +
+                                stopAirportDep.country}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.waitingContainer}>
+                    <div className={styles.waitingStopTime}>
+                      {getTimeOfWaiting(flight.departure)}
+                    </div>
+                    <div className={styles.stopDuration}>
+                      <span className={styles.waitingLabel}>
+                        Waiting time in{" "}
+                        <strong>{stopAirportDep && stopAirportDep.city}</strong>
+                      </span>
+                    </div>
+                  </div>
+                  <div className={styles.stopDeparture}>
+                    <div className={styles.timeOfStop}>
+                      <div className={styles.time}>
+                        {formatted(
+                          flight.departure.data.itineraries[0].segments[1].departure.at.split(
+                            "T"
+                          )[1]
+                        )}
+                      </div>
+                      <div className={styles.day}>
+                        {format(
+                          flight.departure.data.itineraries[0].segments[1].departure.at.split(
+                            "T"
+                          )[0],
+                          "d	LLL"
+                        )}
+                      </div>
+                    </div>
+                    <div className={styles.stopDetail}>
+                      <div className={styles.stopLocation}>
+                        <span className={styles.dot1}></span>
+                        <div>
+                          <div className={styles.stopAirport}>
+                            {stopAirportDep && stopAirportDep.name}
+                          </div>
+                          <div className={styles.stopIATA}>
+                            (
+                            {
+                              flight.departure.data.itineraries[0].segments[0]
+                                .arrival.iataCode
+                            }
+                            )
+                          </div>
+                          <div className={styles.stopCity}>
+                            {stopAirportDep &&
+                              stopAirportDep.city +
+                                ", " +
+                                stopAirportDep.country}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.stopFlight}>
+                    <div className={styles.flightDuration}>
+                      <div className={styles.fixedTime}>
+                        {formatDuration(
+                          flight.departure.data.itineraries[0].segments[1]
+                            .duration
+                        )}
+                      </div>
+                    </div>
 
-            <div className={styles.airlineDetails}>
-              <div className={styles.airlineLogoContainer}>
-                <div className={styles.chevron}>
-                  <ChevronDownIcon />
+                    <div className={styles.airlineDetails}>
+                      <div className={styles.airlineLogoContainer}>
+                        <div className={styles.airlineLogo}>
+                          <img
+                            src="https://i.pinimg.com/originals/db/63/b5/db63b5aa67202c6a027b477a1f93c0f3.png"
+                            alt="Airline Logo"
+                          />
+                        </div>
+                      </div>
+                      <div className={styles.airlineInfo}>
+                        <div className={styles.airlineName}>
+                          {dealWithAirline(flight.departure.carrier) +
+                            " | " +
+                            flight.departure.data.itineraries[0].segments[1]
+                              .carrierCode +
+                            "-" +
+                            flight.departure.data.itineraries[0].segments[1]
+                              .number}
+                        </div>
+                        <div className={styles.cabinClass}>
+                          {sharedData.passengerClass.class.text}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className={styles.airlineLogo}>
-                  <img
-                    src="https://i.pinimg.com/originals/db/63/b5/db63b5aa67202c6a027b477a1f93c0f3.png"
-                    alt="Airline Logo"
-                  />
-                </div>
+              )}
+              {/* <div className={styles.amenities}>
+                <button
+                  className={styles.servicesDropdownButton}
+                  onClick={toggleServicesDropdown}
+                >
+                  <div className={styles.amenitiesIcons}>
+                    <span className={styles.amenityIcon}>
+                      <DesktopIcon />
+                    </span>
+                    <span className={styles.amenityIcon}>
+                      <UtensilsIcon />
+                    </span>
+                    <span className={styles.amenityIcon}>
+                      <PlugIcon />
+                    </span>
+                    <span className={styles.amenityIcon}>
+                      <WifiIcon />
+                    </span>
+                  </div>
+                  {expandedServices ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                </button>
               </div>
-              <div className={styles.airlineInfo}>
-                <div className={styles.airlineName}>
-                  Kuwait Airways | KU-776
-                </div>
-                <div className={styles.aircraftType}>AIRBUS - A320</div>
-                <div className={styles.cabinClass}>Economy</div>
-              </div>
-            </div>
 
-            <div className={styles.amenities}>
-              <button
-                className={styles.servicesDropdownButton}
-                onClick={toggleServicesDropdown}
+              <div
+                className={`${styles.servicesDropdownContent} ${expandedServices ? styles.expanded : ""}`}
               >
-                <div className={styles.amenitiesIcons}>
-                  <span className={styles.amenityIcon}>
-                    <DesktopIcon />
-                  </span>
-                  <span className={styles.amenityIcon}>
-                    <UtensilsIcon />
-                  </span>
-                  <span className={styles.amenityIcon}>
-                    <PlugIcon />
-                  </span>
-                  <span className={styles.amenityIcon}>
+                <div className={styles.serviceItem}>
+                  <DesktopIcon className={styles.serviceIcon} />
+                  <span>Seatback screen & entertainment</span>
+                </div>
+                <div className={styles.serviceItem}>
+                  <UtensilsIcon className={styles.serviceIcon} />
+                  <span>Complimentary meal</span>
+                </div>
+                <div className={styles.serviceItem}>
+                  <AirplaneIcon className={styles.serviceIcon} />
+                  <span>Above average legroom</span>
+                </div>
+                <div className={styles.serviceItem}>
+                  <RulerIcon className={styles.serviceIcon} />
+                  <span>Average seatwidth</span>
+                </div>
+                <div className={styles.serviceItem}>
+                  <UsersIcon className={styles.serviceIcon} />
+                  <span>3-3 seat configuration</span>
+                </div>
+                <div className={styles.serviceItem}>
+                  <span className={`${styles.serviceIcon} ${styles.redIcon}`}>
                     <WifiIcon />
                   </span>
+                  <span>Wifi is not available</span>
                 </div>
-                {expandedServices ? <ChevronUpIcon /> : <ChevronDownIcon />}
-              </button>
+                <div className={styles.serviceItem}>
+                  <span className={`${styles.serviceIcon} ${styles.redIcon}`}>
+                    <PlugIcon />
+                  </span>
+                  <span>No in-seat power outlet</span>
+                </div>
+              </div>*/}
             </div>
-
-            <div
-              className={`${styles.servicesDropdownContent} ${expandedServices ? styles.expanded : ""}`}
-            >
-              <div className={styles.serviceItem}>
-                <DesktopIcon className={styles.serviceIcon} />
-                <span>Seatback screen & entertainment</span>
-              </div>
-              <div className={styles.serviceItem}>
-                <UtensilsIcon className={styles.serviceIcon} />
-                <span>Complimentary meal</span>
-              </div>
-              <div className={styles.serviceItem}>
-                <AirplaneIcon className={styles.serviceIcon} />
-                <span>Above average legroom</span>
-              </div>
-              <div className={styles.serviceItem}>
-                <RulerIcon className={styles.serviceIcon} />
-                <span>Average seatwidth</span>
-              </div>
-              <div className={styles.serviceItem}>
-                <UsersIcon className={styles.serviceIcon} />
-                <span>3-3 seat configuration</span>
-              </div>
-              <div className={styles.serviceItem}>
-                <span className={`${styles.serviceIcon} ${styles.redIcon}`}>
-                  <WifiIcon />
-                </span>
-                <span>Wifi is not available</span>
-              </div>
-              <div className={styles.serviceItem}>
-                <span className={`${styles.serviceIcon} ${styles.redIcon}`}>
-                  <PlugIcon />
-                </span>
-                <span>No in-seat power outlet</span>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Arrival */}
           <div className={styles.locationTimeInfo}>
@@ -521,12 +742,14 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
                 {flight.departure.data.itineraries[0].segments.length == 1
                   ? flight.departure.data.itineraries[0].segments[0].arrival
                       .terminal
-                    ? "Terminal "+flight.departure.data.itineraries[0].segments[0].arrival
+                    ? "Terminal " +
+                      flight.departure.data.itineraries[0].segments[0].arrival
                         .terminal
                     : ""
                   : flight.departure.data.itineraries[0].segments[1].arrival
                         .terminal
-                    ? "Terminal "+flight.departure.data.itineraries[0].segments[1].arrival
+                    ? "Terminal " +
+                      flight.departure.data.itineraries[0].segments[1].arrival
                         .terminal
                     : ""}
               </div>
@@ -662,7 +885,8 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
                 <div className={styles.terminal}>
                   {flight.return.data.itineraries[0].segments[0].departure
                     .terminal
-                    ? "Terminal "+flight.return.data.itineraries[0].segments[0].departure
+                    ? "Terminal " +
+                      flight.return.data.itineraries[0].segments[0].departure
                         .terminal
                     : ""}
                 </div>
@@ -674,72 +898,194 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
             </div>
 
             {/* Flight */}
+            {flight.return.data.itineraries[0].segments.length > 1 && (
             <div className={styles.flightInfo}>
-              <div className={styles.flightDuration}>
-                <div className={styles.duration}>09h 50m</div>
-                <div className={styles.stops}>
+              <div className={styles.stopContainer}>
+                <div className={styles.flightDuration}>
+                  <div className={styles.fixedTime}>
+                    {formatDuration(
+                      flight.return.data.itineraries[0].segments[0].duration
+                    )}
+                  </div>
+                  {!expandedReturnStops && (
+                    <div className={styles.stops}>
+                      <span className={styles.stopsBadge}>1 Stop</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.airlineDetails}>
                   <button
                     className={styles.stopsDropdownButton}
                     onClick={toggleReturnStopsDropdown}
                   >
-                    <span className={styles.stopsBadge}>1 Stop</span>
-                    {expandedReturnStops ? (
-                      <ChevronUpIcon />
-                    ) : (
-                      <ChevronDownIcon />
-                    )}
+                    {expandedReturnStops ? <ChevronUpIcon /> : <ChevronDownIcon />}
                   </button>
-                </div>
-              </div>
-
-              <div
-                className={`${styles.stopsDropdownContent} ${expandedReturnStops ? styles.expanded : ""}`}
-              >
-                <div className={styles.stopDetail}>
-                  <div className={styles.stopLocation}>
-                    <span className={styles.stopDot}></span>
-                    <div>
-                      <div className={styles.stopAirport}>
-                        Kuwait International Airport (KWI)
-                      </div>
-                      <div className={styles.stopTerminal}>Terminal 4</div>
-                      <div className={styles.stopCity}>Kuwait, Kuwait</div>
+                  <div className={styles.airlineLogoContainer}>
+                    <div className={styles.airlineLogo}>
+                      <img
+                        src="https://i.pinimg.com/originals/db/63/b5/db63b5aa67202c6a027b477a1f93c0f3.png"
+                        alt="Airline Logo"
+                      />
                     </div>
                   </div>
-                  <div className={styles.stopDuration}>
-                    <span className={styles.waitingLabel}>
-                      Waiting time in Kuwait
-                    </span>
-                    <span className={styles.waitingTime}>05h 45m</span>
+                  <div className={styles.airlineInfo}>
+                    <div className={styles.airlineName}>
+                      {dealWithAirline(flight.return.carrier) +
+                        " | " +
+                        flight.return.data.itineraries[0].segments[0]
+                          .carrierCode +
+                        "-" +
+                        flight.return.data.itineraries[0].segments[0].number}
+                    </div>
+                    <div className={styles.cabinClass}>
+                      {sharedData.passengerClass.class.text}
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <div className={styles.airlineDetails}>
-                <div className={styles.airlineLogoContainer}>
-                  <div className={styles.chevron}>
-                    <ChevronDownIcon />
+              {expandedReturnStops && (
+                <div className={styles.stopDetailsContainer}>
+                  <div
+                    className={`${styles.stopsDropdownContent} ${expandedReturnStops ? styles.expanded : ""}`}
+                  >
+                    <div className={styles.timeOfStop}>
+                      <div className={styles.time}>
+                        {formatted(
+                          flight.return.data.itineraries[0].segments[0].arrival.at.split(
+                            "T"
+                          )[1]
+                        )}
+                      </div>
+                      <div className={styles.day}>
+                        {format(
+                          flight.return.data.itineraries[0].segments[0].arrival.at.split(
+                            "T"
+                          )[0],
+                          "d	LLL"
+                        )}
+                      </div>
+                    </div>
+                    <div className={styles.stopDetail}>
+                      <div className={styles.stopLocation}>
+                        <span className={styles.stopDot}></span>
+                        <div>
+                          <div className={styles.stopAirport}>
+                            {stopAirportDep && stopAirportDep.name}
+                          </div>
+                          <div className={styles.stopIATA}>
+                            (
+                            {
+                              flight.return.data.itineraries[0].segments[0]
+                                .arrival.iataCode
+                            }
+                            )
+                          </div>
+                          <div className={styles.stopCity}>
+                            {stopAirportDep &&
+                              stopAirportDep.city +
+                                ", " +
+                                stopAirportDep.country}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className={styles.airlineLogo}>
-                    <img
-                      src="https://i.pinimg.com/originals/db/63/b5/db63b5aa67202c6a027b477a1f93c0f3.png"
-                      alt="Airline Logo"
-                    />
+                  <div className={styles.waitingContainer}>
+                    <div className={styles.waitingStopTime}>
+                      {getTimeOfWaiting(flight.return)}
+                    </div>
+                    <div className={styles.stopDuration}>
+                      <span className={styles.waitingLabel}>
+                        Waiting time in{" "}
+                        <strong>{stopAirportDep && stopAirportDep.city}</strong>
+                      </span>
+                    </div>
+                  </div>
+                  <div className={styles.stopDeparture}>
+                    <div className={styles.timeOfStop}>
+                      <div className={styles.time}>
+                        {formatted(
+                          flight.return.data.itineraries[0].segments[1].departure.at.split(
+                            "T"
+                          )[1]
+                        )}
+                      </div>
+                      <div className={styles.day}>
+                        {format(
+                          flight.return.data.itineraries[0].segments[1].departure.at.split(
+                            "T"
+                          )[0],
+                          "d	LLL"
+                        )}
+                      </div>
+                    </div>
+                    <div className={styles.stopDetail}>
+                      <div className={styles.stopLocation}>
+                        <span className={styles.dot1}></span>
+                        <div>
+                          <div className={styles.stopAirport}>
+                            {stopAirportDep && stopAirportDep.name}
+                          </div>
+                          <div className={styles.stopIATA}>
+                            (
+                            {
+                              flight.return.data.itineraries[0].segments[0]
+                                .arrival.iataCode
+                            }
+                            )
+                          </div>
+                          <div className={styles.stopCity}>
+                            {stopAirportDep &&
+                              stopAirportDep.city +
+                                ", " +
+                                stopAirportDep.country}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.stopFlight}>
+                    <div className={styles.flightDuration}>
+                      <div className={styles.fixedTime}>
+                        {formatDuration(
+                          flight.return.data.itineraries[0].segments[1]
+                            .duration
+                        )}
+                      </div>
+                    </div>
+
+                    <div className={styles.airlineDetails}>
+                      <div className={styles.airlineLogoContainer}>
+                        <div className={styles.airlineLogo}>
+                          <img
+                            src="https://i.pinimg.com/originals/db/63/b5/db63b5aa67202c6a027b477a1f93c0f3.png"
+                            alt="Airline Logo"
+                          />
+                        </div>
+                      </div>
+                      <div className={styles.airlineInfo}>
+                        <div className={styles.airlineName}>
+                          {dealWithAirline(flight.return.carrier) +
+                            " | " +
+                            flight.return.data.itineraries[0].segments[1]
+                              .carrierCode +
+                            "-" +
+                            flight.return.data.itineraries[0].segments[1]
+                              .number}
+                        </div>
+                        <div className={styles.cabinClass}>
+                          {sharedData.passengerClass.class.text}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className={styles.airlineInfo}>
-                  <div className={styles.airlineName}>
-                    Kuwait Airways | KU-418
-                  </div>
-                  <div className={styles.aircraftType}>BOEING - 777</div>
-                  <div className={styles.cabinClass}>Economy</div>
-                </div>
-              </div>
-
-              <div className={styles.amenities}>
+              )}
+              {/* <div className={styles.amenities}>
                 <button
                   className={styles.servicesDropdownButton}
-                  onClick={toggleReturnServicesDropdown}
+                  onClick={toggleServicesDropdown}
                 >
                   <div className={styles.amenitiesIcons}>
                     <span className={styles.amenityIcon}>
@@ -755,16 +1101,12 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
                       <WifiIcon />
                     </span>
                   </div>
-                  {expandedReturnServices ? (
-                    <ChevronUpIcon />
-                  ) : (
-                    <ChevronDownIcon />
-                  )}
+                  {expandedServices ? <ChevronUpIcon /> : <ChevronDownIcon />}
                 </button>
               </div>
 
               <div
-                className={`${styles.servicesDropdownContent} ${expandedReturnServices ? styles.expanded : ""}`}
+                className={`${styles.servicesDropdownContent} ${expandedServices ? styles.expanded : ""}`}
               >
                 <div className={styles.serviceItem}>
                   <DesktopIcon className={styles.serviceIcon} />
@@ -787,15 +1129,20 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
                   <span>3-3 seat configuration</span>
                 </div>
                 <div className={styles.serviceItem}>
-                  <WifiIcon className={styles.serviceIcon} />
-                  <span>Wifi is available</span>
+                  <span className={`${styles.serviceIcon} ${styles.redIcon}`}>
+                    <WifiIcon />
+                  </span>
+                  <span>Wifi is not available</span>
                 </div>
                 <div className={styles.serviceItem}>
-                  <PlugIcon className={styles.serviceIcon} />
-                  <span>In-seat power outlet available</span>
+                  <span className={`${styles.serviceIcon} ${styles.redIcon}`}>
+                    <PlugIcon />
+                  </span>
+                  <span>No in-seat power outlet</span>
                 </div>
-              </div>
+              </div>*/}
             </div>
+          )}
 
             {/* Arrival */}
             <div className={styles.locationTimeInfo}>
@@ -839,12 +1186,14 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
                   {flight.return.data.itineraries[0].segments.length == 1
                     ? flight.return.data.itineraries[0].segments[0].arrival
                         .terminal
-                      ? "Terminal "+flight.return.data.itineraries[0].segments[0].arrival
+                      ? "Terminal " +
+                        flight.return.data.itineraries[0].segments[0].arrival
                           .terminal
                       : ""
                     : flight.return.data.itineraries[0].segments[1].arrival
                           .terminal
-                      ? "Terminal "+flight.return.data.itineraries[0].segments[1].arrival
+                      ? "Terminal " +
+                        flight.return.data.itineraries[0].segments[1].arrival
                           .terminal
                       : ""}
                 </div>
@@ -934,7 +1283,9 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
         formData={formData}
         onUpdateForm={onUpdateForm}
         setExtraBaggagePrice={setExtraBaggagePrice}
-        selectedClass={flight?.departure?.data?.itineraries?.[0]?.segments?.[0]?.cabinClass}
+        selectedClass={
+          flight?.departure?.data?.itineraries?.[0]?.segments?.[0]?.cabinClass
+        }
         direction="departure"
       />
 
@@ -944,7 +1295,9 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
           formData={formData}
           onUpdateForm={onUpdateForm}
           setExtraBaggagePrice={setExtraBaggagePrice}
-          selectedClass={flight?.return?.data?.itineraries?.[0]?.segments?.[0]?.cabinClass}
+          selectedClass={
+            flight?.return?.data?.itineraries?.[0]?.segments?.[0]?.cabinClass
+          }
           direction="return"
         />
       )}
@@ -956,7 +1309,10 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
             <div className={styles.dialogHeader}>
               <div className={styles.dialogTitle}>
                 Baggage Allowance Details
-                <button className={styles.dialogClose} onClick={() => setBaggageDialogOpen(false)}>
+                <button
+                  className={styles.dialogClose}
+                  onClick={() => setBaggageDialogOpen(false)}
+                >
                   <XIcon />
                 </button>
               </div>
@@ -964,48 +1320,73 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
             <div className={styles.dialogContent}>
               <div className={styles.baggageSection}>
                 <div className={styles.baggageItem}>
-                  <span className={styles.checkIconLarge}><CheckIcon /></span>
+                  <span className={styles.checkIconLarge}>
+                    <CheckIcon />
+                  </span>
                   <div>
                     <div className={styles.baggageTitle}>Cabin baggage</div>
-                    <div className={styles.baggageDetail}>7 kg cabin baggage, 1 piece</div>
+                    <div className={styles.baggageDetail}>
+                      7 kg cabin baggage, 1 piece
+                    </div>
                   </div>
                 </div>
                 <div className={styles.baggageItem}>
-                  <span className={styles.checkIconLarge}><CheckIcon /></span>
+                  <span className={styles.checkIconLarge}>
+                    <CheckIcon />
+                  </span>
                   <div>
                     <div className={styles.baggageTitle}>Checked baggage</div>
-                    <div className={styles.baggageDetail}>2 pieces, airline usually permits 23kg per bag</div>
+                    <div className={styles.baggageDetail}>
+                      2 pieces, airline usually permits 23kg per bag
+                    </div>
                   </div>
                 </div>
               </div>
               <div className={styles.baggageNote}>
-                <span className={styles.noteIcon}><InfoIcon /></span>
-                <p>Please check with the airline for the most up-to-date baggage policies.</p>
+                <span className={styles.noteIcon}>
+                  <InfoIcon />
+                </span>
+                <p>
+                  Please check with the airline for the most up-to-date baggage
+                  policies.
+                </p>
               </div>
               <div className={styles.dimensionsSection}>
                 <h4>Baggage dimensions</h4>
                 <div className={styles.dimensionsContainer}>
                   <div className={styles.dimensionItem}>
                     <div className={styles.dimensionImageContainer}>
-                      <img src={baggageCabin} alt="Cabin Bag" className={styles.baggageIcon} />
+                      <img
+                        src={baggageCabin}
+                        alt="Cabin Bag"
+                        className={styles.baggageIcon}
+                      />
                     </div>
                     <h5>Cabin bag</h5>
                     <div className={styles.dimensionMeasurements}>
                       <span>Max 55×40×20cm</span>
                       <span>Max 7kg</span>
                     </div>
-                    <div className={styles.dimensionNote}>Fits in overhead bin</div>
+                    <div className={styles.dimensionNote}>
+                      Fits in overhead bin
+                    </div>
                   </div>
                   <div className={styles.dimensionItem}>
                     <div className={styles.dimensionImageContainer}>
-                      <img src={baggageChecked} alt="Checked Bag" className={styles.baggageIcon} />
+                      <img
+                        src={baggageChecked}
+                        alt="Checked Bag"
+                        className={styles.baggageIcon}
+                      />
                     </div>
                     <h5>Checked bag</h5>
                     <div className={styles.dimensionMeasurements}>
                       <span>Max 158cm (linear)</span>
                       <span>Max 23kg</span>
                     </div>
-                    <div className={styles.dimensionNote}>Checked at counter</div>
+                    <div className={styles.dimensionNote}>
+                      Checked at counter
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1021,20 +1402,35 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
             <div className={styles.dialogHeader}>
               <div className={styles.dialogTitle}>
                 Cancel & Change
-                <button className={styles.dialogClose} onClick={() => setCancellationDialogOpen(false)}>
+                <button
+                  className={styles.dialogClose}
+                  onClick={() => setCancellationDialogOpen(false)}
+                >
                   <XIcon />
                 </button>
               </div>
             </div>
             <div className={styles.tabButtons}>
-              <button className={`${styles.tabButton} ${selectedRoute === "RUH-MNL" ? styles.activeTab : ""}`} onClick={() => setSelectedRoute("RUH-MNL")}>RUH to MNL</button>
-              <button className={`${styles.tabButton} ${selectedRoute === "MNL-RUH" ? styles.activeTab : ""}`} onClick={() => setSelectedRoute("MNL-RUH")}>MNL to RUH</button>
+              <button
+                className={`${styles.tabButton} ${selectedRoute === "RUH-MNL" ? styles.activeTab : ""}`}
+                onClick={() => setSelectedRoute("RUH-MNL")}
+              >
+                RUH to MNL
+              </button>
+              <button
+                className={`${styles.tabButton} ${selectedRoute === "MNL-RUH" ? styles.activeTab : ""}`}
+                onClick={() => setSelectedRoute("MNL-RUH")}
+              >
+                MNL to RUH
+              </button>
             </div>
             <div className={styles.dialogContent}>
               {/* Cancel & change details */}
               <div className={styles.policySection}>
                 <div className={styles.policyHeader}>
-                  <span className={styles.policyIcon}><CalendarIcon /></span>
+                  <span className={styles.policyIcon}>
+                    <CalendarIcon />
+                  </span>
                   <h4>Cancel & change details</h4>
                 </div>
                 <div className={styles.policyTable}>
@@ -1044,14 +1440,23 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
                   </div>
                   <div className={styles.policyRow}>
                     <div className={styles.policyCell}>Cancellation fees</div>
-                    <div className={styles.policyCellAmount}><span className={styles.checkIconSmall}><CheckIcon /></span> <span style={{color:'#36b37e',fontWeight:'bold'}}>USD 94</span></div>
+                    <div className={styles.policyCellAmount}>
+                      <span className={styles.checkIconSmall}>
+                        <CheckIcon />
+                      </span>{" "}
+                      <span style={{ color: "#36b37e", fontWeight: "bold" }}>
+                        USD 94
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
               {/* Date Change Fees */}
               <div className={styles.policySection}>
                 <div className={styles.policyHeader}>
-                  <span className={styles.policyIcon}><CalendarIcon /></span>
+                  <span className={styles.policyIcon}>
+                    <CalendarIcon />
+                  </span>
                   <h4>Date Change Fees</h4>
                 </div>
                 <div className={styles.policyTable}>
@@ -1061,14 +1466,36 @@ const DetailsOfTheFlight = ({ onClose, setExtraBaggagePrice, onUpdateForm, formD
                   </div>
                   <div className={styles.policyRow}>
                     <div className={styles.policyCell}>Date change fees</div>
-                    <div className={styles.policyCellAmount}><span className={styles.checkIconSmall}><CheckIcon /></span> <span style={{color:'#36b37e',fontWeight:'bold'}}>USD 54</span><span className={styles.fareDifference}>+ Fare Difference</span></div>
+                    <div className={styles.policyCellAmount}>
+                      <span className={styles.checkIconSmall}>
+                        <CheckIcon />
+                      </span>{" "}
+                      <span style={{ color: "#36b37e", fontWeight: "bold" }}>
+                        USD 54
+                      </span>
+                      <span className={styles.fareDifference}>
+                        + Fare Difference
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
               {/* Note */}
-              <div className={styles.policyNote} style={{background:'#fff9e6',border:'1px solid #ffe7a0',marginTop:16}}>
-                <span className={styles.noteIcon}><InfoIcon /></span>
-                <p>All fees are applicable up to 48 hours before the outbound flight departure time. Additional fees may apply after that.</p>
+              <div
+                className={styles.policyNote}
+                style={{
+                  background: "#fff9e6",
+                  border: "1px solid #ffe7a0",
+                  marginTop: 16,
+                }}
+              >
+                <span className={styles.noteIcon}>
+                  <InfoIcon />
+                </span>
+                <p>
+                  All fees are applicable up to 48 hours before the outbound
+                  flight departure time. Additional fees may apply after that.
+                </p>
               </div>
             </div>
           </div>

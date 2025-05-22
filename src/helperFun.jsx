@@ -72,6 +72,5 @@ export function useAirports(){
       })
       .catch((err) => console.error("Error loading airports", err));
   }, []);
-
   return {airports}
 }

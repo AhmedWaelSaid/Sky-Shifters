@@ -20,7 +20,7 @@ function checkPeriod(time) {
   if (hours < 12) return "AM";
   else return "PM";
 }
-function dealWithAirline(airline) {
+export function dealWithAirline(airline) {
   const arrOfWords = airline.split(" ");
   let newSentence = "";
   for (let i = 0; i < arrOfWords.length; i++) {
