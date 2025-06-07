@@ -1,109 +1,60 @@
-import React, { useState } from 'react';
 import styles from './FinalDetails.module.css';
 import FlightSummary from '../FlightSummary/FlightSummary';
-import { ChevronLeft, CreditCard, ShieldCheck } from 'lucide-react';
-import PaymentSection from '../PaymentSection/PaymentSection';
+import PaymentSection from '../PaymentSection/PaymentSection'; // مكون الدفع المتخصص
+import PropTypes from 'prop-types';
 
 const FinalDetails = ({ passengers, formData, onBack }) => {
-  const [paymentMethod, setPaymentMethod] = useState('credit');
-  const [cardDetails, setCardDetails] = useState({
-    cardNumber: '',
-    cardHolder: '',
-    expiryDate: '',
-    cvv: ''
-  });
-  const [agreed, setAgreed] = useState(false);
-  
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setCardDetails({
-      ...cardDetails,
-      [name]: value
-    });
-  };
-  
-  const calculateTotal = () => {
-    // Calculate base fare for different age groups
-    let baseFare = 0;
-    
-    // Calculate fare based on passenger type and age group
-    passengers.forEach(passenger => {
-      const ageGroup = passenger.details?.ageGroup || '';
-      
-      if (passenger.type === 'adult') {
-        baseFare += 142.50; // Adult full price
-      } else if (passenger.type === 'child') {
-        if (ageGroup === 'infant') {
-          // Infant (under 2): 15% of adult fare
-          baseFare += 142.50 * 0.15;
-        } else if (ageGroup === 'child') {
-          // Child (2-11): 75% of adult fare
-          baseFare += 142.50 * 0.75;
-        } else if (ageGroup === 'adolescent') {
-          // Adolescent (12+): Full adult fare
-          baseFare += 142.50;
-        } else {
-          // Default child fare if age group not specified (75% of adult fare)
-          baseFare += 142.50 * 0.75;
-        }
-      }
-    });
-    
-    // Add-ons calculation
-    const addOns = 
-      (formData.addOns?.insurance ? 4.99 * passengers.length : 0) +
-      (formData.priorityBoarding ? 6.99 * passengers.length : 0);
-    
-    // Special services calculation
-    const specialServices = 
-      (formData.specialServices?.childSeat ? 15.99 : 0) +
-      (formData.specialServices?.childMeal ? 8.99 * passengers.filter(p => p.type === 'child').length : 0) +
-      (formData.specialServices?.stroller ? 0 : 0); // Strollers are typically free
-    
-    return {
-      baseFare,
-      addOns,
-      specialServices,
-      taxes: 18.95 * passengers.length,
-      total: baseFare + addOns + specialServices + (18.95 * passengers.length)
-    };
-  };
-  
-  const priceDetails = calculateTotal();
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert('Booking completed! Thank you for your purchase.');
-    // Here you would typically process the payment and submit the booking
+
+  // هذه الدالة سيتم استدعاؤها من "ابنها" PaymentSection عند نجاح الدفع
+  const handlePaymentSuccess = (result) => {
+    console.log("Booking and Payment successful!", result);
+    // هنا يمكنك توجيه المستخدم لصفحة تأكيد الحجز النهائية
+    // مثال: navigate(`/booking-confirmation/${result.booking?.bookingId}`);
+    alert("Your booking is confirmed!");
   };
 
-  // Check if there are any special child services selected
-  const hasSpecialServices = formData.specialServices && 
-    (formData.specialServices.childSeat || 
-     formData.specialServices.childMeal || 
-     formData.specialServices.stroller);
-
+  // لاحظ أننا حذفنا كل الـ state والـ functions الخاصة بالدفع من هنا،
+  // لأنها أصبحت موجودة ومنظمة داخل PaymentSection.
+  
   return (
     <div className={styles.finalDetails}>
       <div className={styles.mainContent}>
-       <div>
-        <PaymentSection />
-       </div>
         
-       
+        {/* الآن، هذا المكون يعرض فقط مكون الدفع ويمرر له البيانات.
+          هذا يجعل الكود نظيفًا ومنظمًا.
+        */}
+        <PaymentSection 
+          // 1. تمرير بيانات الحجز الجاهزة التي قمنا بتجميعها في Index.jsx
+          bookingData={formData.finalBookingData} 
+          
+          // 2. تمرير دالة للتعامل مع نجاح الدفع
+          onPaymentSuccess={handlePaymentSuccess}
+          
+          // 3. تمرير دالة للرجوع للخطوة السابقة
+          onBack={onBack}
+        />
+
       </div>
       
       <div className={styles.sidebar}>
+        {/* مكون ملخص الرحلة يبقى كما هو لعرض التفاصيل للمستخدم */}
         <FlightSummary 
           passengers={passengers} 
           formData={formData}
-          onBack={onBack}
+          // لا نحتاج لأزرار هنا لأنها موجودة داخل PaymentSection
           showBackButton={false}
           showContinueButton={false}
         />
       </div>
     </div>
   );
+};
+
+// تعريف الـ props التي يستقبلها المكون
+FinalDetails.propTypes = {
+    passengers: PropTypes.array.isRequired,
+    formData: PropTypes.object.isRequired,
+    onBack: PropTypes.func.isRequired,
 };
 
 export default FinalDetails;
