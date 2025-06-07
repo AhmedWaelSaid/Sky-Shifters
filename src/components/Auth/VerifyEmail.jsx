@@ -5,10 +5,10 @@ import './VerifyEmail.css';
 import signphoto from '../../assets/pexels-pixabay-237272.jpg'
 
 const verifyEmail = async ({ email, code }) => {
-  console.log('Sending request to:', `${import.meta.env.VITE_API_URL}/users/verify-email`);
+  console.log('Sending request to:', `${import.meta.env.VITE_API_BASE_URL}/users/verify-email`);
   console.log('Payload:', { email, code });
 
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/users/verify-email`, {
+  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/verify-email`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, code }),
