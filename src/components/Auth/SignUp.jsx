@@ -17,12 +17,12 @@ const countryOptions = Object.entries(countries.getNames('en', { select: 'offici
   label: name,
 }));
 
-// دالة التسجيل باستخدام المتغير VITE_API_URL
+// دالة التسجيل باستخدام المتغير VITE_API_BASE_URL
 const registerUser = async ({ firstName, lastName, email, password, phoneNumber, country, birthdate }) => {
-  console.log('Sending request to:', `${import.meta.env.VITE_API_URL}/users/register`);
+  console.log('Sending request to:', `${import.meta.env.VITE_API_BASE_URL}/users/register`);
   console.log('Payload:', { firstName, lastName, email, password, phoneNumber, country, birthdate });
 
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/users/register`, {
+  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ firstName, lastName, email, password, phoneNumber, country, birthdate }),

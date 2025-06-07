@@ -8,10 +8,10 @@ import { FaEnvelope, FaLock } from 'react-icons/fa'; // استيراد الأي�
 
 // دالة تسجيل الدخول
 const loginUser = async ({ email, password }) => {
-  console.log('Sending request to:', `${import.meta.env.VITE_API_URL}/users/login`);
+  console.log('Sending request to:', `${import.meta.env.VITE_API_BASE_URL}/users/login`);
   console.log('Payload:', { email, password });
 
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/users/login`, {
+  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
@@ -30,10 +30,10 @@ const loginUser = async ({ email, password }) => {
 
 // دالة طلب إعادة تعيين كلمة المرور
 const requestPasswordReset = async ({ email }) => {
-  console.log('Sending request to:', `${import.meta.env.VITE_API_URL}/users/request-password-reset`);
+  console.log('Sending request to:', `${import.meta.env.VITE_API_BASE_URL}/users/request-password-reset`);
   console.log('Payload:', { email });
 
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/users/request-password-reset`, {
+  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/request-password-reset`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
