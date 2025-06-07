@@ -11,21 +11,15 @@ import {
 } from '@stripe/react-stripe-js';
 import PropTypes from 'prop-types';
 
-// كائن لتخصيص تصميم عناصر Stripe لتتطابق مع تصميمك
 const ELEMENT_OPTIONS = {
   style: {
     base: {
       color: 'var(--Darktext-color)',
       fontSize: '14px',
       fontFamily: 'inherit',
-      '::placeholder': {
-        color: 'var(--LightDarktext-color)',
-      },
+      '::placeholder': { color: 'var(--LightDarktext-color)' },
     },
-    invalid: {
-      color: '#fa755a',
-      iconColor: '#fa755a',
-    },
+    invalid: { color: '#fa755a', iconColor: '#fa755a' },
   },
 };
 
@@ -39,9 +33,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
   const [bookingId, setBookingId] = useState('');
   const [cardHolderName, setCardHolderName] = useState('');
 
-  // هذا الـ Hook يعمل تلقائيًا عندما تظهر صفحة الدفع
   useEffect(() => {
-    // لا تفعل شيئًا إذا لم تكن بيانات الحجز جاهزة
     if (!bookingData) {
       console.warn("PaymentSection: bookingData is missing.");
       return;
@@ -51,22 +43,31 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
       setLoading(true);
       setError('');
       try {
-        // --- 1. إنشاء الحجز أولاً باستخدام البيانات الجاهزة ---
-        const token = localStorage.getItem('token') || '';
-        const bookingUrl = new URL('/booking/book-flight', import.meta.env.VITE_API_BASE_URL).toString();
-        
-        const bookingResponse = await axios.post(bookingUrl, bookingData, {
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-        });
+        // --- ✨ هذا هو السطر الذي قمنا بتعديله ---
+        // 1. اقرأ كائن المستخدم كاملاً من localStorage
+        const userString = localStorage.getItem('user');
+        // 2. حوله من نص إلى كائن
+        const userData = userString ? JSON.parse(userString) : null;
+        // 3. استخرج التوكن من داخل الكائن
+        const token = userData ? userData.token : '';
+        // -----------------------------------------
 
-        if (!bookingResponse.data.success) {
-          throw new Error(bookingResponse.data.message || 'Failed to create booking.');
+        if (!token) {
+          throw new Error('Authentication token not found. Please log in again.');
         }
+
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+        // --- إنشاء الحجز ---
+        const bookingUrl = new URL('/booking/book-flight', import.meta.env.VITE_API_BASE_URL).toString();
+        const bookingResponse = await axios.post(bookingUrl, bookingData, { headers });
+
+        if (!bookingResponse.data.success) throw new Error(bookingResponse.data.message || 'Failed to create booking.');
         
         const newBookingId = bookingResponse.data.data.bookingId;
         setBookingId(newBookingId);
         
-        // --- 2. إنشاء نية الدفع فورًا بعد نجاح الحجز ---
+        // --- إنشاء نية الدفع ---
         const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
         const intentResponse = await axios.post(paymentIntentUrl, {
           bookingId: newBookingId,
@@ -74,15 +75,13 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
           currency: bookingData.currency,
         }, { headers: { 'Authorization': `Bearer ${token}` } });
         
-        if (!intentResponse.data.success) {
-          throw new Error(intentResponse.data.message || 'Failed to create payment intent.');
-        }
+        if (!intentResponse.data.success) throw new Error(intentResponse.data.message || 'Failed to create payment intent.');
 
         setClientSecret(intentResponse.data.data.clientSecret);
 
       } catch (err) {
         console.error('Error during booking or payment-intent creation:', err);
-        setError(err.message || 'An error occurred while preparing for payment. Please try again.');
+        setError(err.message || 'An error occurred. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -91,14 +90,12 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
     processBookingAndPaymentIntent();
     
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookingData]); // هذا الـ Hook يعمل مرة واحدة فقط عندما تتجهز بيانات الحجز
+  }, [bookingData]);
 
-  
-  // --- 3. تأكيد الدفع عند ضغط الزر ---
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!stripe || !elements || !clientSecret) {
-      setError('Payment system is not ready. Please refresh the page.');
+      setError('Payment system is not ready.');
       return;
     }
     setLoading(true);
@@ -116,9 +113,11 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
     }
     
     if (paymentIntent.status === 'succeeded') {
-      // --- 4. تأكيد الدفع في الباك إند ---
       try {
-        const token = localStorage.getItem('token') || '';
+        const userString = localStorage.getItem('user');
+        const userData = userString ? JSON.parse(userString) : null;
+        const token = userData ? userData.token : '';
+
         const confirmUrl = new URL('/payment/confirm-payment', import.meta.env.VITE_API_BASE_URL).toString();
         const confirmResponse = await axios.post(confirmUrl, 
           { paymentIntentId: paymentIntent.id, bookingId: bookingId },
@@ -126,12 +125,12 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
         );
 
         if (confirmResponse.data.success) {
-          onPaymentSuccess(confirmResponse.data.data); // نجاح!
+          onPaymentSuccess(confirmResponse.data.data);
         } else {
           throw new Error(confirmResponse.data.message || 'Booking confirmation failed.');
         }
       } catch (err) {
-        setError(err.message || 'Payment confirmed, but an error occurred on our server.');
+        setError(err.message || 'An error occurred on our server.');
       } finally {
         setLoading(false);
       }
@@ -142,6 +141,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
   };
 
   return (
+    // ... باقي الـ JSX كما هو بدون تغيير ...
     <div className={styles.paymentSection}>
       <h2 className={styles.sectionTitle}>Payment Details</h2>
       
