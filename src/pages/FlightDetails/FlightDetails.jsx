@@ -60,38 +60,45 @@ const Index = () => {
     }
   };
 
+  // --- ✨ التعديل النهائي والحاسم هنا ✨ ---
   const handleContinue = () => {
     if (currentStep === 3) {
+      // 1. تعديل مصفوفة المسافرين بناءً على رد الباك إند
       const travellersInfoForApi = passengers.map(p => ({
-        gender: p.details.title === 'mr' ? 'M' : 'F',
+        // الحقول المطلوبة فقط
         firstName: p.details.firstName,
-        middleName: p.details.middleName || '',
         lastName: p.details.lastName,
         birthDate: p.details.dateOfBirth,
         nationality: p.details.nationality,
         passportNumber: p.details.passportNumber,
         issuingCountry: p.details.nationality,
         expiryDate: p.details.passportExpiry,
-        contactEmail: formData.contactInfo.email,
-        contactPhone: `${formData.contactInfo.code}${formData.contactInfo.mobile}`
+        // تمت إضافة الحقل المطلوب
+        travelerType: p.type, 
       }));
 
+      // 2. تعديل الكائن النهائي
       const finalBookingData = {
         flightID: flight?.id || "F9123",
         originAirportCode: sharedData?.departure?.origin?.airport?.iata,
         destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
         originCIty: sharedData?.departure?.origin?.airport?.city,
         destinationCIty: sharedData?.departure?.dest?.airport?.city,
-        departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at,
-        arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at,
+        
+        // تم تعديل تنسيق التواريخ إلى YYYY-MM-DD
+        departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at.split('T')[0],
+        arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at.split('T')[0],
+        
         currency: flight?.price?.currency || "USD",
         totalPrice: parseFloat(flight?.price?.grandTotal) || 0,
-        applicationFee: parseFloat(flight?.price?.serviceFees) || 15.99,
+        
+        // تم حذف applicationFee
+        
         travellersInfo: travellersInfoForApi,
         selectedBaggageOption: formData.baggageSelection
       };
       
-      console.log("FINAL DATA READY FOR PAYMENT:", finalBookingData);
+      console.log("FINAL BOOKING DATA (Corrected):", finalBookingData);
 
       setFormData(prev => ({ ...prev, finalBookingData }));
     }
@@ -127,10 +134,9 @@ const Index = () => {
           />
         )}
 
-        {/* --- ✨ هذا هو التعديل الوحيد والمهم --- */}
         {currentStep === 4 && (
           <FinalDetails
-            passengers={passengers} 
+            passengers={passengers}
             formData={formData}
             onBack={handleBack}
           />
