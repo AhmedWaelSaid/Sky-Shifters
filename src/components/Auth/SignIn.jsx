@@ -70,7 +70,7 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
         phoneNumber: data.user?.phoneNumber || '',
         country: data.user?.country || '',
         birthdate: data.user?.birthdate || '',
-        token: data.token || data.accessToken || data.jwt || '',
+        token: data.accessToken ,
       };
       // ----------------------------------------------------
       onLogin(userData);
