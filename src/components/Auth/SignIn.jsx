@@ -4,7 +4,7 @@ import { useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { FaEnvelope, FaLock } from 'react-icons/fa'; // استيراد الأيقونات
+import { FaEnvelope, FaLock } from 'react-icons/fa';
 
 // دالة تسجيل الدخول
 const loginUser = async ({ email, password }) => {
@@ -54,13 +54,14 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resendMessage, setResendMessage] = useState('');
-  const [showForgotPassword, setShowForgotPassword] = useState(false); // state جديدة للتحكم في الـ form
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
 
   // Mutation لتسجيل الدخول
   const { mutate: loginMutate, isPending: isLoginPending, error: loginError } = useMutation({
     mutationFn: loginUser,
     onSuccess: (data) => {
+      // --- ✨ هذا هو الجزء الوحيد الذي قمنا بتعديله ---
       const userData = {
         firstName: data.user?.firstName || '',
         lastName: data.user?.lastName || '',
@@ -69,8 +70,9 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
         phoneNumber: data.user?.phoneNumber || '',
         country: data.user?.country || '',
         birthdate: data.user?.birthdate || '',
-        token: data.token || '',
+        token: data.token || data.accessToken || data.jwt || '',
       };
+      // ----------------------------------------------------
       onLogin(userData);
       navigate('/');
     },
@@ -80,7 +82,7 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
         setResendMessage('Your email is not verified. Redirecting to verify...');
         setTimeout(() => {
           navigate('/verify-email', { state: { email } });
-        }, 2000); // إعادة توجيه بعد 2 ثانية
+        }, 2000);
       }
     },
   });
@@ -91,42 +93,37 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
     onSuccess: () => {
       setResendMessage('A password reset link has been sent to your email.');
       setTimeout(() => {
-        setShowForgotPassword(false); // ارجع لنموذج الـ Sign In بعد 3 ثواني
-        setEmail(''); // امسح الـ email
+        setShowForgotPassword(false);
+        setEmail('');
         setResendMessage('');
       }, 3000);
     },
   });
 
-  // دالة تسجيل الدخول
   const handleSignInSubmit = (e) => {
     e.preventDefault();
     setResendMessage('');
     loginMutate({ email, password });
   };
-
-  // دالة إعادة تعيين كلمة المرور
+  
   const handleForgotPasswordSubmit = (e) => {
     e.preventDefault();
     setResendMessage('');
     resetMutate({ email });
   };
-
-  // التحويل بين الـ Sign In وForgot Password
+  
   const toggleForm = () => {
     setShowForgotPassword(!showForgotPassword);
-    setEmail(''); // امسح الـ email لما تتحول بين النماذج
-    setPassword(''); // امسح الـ password
-    setResendMessage(''); // امسح أي رسائل
+    setEmail('');
+    setPassword('');
+    setResendMessage('');
   };
 
   return (
     <div className="container__form container--signin">
       {!showForgotPassword ? (
-        // نموذج تسجيل الدخول (Sign In)
         <form className="form" onSubmit={handleSignInSubmit}>
           <h2 className="form__title">Sign In</h2>
-          {/* Email */}
           <div className="input-container">
             <FaEnvelope className="input-icon" />
             <input
@@ -139,7 +136,6 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
               required
             />
           </div>
-          {/* Password */}
           <div className="input-container">
             <FaLock className="input-icon" />
             <input
@@ -168,11 +164,9 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
           </p>
         </form>
       ) : (
-        // نموذج إعادة تعيين كلمة المرور (Forgot Password)
         <form className="form" onSubmit={handleForgotPasswordSubmit}>
           <h2 className="form__title">Forgot Password</h2>
           <p>Enter your email address to receive a password reset link.</p>
-          {/* Email */}
           <div className="input-container">
             <FaEnvelope className="input-icon" />
             <input
