@@ -6,6 +6,8 @@ import StepIndicator from "./StepIndicator/StepIndicator";
 import "./FlightDetails.css";
 import { useData } from "../../components/context/DataContext";
 
+// لم نعد بحاجة لدالة تحويل أسماء الدول
+
 const Index = () => {
   const { sharedData, flight } = useData();
 
@@ -60,45 +62,45 @@ const Index = () => {
     }
   };
 
-  // --- ✨ التعديل النهائي والحاسم هنا ✨ ---
+  // --- ✨ هذه هي النسخة النهائية والحاسمة التي تطابق الـ Docs الجديدة ✨ ---
   const handleContinue = () => {
     if (currentStep === 3) {
-      // 1. تعديل مصفوفة المسافرين بناءً على رد الباك إند
+      
       const travellersInfoForApi = passengers.map(p => ({
-        // الحقول المطلوبة فقط
         firstName: p.details.firstName,
         lastName: p.details.lastName,
         birthDate: p.details.dateOfBirth,
+        travelerType: p.type,
         nationality: p.details.nationality,
         passportNumber: p.details.passportNumber,
-        issuingCountry: p.details.nationality,
+        issuingCountry: p.details.issuingCountry,
         expiryDate: p.details.passportExpiry,
-        // تمت إضافة الحقل المطلوب
-        travelerType: p.type, 
       }));
 
-      // 2. تعديل الكائن النهائي
       const finalBookingData = {
-        flightID: flight?.id || "F9123",
+        flightID: flight?.id || "FL123456",
         originAirportCode: sharedData?.departure?.origin?.airport?.iata,
         destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
         originCIty: sharedData?.departure?.origin?.airport?.city,
         destinationCIty: sharedData?.departure?.dest?.airport?.city,
+        departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at?.split('T')[0],
+        arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at?.split('T')[0],
         
-        // تم تعديل تنسيق التواريخ إلى YYYY-MM-DD
-        departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at.split('T')[0],
-        arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at.split('T')[0],
+        // يتم إرساله ككائن واحد الآن وليس مصفوفة
+        selectedBaggageOption: formData.baggageSelection || {}, 
         
+        totalPrice: parseFloat(flight?.price?.grandTotal) || 1500.00,
         currency: flight?.price?.currency || "USD",
-        totalPrice: parseFloat(flight?.price?.grandTotal) || 0,
-        
-        // تم حذف applicationFee
-        
         travellersInfo: travellersInfoForApi,
-        selectedBaggageOption: formData.baggageSelection
+        
+        // تم تجميع بيانات الاتصال هنا
+        contactDetails: {
+          email: formData.contactInfo.email,
+          phone: `${formData.contactInfo.code}${formData.contactInfo.mobile}`
+        }
       };
       
-      console.log("FINAL BOOKING DATA (Corrected):", finalBookingData);
+      console.log("FINAL BOOKING DATA (As per New Docs):", finalBookingData);
 
       setFormData(prev => ({ ...prev, finalBookingData }));
     }
@@ -133,7 +135,7 @@ const Index = () => {
             onBack={handleBack}
           />
         )}
-
+        
         {currentStep === 4 && (
           <FinalDetails
             passengers={passengers}
