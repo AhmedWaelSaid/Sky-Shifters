@@ -303,6 +303,8 @@ const DetailsOfTheFlight = ({
   const [selectedRoute, setSelectedRoute] = useState("RUH-MNL");
   const { flight } = useOutletContext();
   const { sharedData } = useData();
+  const departureClass = flight?.departure?.data?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin || 'ECONOMY';
+  const returnClass = flight?.return?.data?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin || departureClass;
   const [selectedClass, setSelectedClass] = useState("Economy");
   const [baggageIndex, setBaggageIndex] = useState(0);
 
@@ -1282,10 +1284,7 @@ const DetailsOfTheFlight = ({
       <FareSelection
         formData={formData}
         onUpdateForm={onUpdateForm}
-        setExtraBaggagePrice={setExtraBaggagePrice}
-        selectedClass={
-          flight?.departure?.data?.itineraries?.[0]?.segments?.[0]?.cabinClass
-        }
+        selectedClass={departureClass}
         direction="departure"
       />
 
@@ -1294,10 +1293,7 @@ const DetailsOfTheFlight = ({
         <FareSelection
           formData={formData}
           onUpdateForm={onUpdateForm}
-          setExtraBaggagePrice={setExtraBaggagePrice}
-          selectedClass={
-            flight?.return?.data?.itineraries?.[0]?.segments?.[0]?.cabinClass
-          }
+          selectedClass={returnClass}
           direction="return"
         />
       )}
