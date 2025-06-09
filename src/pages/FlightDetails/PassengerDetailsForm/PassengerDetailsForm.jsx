@@ -125,10 +125,31 @@ const PassengerDetailsForm = ({
                   required
                 >
                   <option value="">Code*</option>
-                  <option value="+966">+966</option>
-                  <option value="+971">+971</option>
-                  <option value="+1">+1</option>
-                  <option value="+44">+44</option>
+                  <option value="+20">+20 Egypt (مصر)</option>
+                  <option value="+966">+966 Saudi Arabia (السعودية)</option>
+                  <option value="+971">+971 UAE (الإمارات)</option>
+                  <option value="+965">+965 Kuwait (الكويت)</option>
+                  <option value="+974">+974 Qatar (قطر)</option>
+                  <option value="+973">+973 Bahrain (البحرين)</option>
+                  <option value="+968">+968 Oman (عمان)</option>
+                  <option value="+962">+962 Jordan (الأردن)</option>
+                  <option value="+961">+961 Lebanon (لبنان)</option>
+                  <option value="+963">+963 Syria (سوريا)</option>
+                  <option value="+964">+964 Iraq (العراق)</option>
+                  <option value="+212">+212 Morocco (المغرب)</option>
+                  <option value="+213">+213 Algeria (الجزائر)</option>
+                  <option value="+216">+216 Tunisia (تونس)</option>
+                  <option value="+218">+218 Libya (ليبيا)</option>
+                  <option value="+249">+249 Sudan (السودان)</option>
+                  <option value="+967">+967 Yemen (اليمن)</option>
+                  <option value="+970">+970 Palestine (فلسطين)</option>
+                  <option value="+1">+1 USA/Canada</option>
+                  <option value="+44">+44 UK</option>
+                  <option value="+33">+33 France</option>
+                  <option value="+49">+49 Germany</option>
+                  <option value="+39">+39 Italy</option>
+                  <option value="+34">+34 Spain</option>
+                  <option value="+90">+90 Turkey (تركيا)</option>
                 </select>
                 <input 
                   type="tel" 
