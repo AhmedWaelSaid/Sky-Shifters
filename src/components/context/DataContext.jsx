@@ -23,14 +23,17 @@ export function DataProvider({ children }) {
     sharedData,
     setSharedData,
     flight,
-    setFlight // الآن يمكن لأي مكون أن يقرأ ويُعدل بيانات الرحلة
-  };
+    setFlight
+};
 
-  return (
+// هذا السطر سيخبرنا أن المزود يعمل والبيانات موجودة
+console.log("DataProvider is rendering. The flight object is:", flight);
+
+return (
     <DataContext.Provider value={value}>
-      {children}
+    {children}
     </DataContext.Provider>
-  );
+);
 }
 
 export const useData = () => useContext(DataContext);
