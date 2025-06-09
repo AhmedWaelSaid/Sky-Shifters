@@ -3,7 +3,6 @@ import styles from "./DetailsOfTheFlight.module.css";
 import baggageCabin from "../../../assets/baggage-cabin.png";
 import baggageChecked from "../../../assets/baggage-checked.png";
 import PropTypes from "prop-types";
-import { useOutletContext } from "react-router-dom";
 import { useData } from "../../../components/context/DataContext";
 import { formatDuration } from "../../SelectedFlights/someFun";
 import { format } from "date-fns";
@@ -287,12 +286,7 @@ const baggageOptions = {
   ],
 };
 
-const DetailsOfTheFlight = ({
-  onClose,
-  setExtraBaggagePrice,
-  onUpdateForm,
-  formData,
-}) => {
+const DetailsOfTheFlight = (props) => {
   const { airports } = useAirports();
   const [expandedStops, setExpandedStops] = useState(false);
   const [expandedServices, setExpandedServices] = useState(false);
@@ -301,34 +295,33 @@ const DetailsOfTheFlight = ({
   const [baggageDialogOpen, setBaggageDialogOpen] = useState(false);
   const [cancellationDialogOpen, setCancellationDialogOpen] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState("RUH-MNL");
-  const { flight } = useOutletContext();
-  const { sharedData } = useData();
+  const { flight, sharedData } = useData();
   const departureClass = flight?.departure?.data?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin || 'ECONOMY';
   const returnClass = flight?.return?.data?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin || departureClass;
   const [selectedClass, setSelectedClass] = useState("Economy");
   const [baggageIndex, setBaggageIndex] = useState(0);
 
   useEffect(() => {
-    const id = formData?.baggageSelection?.selectedId;
+    const id = props.formData?.baggageSelection?.selectedId;
     const options = baggageOptions[selectedClass];
     const idx = options.findIndex((opt) => opt.id === id);
     setBaggageIndex(idx >= 0 ? idx : 0);
-  }, [formData, selectedClass]);
+  }, [props.formData, selectedClass]);
 
   const options = baggageOptions[selectedClass];
   const selectedOption = options[baggageIndex];
 
   const handleSelectOption = (option) => {
-    if (onUpdateForm && formData) {
-      onUpdateForm("baggageSelection", {
-        ...formData.baggageSelection,
+    if (props.onUpdateForm && props.formData) {
+      props.onUpdateForm("baggageSelection", {
+        ...props.formData.baggageSelection,
         selectedId: option.id,
         price: option.extraPrice,
         description: option.name,
       });
     }
-    if (setExtraBaggagePrice) {
-      setExtraBaggagePrice(option.extraPrice || 0);
+    if (props.setExtraBaggagePrice) {
+      props.setExtraBaggagePrice(option.extraPrice || 0);
     }
   };
 
@@ -385,7 +378,7 @@ const DetailsOfTheFlight = ({
     <div className={styles.flightDetailsContainer}>
       {/* Header */}
       <header className={styles.header}>
-        <button className={styles.closeButton} onClick={onClose}>
+        <button className={styles.closeButton} onClick={props.onClose}>
           <XIcon />
         </button>
         <h1 className={styles.title}>Flight details</h1>
@@ -1282,8 +1275,8 @@ const DetailsOfTheFlight = ({
 
       {/* Fare Selection for Departure */}
       <FareSelection
-        formData={formData}
-        onUpdateForm={onUpdateForm}
+        formData={props.formData}
+        onUpdateForm={props.onUpdateForm}
         selectedClass={departureClass}
         direction="departure"
       />
@@ -1291,8 +1284,8 @@ const DetailsOfTheFlight = ({
       {/* Fare Selection for Return (إذا كانت رحلة عودة) */}
       {sharedData.return && (
         <FareSelection
-          formData={formData}
-          onUpdateForm={onUpdateForm}
+          formData={props.formData}
+          onUpdateForm={props.onUpdateForm}
           selectedClass={returnClass}
           direction="return"
         />

@@ -4,9 +4,8 @@ import { useNavigate } from "react-router-dom";
 import stopIcon from "../../assets/stopLine.png";
 import { format, parseISO } from "date-fns";
 import PropTypes from "prop-types";
-import { useOutletContext } from "react-router-dom";
-import { formatDuration } from "./someFun";
 import { useData } from "../../components/context/DataContext";
+import { formatDuration } from "./someFun";
 
 const capitalizeWords = (str) =>
   str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
@@ -101,15 +100,16 @@ export function Main({
   isReturn,
 }) {
   const navigate = useNavigate();
-  const { flight, setFlight } = useOutletContext();
-  const { sharedData } = useData();
+  const { sharedData, flight, setFlight } = useData();
+  
   const flightsPerPage = 8;
   if (!flightsData) return "Data not here";
   const totalPages = Math.ceil(flightsData.data.length / flightsPerPage);
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
   const startIndex = (currentPage - 1) * flightsPerPage;
   const endIndex = startIndex + flightsPerPage;
-  const currentFlights = flightsData.data.slice(startIndex, endIndex); //filter for pagination
+  const currentFlights = flightsData.data.slice(startIndex, endIndex);
+
   function detailsBtnHandler(data) {
     const newFlight =
       !isReturn && !sharedData.return
@@ -133,10 +133,10 @@ export function Main({
                 ],
             },
           };
-    console.log("zzz");
     setFlight(newFlight);
     navigate("./flight-details");
   }
+
   function selectBtnHandler(data) {
     setFlight(() => ({
       return: null,
@@ -154,37 +154,12 @@ export function Main({
     });
     setIsReturn(true);
   }
+
   return (
     <div className={styles.mainBody}>
       {sharedData.return
         ? isReturn
-          ? currentFlights.map((value) => {
-              return (
-                <FlightsUI
-                  key={value.id}
-                  value={value}
-                  btnHandler={detailsBtnHandler}
-                  flightsData={flightsData}
-                  button={{ text: "View Details", className: "detailsBtn" }}
-                />
-              );
-            })
-          : currentFlights.map((value) => {
-              return (
-                <FlightsUI
-                  key={value.id}
-                  value={value}
-                  btnHandler={selectBtnHandler}
-                  flightsData={flightsData}
-                  button={{
-                    text: "Select flight",
-                    className: "selectFlightBtn",
-                  }}
-                />
-              );
-            })
-        : currentFlights.map((value) => {
-            return (
+          ? currentFlights.map((value) => (
               <FlightsUI
                 key={value.id}
                 value={value}
@@ -192,23 +167,38 @@ export function Main({
                 flightsData={flightsData}
                 button={{ text: "View Details", className: "detailsBtn" }}
               />
-            );
-          })}
+            ))
+          : currentFlights.map((value) => (
+              <FlightsUI
+                key={value.id}
+                value={value}
+                btnHandler={selectBtnHandler}
+                flightsData={flightsData}
+                button={{ text: "Select flight", className: "selectFlightBtn" }}
+              />
+            ))
+        : currentFlights.map((value) => (
+            <FlightsUI
+              key={value.id}
+              value={value}
+              btnHandler={detailsBtnHandler}
+              flightsData={flightsData}
+              button={{ text: "View Details", className: "detailsBtn" }}
+            />
+          ))}
       <div className={styles.pagination}>
-        {pages.map((page) => {
-          return (
-            <button
-              key={page}
-              onClick={() => {
-                setCurrentPage(page);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-              className={`${currentPage == page ? styles.active : ""}`}
-            >
-              {page}
-            </button>
-          );
-        })}
+        {pages.map((page) => (
+          <button
+            key={page}
+            onClick={() => {
+              setCurrentPage(page);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className={`${currentPage === page ? styles.active : ""}`}
+          >
+            {page}
+          </button>
+        ))}
       </div>
     </div>
   );

@@ -4,20 +4,37 @@ import PropTypes from 'prop-types';
 const DataContext = createContext();
 
 export function DataProvider({ children }) {
+  // --- 1. التعامل مع بيانات البحث (sharedData) كما هي ---
   const storedSearch = JSON.parse(localStorage.getItem("sharedData"));
   const [sharedData, setSharedData] = useState(storedSearch);
-  useEffect(()=>{
-    localStorage.setItem("sharedData",JSON.stringify(sharedData))
-  },[sharedData])
+  useEffect(() => {
+    localStorage.setItem("sharedData", JSON.stringify(sharedData));
+  }, [sharedData]);
+
+  // --- ✨ 2. إضافة حالة جديدة لتخزين بيانات الرحلة المختارة (flight) ✨ ---
+  const storedFlight = JSON.parse(localStorage.getItem("flight"));
+  const [flight, setFlight] = useState(storedFlight);
+  useEffect(() => {
+    localStorage.setItem("flight", JSON.stringify(flight));
+  }, [flight]);
+  
+  // --- ✨ 3. إضافة flight و setFlight إلى القيمة التي يمررها الـ Provider ✨ ---
+  const value = {
+    sharedData,
+    setSharedData,
+    flight,
+    setFlight // الآن يمكن لأي مكون أن يقرأ ويُعدل بيانات الرحلة
+  };
 
   return (
-    <DataContext.Provider value={{ sharedData, setSharedData }}>
+    <DataContext.Provider value={value}>
       {children}
     </DataContext.Provider>
   );
 }
 
 export const useData = () => useContext(DataContext);
+
 DataProvider.propTypes = {
   children: PropTypes.node.isRequired, 
 };

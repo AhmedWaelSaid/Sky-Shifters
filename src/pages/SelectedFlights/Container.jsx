@@ -11,7 +11,6 @@ import Loading from "./Loading.jsx";
 import Error from "./Error.jsx";
 import EmptyData from "./EmptyData.jsx";
 import { FlightsUI } from "./Main.jsx";
-import { useOutletContext } from "react-router-dom";
 
 async function getFlightsFromAPI(input, signal) {
   const baseUrl = "https://api.amadeus.com/v2/shopping/flight-offers";
@@ -113,10 +112,11 @@ export default function Container() {
   const [currentPage, setCurrentPage] = useState(1);
   const [priceAndDuration, setPriceAndDuration] = useState({});
   const [isReturn, setIsReturn] = useState(false);
-  const { flight } = useOutletContext();
+
   useEffect(() => {
     setCurrentPage(1);
   }, [airLinesChecked, stop, flightDuration, price]);
+  
   useEffect(() => {
     if (
       flightsData &&
@@ -129,8 +129,9 @@ export default function Container() {
       setFlightDuration(object.highestFlightDuration);
     }
   }, [flightsData]);
-  if (loading) return <Loading />; //loading screen
-  if (error && !error.name === "AbortError") return <Error />; //error screen
+
+  if (loading) return <Loading />;
+  if (error && error.name !== "AbortError") return <Error />;
   if (!flightsData || flightsData.data.length === 0 || !flightsData.data)
     return <EmptyData />;
 
@@ -139,32 +140,33 @@ export default function Container() {
     let filteredFlights = { ...flights };
     if (stop !== "") {
       filteredFlights.data = flights.data.filter((flight) => {
-        if (stop == "Direct") return flight.itineraries[0].segments.length == 1;
+        if (stop === "Direct") return flight.itineraries[0].segments.length === 1;
         else return flight.itineraries[0].segments.length > 1;
       });
-    } //filter_stop
+    }
     const activeAirlines = Object.keys(airLinesChecked).filter(
       (code) => airLinesChecked[code]
     );
     if (activeAirlines.length > 0)
-      filteredFlights.data = filteredFlights.data.filter((flight) => {
-        return activeAirlines.includes(flight.validatingAirlineCodes[0]);
-      }); //filter_airlines
+      filteredFlights.data = filteredFlights.data.filter((flight) =>
+        activeAirlines.includes(flight.validatingAirlineCodes[0])
+      );
     if (price != null) {
-      filteredFlights.data = filteredFlights.data.filter((flight) => {
-        return price >= Number(flight.price.total);
-      }); //sort_price
+      filteredFlights.data = filteredFlights.data.filter((flight) =>
+        price >= Number(flight.price.total)
+      );
     }
     if (flightDuration != null) {
       filteredFlights.data = filteredFlights.data.filter(
         (flight) =>
           flightDuration >= dealWithDuration(flight.itineraries[0].duration)
-      ); //filter_duration
+      );
     }
     return filteredFlights;
   }
+  
   let filteredFlights = filteredData(flightsData);
-  console.log(flight);
+  
   return (
     <div className={styles.container}>
       <MainHeader isReturn={isReturn} setAPISearch={setAPISearch} />
@@ -176,23 +178,6 @@ export default function Container() {
       {sharedData.return && isReturn && (
         <div className={styles.flightTextContainer}>
           <h2>Choose your return flight!</h2>
-          <div className={styles.departureFlightSelected}>
-            <FlightsUI
-              value={flight.departure.data}
-              flightsData={filteredFlights}
-              button={{
-                text: "Change flight",
-                className: "selectFlightBtn",
-              }}
-              btnHandler={() => {
-                setIsReturn(false);
-                setAPISearch({
-                  ...sharedData.departure,
-                  passengerClass: sharedData.passengerClass,
-                });
-              }}
-            />
-          </div>
         </div>
       )}
       <SideBar

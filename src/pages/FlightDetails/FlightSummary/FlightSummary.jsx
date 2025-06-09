@@ -3,7 +3,7 @@ import styles from "./FlightSummary.module.css";
 import FlightLeg from "./FlightLeg";
 import CancellationPolicy from "./CancellationPolicy";
 import DetailsOfTheFlight from '../DetailsOfTheFlight/DetailsOfTheFlight';
-import { useOutletContext } from "react-router-dom";
+import { useData } from "../../../components/context/DataContext";
 import { format } from "date-fns";
 import { formatDuration } from "../../SelectedFlights/someFun";
 import { ChevronRight, ChevronLeft } from "lucide-react";
@@ -42,7 +42,7 @@ const FareBreakdown = ({
   showBackButton = false,
   showContinueButton = true,
 }) => {
-  const { flight } = useOutletContext();
+  const { flight } = useData();
 
   const calculateTotal = () => {
     let baseFareTotal = 0;
@@ -164,7 +164,7 @@ const FlightSummary = ({
   onUpdateForm,
 }) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const { flight } = useOutletContext();
+  const { flight } = useData();
   
   const toggleDetails = () => {
     setIsDetailsOpen(!isDetailsOpen);

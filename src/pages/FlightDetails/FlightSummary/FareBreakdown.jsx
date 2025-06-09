@@ -1,4 +1,4 @@
-import { useOutletContext } from "react-router-dom";
+import { useData } from "../../../components/context/DataContext";
 import styles from "./FlightSummary.module.css";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import PropTypes from "prop-types";
@@ -11,7 +11,7 @@ const FareBreakdown = ({
   showBackButton = false,
   showContinueButton = true,
 }) => {
-  let { flight } = useOutletContext();
+  let { flight } = useData();
   // حساب سعر الحقيبة من formData فقط
   const extraBaggagePrice = formData?.baggageSelection?.price || 0;
 

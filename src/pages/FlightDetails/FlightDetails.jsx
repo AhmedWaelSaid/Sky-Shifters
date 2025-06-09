@@ -8,6 +8,7 @@ import { useData } from "../../components/context/DataContext";
 
 const Index = () => {
   const { sharedData, flight } = useData();
+  console.log("Inspecting the 'flight' object:", flight);
 
   const getPassengerArr = () => {
     const passengerObj = sharedData?.passengerClass || { adults: 1, children: 0, infants: 0 };
