@@ -73,17 +73,31 @@ const Index = () => {
         expiryDate: p.details.passportExpiry,
       }));
 
+      // --- ✨ هذا هو الجزء الذي تم تعديله ✨ ---
+      // 1. نحصل على كائن الأمتعة الكامل من الحالة
+      const baggageDataFromState = formData.baggageSelection || {};
+
+      // 2. ننشئ كائنًا جديدًا "نظيفًا" للـ API بالبيانات المطلوبة فقط
+      const baggageObjectForApi = {
+        type: baggageDataFromState.type || "checked",
+        weight: baggageDataFromState.weight || "23kg",
+        price: baggageDataFromState.price || 0,
+        currency: baggageDataFromState.currency || "USD"
+      };
+      // ------------------------------------
+
       const finalBookingData = {
         flightID: flight?.id || "FL123456",
         originAirportCode: sharedData?.departure?.origin?.airport?.iata,
         destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
-        // --- ✨ تم تصحيح الخطأ الإملائي هنا ✨ ---
         originCity: sharedData?.departure?.origin?.airport?.city,
         destinationCity: sharedData?.departure?.dest?.airport?.city,
-        // ------------------------------------
         departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at?.split('T')[0],
         arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at?.split('T')[0],
-        selectedBaggageOption: formData.baggageSelection?.departure || {}, 
+        
+        // 3. نستخدم الكائن النظيف هنا
+        selectedBaggageOption: baggageObjectForApi, 
+        
         totalPrice: parseFloat(flight?.price?.grandTotal) || 0,
         currency: flight?.price?.currency || "USD",
         travellersInfo: travellersInfoForApi,
@@ -93,7 +107,7 @@ const Index = () => {
         }
       };
       
-      console.log("FINAL BOOKING DATA (Corrected for final docs):", finalBookingData);
+      console.log("FINAL BOOKING DATA (CLEANED):", finalBookingData);
 
       setFormData(prev => ({ ...prev, finalBookingData }));
     }
