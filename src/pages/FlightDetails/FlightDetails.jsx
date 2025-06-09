@@ -6,19 +6,7 @@ import StepIndicator from "./StepIndicator/StepIndicator";
 import "./FlightDetails.css";
 import { useData } from "../../components/context/DataContext";
 
-// --- ✨ 1. أعدنا الدالة المساعدة لتحويل اسم الدولة إلى رمز ISO ---
-const countryNameToIsoCode = (name) => {
-  const map = {
-    'saudi arabia': 'SAU',
-    'united arab emirates': 'ARE',
-    'united states': 'USA',
-    'united kingdom': 'GBR',
-    'egypt': 'EGY',
-    'india': 'IND',
-    'pakistan': 'PAK',
-  };
-  return map[name?.toLowerCase()] || name; // يرجع الرمز إذا وجده
-};
+// --- ✨ 1. تم حذف الدالة المساعدة countryNameToIsoCode من هنا ---
 
 const Index = () => {
   const { sharedData, flight } = useData();
@@ -76,14 +64,14 @@ const Index = () => {
 
   const handleContinue = () => {
     if (currentStep === 3) {
+      // --- ✨ 2. الآن نرسل اسم الدولة مباشرة كما هو ✨ ---
       const travellersInfoForApi = passengers.map(p => ({
         firstName: p.details.firstName,
         lastName: p.details.lastName,
         birthDate: p.details.dateOfBirth,
         travelerType: p.type,
-        // --- ✨ 2. استخدمنا الدالة المساعدة هنا ✨ ---
-        nationality: countryNameToIsoCode(p.details.nationality),
-        issuingCountry: countryNameToIsoCode(p.details.issuingCountry),
+        nationality: p.details.nationality,
+        issuingCountry: p.details.issuingCountry,
         passportNumber: p.details.passportNumber,
         expiryDate: p.details.passportExpiry,
       }));
@@ -100,7 +88,6 @@ const Index = () => {
         flightID: flight?.id || "FL123456",
         originAirportCode: sharedData?.departure?.origin?.airport?.iata,
         destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
-        // --- ✨ 3. أعدنا الخطأ الإملائي ليتطابق مع الباك إند ✨ ---
         originCIty: sharedData?.departure?.origin?.airport?.city,
         destinationCIty: sharedData?.departure?.dest?.airport?.city,
         departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at?.split('T')[0],
@@ -115,7 +102,7 @@ const Index = () => {
         }
       };
       
-      console.log("FINAL BOOKING DATA (Last Fix Applied):", finalBookingData);
+      console.log("FINAL BOOKING DATA (Using Full Country Name):", finalBookingData);
 
       setFormData(prev => ({ ...prev, finalBookingData }));
     }
