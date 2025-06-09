@@ -6,9 +6,22 @@ import StepIndicator from "./StepIndicator/StepIndicator";
 import "./FlightDetails.css";
 import { useData } from "../../components/context/DataContext";
 
+// --- ✨ 1. أعدنا الدالة المساعدة لتحويل اسم الدولة إلى رمز ISO ---
+const countryNameToIsoCode = (name) => {
+  const map = {
+    'saudi arabia': 'SAU',
+    'united arab emirates': 'ARE',
+    'united states': 'USA',
+    'united kingdom': 'GBR',
+    'egypt': 'EGY',
+    'india': 'IND',
+    'pakistan': 'PAK',
+  };
+  return map[name?.toLowerCase()] || name; // يرجع الرمز إذا وجده
+};
+
 const Index = () => {
   const { sharedData, flight } = useData();
-  console.log("Inspecting the 'flight' object:", flight);
 
   const getPassengerArr = () => {
     const passengerObj = sharedData?.passengerClass || { adults: 1, children: 0, infants: 0 };
@@ -68,37 +81,31 @@ const Index = () => {
         lastName: p.details.lastName,
         birthDate: p.details.dateOfBirth,
         travelerType: p.type,
-        nationality: p.details.nationality,
+        // --- ✨ 2. استخدمنا الدالة المساعدة هنا ✨ ---
+        nationality: countryNameToIsoCode(p.details.nationality),
+        issuingCountry: countryNameToIsoCode(p.details.issuingCountry),
         passportNumber: p.details.passportNumber,
-        issuingCountry: p.details.issuingCountry,
         expiryDate: p.details.passportExpiry,
       }));
 
-      // --- ✨ هذا هو الجزء الذي تم تعديله ✨ ---
-      // 1. نحصل على كائن الأمتعة الكامل من الحالة
       const baggageDataFromState = formData.baggageSelection || {};
-
-      // 2. ننشئ كائنًا جديدًا "نظيفًا" للـ API بالبيانات المطلوبة فقط
       const baggageObjectForApi = {
         type: baggageDataFromState.type || "checked",
         weight: baggageDataFromState.weight || "23kg",
         price: baggageDataFromState.price || 0,
         currency: baggageDataFromState.currency || "USD"
       };
-      // ------------------------------------
 
       const finalBookingData = {
         flightID: flight?.id || "FL123456",
         originAirportCode: sharedData?.departure?.origin?.airport?.iata,
         destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
-        originCity: sharedData?.departure?.origin?.airport?.city,
-        destinationCity: sharedData?.departure?.dest?.airport?.city,
+        // --- ✨ 3. أعدنا الخطأ الإملائي ليتطابق مع الباك إند ✨ ---
+        originCIty: sharedData?.departure?.origin?.airport?.city,
+        destinationCIty: sharedData?.departure?.dest?.airport?.city,
         departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at?.split('T')[0],
         arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at?.split('T')[0],
-        
-        // 3. نستخدم الكائن النظيف هنا
         selectedBaggageOption: baggageObjectForApi, 
-        
         totalPrice: parseFloat(flight?.price?.grandTotal) || 0,
         currency: flight?.price?.currency || "USD",
         travellersInfo: travellersInfoForApi,
@@ -108,7 +115,7 @@ const Index = () => {
         }
       };
       
-      console.log("FINAL BOOKING DATA (CLEANED):", finalBookingData);
+      console.log("FINAL BOOKING DATA (Last Fix Applied):", finalBookingData);
 
       setFormData(prev => ({ ...prev, finalBookingData }));
     }

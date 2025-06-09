@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import styles from './PassengerDetails.module.css';
 import { X, User, Baby } from 'lucide-react';
@@ -17,6 +16,7 @@ const PassengerDetails = ({
     ageGroup: passengerType === 'child' ? 'child' : '',
     dateOfBirth: '',
     nationality: '',
+    issuingCountry: '',
     passportNumber: '',
     passportExpiry: ''
   });
@@ -254,6 +254,21 @@ const PassengerDetails = ({
             </select>
           </div>
           
+          <div className={styles.formGroup}>
+            <select 
+              name="issuingCountry"
+              value={details.issuingCountry}
+              onChange={handleChange}
+              className={styles.formSelect}
+              required
+            >
+              <option value="">Issuing Country*</option>
+              {nationalities.map(country => (
+                <option key={`issue-${country}`} value={country}>{country}</option>
+              ))}
+            </select>
+          </div>
+
           <div className={styles.formGroup}>
             <input 
               type="text"
