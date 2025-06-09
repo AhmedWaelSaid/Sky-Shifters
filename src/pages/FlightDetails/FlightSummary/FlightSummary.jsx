@@ -3,13 +3,13 @@ import styles from "./FlightSummary.module.css";
 import FlightLeg from "./FlightLeg";
 import CancellationPolicy from "./CancellationPolicy";
 import DetailsOfTheFlight from '../DetailsOfTheFlight/DetailsOfTheFlight';
-import { useData } from "../../../components/context/DataContext";
+import { useOutletContext } from "react-router-dom";
 import { format } from "date-fns";
 import { formatDuration } from "../../SelectedFlights/someFun";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import PropTypes from "prop-types";
 
-// Helper functions (No changes here)
+// Helper functions
 function formatted(time) {
   let [hours, minutes] = time.split(":");
   if (hours > 12) hours -= 12;
@@ -21,7 +21,6 @@ function checkPeriod(time) {
   if (hours < 12) return "AM";
   else return "PM";
 }
-
 export function dealWithAirline(airline) {
   const arrOfWords = airline.split(" ");
   let newSentence = "";
@@ -42,40 +41,34 @@ const FareBreakdown = ({
   showBackButton = false,
   showContinueButton = true,
 }) => {
-  const { flight } = useData();
+  const { flight } = useOutletContext();
 
   const calculateTotal = () => {
     let baseFareTotal = 0;
     const baseFareBreakdown = { adults: [], children: [], infants: [] };
 
     if (flight?.departure?.data?.travelerPricings) {
-        passengers.forEach((passenger, index) => {
-            let price = 0;
-            const pricingInfo = flight.departure.data.travelerPricings[index];
-            if (pricingInfo?.price?.total) {
-                price = Number(pricingInfo.price.total);
-                if (flight.return?.data?.travelerPricings?.[index]?.price?.total) {
-                    price += Number(flight.return.data.travelerPricings[index].price.total);
-                }
+      passengers.forEach((passenger, index) => {
+        let price = 0;
+        const pricingInfo = flight.departure.data.travelerPricings[index];
+        if (pricingInfo?.price?.total) {
+            price = Number(pricingInfo.price.total);
+            if (flight.return?.data?.travelerPricings?.[index]?.price?.total) {
+                price += Number(flight.return.data.travelerPricings[index].price.total);
             }
-            baseFareTotal += price;
-            baseFareBreakdown[passenger.type + 's'].push(price);
-        });
+        }
+        baseFareTotal += price;
+        baseFareBreakdown[passenger.type + 's'].push(price);
+      });
     }
-
-    const serviceFee = 9.95;
-
-    const departureBaggagePrice = formData?.baggageSelection?.departure?.price || 0;
-    const returnBaggagePrice = formData?.baggageSelection?.return?.price || 0;
-    const totalBaggageCost = departureBaggagePrice + returnBaggagePrice;
-
+    
+    const totalBaggageCost = formData?.baggageSelection?.price || 0;
     const addOns = (formData.addOns?.insurance ? 4.99 * passengers.length : 0);
     const specialServices = (formData.specialServices?.childSeat ? 15.99 : 0);
-    const total = baseFareTotal + serviceFee + addOns + specialServices + totalBaggageCost;
+    const total = baseFareTotal + addOns + specialServices + totalBaggageCost;
 
     return {
       baseFare: baseFareBreakdown,
-      serviceFee,
       addOns,
       specialServices,
       baggageUpgrade: totalBaggageCost,
@@ -107,12 +100,6 @@ const FareBreakdown = ({
           <span>{formatPrice(price)}</span>
         </div>
       ))}
-      {priceDetails.serviceFee > 0 && (
-        <div className={styles.fareItem}>
-          <span>Service fee</span>
-          <span>{formatPrice(priceDetails.serviceFee)}</span>
-        </div>
-      )}
       {priceDetails.addOns > 0 && (
           <div className={styles.fareItem}>
               <span>Add-ons</span>
@@ -136,16 +123,20 @@ const FareBreakdown = ({
         <span>{formatPrice(priceDetails.total)}</span>
       </div>
       {showBackButton && (
-        <button className={styles.backButton} onClick={onBack}><ChevronLeft size={16} /> Back</button>
+        <button className={styles.backButton} onClick={onBack}>
+          <ChevronLeft size={16} /> Back
+        </button>
       )}
       {showContinueButton && (
-        <button className={styles.continueButton} onClick={onContinue}>Continue <ChevronRight size={16} /></button>
+        <button className={styles.continueButton} onClick={onContinue}>
+          Continue <ChevronRight size={16} />
+        </button>
       )}
     </div>
   );
 };
 
-FareBreakdown.propTypes = {
+FareBreakdown.propTypes= {
   passengers: PropTypes.array,
   formData: PropTypes.object,
   onContinue: PropTypes.func,
@@ -164,12 +155,16 @@ const FlightSummary = ({
   onUpdateForm,
 }) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const { flight } = useData();
+  const { flight } = useOutletContext();
   
   const toggleDetails = () => {
     setIsDetailsOpen(!isDetailsOpen);
   };
   
+  if (!flight || !flight.departure) {
+      return <div>Loading Summary...</div>; // Or some other placeholder
+  }
+
   return (
     <div className={styles.flightSummary}>
       <div className={styles.summaryHeader}>
@@ -190,7 +185,7 @@ const FlightSummary = ({
       {flight.departure.data.itineraries[0].segments.length === 1 ? (
         <FlightLeg
           type="Departure"
-          date={format(flight.departure.data.itineraries[0].segments[0].departure.at.split("T")[0], "EEE, d LLL yyyy")}
+          date={format(new Date(flight.departure.data.itineraries[0].segments[0].departure.at), "EEE, d LLL yyyy")}
           airline={`${dealWithAirline(flight.departure.carrier)} ${flight.departure.data.itineraries[0].segments[0].carrierCode}-${flight.departure.data.itineraries[0].segments[0].number}`}
           departure={{ time: formatted(flight.departure.data.itineraries[0].segments[0].departure.at.split("T")[1]), period: checkPeriod(flight.departure.data.itineraries[0].segments[0].departure.at.split("T")[1]), code: flight.departure.data.itineraries[0].segments[0].departure.iataCode }}
           arrival={{ time: formatted(flight.departure.data.itineraries[0].segments[0].arrival.at.split("T")[1]), period: checkPeriod(flight.departure.data.itineraries[0].segments[0].arrival.at.split("T")[1]), code: flight.departure.data.itineraries[0].segments[0].arrival.iataCode }}
@@ -201,7 +196,7 @@ const FlightSummary = ({
       ) : (
         <FlightLeg
           type="Departure"
-          date={format(flight.departure.data.itineraries[0].segments[0].departure.at.split("T")[0], "EEE, d LLL yyyy")}
+          date={format(new Date(flight.departure.data.itineraries[0].segments[0].departure.at), "EEE, d LLL yyyy")}
           airline={`${dealWithAirline(flight.departure.carrier)} ${flight.departure.data.itineraries[0].segments[0].carrierCode}-${flight.departure.data.itineraries[0].segments[0].number}, ${dealWithAirline(flight.departure.carrier)} ${flight.departure.data.itineraries[0].segments[1].carrierCode}-${flight.departure.data.itineraries[0].segments[1].number}`}
           departure={{ time: formatted(flight.departure.data.itineraries[0].segments[0].departure.at.split("T")[1]), period: checkPeriod(flight.departure.data.itineraries[0].segments[0].departure.at.split("T")[1]), code: flight.departure.data.itineraries[0].segments[0].departure.iataCode }}
           arrival={{ time: formatted(flight.departure.data.itineraries[0].segments[1].arrival.at.split("T")[1]), period: checkPeriod(flight.departure.data.itineraries[0].segments[1].arrival.at.split("T")[1]), code: flight.departure.data.itineraries[0].segments[1].arrival.iataCode }}
@@ -214,7 +209,7 @@ const FlightSummary = ({
       {flight.return && (
         <FlightLeg
           type="Return"
-          date={format(flight.return.data.itineraries[0].segments[0].departure.at.split("T")[0], "EEE, d LLL yyyy")}
+          date={format(new Date(flight.return.data.itineraries[0].segments[0].departure.at), "EEE, d LLL yyyy")}
           airline={`${dealWithAirline(flight.return.carrier)} ${flight.return.data.itineraries[0].segments[0].carrierCode}-${flight.return.data.itineraries[0].segments[0].number}`}
           departure={{ time: formatted(flight.return.data.itineraries[0].segments[0].departure.at.split("T")[1]), period: checkPeriod(flight.return.data.itineraries[0].segments[0].departure.at.split("T")[1]), code: flight.return.data.itineraries[0].segments[0].departure.iataCode }}
           arrival={{ time: formatted(flight.return.data.itineraries[0].segments[0].arrival.at.split("T")[1]), period: checkPeriod(flight.return.data.itineraries[0].segments[0].arrival.at.split("T")[1]), code: flight.return.data.itineraries[0].segments[0].arrival.iataCode }}
@@ -225,6 +220,7 @@ const FlightSummary = ({
       )}
       
       <CancellationPolicy onDetailsClick={toggleDetails} />
+
       <FareBreakdown
         passengers={passengers}
         formData={formData}

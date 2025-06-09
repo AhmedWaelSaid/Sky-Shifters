@@ -6,11 +6,9 @@ import StepIndicator from "./StepIndicator/StepIndicator";
 import "./FlightDetails.css";
 import { useData } from "../../components/context/DataContext";
 
-// --- ✨ 1. تم حذف الدالة المساعدة countryNameToIsoCode من هنا ---
-
 const Index = () => {
   const { sharedData, flight } = useData();
-
+  
   const getPassengerArr = () => {
     const passengerObj = sharedData?.passengerClass || { adults: 1, children: 0, infants: 0 };
     const passengerArr = [];
@@ -64,37 +62,43 @@ const Index = () => {
 
   const handleContinue = () => {
     if (currentStep === 3) {
-      // --- ✨ 2. الآن نرسل اسم الدولة مباشرة كما هو ✨ ---
       const travellersInfoForApi = passengers.map(p => ({
         firstName: p.details.firstName,
         lastName: p.details.lastName,
         birthDate: p.details.dateOfBirth,
         travelerType: p.type,
         nationality: p.details.nationality,
-        issuingCountry: p.details.issuingCountry,
         passportNumber: p.details.passportNumber,
+        issuingCountry: p.details.issuingCountry,
         expiryDate: p.details.passportExpiry,
       }));
-
-      const baggageDataFromState = formData.baggageSelection || {};
+      
       const baggageObjectForApi = {
-        type: baggageDataFromState.type || "checked",
-        weight: baggageDataFromState.weight || "23kg",
-        price: baggageDataFromState.price || 0,
-        currency: baggageDataFromState.currency || "USD"
+        type: formData.baggageSelection?.type || "checked",
+        weight: formData.baggageSelection?.weight || "23kg",
+        price: formData.baggageSelection?.price || 0,
+        currency: formData.baggageSelection?.currency || "USD"
       };
+      
+      const basePrice = parseFloat(flight?.departure?.data?.price?.grandTotal) || 0;
+      const baggagePrice = parseFloat(baggageObjectForApi.price) || 0;
+      const addOnsPrice = (formData.addOns?.insurance ? 4.99 * passengers.length : 0);
+      const specialServicesPrice = (formData.specialServices?.childSeat ? 15.99 : 0);
+      
+      // ✨ تم حذف رسوم الخدمة من الحساب النهائي هنا ✨
+      const finalTotalPrice = basePrice + baggagePrice + addOnsPrice + specialServicesPrice;
 
       const finalBookingData = {
-        flightID: flight?.id || "FL123456",
+        flightID: flight?.departure?.data?.id || "FL123456",
         originAirportCode: sharedData?.departure?.origin?.airport?.iata,
         destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
-        originCIty: sharedData?.departure?.origin?.airport?.city,
-        destinationCIty: sharedData?.departure?.dest?.airport?.city,
+        originCity: sharedData?.departure?.origin?.airport?.city,
+        destinationCity: sharedData?.departure?.dest?.airport?.city,
         departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at?.split('T')[0],
         arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at?.split('T')[0],
         selectedBaggageOption: baggageObjectForApi, 
-        totalPrice: parseFloat(flight?.price?.grandTotal) || 0,
-        currency: flight?.price?.currency || "USD",
+        totalPrice: parseFloat(finalTotalPrice.toFixed(2)),
+        currency: flight?.departure?.data?.price?.currency || "USD",
         travellersInfo: travellersInfoForApi,
         contactDetails: {
           email: formData.contactInfo.email,
@@ -102,8 +106,7 @@ const Index = () => {
         }
       };
       
-      console.log("FINAL BOOKING DATA (Using Full Country Name):", finalBookingData);
-
+      console.log("FINAL BOOKING DATA (No Service Fee):", finalBookingData);
       setFormData(prev => ({ ...prev, finalBookingData }));
     }
 
