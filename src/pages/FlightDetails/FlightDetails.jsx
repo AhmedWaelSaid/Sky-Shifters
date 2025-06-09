@@ -73,27 +73,28 @@ const Index = () => {
         expiryDate: p.details.passportExpiry,
       }));
       
+      const baggageDataFromState = formData.baggageSelection || {};
       const baggageObjectForApi = {
-        type: formData.baggageSelection?.type || "checked",
-        weight: formData.baggageSelection?.weight || "23kg",
-        price: formData.baggageSelection?.price || 0,
-        currency: formData.baggageSelection?.currency || "USD"
+        type: baggageDataFromState.type || "checked",
+        weight: baggageDataFromState.weight || "23kg",
+        price: baggageDataFromState.price || 0,
+        currency: baggageDataFromState.currency || "USD"
       };
       
       const basePrice = parseFloat(flight?.departure?.data?.price?.grandTotal) || 0;
       const baggagePrice = parseFloat(baggageObjectForApi.price) || 0;
       const addOnsPrice = (formData.addOns?.insurance ? 4.99 * passengers.length : 0);
       const specialServicesPrice = (formData.specialServices?.childSeat ? 15.99 : 0);
-      
-      // ✨ تم حذف رسوم الخدمة من الحساب النهائي هنا ✨
       const finalTotalPrice = basePrice + baggagePrice + addOnsPrice + specialServicesPrice;
 
       const finalBookingData = {
         flightID: flight?.departure?.data?.id || "FL123456",
         originAirportCode: sharedData?.departure?.origin?.airport?.iata,
         destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
-        originCity: sharedData?.departure?.origin?.airport?.city,
-        destinationCity: sharedData?.departure?.dest?.airport?.city,
+        // --- ✨ تم تصحيح الخطأ الإملائي هنا ليتطابق مع الـ Docs الأخيرة ✨ ---
+        originCIty: sharedData?.departure?.origin?.airport?.city,
+        destinationCIty: sharedData?.departure?.dest?.airport?.city,
+        // -----------------------------------------------------------------
         departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at?.split('T')[0],
         arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at?.split('T')[0],
         selectedBaggageOption: baggageObjectForApi, 
@@ -106,7 +107,7 @@ const Index = () => {
         }
       };
       
-      console.log("FINAL BOOKING DATA (No Service Fee):", finalBookingData);
+      console.log("FINAL BOOKING DATA (All fixes applied):", finalBookingData);
       setFormData(prev => ({ ...prev, finalBookingData }));
     }
 
