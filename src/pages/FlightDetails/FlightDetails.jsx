@@ -6,8 +6,6 @@ import StepIndicator from "./StepIndicator/StepIndicator";
 import "./FlightDetails.css";
 import { useData } from "../../components/context/DataContext";
 
-// لم نعد بحاجة لدالة تحويل أسماء الدول
-
 const Index = () => {
   const { sharedData, flight } = useData();
 
@@ -62,10 +60,8 @@ const Index = () => {
     }
   };
 
-  // --- ✨ هذه هي النسخة النهائية والحاسمة التي تطابق الـ Docs الجديدة ✨ ---
   const handleContinue = () => {
     if (currentStep === 3) {
-      
       const travellersInfoForApi = passengers.map(p => ({
         firstName: p.details.firstName,
         lastName: p.details.lastName,
@@ -81,26 +77,23 @@ const Index = () => {
         flightID: flight?.id || "FL123456",
         originAirportCode: sharedData?.departure?.origin?.airport?.iata,
         destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
-        originCIty: sharedData?.departure?.origin?.airport?.city,
-        destinationCIty: sharedData?.departure?.dest?.airport?.city,
+        // --- ✨ تم تصحيح الخطأ الإملائي هنا ✨ ---
+        originCity: sharedData?.departure?.origin?.airport?.city,
+        destinationCity: sharedData?.departure?.dest?.airport?.city,
+        // ------------------------------------
         departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at?.split('T')[0],
         arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at?.split('T')[0],
-        
-        // يتم إرساله ككائن واحد الآن وليس مصفوفة
-        selectedBaggageOption: formData.baggageSelection || {}, 
-        
-        totalPrice: parseFloat(flight?.price?.grandTotal) || 1500.00,
+        selectedBaggageOption: formData.baggageSelection?.departure || {}, 
+        totalPrice: parseFloat(flight?.price?.grandTotal) || 0,
         currency: flight?.price?.currency || "USD",
         travellersInfo: travellersInfoForApi,
-        
-        // تم تجميع بيانات الاتصال هنا
         contactDetails: {
           email: formData.contactInfo.email,
           phone: `${formData.contactInfo.code}${formData.contactInfo.mobile}`
         }
       };
       
-      console.log("FINAL BOOKING DATA (As per New Docs):", finalBookingData);
+      console.log("FINAL BOOKING DATA (Corrected for final docs):", finalBookingData);
 
       setFormData(prev => ({ ...prev, finalBookingData }));
     }
@@ -115,7 +108,6 @@ const Index = () => {
     <div className="page-container">
       <div className="booking-container">
         <StepIndicator currentStep={currentStep} />
-
         {currentStep === 2 && (
           <PassengerDetailsForm
             passengers={passengers}
@@ -125,7 +117,6 @@ const Index = () => {
             onContinue={handleContinue}
           />
         )}
-
         {currentStep === 3 && (
           <UpgradeExperience
             passengers={passengers}
@@ -135,7 +126,6 @@ const Index = () => {
             onBack={handleBack}
           />
         )}
-        
         {currentStep === 4 && (
           <FinalDetails
             passengers={passengers}
