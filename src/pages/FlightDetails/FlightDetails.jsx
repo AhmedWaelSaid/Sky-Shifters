@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PassengerDetailsForm from "./PassengerDetailsForm/PassengerDetailsForm";
 import UpgradeExperience from "./UpgradeExperience/UpgradeExperience";
 import FinalDetails from "./FinalDetails/FinalDetails";
@@ -74,15 +74,26 @@ const Index = () => {
       }));
       
       const baggageDataFromState = formData.baggageSelection || {};
+      let baggagePrice = 0;
+      if (formData.baggageSelection) {
+        if (formData.baggageSelection.departure || formData.baggageSelection.return) {
+          baggagePrice += formData.baggageSelection.departure?.price || 0;
+          baggagePrice += formData.baggageSelection.return?.price || 0;
+        } else if (formData.baggageSelection.outbound || formData.baggageSelection.inbound) {
+          baggagePrice += formData.baggageSelection.outbound?.price || 0;
+          baggagePrice += formData.baggageSelection.inbound?.price || 0;
+        } else {
+          baggagePrice = formData.baggageSelection.price || 0;
+        }
+      }
       const baggageObjectForApi = {
         type: baggageDataFromState.type || "checked",
         weight: baggageDataFromState.weight || "23kg",
-        price: baggageDataFromState.price || 0,
+        price: baggagePrice,
         currency: baggageDataFromState.currency || "USD"
       };
       
       const basePrice = parseFloat(flight?.departure?.data?.price?.grandTotal) || 0;
-      const baggagePrice = parseFloat(baggageObjectForApi.price) || 0;
       const addOnsPrice = (formData.addOns?.insurance ? 4.99 * passengers.length : 0);
       const specialServicesPrice = (formData.specialServices?.childSeat ? 15.99 : 0);
       const finalTotalPrice = basePrice + baggagePrice + addOnsPrice + specialServicesPrice;
@@ -117,6 +128,67 @@ const Index = () => {
     }
   };
   
+  // إعادة حساب finalBookingData تلقائياً عند الدخول لخطوة الدفع
+  useEffect(() => {
+    if (currentStep === 4) {
+      // إعادة بناء finalBookingData بنفس منطق handleContinue
+      const travellersInfoForApi = passengers.map(p => ({
+        firstName: p.details.firstName,
+        lastName: p.details.lastName,
+        birthDate: p.details.dateOfBirth,
+        travelerType: p.type,
+        nationality: p.details.nationality,
+        passportNumber: p.details.passportNumber,
+        issuingCountry: p.details.issuingCountry,
+        expiryDate: p.details.passportExpiry,
+      }));
+      const baggageDataFromState = formData.baggageSelection || {};
+      let baggagePrice = 0;
+      if (formData.baggageSelection) {
+        if (formData.baggageSelection.departure || formData.baggageSelection.return) {
+          baggagePrice += formData.baggageSelection.departure?.price || 0;
+          baggagePrice += formData.baggageSelection.return?.price || 0;
+        } else if (formData.baggageSelection.outbound || formData.baggageSelection.inbound) {
+          baggagePrice += formData.baggageSelection.outbound?.price || 0;
+          baggagePrice += formData.baggageSelection.inbound?.price || 0;
+        } else {
+          baggagePrice = formData.baggageSelection.price || 0;
+        }
+      }
+      const baggageObjectForApi = {
+        type: baggageDataFromState.type || "checked",
+        weight: baggageDataFromState.weight || "23kg",
+        price: baggagePrice,
+        currency: baggageDataFromState.currency || "USD"
+      };
+      const basePrice = parseFloat(flight?.departure?.data?.price?.grandTotal) || 0;
+      const addOnsPrice = (formData.addOns?.insurance ? 4.99 * passengers.length : 0);
+      const specialServicesPrice = (formData.specialServices?.childSeat ? 15.99 : 0);
+      const finalTotalPrice = basePrice + baggagePrice + addOnsPrice + specialServicesPrice;
+      const finalBookingData = {
+        flightID: flight?.departure?.data?.id || "FL123456",
+        originAirportCode: sharedData?.departure?.origin?.airport?.iata,
+        destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
+        originCIty: sharedData?.departure?.origin?.airport?.city,
+        destinationCIty: sharedData?.departure?.dest?.airport?.city,
+        departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at?.split('T')[0],
+        arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at?.split('T')[0],
+        selectedBaggageOption: baggageObjectForApi, 
+        totalPrice: parseFloat(finalTotalPrice.toFixed(2)),
+        currency: flight?.departure?.data?.price?.currency || "USD",
+        travellersInfo: travellersInfoForApi,
+        contactDetails: {
+          email: formData.contactInfo.email,
+          phone: `${formData.contactInfo.code}${formData.contactInfo.mobile}`
+        }
+      };
+      // إذا لم يكن finalBookingData موجود أو تغير السعر، حدثه
+      if (!formData.finalBookingData || formData.finalBookingData.totalPrice !== finalBookingData.totalPrice) {
+        setFormData(prev => ({ ...prev, finalBookingData }));
+      }
+    }
+  }, [currentStep, passengers, formData, flight, sharedData]);
+
   return (
     <div className="page-container">
       <div className="booking-container">
