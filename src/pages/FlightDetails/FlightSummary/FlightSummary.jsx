@@ -51,16 +51,24 @@ const FareBreakdown = ({
     let baseFareTotal = 0;
     const baseFareBreakdown = { adults: [], children: [], infants: [] };
 
+    // Helper function to safely get price from pricing info
+    const getPriceFromPricingInfo = (pricingInfo) => {
+      if (!pricingInfo?.price?.total) return 0;
+      return Number(pricingInfo.price.total);
+    };
+
     if (flight?.departure?.data?.travelerPricings) {
       passengers.forEach((passenger, index) => {
-        let price = 0;
-        const pricingInfo = flight.departure.data.travelerPricings[index];
-        if (pricingInfo?.price?.total) {
-            price = Number(pricingInfo.price.total);
-            if (flight.return?.data?.travelerPricings?.[index]?.price?.total) {
-                price += Number(flight.return.data.travelerPricings[index].price.total);
-            }
+        // Get departure flight price
+        const departurePricingInfo = flight.departure.data.travelerPricings[index];
+        let price = getPriceFromPricingInfo(departurePricingInfo);
+
+        // Get return flight price if it exists
+        if (flight.return?.data?.travelerPricings?.[index]) {
+          const returnPricingInfo = flight.return.data.travelerPricings[index];
+          price += getPriceFromPricingInfo(returnPricingInfo);
         }
+
         baseFareTotal += price;
         
         // Handle pluralization correctly
@@ -69,8 +77,7 @@ const FareBreakdown = ({
       });
     }
 
-    // --- ✨ هذا هو الإصلاح النهائي ✨ ---
-    // نقرأ سعر كل رحلة على حدة ثم نجمعهما
+    // Calculate additional costs
     const departureBaggagePrice = formData?.baggageSelection?.departure?.price || 0;
     const returnBaggagePrice = formData?.baggageSelection?.return?.price || 0;
     const totalBaggageCost = departureBaggagePrice + returnBaggagePrice;

@@ -10,6 +10,7 @@ import {
   useElements 
 } from '@stripe/react-stripe-js';
 import PropTypes from 'prop-types';
+import { useData } from "../../../components/context/DataContext";
 
 const ELEMENT_OPTIONS = {
   style: {
@@ -23,9 +24,44 @@ const ELEMENT_OPTIONS = {
   },
 };
 
+// Helper function to safely get price from pricing info
+const getPriceFromPricingInfo = (pricingInfo) => {
+  if (!pricingInfo?.price?.total) return 0;
+  return Number(pricingInfo.price.total);
+};
+
+// Modified calculateTotalPrice to take flight from context, and passengers/formData from bookingData
+function calculateTotalPrice(flightData, bookingData) {
+  let baseFareTotal = 0;
+  const passengers = bookingData.travellersInfo || [];
+  const formData = bookingData.formData || {};
+
+  if (flightData?.departure?.data?.travelerPricings) {
+    passengers.forEach((passenger, index) => {
+      const departurePricingInfo = flightData.departure.data.travelerPricings[index];
+      let price = getPriceFromPricingInfo(departurePricingInfo);
+
+      if (flightData.return?.data?.travelerPricings?.[index]) {
+        const returnPricingInfo = flightData.return.data.travelerPricings[index];
+        price += getPriceFromPricingInfo(returnPricingInfo);
+      }
+      baseFareTotal += price;
+    });
+  }
+
+  const totalBaggageCost = bookingData?.selectedBaggageOption?.price || 0;
+
+  const addOns = (formData.addOns?.insurance ? 4.99 * passengers.length : 0);
+  const specialServices = (formData.specialServices?.childSeat ? 15.99 : 0);
+
+  const total = baseFareTotal + addOns + specialServices + totalBaggageCost;
+  return total;
+}
+
 const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
   const stripe = useStripe();
   const elements = useElements();
+  const { flight } = useData();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -49,6 +85,10 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
   useEffect(() => {
     if (!bookingData) {
       console.warn("PaymentSection: bookingData is missing.");
+      return;
+    }
+    if (!flight) {
+      console.warn("PaymentSection: flight data from DataContext is missing.");
       return;
     }
 
@@ -85,7 +125,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
         const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
         const intentResponse = await axios.post(paymentIntentUrl, {
           bookingId: newBookingId,
-          amount: bookingData.totalPrice,
+          amount: calculateTotalPrice(flight, bookingData),
           currency: bookingData.currency,
         }, { headers: { 'Authorization': `Bearer ${token}` } });
         
@@ -104,7 +144,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
     processBookingAndPaymentIntent();
     
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookingData]);
+  }, [bookingData, flight]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -165,9 +205,11 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
     // Trigger the useEffect by updating bookingData
     if (bookingData) {
       const updatedBookingData = { ...bookingData };
-      processBookingAndPaymentIntent(updatedBookingData);
+      processBookingAndPaymentIntent();
     }
   };
+
+
 
   return (
     <div className={styles.paymentSection}>
@@ -218,8 +260,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
             <button type="button" className={styles.backButton} onClick={onBack}>
               <ChevronLeft size={16} /> Back
             </button>
-            <button type="submit" className={styles.payButton} disabled={!stripe || loading || !clientSecret}>
-              {loading ? 'Processing...' : `Pay ${bookingData?.totalPrice?.toFixed(2)} ${bookingData?.currency}`}
+            <button type="submit" className={styles.payButton} disabled={!stripe || loading || !clientSecret || !flight}>
+              {loading ? 'Processing...' : `Pay ${calculateTotalPrice(flight, bookingData).toFixed(2)} ${bookingData?.currency}`}
             </button>
           </div>
         </form>
