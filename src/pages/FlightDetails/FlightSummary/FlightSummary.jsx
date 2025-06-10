@@ -62,7 +62,10 @@ const FareBreakdown = ({
             }
         }
         baseFareTotal += price;
-        baseFareBreakdown[passenger.type + 's'].push(price);
+        
+        // Handle pluralization correctly
+        const pluralType = passenger.type === 'child' ? 'children' : passenger.type + 's';
+        baseFareBreakdown[pluralType].push(price);
       });
     }
 
