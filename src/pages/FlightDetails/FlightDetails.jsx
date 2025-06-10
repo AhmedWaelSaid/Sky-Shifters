@@ -49,7 +49,9 @@ const Index = () => {
   const updateFormData = (section, data) => {
     setFormData((prev) => ({
       ...prev,
-      [section]: { ...prev[section], ...data },
+      [section]: typeof data === 'object' && data !== null && !Array.isArray(data) 
+        ? { ...prev[section], ...data }
+        : data,
     }));
   };
 
@@ -73,28 +75,40 @@ const Index = () => {
         expiryDate: p.details.passportExpiry,
       }));
       
-      const baggageDataFromState = formData.baggageSelection || {};
       const baggageObjectForApi = {
-        type: baggageDataFromState.type || "checked",
-        weight: baggageDataFromState.weight || "23kg",
-        price: baggageDataFromState.price || 0,
-        currency: baggageDataFromState.currency || "USD"
+        type: formData.baggageSelection?.type || "checked",
+        weight: formData.baggageSelection?.weight || "23kg",
+        price: formData.baggageSelection?.price || 0,
+        currency: formData.baggageSelection?.currency || "USD"
       };
       
-      const basePrice = parseFloat(flight?.departure?.data?.price?.grandTotal) || 0;
+      let baseFareTotal = 0;
+      if (flight?.departure?.data?.travelerPricings) {
+          passengers.forEach((passenger, index) => {
+              let price = 0;
+              const pricingInfo = flight.departure.data.travelerPricings[index];
+              if (pricingInfo?.price?.total) {
+                  price = Number(pricingInfo.price.total);
+                  if (flight.return?.data?.travelerPricings?.[index]?.price?.total) {
+                      price += Number(flight.return.data.travelerPricings[index].price.total);
+                  }
+              }
+              baseFareTotal += price;
+          });
+      }
       const baggagePrice = parseFloat(baggageObjectForApi.price) || 0;
       const addOnsPrice = (formData.addOns?.insurance ? 4.99 * passengers.length : 0);
       const specialServicesPrice = (formData.specialServices?.childSeat ? 15.99 : 0);
-      const finalTotalPrice = basePrice + baggagePrice + addOnsPrice + specialServicesPrice;
+      const finalTotalPrice = baseFareTotal + baggagePrice + addOnsPrice + specialServicesPrice;
 
       const finalBookingData = {
         flightID: flight?.departure?.data?.id || "FL123456",
         originAirportCode: sharedData?.departure?.origin?.airport?.iata,
         destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
-        // --- ✨ تم تصحيح الخطأ الإملائي هنا ليتطابق مع الـ Docs الأخيرة ✨ ---
-        originCIty: sharedData?.departure?.origin?.airport?.city,
-        destinationCIty: sharedData?.departure?.dest?.airport?.city,
-        // -----------------------------------------------------------------
+        // --- ✨ تم تصحيح الخطأ الإملائي هنا للمرة الأخيرة ✨ ---
+        originCity: sharedData?.departure?.origin?.airport?.city,
+        destinationCity: sharedData?.departure?.dest?.airport?.city,
+        // ----------------------------------------------------
         departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at?.split('T')[0],
         arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at?.split('T')[0],
         selectedBaggageOption: baggageObjectForApi, 
@@ -107,7 +121,7 @@ const Index = () => {
         }
       };
       
-      console.log("FINAL BOOKING DATA (All fixes applied):", finalBookingData);
+      console.log("FINAL BOOKING DATA (Corrected City Typo):", finalBookingData);
       setFormData(prev => ({ ...prev, finalBookingData }));
     }
 
