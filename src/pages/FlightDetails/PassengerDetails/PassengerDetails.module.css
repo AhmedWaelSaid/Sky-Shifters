@@ -18,6 +18,7 @@
   padding: 16px 20px;
   background-color: var(--menuHover-color);
   border-bottom: 1px solid var(--menuHover-color);
+  cursor: pointer;
 }
 
 .passengerInfo {
@@ -58,6 +59,91 @@
 
 .passengerForm {
   padding: 24px;
+  max-height: 2000px;
+  overflow: hidden;
+  transition: max-height 0.5s ease-out, opacity 0.5s ease-out, transform 0.5s ease-out, padding 0.5s ease-out;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.passengerCard {
+  margin-bottom: 20px;
+  background-color: var(--bg-color);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.5s ease;
+}
+
+.passengerCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.passengerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: var(--menuHover-color);
+  border-bottom: 1px solid var(--menuHover-color);
+}
+
+.passengerHeader h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 18px;
+  color: var(--Darktext-color);
+}
+
+.passengerIcon {
+  width: 32px;
+  height: 32px;
+  background-color: var(--Btnbg-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--LightText-color);
+}
+
+.removeButton {
+  background: none;
+  border: none;
+  color: #ff5a5f;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.5s ease;
+}
+
+.removeButton:hover {
+  transform: scale(1.1);
+}
+
+.fullWidth {
+  flex: 1 1 100%;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--Darktext-color);
+  margin: 24px 0 12px;
+}
+
+.collapseIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.5s ease;
+}
+
+.collapseIcon svg {
+  color: var(--Darktext-color);
 }
 
 .note {
@@ -152,73 +238,12 @@
   flex: 1;
 }
 
-.passengerCard {
-  margin-bottom: 20px;
-  background-color: var(--bg-color);
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-}
-
-.passengerCard:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-}
-
-.passengerHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  background-color: var(--menuHover-color);
-  border-bottom: 1px solid var(--menuHover-color);
-}
-
-.passengerHeader h3 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  font-size: 18px;
-  color: var(--Darktext-color);
-}
-
-.passengerIcon {
-  width: 32px;
-  height: 32px;
-  background-color: var(--Btnbg-color);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--LightText-color);
-}
-
-.removeButton {
-  background: none;
-  border: none;
-  color: #ff5a5f;
-  font-size: 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease;
-}
-
-.removeButton:hover {
-  transform: scale(1.1);
-}
-
-.fullWidth {
-  flex: 1 1 100%;
-}
-
-.sectionTitle {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--Darktext-color);
-  margin: 24px 0 12px;
+.passengerForm.collapsed {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  transform: translateY(-20px);
 }
 
 @media (max-width: 768px) {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './PassengerDetails.module.css';
-import { X, User, Baby } from 'lucide-react';
+import { X, User, Baby, ChevronDown, ChevronUp } from 'lucide-react';
 
 const PassengerDetails = ({ 
   passengerId, 
@@ -27,11 +27,17 @@ const PassengerDetails = ({
     year: ''
   });
 
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     const updatedDetails = { ...details, [name]: value };
     setDetails(updatedDetails);
     updateDetails(passengerId, { [name]: value });
+  };
+
+  const handleToggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
   };
 
   const handleDobChange = (e) => {
@@ -109,7 +115,7 @@ const PassengerDetails = ({
 
   return (
     <div className={styles.passengerCard}>
-      <div className={styles.passengerHeader}>
+      <div className={styles.passengerHeader} onClick={handleToggleCollapse}>
         <h3>
           {passengerType === 'adult' ? (
             <><span className={styles.passengerIcon}><User size={16} /></span> Adult {passengerIndex}</>
@@ -119,9 +125,12 @@ const PassengerDetails = ({
             <><span className={styles.passengerIcon}><Baby size={16} /></span> Infant {passengerIndex}</>
           )}
         </h3>
+        <div className={styles.collapseIcon}>
+          {isCollapsed ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+        </div>
       </div>
 
-      <div className={styles.passengerForm}>
+      <div className={`${styles.passengerForm} ${isCollapsed ? styles.collapsed : ''}`}>
         {passengerType === 'adult' && (
           <div>
             <h4>Personal details</h4>
