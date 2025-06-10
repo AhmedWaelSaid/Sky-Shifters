@@ -32,6 +32,19 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
   const [clientSecret, setClientSecret] = useState('');
   const [bookingId, setBookingId] = useState('');
   const [cardHolderName, setCardHolderName] = useState('');
+  const [paymentIntentExpired, setPaymentIntentExpired] = useState(false);
+
+  // Add function to handle payment intent errors
+  const handlePaymentIntentError = (err) => {
+    if (err.code === 'resource_missing' && err.type === 'invalid_request_error') {
+      setPaymentIntentExpired(true);
+      setError('Your payment session has expired. Please try again.');
+      // Clear the expired client secret
+      setClientSecret('');
+    } else {
+      setError(err.message || 'An error occurred during payment. Please try again.');
+    }
+  };
 
   useEffect(() => {
     if (!bookingData) {
@@ -42,6 +55,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
     const processBookingAndPaymentIntent = async () => {
       setLoading(true);
       setError('');
+      setPaymentIntentExpired(false);
       try {
         // --- ✨ هذا هو السطر الذي قمنا بتعديله ---
         // 1. اقرأ كائن المستخدم كاملاً من localStorage
@@ -81,7 +95,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
 
       } catch (err) {
         console.error('Error during booking or payment-intent creation:', err);
-        setError(err.message || 'An error occurred. Please try again.');
+        handlePaymentIntentError(err);
       } finally {
         setLoading(false);
       }
@@ -100,89 +114,116 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
     }
     setLoading(true);
     setError('');
+    setPaymentIntentExpired(false);
 
-    const cardNumberElement = elements.getElement(CardNumberElement);
-    const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: { card: cardNumberElement, billing_details: { name: cardHolderName } },
-    });
+    try {
+      const cardNumberElement = elements.getElement(CardNumberElement);
+      const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: { card: cardNumberElement, billing_details: { name: cardHolderName } },
+      });
 
-    if (stripeError) {
-      setError(stripeError.message);
-      setLoading(false);
-      return;
-    }
-    
-    if (paymentIntent.status === 'succeeded') {
-      try {
-        const userString = localStorage.getItem('user');
-        const userData = userString ? JSON.parse(userString) : null;
-        const token = userData ? userData.token : '';
-
-        const confirmUrl = new URL('/payment/confirm-payment', import.meta.env.VITE_API_BASE_URL).toString();
-        const confirmResponse = await axios.post(confirmUrl, 
-          { paymentIntentId: paymentIntent.id, bookingId: bookingId },
-          { headers: { 'Authorization': `Bearer ${token}` } }
-        );
-
-        if (confirmResponse.data.success) {
-          onPaymentSuccess(confirmResponse.data.data);
-        } else {
-          throw new Error(confirmResponse.data.message || 'Booking confirmation failed.');
-        }
-      } catch (err) {
-        setError(err.message || 'An error occurred on our server.');
-      } finally {
+      if (stripeError) {
+        handlePaymentIntentError(stripeError);
         setLoading(false);
+        return;
       }
-    } else {
-      setError(`Payment failed. Status: ${paymentIntent.status}`);
+      
+      if (paymentIntent.status === 'succeeded') {
+        try {
+          const userString = localStorage.getItem('user');
+          const userData = userString ? JSON.parse(userString) : null;
+          const token = userData ? userData.token : '';
+
+          const confirmUrl = new URL('/payment/confirm-payment', import.meta.env.VITE_API_BASE_URL).toString();
+          const confirmResponse = await axios.post(confirmUrl, 
+            { paymentIntentId: paymentIntent.id, bookingId: bookingId },
+            { headers: { 'Authorization': `Bearer ${token}` } }
+          );
+
+          if (confirmResponse.data.success) {
+            onPaymentSuccess(confirmResponse.data.data);
+          } else {
+            throw new Error(confirmResponse.data.message || 'Booking confirmation failed.');
+          }
+        } catch (err) {
+          setError(err.message || 'An error occurred on our server.');
+        }
+      } else {
+        setError(`Payment failed. Status: ${paymentIntent.status}`);
+      }
+    } catch (err) {
+      handlePaymentIntentError(err);
+    } finally {
       setLoading(false);
     }
   };
 
+  // Add retry button handler
+  const handleRetry = () => {
+    setPaymentIntentExpired(false);
+    setError('');
+    // Trigger the useEffect by updating bookingData
+    if (bookingData) {
+      const updatedBookingData = { ...bookingData };
+      processBookingAndPaymentIntent(updatedBookingData);
+    }
+  };
+
   return (
-    // ... باقي الـ JSX كما هو بدون تغيير ...
     <div className={styles.paymentSection}>
       <h2 className={styles.sectionTitle}>Payment Details</h2>
       
-      <form className={styles.cardForm} onSubmit={handleSubmit}>
-        <div className={styles.formGroup}>
-          <label>Card Number</label>
-          <div className={styles.inputContainer}><CardNumberElement options={ELEMENT_OPTIONS} /></div>
-        </div>
-        <div className={styles.formGroup}>
-          <label>Card Holder Name</label>
-          <input 
-            type="text"
-            value={cardHolderName}
-            onChange={(e) => setCardHolderName(e.target.value)}
-            placeholder="John Doe"
-            required
-            className={styles.formGroupInput} 
-          />
-        </div>
-        <div className={styles.formRow}>
-          <div className={styles.formGroup}>
-            <label>Expiry Date</label>
-            <div className={styles.inputContainer}><CardExpiryElement options={ELEMENT_OPTIONS} /></div>
-          </div>
-          <div className={styles.formGroup}>
-            <label>CVV</label>
-            <div className={styles.inputContainer}><CardCvcElement options={ELEMENT_OPTIONS} /></div>
-          </div>
-        </div>
-        
-        {error && <div className={styles.errorMessage}>{error}</div>}
-        
-        <div className={styles.buttonGroup}>
-          <button type="button" className={styles.backButton} onClick={onBack}>
-            <ChevronLeft size={16} /> Back
-          </button>
-          <button type="submit" className={styles.payButton} disabled={!stripe || loading || !clientSecret}>
-            {loading ? 'Processing...' : `Pay ${bookingData?.totalPrice?.toFixed(2)} ${bookingData?.currency}`}
+      {paymentIntentExpired ? (
+        <div className={styles.errorContainer}>
+          <div className={styles.errorMessage}>{error}</div>
+          <button 
+            onClick={handleRetry} 
+            className={styles.retryButton}
+            disabled={loading}
+          >
+            {loading ? 'Processing...' : 'Try Again'}
           </button>
         </div>
-      </form>
+      ) : (
+        <form className={styles.cardForm} onSubmit={handleSubmit}>
+          <div className={styles.formGroup}>
+            <label>Card Number</label>
+            <div className={styles.inputContainer}><CardNumberElement options={ELEMENT_OPTIONS} /></div>
+          </div>
+          <div className={styles.formGroup}>
+            <label>Card Holder Name</label>
+            <input 
+              type="text"
+              value={cardHolderName}
+              onChange={(e) => setCardHolderName(e.target.value)}
+              placeholder="John Doe"
+              required
+              className={styles.formGroupInput} 
+            />
+          </div>
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label>Expiry Date</label>
+              <div className={styles.inputContainer}><CardExpiryElement options={ELEMENT_OPTIONS} /></div>
+            </div>
+            <div className={styles.formGroup}>
+              <label>CVV</label>
+              <div className={styles.inputContainer}><CardCvcElement options={ELEMENT_OPTIONS} /></div>
+            </div>
+          </div>
+          
+          {error && <div className={styles.errorMessage}>{error}</div>}
+          
+          <div className={styles.buttonGroup}>
+            <button type="button" className={styles.backButton} onClick={onBack}>
+              <ChevronLeft size={16} /> Back
+            </button>
+            <button type="submit" className={styles.payButton} disabled={!stripe || loading || !clientSecret}>
+              {loading ? 'Processing...' : `Pay ${bookingData?.totalPrice?.toFixed(2)} ${bookingData?.currency}`}
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 };

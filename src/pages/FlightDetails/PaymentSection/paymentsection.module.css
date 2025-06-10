@@ -259,49 +259,44 @@
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
   }
   
-  .errorMessage {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 12px;
-    border-radius: 4px;
-    margin: 10px 0;
-    border: 1px solid #f5c6cb;
+  .errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem;
+    background-color: var(--background-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
-  .payButton:disabled {
-    opacity: 0.6;
+  .errorMessage {
+    color: #dc2626;
+    text-align: center;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  .retryButton {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .retryButton:hover {
+    background-color: var(--primary-color-dark);
+  }
+  
+  .retryButton:disabled {
+    background-color: var(--disabled-color);
     cursor: not-allowed;
   }
-  
-  /* Loading state */
-  .payButton:disabled::after {
-    content: '';
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    margin-left: 8px;
-    border: 2px solid transparent;
-    border-top: 2px solid currentColor;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
   
   @media (max-width: 768px) {
     .finalDetails {
