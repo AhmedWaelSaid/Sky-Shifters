@@ -195,37 +195,17 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
     setError('');
     setPaymentIntentExpired(false);
 
-    try {
-      const cardNumberElement = elements.getElement(CardNumberElement);
-      
-      const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: { 
-          card: cardNumberElement, 
-          billing_details: { name: cardHolderName } 
-        },
-      });
-      console.log('Stripe confirmCardPayment result:', { stripeError, paymentIntent });
+    // Instead of confirming payment on the frontend, we just signal success
+    // The backend will handle the confirmation via webhooks, and the parent
+    // component will poll for the status.
+    onPaymentSuccess({
+      bookingId: bookingId,
+      paymentIntentId: paymentIntentId, // Use paymentIntentId from state
+      stripeStatus: 'initiated' // Placeholder status, actual status will be polled from backend
+    });
 
-      if (stripeError) {
-        handlePaymentIntentError(stripeError);
-        return;
-      }
-      
-      if (paymentIntent.status === 'succeeded') {
-        onPaymentSuccess({
-          bookingId: bookingId,
-          paymentIntentId: paymentIntent.id,
-          stripeStatus: paymentIntent.status
-        });
-      } else {
-        setError(`Payment failed. Status: ${paymentIntent.status}`);
-      }
-    } catch (err) {
-      console.error('Payment submission error:', err);
-      handlePaymentIntentError(err);
-    } finally {
-      setLoading(false);
-    }
+    // No need to set loading to false here, as the parent component
+    // will manage the loading state based on polling.
   };
 
   // Add retry button handler
