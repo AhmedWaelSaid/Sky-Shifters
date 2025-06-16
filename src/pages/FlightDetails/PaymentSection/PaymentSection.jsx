@@ -173,6 +173,15 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     
+    console.log('Checking payment system readiness:', {
+      stripeReady: !!stripe,
+      elementsReady: !!elements,
+      clientSecretPresent: !!clientSecret,
+      paymentIntentIdPresent: !!paymentIntentId,
+      clientSecretValue: clientSecret, // Log actual value for debugging
+      paymentIntentIdValue: paymentIntentId // Log actual value for debugging
+    });
+
     if (!stripe || !elements || !clientSecret || !paymentIntentId) {
       setError('Payment system is not ready. Please try again.');
       return;
