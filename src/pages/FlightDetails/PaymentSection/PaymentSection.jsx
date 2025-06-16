@@ -178,16 +178,6 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
     try {
       const cardNumberElement = elements.getElement(CardNumberElement);
       
-      // First verify the payment intent is still valid
-      const verifyResponse = await axios.get(
-        new URL(`/payment/verify-intent/${paymentIntentId}`, import.meta.env.VITE_API_BASE_URL).toString(),
-        { headers: { 'Authorization': `Bearer ${JSON.parse(localStorage.getItem('user'))?.token}` } }
-      );
-
-      if (!verifyResponse.data.success) {
-        throw new Error('Payment session has expired. Please try again.');
-      }
-
       const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: { 
           card: cardNumberElement, 
@@ -201,33 +191,11 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
       }
       
       if (paymentIntent.status === 'succeeded') {
-        try {
-          const userString = localStorage.getItem('user');
-          const userData = userString ? JSON.parse(userString) : null;
-          const token = userData?.token;
-
-          if (!token) {
-            throw new Error('Authentication token not found.');
-          }
-
-          const confirmUrl = new URL('/payment/confirm-payment', import.meta.env.VITE_API_BASE_URL).toString();
-          const confirmResponse = await axios.post(confirmUrl, 
-            { 
-              paymentIntentId: paymentIntent.id, 
-              bookingId: bookingId 
-            },
-            { headers: { 'Authorization': `Bearer ${token}` } }
-          );
-
-          if (confirmResponse.data.success) {
-            onPaymentSuccess(confirmResponse.data.data);
-          } else {
-            throw new Error(confirmResponse.data.message || 'Booking confirmation failed.');
-          }
-        } catch (err) {
-          console.error('Error confirming payment:', err);
-          setError(err.message || 'An error occurred while confirming your payment.');
-        }
+        onPaymentSuccess({
+          bookingId: bookingId,
+          paymentIntentId: paymentIntent.id,
+          stripeStatus: paymentIntent.status
+        });
       } else {
         setError(`Payment failed. Status: ${paymentIntent.status}`);
       }
