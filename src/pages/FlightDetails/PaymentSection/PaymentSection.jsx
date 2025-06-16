@@ -106,9 +106,10 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
         throw new Error(intentResponse.data.message || 'Failed to create payment intent.');
       }
 
-      const { clientSecret: newClientSecret, id: newPaymentIntentId } = intentResponse.data.data;
+      const { clientSecret: newClientSecret, paymentIntentId: newPaymentIntentId } = intentResponse.data.data;
       setClientSecret(newClientSecret);
       setPaymentIntentId(newPaymentIntentId);
+      console.log('PaymentIntentId after setting state:', newPaymentIntentId);
       setPaymentIntentExpired(false);
       return true;
     } catch (err) {
@@ -161,7 +162,10 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
         console.error('Error during booking or payment-intent creation:', err);
         handlePaymentIntentError(err);
       } finally {
-        setLoading(false);
+        // Add a small delay to ensure state updates propagate before enabling button
+        setTimeout(() => {
+          setLoading(false);
+        }, 100); 
       }
     };
 
