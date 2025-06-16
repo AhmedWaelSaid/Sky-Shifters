@@ -69,26 +69,53 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
   const [bookingId, setBookingId] = useState('');
   const [cardHolderName, setCardHolderName] = useState('');
   const [paymentIntentExpired, setPaymentIntentExpired] = useState(false);
+  const [paymentIntentId, setPaymentIntentId] = useState('');
 
   // Add function to handle payment intent errors
   const handlePaymentIntentError = (err) => {
-    if (err.code === 'resource_missing' && err.type === 'invalid_request_error') {
+    console.error('Payment Intent Error:', err);
+    if (err.code === 'resource_missing' || err.type === 'invalid_request_error') {
       setPaymentIntentExpired(true);
       setError('Your payment session has expired. Please try again.');
-      // Clear the expired client secret
       setClientSecret('');
+      setPaymentIntentId('');
+    } else if (err.code === 'payment_intent_invalid_state') {
+      setError('This payment has already been processed. Please try a new payment.');
+      setPaymentIntentExpired(true);
     } else {
       setError(err.message || 'An error occurred during payment. Please try again.');
     }
   };
 
-  useEffect(() => {
-    if (!bookingData) {
-      console.warn("PaymentSection: bookingData is missing.");
-      return;
+  // Separate function to create payment intent
+  const createPaymentIntent = async (bookingId, amount, currency, token) => {
+    try {
+      const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
+      const intentResponse = await axios.post(paymentIntentUrl, {
+        bookingId,
+        amount,
+        currency,
+      }, { headers: { 'Authorization': `Bearer ${token}` } });
+      
+      if (!intentResponse.data.success) {
+        throw new Error(intentResponse.data.message || 'Failed to create payment intent.');
+      }
+
+      const { clientSecret: newClientSecret, id: newPaymentIntentId } = intentResponse.data.data;
+      setClientSecret(newClientSecret);
+      setPaymentIntentId(newPaymentIntentId);
+      setPaymentIntentExpired(false);
+      return true;
+    } catch (err) {
+      console.error('Error creating payment intent:', err);
+      handlePaymentIntentError(err);
+      return false;
     }
-    if (!flight) {
-      console.warn("PaymentSection: flight data from DataContext is missing.");
+  };
+
+  useEffect(() => {
+    if (!bookingData || !flight) {
+      console.warn("PaymentSection: Missing required data.");
       return;
     }
 
@@ -96,15 +123,11 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
       setLoading(true);
       setError('');
       setPaymentIntentExpired(false);
+      
       try {
-        // --- ✨ هذا هو السطر الذي قمنا بتعديله ---
-        // 1. اقرأ كائن المستخدم كاملاً من localStorage
         const userString = localStorage.getItem('user');
-        // 2. حوله من نص إلى كائن
         const userData = userString ? JSON.parse(userString) : null;
-        // 3. استخرج التوكن من داخل الكائن
-        const token = userData ? userData.token : '';
-        // -----------------------------------------
+        const token = userData?.token;
 
         if (!token) {
           throw new Error('Authentication token not found. Please log in again.');
@@ -112,26 +135,20 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
 
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-        // --- إنشاء الحجز ---
+        // Create booking first
         const bookingUrl = new URL('/booking/book-flight', import.meta.env.VITE_API_BASE_URL).toString();
         const bookingResponse = await axios.post(bookingUrl, bookingData, { headers });
 
-        if (!bookingResponse.data.success) throw new Error(bookingResponse.data.message || 'Failed to create booking.');
+        if (!bookingResponse.data.success) {
+          throw new Error(bookingResponse.data.message || 'Failed to create booking.');
+        }
         
         const newBookingId = bookingResponse.data.data.bookingId;
         setBookingId(newBookingId);
         
-        // --- إنشاء نية الدفع ---
-        const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
-        const intentResponse = await axios.post(paymentIntentUrl, {
-          bookingId: newBookingId,
-          amount: calculateTotalPrice(flight, bookingData),
-          currency: bookingData.currency,
-        }, { headers: { 'Authorization': `Bearer ${token}` } });
-        
-        if (!intentResponse.data.success) throw new Error(intentResponse.data.message || 'Failed to create payment intent.');
-
-        setClientSecret(intentResponse.data.data.clientSecret);
+        // Then create payment intent
+        const amount = calculateTotalPrice(flight, bookingData);
+        await createPaymentIntent(newBookingId, amount, bookingData.currency, token);
 
       } catch (err) {
         console.error('Error during booking or payment-intent creation:', err);
@@ -148,23 +165,38 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!stripe || !elements || !clientSecret) {
-      setError('Payment system is not ready.');
+    
+    if (!stripe || !elements || !clientSecret || !paymentIntentId) {
+      setError('Payment system is not ready. Please try again.');
       return;
     }
+
     setLoading(true);
     setError('');
     setPaymentIntentExpired(false);
 
     try {
       const cardNumberElement = elements.getElement(CardNumberElement);
+      
+      // First verify the payment intent is still valid
+      const verifyResponse = await axios.get(
+        new URL(`/payment/verify-intent/${paymentIntentId}`, import.meta.env.VITE_API_BASE_URL).toString(),
+        { headers: { 'Authorization': `Bearer ${JSON.parse(localStorage.getItem('user'))?.token}` } }
+      );
+
+      if (!verifyResponse.data.success) {
+        throw new Error('Payment session has expired. Please try again.');
+      }
+
       const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: { card: cardNumberElement, billing_details: { name: cardHolderName } },
+        payment_method: { 
+          card: cardNumberElement, 
+          billing_details: { name: cardHolderName } 
+        },
       });
 
       if (stripeError) {
         handlePaymentIntentError(stripeError);
-        setLoading(false);
         return;
       }
       
@@ -172,11 +204,18 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
         try {
           const userString = localStorage.getItem('user');
           const userData = userString ? JSON.parse(userString) : null;
-          const token = userData ? userData.token : '';
+          const token = userData?.token;
+
+          if (!token) {
+            throw new Error('Authentication token not found.');
+          }
 
           const confirmUrl = new URL('/payment/confirm-payment', import.meta.env.VITE_API_BASE_URL).toString();
           const confirmResponse = await axios.post(confirmUrl, 
-            { paymentIntentId: paymentIntent.id, bookingId: bookingId },
+            { 
+              paymentIntentId: paymentIntent.id, 
+              bookingId: bookingId 
+            },
             { headers: { 'Authorization': `Bearer ${token}` } }
           );
 
@@ -186,12 +225,14 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
             throw new Error(confirmResponse.data.message || 'Booking confirmation failed.');
           }
         } catch (err) {
-          setError(err.message || 'An error occurred on our server.');
+          console.error('Error confirming payment:', err);
+          setError(err.message || 'An error occurred while confirming your payment.');
         }
       } else {
         setError(`Payment failed. Status: ${paymentIntent.status}`);
       }
     } catch (err) {
+      console.error('Payment submission error:', err);
       handlePaymentIntentError(err);
     } finally {
       setLoading(false);
@@ -199,17 +240,33 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
   };
 
   // Add retry button handler
-  const handleRetry = () => {
+  const handleRetry = async () => {
     setPaymentIntentExpired(false);
     setError('');
-    // Trigger the useEffect by updating bookingData
-    if (bookingData) {
-      const updatedBookingData = { ...bookingData };
-      processBookingAndPaymentIntent();
+    setLoading(true);
+    
+    try {
+      const userString = localStorage.getItem('user');
+      const userData = userString ? JSON.parse(userString) : null;
+      const token = userData?.token;
+
+      if (!token) {
+        throw new Error('Authentication token not found.');
+      }
+
+      const amount = calculateTotalPrice(flight, bookingData);
+      const success = await createPaymentIntent(bookingId, amount, bookingData.currency, token);
+      
+      if (!success) {
+        throw new Error('Failed to create new payment intent.');
+      }
+    } catch (err) {
+      console.error('Error during retry:', err);
+      setError(err.message || 'Failed to retry payment. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
-
-
 
   return (
     <div className={styles.paymentSection}>
