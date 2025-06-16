@@ -89,6 +89,9 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
 
   // Separate function to create payment intent
   const createPaymentIntent = async (bookingId, amount, currency, token) => {
+    console.log('Attempting to create payment intent with:', {
+      bookingId, amount, currency, token: token ? '[TOKEN_EXISTS]' : '[NO_TOKEN]'
+    });
     try {
       const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
       const intentResponse = await axios.post(paymentIntentUrl, {
@@ -145,9 +148,11 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
         
         const newBookingId = bookingResponse.data.data.bookingId;
         setBookingId(newBookingId);
+        console.log('Booking created successfully with ID:', newBookingId);
         
         // Then create payment intent
         const amount = calculateTotalPrice(flight, bookingData);
+        console.log('Calculated total price for payment intent:', amount);
         await createPaymentIntent(newBookingId, amount, bookingData.currency, token);
 
       } catch (err) {
@@ -184,6 +189,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
           billing_details: { name: cardHolderName } 
         },
       });
+      console.log('Stripe confirmCardPayment result:', { stripeError, paymentIntent });
 
       if (stripeError) {
         handlePaymentIntentError(stripeError);
