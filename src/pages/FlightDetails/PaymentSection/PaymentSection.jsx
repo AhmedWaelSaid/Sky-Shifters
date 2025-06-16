@@ -100,7 +100,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
         currency,
       }, { headers: { 'Authorization': `Bearer ${token}` } });
       
-      console.log('Payment Intent Creation Response:', intentResponse.data);
+      console.log('Payment Intent Creation Response:', JSON.stringify(intentResponse.data, null, 2));
 
       if (!intentResponse.data.success) {
         throw new Error(intentResponse.data.message || 'Failed to create payment intent.');
@@ -302,7 +302,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
             <button type="button" className={styles.backButton} onClick={onBack}>
               <ChevronLeft size={16} /> Back
             </button>
-            <button type="submit" className={styles.payButton} disabled={!stripe || loading || !clientSecret || !flight}>
+            <button type="submit" className={styles.payButton} disabled={!stripe || loading || !clientSecret || !paymentIntentId || !flight}>
               {loading ? 'Processing...' : `Pay ${calculateTotalPrice(flight, bookingData).toFixed(2)} ${bookingData?.currency}`}
             </button>
           </div>
