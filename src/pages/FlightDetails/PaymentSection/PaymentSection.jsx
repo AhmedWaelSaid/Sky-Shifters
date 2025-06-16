@@ -195,18 +195,46 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
     setError('');
     setPaymentIntentExpired(false);
 
-    // Instead of confirming payment on the frontend, we just signal success
-    // The backend will handle the confirmation via webhooks, and the parent
-    // component will poll for the status.
-    setLoading(false); // Set internal loading to false as PaymentSection's immediate task is done
-    onPaymentSuccess({
-      bookingId: bookingId,
-      paymentIntentId: paymentIntentId, // Use paymentIntentId from state
-      stripeStatus: 'initiated' // Placeholder status, actual status will be polled from backend
-    });
+    try {
+      const cardNumberElement = elements.getElement(CardNumberElement);
+      
+      // إعادة إضافة استدعاء Stripe لتأكيد البطاقة وإرسال تفاصيلها
+      const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardNumberElement,
+          billing_details: { name: cardHolderName }
+        },
+      });
+      console.log('Stripe confirmCardPayment result:', { stripeError, paymentIntent });
 
-    // No need to set loading to false here, as the parent component
-    // will manage the loading state based on polling.
+      if (stripeError) {
+        handlePaymentIntentError(stripeError);
+        return;
+      }
+
+      // تحقق مما إذا كان paymentIntent غير موجود (على سبيل المثال، بسبب خطأ في الشبكة)
+      if (!paymentIntent) {
+        setError('Payment processing failed. Please try again or check your network connection.');
+        setLoading(false);
+        return;
+      }
+
+      // بغض النظر عن الحالة الأولية من confirmCardPayment، نعتبر أن العملية بدأت
+      // ونترك للمكون الأب مهمة الاستعلام عن الحالة النهائية.
+      setLoading(false); // تعيين حالة التحميل الداخلية إلى false
+      onPaymentSuccess({
+        bookingId: bookingId,
+        paymentIntentId: paymentIntent.id, // تمرير معرف الدفع الفعلي من Stripe
+        stripeStatus: paymentIntent.status // تمرير الحالة الفعلية من Stripe
+      });
+
+    } catch (err) {
+      console.error('Payment submission error:', err);
+      handlePaymentIntentError(err);
+    } finally {
+      // لا نضع setLoading(false) هنا لأن onPaymentSuccess سيبدأ استعلامًا جديدًا
+      // وحالة التحميل العامة سيتولى أمرها FinalDetails.jsx
+    }
   };
 
   // Add retry button handler
