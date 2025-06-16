@@ -270,57 +270,61 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
     <div className={styles.paymentSection}>
       <h2 className={styles.sectionTitle}>Payment Details</h2>
       
-      {paymentIntentExpired ? (
-        <div className={styles.errorContainer}>
-          <div className={styles.errorMessage}>{error}</div>
+      <form className={styles.cardForm} onSubmit={handleSubmit}>
+        <div className={styles.formGroup}>
+          <label>Card Number</label>
+          <div className={styles.inputContainer}><CardNumberElement options={ELEMENT_OPTIONS} /></div>
+        </div>
+        <div className={styles.formGroup}>
+          <label>Card Holder Name</label>
+          <input 
+            type="text"
+            value={cardHolderName}
+            onChange={(e) => setCardHolderName(e.target.value)}
+            placeholder="John Doe"
+            required
+            className={styles.formGroupInput} 
+          />
+        </div>
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
+            <label>Expiry Date</label>
+            <div className={styles.inputContainer}><CardExpiryElement options={ELEMENT_OPTIONS} /></div>
+          </div>
+          <div className={styles.formGroup}>
+            <label>CVV</label>
+            <div className={styles.inputContainer}><CardCvcElement options={ELEMENT_OPTIONS} /></div>
+          </div>
+        </div>
+        
+        {error && (
+          <div className={styles.errorContainer}>
+            <div className={styles.errorMessage}>{error}</div>
+            {paymentIntentExpired && (
+              <button 
+                onClick={handleRetry} 
+                className={styles.retryButton}
+                disabled={loading}
+              >
+                {loading ? 'Processing...' : 'Try Again'}
+              </button>
+            )}
+          </div>
+        )}
+        
+        <div className={styles.buttonGroup}>
+          <button type="button" className={styles.backButton} onClick={onBack}>
+            <ChevronLeft size={16} /> Back
+          </button>
           <button 
-            onClick={handleRetry} 
-            className={styles.retryButton}
-            disabled={loading}
+            type="submit" 
+            className={styles.payButton} 
+            disabled={!stripe || loading || isLoading || !clientSecret || !paymentIntentId || !flight || paymentIntentExpired}
           >
-            {loading ? 'Processing...' : 'Try Again'}
+            {loading || isLoading ? 'Processing...' : `Pay ${calculateTotalPrice(flight, bookingData).toFixed(2)} ${bookingData?.currency}`}
           </button>
         </div>
-      ) : (
-        <form className={styles.cardForm} onSubmit={handleSubmit}>
-          <div className={styles.formGroup}>
-            <label>Card Number</label>
-            <div className={styles.inputContainer}><CardNumberElement options={ELEMENT_OPTIONS} /></div>
-          </div>
-          <div className={styles.formGroup}>
-            <label>Card Holder Name</label>
-            <input 
-              type="text"
-              value={cardHolderName}
-              onChange={(e) => setCardHolderName(e.target.value)}
-              placeholder="John Doe"
-              required
-              className={styles.formGroupInput} 
-            />
-          </div>
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label>Expiry Date</label>
-              <div className={styles.inputContainer}><CardExpiryElement options={ELEMENT_OPTIONS} /></div>
-            </div>
-            <div className={styles.formGroup}>
-              <label>CVV</label>
-              <div className={styles.inputContainer}><CardCvcElement options={ELEMENT_OPTIONS} /></div>
-            </div>
-          </div>
-          
-          {error && <div className={styles.errorMessage}>{error}</div>}
-          
-          <div className={styles.buttonGroup}>
-            <button type="button" className={styles.backButton} onClick={onBack}>
-              <ChevronLeft size={16} /> Back
-            </button>
-            <button type="submit" className={styles.payButton} disabled={!stripe || loading || isLoading || !clientSecret || !paymentIntentId || !flight}>
-              {loading || isLoading ? 'Processing...' : `Pay ${calculateTotalPrice(flight, bookingData).toFixed(2)} ${bookingData?.currency}`}
-            </button>
-          </div>
-        </form>
-      )}
+      </form>
     </div>
   );
 };
