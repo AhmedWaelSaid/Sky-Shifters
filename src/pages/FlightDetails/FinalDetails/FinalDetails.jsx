@@ -4,6 +4,10 @@ import PaymentSection from '../PaymentSection/PaymentSection'; // مكون ال�
 import { useState, useEffect } from 'react'; // استيراد useState و useEffect
 import axios from 'axios';
 import PropTypes from 'prop-types';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const FinalDetails = ({ passengers, formData, onBack }) => {
   const [paymentStatus, setPaymentStatus] = useState('idle'); // 'idle', 'pending', 'succeeded', 'failed'
@@ -109,13 +113,15 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
               <p>{paymentError || 'Please try again or contact support.'}</p>
             </div>
           ) : (
-            <PaymentSection 
-              bookingData={formData.finalBookingData} 
-              onPaymentSuccess={handlePaymentSuccess}
-              onBack={onBack}
-              // Pass overall loading state to PaymentSection
-              isLoading={isLoadingPaymentStatus} 
-            />
+            <Elements stripe={stripePromise}>
+              <PaymentSection 
+                bookingData={formData.finalBookingData} 
+                onPaymentSuccess={handlePaymentSuccess}
+                onBack={onBack}
+                // Pass overall loading state to PaymentSection
+                isLoading={isLoadingPaymentStatus} 
+              />
+            </Elements>
           )
         }
 
