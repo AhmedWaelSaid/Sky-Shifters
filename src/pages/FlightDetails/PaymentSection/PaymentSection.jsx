@@ -101,7 +101,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
       const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
       const intentResponse = await axios.post(paymentIntentUrl, {
         bookingId,
-        amount: Math.round(amount * 100), // Convert to cents
+        amount: amount,
         currency: currency.toLowerCase(),
       }, { headers: { 'Authorization': `Bearer ${token}` } });
       
