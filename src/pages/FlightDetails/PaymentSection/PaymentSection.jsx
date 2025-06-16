@@ -3,14 +3,10 @@ import axios from 'axios';
 import styles from './paymentsection.module.css';
 import { ChevronLeft } from 'lucide-react';
 import { 
-  CardNumberElement, 
-  CardExpiryElement, 
-  CardCvcElement, 
-  useStripe, 
-  useElements 
-} from '@stripe/react-stripe-js';
+   CardNumberElement, 
+   CardExpiryElement } from '@stripe/react-stripe-js';
 import PropTypes from 'prop-types';
-import { useData } from "../../../components/context/DataContext";
+import { useData } from "../../../components/context/DataContext.jsx";
 
 const ELEMENT_OPTIONS = {
   style: {
@@ -81,9 +77,10 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
     console.error('Payment Intent Error:', err);
     let errorMessage = 'An error occurred during payment. Please try again.';
     if (err.code === 'resource_missing' || err.type === 'invalid_request_error') {
+      console.warn('Payment intent not found. Possible API key mismatch or environment issue.');
       updateState({
         paymentIntentExpired: true,
-        error: 'Your payment session has expired. Please try again.',
+        error: 'Your payment session has expired or is invalid. Please try again.',
         clientSecret: '',
         paymentIntentId: '',
       });
@@ -110,8 +107,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
       const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
       const intentResponse = await axios.post(paymentIntentUrl, {
         bookingId,
-        amount,
-        currency,
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: currency.toLowerCase(),
       }, { headers: { 'Authorization': `Bearer ${token}` } });
       
       console.log('Payment Intent Creation Response:', intentResponse.data);
