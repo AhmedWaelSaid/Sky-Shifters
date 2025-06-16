@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './paymentsection.module.css';
 import { ChevronLeft } from 'lucide-react';
-import { 
-   CardNumberElement, 
-   CardExpiryElement } from '@stripe/react-stripe-js';
+import { useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcElement } from '@stripe/react-stripe-js';
 import PropTypes from 'prop-types';
 import { useData } from "../../../components/context/DataContext.jsx";
 
@@ -89,10 +87,6 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
         error: 'This payment has already been processed. Please try a new payment.',
         paymentIntentExpired: true,
       });
-    } else if (err.code === 'rate_limit') {
-      updateState({ error: 'Too many requests. Please try again later.' });
-    } else if (err.type === 'network_error') {
-      updateState({ error: 'Network error. Please check your internet connection and try again.' });
     } else {
       updateState({ error: err.message || errorMessage });
     }
@@ -117,13 +111,13 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
         throw new Error(intentResponse.data.message || 'Failed to create payment intent.');
       }
 
-      const { clientSecret: newClientSecret, paymentIntentId: newPaymentIntentId } = intentResponse.data.data;
+      const { clientSecret, paymentIntentId } = intentResponse.data.data;
       updateState({
-        clientSecret: newClientSecret,
-        paymentIntentId: newPaymentIntentId,
+        clientSecret,
+        paymentIntentId,
         paymentIntentExpired: false,
       });
-      console.log('PaymentIntentId after setting state:', newPaymentIntentId);
+      console.log('PaymentIntentId after setting state:', paymentIntentId);
       return true;
     } catch (err) {
       console.error('Error creating payment intent:', err);
@@ -188,8 +182,6 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
       elementsReady: !!elements,
       clientSecretPresent: !!clientSecret,
       paymentIntentIdPresent: !!paymentIntentId,
-      clientSecretValue: clientSecret,
-      paymentIntentIdValue: paymentIntentId,
     });
 
     if (!stripe || !elements || !clientSecret || !paymentIntentId) {
