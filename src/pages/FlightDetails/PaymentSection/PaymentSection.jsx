@@ -58,7 +58,7 @@ function calculateTotalPrice(flightData, bookingData) {
   return total;
 }
 
-const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
+const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { flight } = useData();
@@ -198,6 +198,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
     // Instead of confirming payment on the frontend, we just signal success
     // The backend will handle the confirmation via webhooks, and the parent
     // component will poll for the status.
+    setLoading(false); // Set internal loading to false as PaymentSection's immediate task is done
     onPaymentSuccess({
       bookingId: bookingId,
       paymentIntentId: paymentIntentId, // Use paymentIntentId from state
@@ -286,8 +287,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
             <button type="button" className={styles.backButton} onClick={onBack}>
               <ChevronLeft size={16} /> Back
             </button>
-            <button type="submit" className={styles.payButton} disabled={!stripe || loading || !clientSecret || !paymentIntentId || !flight}>
-              {loading ? 'Processing...' : `Pay ${calculateTotalPrice(flight, bookingData).toFixed(2)} ${bookingData?.currency}`}
+            <button type="submit" className={styles.payButton} disabled={!stripe || loading || isLoading || !clientSecret || !paymentIntentId || !flight}>
+              {loading || isLoading ? 'Processing...' : `Pay ${calculateTotalPrice(flight, bookingData).toFixed(2)} ${bookingData?.currency}`}
             </button>
           </div>
         </form>
@@ -300,6 +301,7 @@ PaymentSection.propTypes = {
   bookingData: PropTypes.object,
   onPaymentSuccess: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool,
 };
 
 export default PaymentSection;
