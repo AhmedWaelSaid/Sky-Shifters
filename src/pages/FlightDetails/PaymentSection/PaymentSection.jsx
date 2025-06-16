@@ -100,6 +100,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack }) => {
         currency,
       }, { headers: { 'Authorization': `Bearer ${token}` } });
       
+      console.log('Payment Intent Creation Response:', intentResponse.data);
+
       if (!intentResponse.data.success) {
         throw new Error(intentResponse.data.message || 'Failed to create payment intent.');
       }
