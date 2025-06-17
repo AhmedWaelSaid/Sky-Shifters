@@ -9,28 +9,11 @@ import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-// Separate component to handle Stripe Elements with client secret
-const StripeProvider = ({ clientSecret, children }) => {
-  const options = {
-    clientSecret,
-    appearance: {
-      theme: 'stripe',
-    },
-  };
-
-  return (
-    <Elements stripe={stripePromise} options={options}>
-      {children}
-    </Elements>
-  );
-};
-
 const FinalDetails = ({ passengers, formData, onBack }) => {
   const [paymentStatus, setPaymentStatus] = useState('idle'); // 'idle', 'pending', 'succeeded', 'failed'
   const [paymentError, setPaymentError] = useState('');
   const [isLoadingPaymentStatus, setIsLoadingPaymentStatus] = useState(false);
   const [bookingDetails, setBookingDetails] = useState(null);
-  const [clientSecret, setClientSecret] = useState('');
   const intervalRef = useRef(null); // لتخزين معرف الـ interval
 
   // دالة الاستعلام عن حالة الدفع
@@ -92,11 +75,6 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
     intervalRef.current = setInterval(() => pollPaymentStatus(bookingId, token), 5000); // استعلام كل 5 ثوانٍ
   };
 
-  // Handle client secret update from PaymentSection
-  const handleClientSecretUpdate = (secret) => {
-    setClientSecret(secret);
-  };
-
   useEffect(() => {
     // تنظيف المؤقت عند تغيير paymentStatus أو عند إلغاء تحميل المكون
     return () => {
@@ -122,24 +100,15 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
             <h2>Payment failed.</h2>
             <p>{paymentError || 'Please try again or contact support.'}</p>
           </div>
-        ) : clientSecret ? (
-          <StripeProvider clientSecret={clientSecret}>
+        ) : (
+          <Elements stripe={stripePromise}>
             <PaymentSection 
               bookingData={formData.finalBookingData} 
               onPaymentSuccess={handlePaymentSuccess}
-              onClientSecretUpdate={handleClientSecretUpdate}
               onBack={onBack}
               isLoading={isLoadingPaymentStatus} 
             />
-          </StripeProvider>
-        ) : (
-          <PaymentSection 
-            bookingData={formData.finalBookingData} 
-            onPaymentSuccess={handlePaymentSuccess}
-            onClientSecretUpdate={handleClientSecretUpdate}
-            onBack={onBack}
-            isLoading={isLoadingPaymentStatus} 
-          />
+          </Elements>
         )}
       </div>
       

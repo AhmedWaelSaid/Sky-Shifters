@@ -2,9 +2,21 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './paymentsection.module.css';
 import { ChevronLeft } from 'lucide-react';
-import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
+import { useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcElement } from '@stripe/react-stripe-js';
 import PropTypes from 'prop-types';
 import { useData } from "../../../components/context/DataContext.jsx";
+
+const ELEMENT_OPTIONS = {
+  style: {
+    base: {
+      color: 'var(--Darktext-color)',
+      fontSize: '14px',
+      fontFamily: 'inherit',
+      '::placeholder': { color: 'var(--LightDarktext-color)' },
+    },
+    invalid: { color: '#fa755a', iconColor: '#fa755a' },
+  },
+};
 
 // Helper function to safely get price from pricing info
 const getPriceFromPricingInfo = (pricingInfo) => {
@@ -39,7 +51,7 @@ function calculateTotalPrice(flightData, bookingData) {
   return total;
 }
 
-const PaymentSection = ({ bookingData, onPaymentSuccess, onClientSecretUpdate, onBack, isLoading }) => {
+const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { flight } = useData();
@@ -49,11 +61,12 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onClientSecretUpdate, o
     error: '',
     clientSecret: '',
     bookingId: '',
+    cardHolderName: '',
     paymentIntentExpired: false,
     paymentIntentId: '',
   });
 
-  const { loading, error, clientSecret, bookingId, paymentIntentExpired, paymentIntentId } = state;
+  const { loading, error, clientSecret, bookingId, cardHolderName, paymentIntentExpired, paymentIntentId } = state;
 
   const updateState = (newState) => setState((prev) => ({ ...prev, ...newState }));
 
@@ -104,12 +117,6 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onClientSecretUpdate, o
         paymentIntentId,
         paymentIntentExpired: false,
       });
-      
-      // Notify parent component about the client secret
-      if (onClientSecretUpdate) {
-        onClientSecretUpdate(clientSecret);
-      }
-      
       console.log('PaymentIntentId after setting state:', paymentIntentId);
       return true;
     } catch (err) {
@@ -185,17 +192,16 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onClientSecretUpdate, o
     updateState({ loading: true, error: '', paymentIntentExpired: false });
 
     try {
-      console.log('Before confirmPayment:', { clientSecret, paymentIntentId });
-      
-      const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: window.location.href,
+      const cardNumberElement = elements.getElement(CardNumberElement);
+
+      console.log('Before confirmCardPayment:', { clientSecret, paymentIntentId });
+      const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardNumberElement,
+          billing_details: { name: cardHolderName },
         },
-        redirect: 'if_required',
       });
-      
-      console.log('Stripe confirmPayment result:', { stripeError, paymentIntent });
+      console.log('Stripe confirmCardPayment result:', { stripeError, paymentIntent });
 
       if (stripeError) {
         handlePaymentIntentError(stripeError);
@@ -270,8 +276,29 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onClientSecretUpdate, o
       
       <form className={styles.cardForm} onSubmit={handleSubmit}>
         <div className={styles.formGroup}>
-          <label>Payment Information</label>
-          <PaymentElement />
+          <label>Card Number</label>
+          <div className={styles.inputContainer}><CardNumberElement options={ELEMENT_OPTIONS} /></div>
+        </div>
+        <div className={styles.formGroup}>
+          <label>Card Holder Name</label>
+          <input 
+            type="text"
+            value={cardHolderName}
+            onChange={(e) => updateState({ cardHolderName: e.target.value })}
+            placeholder="John Doe"
+            required
+            className={styles.formGroupInput} 
+          />
+        </div>
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
+            <label>Expiry Date</label>
+            <div className={styles.inputContainer}><CardExpiryElement options={ELEMENT_OPTIONS} /></div>
+          </div>
+          <div className={styles.formGroup}>
+            <label>CVV</label>
+            <div className={styles.inputContainer}><CardCvcElement options={ELEMENT_OPTIONS} /></div>
+          </div>
         </div>
         
         {error && (
@@ -309,7 +336,6 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onClientSecretUpdate, o
 PaymentSection.propTypes = {
   bookingData: PropTypes.object,
   onPaymentSuccess: PropTypes.func.isRequired,
-  onClientSecretUpdate: PropTypes.func,
   onBack: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
 };
