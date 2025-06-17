@@ -149,9 +149,6 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
     };
   }, [flight, formData]);
 
-  // تأكد إن الـ Elements يتم تهيئته فقط لو الـ clientSecret موجود
-  const options = clientSecret ? { clientSecret, appearance: { theme: 'stripe' } } : null;
-
   return (
     <div className={styles.finalDetails}>
       <div className={styles.mainContent}>
@@ -166,8 +163,8 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
             <h2>Payment failed.</h2>
             <p>{paymentError || 'Please try again or contact support.'}</p>
           </div>
-        ) : options ? ( // فقط إذا كان clientSecret موجود
-          <Elements stripe={stripePromise} options={options}>
+        ) : clientSecret ? ( // فقط إذا كان clientSecret موجود
+          <Elements stripe={stripePromise}>
             <PaymentSection 
               bookingData={formData.finalBookingData} 
               onPaymentSuccess={handlePaymentSuccess}
