@@ -5,6 +5,8 @@
     script-src 'self' https://js.stripe.com https://m.stripe.network blob: 'unsafe-eval' 'unsafe-inline';
     connect-src 'self' https://api.stripe.com https://sky-shifters.duckdns.org https://api.mapbox.com https://api.amadeus.com;
     style-src 'self' 'unsafe-inline';
+    img-src 'self' data:; // إضافة دعم للصور المضمنة (data URLs)
+    frame-src 'self' https://js.stripe.com; // إذا استخدمت iframes من Stripe
   ">
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />

@@ -10,12 +10,36 @@ import { loadStripe } from '@stripe/stripe-js';
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const FinalDetails = ({ passengers, formData, onBack }) => {
-  const [paymentStatus, setPaymentStatus] = useState('idle'); // 'idle', 'pending', 'succeeded', 'failed'
+  const [paymentStatus, setPaymentStatus] = useState('idle');
   const [paymentError, setPaymentError] = useState('');
   const [isLoadingPaymentStatus, setIsLoadingPaymentStatus] = useState(false);
   const [bookingDetails, setBookingDetails] = useState(null);
-  const [clientSecret, setClientSecret] = useState(''); // إضافة حالة لـ clientSecret
+  const [clientSecret, setClientSecret] = useState('');
   const intervalRef = useRef(null);
+
+  // دالة إنشاء الـ Payment Intent
+  const createPaymentIntent = async (bookingId, amount, currency, token) => {
+    try {
+      const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
+      const intentResponse = await axios.post(paymentIntentUrl, {
+        bookingId,
+        amount,
+        currency: currency.toLowerCase(),
+      }, { headers: { 'Authorization': `Bearer ${token}` } });
+
+      if (!intentResponse.data.success) {
+        throw new Error(intentResponse.data.message || 'Failed to create payment intent.');
+      }
+
+      const { clientSecret, paymentIntentId } = intentResponse.data.data;
+      setClientSecret(clientSecret);
+      return { clientSecret, paymentIntentId };
+    } catch (err) {
+      console.error('🔴 Error creating payment intent:', err);
+      setPaymentError(err.message || 'Failed to create payment intent.');
+      return null;
+    }
+  };
 
   // دالة الاستعلام عن حالة الدفع
   const pollPaymentStatus = async (bookingId, token) => {
@@ -50,7 +74,6 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
     }
   };
 
-  // هذه الدالة سيتم استدعاؤها من PaymentSection عند نجاح بدء عملية الدفع
   const handlePaymentSuccess = async ({ bookingId, paymentIntentId, stripeStatus }) => {
     console.log("Booking and Payment initiation successful! Starting polling...", { bookingId, paymentIntentId, stripeStatus });
     setPaymentStatus('pending');
@@ -68,32 +91,52 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
       return;
     }
 
-    // تحديث الـ clientSecret بناءً على البيانات اللي جت من PaymentSection
-    setClientSecret(''); // يمكن تكون فارغة هنا لأنها بتجي من PaymentSection
-
-    // استدعاء الاستعلام مرة واحدة فوراً
     await pollPaymentStatus(bookingId, token);
 
-    // إعداد الاستعلام الدوري
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => pollPaymentStatus(bookingId, token), 5000);
   };
 
-  // استدعاء الـ clientSecret من PaymentSection
-  const handleClientSecretUpdate = (newClientSecret) => {
-    setClientSecret(newClientSecret);
-  };
-
   useEffect(() => {
+    const processBookingAndPayment = async () => {
+      const userString = localStorage.getItem('user');
+      const userData = userString ? JSON.parse(userString) : null;
+      const token = userData?.token;
+
+      if (!token) {
+        setPaymentError('Authentication token not found.');
+        return;
+      }
+
+      const bookingUrl = new URL('/booking/book-flight', import.meta.env.VITE_API_BASE_URL).toString();
+      const bookingResponse = await axios.post(bookingUrl, formData.finalBookingData, { headers: { 'Authorization': `Bearer ${token}` } });
+
+      if (!bookingResponse.data.success) {
+        setPaymentError(bookingResponse.data.message || 'Failed to create booking.');
+        return;
+      }
+
+      const newBookingId = bookingResponse.data.data.bookingId;
+      const amount = 149.82; // استبدل بحساب دقيق إذا لزم
+      const currency = formData.finalBookingData.currency || 'USD';
+
+      const paymentResult = await createPaymentIntent(newBookingId, amount, currency, token);
+      if (!paymentResult) {
+        setPaymentError('Failed to create payment intent.');
+      }
+    };
+
+    processBookingAndPayment();
+
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
-  }, []);
+  }, [formData]);
 
-  const options = clientSecret ? { clientSecret } : {}; // تحديث الـ options ديناميكيًا
+  const options = clientSecret ? { clientSecret, appearance: { theme: 'stripe' } } : {};
 
   return (
     <div className={styles.finalDetails}>
@@ -116,7 +159,6 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
               onPaymentSuccess={handlePaymentSuccess}
               onBack={onBack}
               isLoading={isLoadingPaymentStatus}
-              onClientSecretUpdate={handleClientSecretUpdate} // تمرير دالة لتحديث الـ clientSecret
             />
           </Elements>
         )}

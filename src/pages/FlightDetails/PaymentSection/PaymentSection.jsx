@@ -39,7 +39,7 @@ function calculateTotalPrice(flightData, bookingData) {
   return total;
 }
 
-const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, onClientSecretUpdate }) => {
+const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { flight } = useData();
@@ -85,110 +85,6 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, onCl
       updateState({ error: err.message || errorMessage });
     }
   };
-
-  // Create payment intent
-  const createPaymentIntent = async (bookingId, amount, currency, token, onClientSecretUpdate) => {
-    console.log('🔵 Creating payment intent:', {
-      bookingId, 
-      amount, 
-      currency, 
-      token: token ? '✓ Token present' : '✗ Token missing'
-    });
-    
-    try {
-      const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
-      console.log('🔵 Sending request to:', paymentIntentUrl);
-      
-      const intentResponse = await axios.post(paymentIntentUrl, {
-        bookingId,
-        amount: amount,
-        currency: currency.toLowerCase(),
-      }, { headers: { 'Authorization': `Bearer ${token}` } });
-      
-      console.log('✅ Payment Intent Created:', intentResponse.data);
-
-      if (!intentResponse.data.success) {
-        throw new Error(intentResponse.data.message || 'Failed to create payment intent.');
-      }
-
-      const { clientSecret, paymentIntentId } = intentResponse.data.data;
-      
-      if (!clientSecret || !paymentIntentId) {
-        console.error('🔴 Missing clientSecret or paymentIntentId in response');
-        throw new Error('Invalid payment intent response from server');
-      }
-      
-      console.log('✅ Received valid client secret and payment intent ID');
-      updateState({
-        clientSecret,
-        paymentIntentId,
-        paymentIntentExpired: false,
-      });
-      
-      // استدعاء الدالة لتحديث الـ clientSecret في FinalDetails
-      if (onClientSecretUpdate) {
-        onClientSecretUpdate(clientSecret);
-      }
-      
-      return true;
-    } catch (err) {
-      console.error('🔴 Error creating payment intent:', err);
-      handlePaymentIntentError(err);
-      return false;
-    }
-  };
-
-  useEffect(() => {
-    if (!bookingData || !flight) {
-      console.warn("⚠️ PaymentSection: Missing required data.");
-      return;
-    }
-
-    const processBookingAndPaymentIntent = async () => {
-      updateState({ loading: true, error: '', paymentIntentExpired: false });
-
-      try {
-        const userString = localStorage.getItem('user');
-        const userData = userString ? JSON.parse(userString) : null;
-        const token = userData?.token;
-
-        if (!token) {
-          throw new Error('Authentication token not found. Please log in again.');
-        }
-
-        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
-
-        console.log('🔵 Creating booking...');
-        const bookingUrl = new URL('/booking/book-flight', import.meta.env.VITE_API_BASE_URL).toString();
-        const bookingResponse = await axios.post(bookingUrl, bookingData, { headers });
-
-        if (!bookingResponse.data.success) {
-          throw new Error(bookingResponse.data.message || 'Failed to create booking.');
-        }
-
-        const newBookingId = bookingResponse.data.data.bookingId;
-        console.log('✅ Booking created with ID:', newBookingId);
-        
-        const amount = calculateTotalPrice(flight, bookingData);
-        console.log('🔵 Calculated total amount:', amount, bookingData.currency);
-
-        const success = await createPaymentIntent(newBookingId, amount, bookingData.currency, token, onClientSecretUpdate);
-
-        if (!success) {
-          throw new Error('Failed to create payment intent.');
-        }
-
-        updateState({ bookingId: newBookingId, loading: false });
-        console.log('✅ Payment setup complete and ready for customer input');
-      } catch (err) {
-        console.error('🔴 Error during booking or payment-intent creation:', err);
-        handlePaymentIntentError(err);
-        updateState({ loading: false });
-      }
-    };
-
-    processBookingAndPaymentIntent();
-  }, [bookingData, flight, onClientSecretUpdate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -256,45 +152,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, onCl
 
   const handleRetry = async () => {
     updateState({ paymentIntentExpired: false, error: '', loading: true });
-
-    try {
-      const userString = localStorage.getItem('user');
-      const userData = userString ? JSON.parse(userString) : null;
-      const token = userData?.token;
-
-      if (!token) {
-        throw new Error('Authentication token not found.');
-      }
-
-      console.log('🔵 Retrying payment - creating new booking...');
-      const bookingUrl = new URL('/booking/book-flight', import.meta.env.VITE_API_BASE_URL).toString();
-      const bookingResponse = await axios.post(bookingUrl, bookingData, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      });
-
-      if (!bookingResponse.data.success) {
-        throw new Error(bookingResponse.data.message || 'Failed to create booking.');
-      }
-
-      const newBookingId = bookingResponse.data.data.bookingId;
-      console.log('✅ New booking created with ID:', newBookingId);
-      
-      const amount = calculateTotalPrice(flight, bookingData);
-      const success = await createPaymentIntent(newBookingId, amount, bookingData.currency, token, onClientSecretUpdate);
-
-      if (!success) {
-        throw new Error('Failed to create new payment intent.');
-      }
-
-      updateState({ bookingId: newBookingId, loading: false });
-      console.log('✅ Payment retry setup complete');
-    } catch (err) {
-      console.error('🔴 Error during retry:', err);
-      updateState({
-        error: err.message || 'Failed to retry payment. Please try again.',
-        loading: false,
-      });
-    }
+    // هنا ممكن تستدعي دالة من FinalDetails لإعادة إنشاء الـ Payment Intent
+    console.warn('Retry not implemented yet. Contact backend to re-create payment intent.');
   };
 
   return (
@@ -360,7 +219,6 @@ PaymentSection.propTypes = {
   onPaymentSuccess: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
-  onClientSecretUpdate: PropTypes.func, // إضافة الـ prop الجديد
 };
 
 export default PaymentSection;
