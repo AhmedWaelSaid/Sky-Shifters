@@ -6,8 +6,7 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { calculateTotalPrice } from '../../../utils/priceCalculations.js';
-import { useData } from "../../../components/context/DataContext.jsx";
+import { useData } from '../components/context/DataContext.jsx'; // تأكد من المسار الصحيح
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -102,6 +101,11 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
 
   useEffect(() => {
     const processBookingAndPayment = async () => {
+      if (!flight) {
+        setPaymentError('Flight data is missing.');
+        return;
+      }
+
       const userString = localStorage.getItem('user');
       const userData = userString ? JSON.parse(userString) : null;
       const token = userData?.token;
@@ -120,8 +124,10 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
       }
 
       const newBookingId = bookingResponse.data.data.bookingId;
-      const amount = calculateTotalPrice(formData.finalBookingData, flight);
+      const amount = calculateTotalPrice(flight, formData.finalBookingData);
       const currency = formData.finalBookingData.currency || 'USD';
+
+      console.log('🔵 Calculated total amount for payment intent:', amount, currency);
 
       const paymentResult = await createPaymentIntent(newBookingId, amount, currency, token);
       if (!paymentResult) {
@@ -137,7 +143,7 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
         intervalRef.current = null;
       }
     };
-  }, [formData, flight]);
+  }, [flight, formData]);
 
   const options = clientSecret ? { clientSecret, appearance: { theme: 'stripe' } } : {};
 
