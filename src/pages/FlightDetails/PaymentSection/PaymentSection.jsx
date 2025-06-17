@@ -276,48 +276,40 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onClientSecretUpdate, o
     <div className={styles.paymentSection}>
       <h2 className={styles.sectionTitle}>Payment Details</h2>
       
-      {!clientSecret ? (
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingMessage}>
-            {loading ? 'Initializing payment system...' : 'Setting up payment...'}
-          </div>
+      <form className={styles.cardForm} onSubmit={handleSubmit}>
+        <div className={styles.formGroup}>
+          <label>Payment Information</label>
+          <PaymentElement />
         </div>
-      ) : (
-        <form className={styles.cardForm} onSubmit={handleSubmit}>
-          <div className={styles.formGroup}>
-            <label>Payment Information</label>
-            <PaymentElement />
+        
+        {error && (
+          <div className={styles.errorContainer}>
+            <div className={styles.errorMessage}>{error}</div>
+            {paymentIntentExpired && (
+              <button 
+                onClick={handleRetry} 
+                className={styles.retryButton}
+                disabled={loading}
+              >
+                {loading ? 'Processing...' : 'Try Again'}
+              </button>
+            )}
           </div>
-          
-          {error && (
-            <div className={styles.errorContainer}>
-              <div className={styles.errorMessage}>{error}</div>
-              {paymentIntentExpired && (
-                <button 
-                  onClick={handleRetry} 
-                  className={styles.retryButton}
-                  disabled={loading}
-                >
-                  {loading ? 'Processing...' : 'Try Again'}
-                </button>
-              )}
-            </div>
-          )}
-          
-          <div className={styles.buttonGroup}>
-            <button type="button" className={styles.backButton} onClick={onBack}>
-              <ChevronLeft size={16} /> Back
-            </button>
-            <button 
-              type="submit" 
-              className={styles.payButton} 
-              disabled={!stripe || loading || isLoading || !clientSecret || !paymentIntentId || !flight || paymentIntentExpired}
-            >
-              {loading || isLoading ? 'Processing...' : `Pay ${calculateTotalPrice(flight, bookingData).toFixed(2)} ${bookingData?.currency}`}
-            </button>
-          </div>
-        </form>
-      )}
+        )}
+        
+        <div className={styles.buttonGroup}>
+          <button type="button" className={styles.backButton} onClick={onBack}>
+            <ChevronLeft size={16} /> Back
+          </button>
+          <button 
+            type="submit" 
+            className={styles.payButton} 
+            disabled={!stripe || loading || isLoading || !clientSecret || !paymentIntentId || !flight || paymentIntentExpired}
+          >
+            {loading || isLoading ? 'Processing...' : `Pay ${calculateTotalPrice(flight, bookingData).toFixed(2)} ${bookingData?.currency}`}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

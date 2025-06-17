@@ -11,12 +11,8 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 // Separate component to handle Stripe Elements with client secret
 const StripeProvider = ({ clientSecret, children }) => {
-  const options = clientSecret ? {
+  const options = {
     clientSecret,
-    appearance: {
-      theme: 'stripe',
-    },
-  } : {
     appearance: {
       theme: 'stripe',
     },
@@ -127,15 +123,23 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
             <p>{paymentError || 'Please try again or contact support.'}</p>
           </div>
         ) : (
-          <StripeProvider clientSecret={clientSecret}>
-            <PaymentSection 
-              bookingData={formData.finalBookingData} 
-              onPaymentSuccess={handlePaymentSuccess}
-              onClientSecretUpdate={handleClientSecretUpdate}
-              onBack={onBack}
-              isLoading={isLoadingPaymentStatus} 
-            />
-          </StripeProvider>
+          clientSecret ? (
+            <StripeProvider clientSecret={clientSecret}>
+              <PaymentSection 
+                bookingData={formData.finalBookingData} 
+                onPaymentSuccess={handlePaymentSuccess}
+                onClientSecretUpdate={handleClientSecretUpdate}
+                onBack={onBack}
+                isLoading={isLoadingPaymentStatus} 
+              />
+            </StripeProvider>
+          ) : (
+            <div className={styles.loadingContainer}>
+              <div className={styles.loadingMessage}>
+                Setting up payment system...
+              </div>
+            </div>
+          )
         )}
       </div>
       
