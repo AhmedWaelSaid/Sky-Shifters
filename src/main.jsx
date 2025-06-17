@@ -7,7 +7,6 @@ import { AuthProvider } from './components/context/AuthContext';
 import { DataProvider } from './components/context/DataContext';
 
 const queryClient = new QueryClient();
-
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
