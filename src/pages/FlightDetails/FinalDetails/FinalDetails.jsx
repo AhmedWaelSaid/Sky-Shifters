@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { useData } from "../../../components/context/DataContext.jsx";
-import { calculateTotalPrice } from '../PaymentSection/PaymentSection';
+import { calculateTotalPrice } from '../PaymentSection/PaymentSection'; // تأكد من المسار
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -17,7 +17,7 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
   const [paymentError, setPaymentError] = useState('');
   const [isLoadingPaymentStatus, setIsLoadingPaymentStatus] = useState(false);
   const [bookingDetails, setBookingDetails] = useState(null);
-  const [clientSecret, setClientSecret] = useState('');
+  const [clientSecret, setClientSecret] = useState(null); // إضافة null كقيمة أولية
   const intervalRef = useRef(null);
 
   // دالة إنشاء الـ Payment Intent
@@ -35,6 +35,7 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
       }
 
       const { clientSecret, paymentIntentId } = intentResponse.data.data;
+      console.log('🔵 Received clientSecret:', clientSecret);
       setClientSecret(clientSecret);
       return { clientSecret, paymentIntentId };
     } catch (err) {
@@ -146,7 +147,8 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
     };
   }, [flight, formData]);
 
-  const options = clientSecret ? { clientSecret, appearance: { theme: 'stripe' } } : {};
+  // تأكد إن الـ Elements يتم تهيئته فقط لو الـ clientSecret موجود
+  const options = clientSecret ? { clientSecret, appearance: { theme: 'stripe' } } : null;
 
   return (
     <div className={styles.finalDetails}>
@@ -162,7 +164,7 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
             <h2>Payment failed.</h2>
             <p>{paymentError || 'Please try again or contact support.'}</p>
           </div>
-        ) : (
+        ) : options ? ( // فقط إذا كان clientSecret موجود
           <Elements stripe={stripePromise} options={options}>
             <PaymentSection 
               bookingData={formData.finalBookingData} 
@@ -171,6 +173,8 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
               isLoading={isLoadingPaymentStatus}
             />
           </Elements>
+        ) : (
+          <div>Loading payment setup...</div> // رسالة مؤقتة لحين تحميل clientSecret
         )}
       </div>
       
