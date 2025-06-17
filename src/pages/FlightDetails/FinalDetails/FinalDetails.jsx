@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { useData } from "../../../components/context/DataContext.jsx";
+import { calculateTotalPrice } from '../PaymentSection/PaymentSection';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 

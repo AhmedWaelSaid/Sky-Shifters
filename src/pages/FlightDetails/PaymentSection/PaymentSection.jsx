@@ -13,7 +13,7 @@ const getPriceFromPricingInfo = (pricingInfo) => {
 };
 
 // Calculate total price
-function calculateTotalPrice(flightData, bookingData) {
+export function calculateTotalPrice(flightData, bookingData) {
   let baseFareTotal = 0;
   const passengers = bookingData.travellersInfo || [];
   const formData = bookingData.formData || {};
