@@ -18,6 +18,7 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
   const [isLoadingPaymentStatus, setIsLoadingPaymentStatus] = useState(false);
   const [bookingDetails, setBookingDetails] = useState(null);
   const [clientSecret, setClientSecret] = useState(null); // إضافة null كقيمة أولية
+  const [bookingId, setBookingId] = useState(null); // Add bookingId state
   const intervalRef = useRef(null);
 
   // دالة إنشاء الـ Payment Intent
@@ -126,6 +127,7 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
       }
 
       const newBookingId = bookingResponse.data.data.bookingId;
+      setBookingId(newBookingId); // Store the bookingId
       const amount = calculateTotalPrice(flight, formData.finalBookingData);
       const currency = formData.finalBookingData.currency || 'USD';
 
@@ -171,6 +173,8 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
               onPaymentSuccess={handlePaymentSuccess}
               onBack={onBack}
               isLoading={isLoadingPaymentStatus}
+              clientSecret={clientSecret}
+              bookingId={bookingId}
             />
           </Elements>
         ) : (
