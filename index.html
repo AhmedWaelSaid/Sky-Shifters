@@ -5,9 +5,13 @@
     script-src 'self' https://js.stripe.com https://m.stripe.network blob: 'unsafe-eval' 'unsafe-inline';
     connect-src 'self' https://api.stripe.com https://sky-shifters.duckdns.org https://api.mapbox.com https://api.amadeus.com;
     style-src 'self' 'unsafe-inline';
-    img-src 'self' data:; // إضافة دعم للصور المضمنة (data URLs)
-    frame-src 'self' https://js.stripe.com; // إذا استخدمت iframes من Stripe
-  ">
+    img-src 'self' data: https://i.pinimg.com https://js.stripe.com https://m.stripe.network;
+    frame-src 'self' https://js.stripe.com;
+    font-src 'self' data:;
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    ">
         <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

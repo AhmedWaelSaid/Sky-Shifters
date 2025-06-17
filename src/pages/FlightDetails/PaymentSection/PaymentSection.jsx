@@ -72,6 +72,34 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
     }
   }, [initialClientSecret, initialBookingId]);
 
+  // Global error handler for unhandled Stripe errors
+  useEffect(() => {
+    const handleGlobalError = (event) => {
+      if (event.error && event.error.message && event.error.message.includes('stripe')) {
+        console.error('🔴 Global Stripe error caught:', event.error);
+        updateState({
+          error: 'A payment system error occurred. Please try again.',
+          paymentIntentExpired: true,
+        });
+      }
+    };
+
+    window.addEventListener('error', handleGlobalError);
+    window.addEventListener('unhandledrejection', (event) => {
+      if (event.reason && event.reason.message && event.reason.message.includes('stripe')) {
+        console.error('🔴 Unhandled Stripe promise rejection:', event.reason);
+        updateState({
+          error: 'Payment system error. Please try again.',
+          paymentIntentExpired: true,
+        });
+      }
+    });
+
+    return () => {
+      window.removeEventListener('error', handleGlobalError);
+    };
+  }, []);
+
   // Validate Stripe environment
   useEffect(() => {
     if (clientSecret) {
@@ -92,8 +120,36 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         isLiveKey,
         keyType: isTestKey ? 'test' : isLiveKey ? 'live' : 'unknown',
       });
+
+      // Validate client secret format more thoroughly
+      if (!clientSecret.startsWith('pi_')) {
+        console.error('🔴 Invalid client secret format - should start with "pi_"');
+        updateState({
+          error: 'Invalid payment session format. Please try again.',
+          paymentIntentExpired: true,
+          clientSecret: '',
+        });
+      }
     }
   }, [clientSecret]);
+
+  // Handle Payment Element load errors
+  const handlePaymentElementError = (error) => {
+    console.error('🔴 Payment Element load error:', error);
+    
+    if (error.error?.type === 'validation_error' || error.error?.code === 'resource_missing') {
+      updateState({
+        error: 'Payment form failed to load. Please try again.',
+        paymentIntentExpired: true,
+        clientSecret: '',
+      });
+    } else {
+      updateState({
+        error: 'Unable to load payment form. Please refresh the page and try again.',
+        paymentIntentExpired: true,
+      });
+    }
+  };
 
   // Handle payment intent errors
   const handlePaymentIntentError = (err) => {
@@ -148,6 +204,15 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
       updateState({
         error: 'This payment has already been processed. Please try a new payment.',
         paymentIntentExpired: true,
+      });
+    } else if (err.status === 400 || err.statusCode === 400) {
+      // Handle 400 Bad Request errors
+      console.error('🔴 Stripe API 400 Bad Request:', err);
+      updateState({
+        error: 'Payment session is invalid. Please try again.',
+        paymentIntentExpired: true,
+        clientSecret: '',
+        paymentIntentId: '',
       });
     } else {
       updateState({ error: err.message || errorMessage });
@@ -316,7 +381,46 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
       <form className={styles.cardForm} onSubmit={handleSubmit}>
         {clientSecret ? (
           <div className={styles.formGroup}>
-            <PaymentElement />
+            <PaymentElement 
+              onLoaderStart={() => console.log('🔵 Payment Element loading...')}
+              onLoaderEnd={() => console.log('✅ Payment Element loaded successfully')}
+              onError={handlePaymentElementError}
+            />
+          </div>
+        ) : paymentIntentExpired ? (
+          <div className={styles.fallbackPaymentForm}>
+            <div className={styles.formGroup}>
+              <label>Card Number</label>
+              <input 
+                type="text" 
+                placeholder="1234 1234 1234 1234" 
+                disabled 
+                className={styles.disabledInput}
+              />
+            </div>
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>Expiry Date</label>
+                <input 
+                  type="text" 
+                  placeholder="MM/YY" 
+                  disabled 
+                  className={styles.disabledInput}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>CVC</label>
+                <input 
+                  type="text" 
+                  placeholder="123" 
+                  disabled 
+                  className={styles.disabledInput}
+                />
+              </div>
+            </div>
+            <div className={styles.paymentNote}>
+              <p>⚠️ Payment form is temporarily unavailable. Please click "Try Again" to reload the payment form.</p>
+            </div>
           </div>
         ) : (
           <div className={styles.loadingPaymentElement}>

@@ -298,6 +298,36 @@
     cursor: not-allowed;
   }
   
+  .fallbackPaymentForm {
+    background-color: var(--menuHover-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .disabledInput {
+    background-color: #f5f5f5 !important;
+    color: #999 !important;
+    cursor: not-allowed !important;
+    border: 1px solid #ddd !important;
+  }
+  
+  .paymentNote {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 4px;
+    padding: 10px;
+    margin-top: 15px;
+  }
+  
+  .paymentNote p {
+    margin: 0;
+    color: #856404;
+    font-size: 14px;
+    text-align: center;
+  }
+  
   @media (max-width: 768px) {
     .finalDetails {
       flex-direction: column;
