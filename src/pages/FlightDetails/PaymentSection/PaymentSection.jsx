@@ -52,9 +52,11 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
     paymentIntentExpired: false,
     paymentIntentId: '',
     processingPayment: false,
+    paymentElementMounted: false,
+    paymentElementLoading: false,
   });
 
-  const { loading, error, clientSecret, bookingId, paymentIntentExpired, paymentIntentId, processingPayment } = state;
+  const { loading, error, clientSecret, bookingId, paymentIntentExpired, paymentIntentId, processingPayment, paymentElementMounted, paymentElementLoading } = state;
 
   const updateState = (newState) => setState((prev) => ({ ...prev, ...newState }));
 
@@ -64,7 +66,9 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
       updateState({ 
         clientSecret: initialClientSecret,
         paymentIntentExpired: false,
-        error: ''
+        error: '',
+        paymentElementMounted: false, // Reset to allow new element to mount
+        paymentElementLoading: false,
       });
     }
     if (initialBookingId && initialBookingId !== bookingId) {
@@ -130,12 +134,24 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
           clientSecret: '',
         });
       }
+
+      // Validate Elements instance
+      if (elements) {
+        console.log('🔍 Elements instance validation:', {
+          hasElements: !!elements,
+          elementsType: typeof elements,
+        });
+      }
     }
-  }, [clientSecret]);
+  }, [clientSecret, elements]);
 
   // Handle Payment Element load errors
   const handlePaymentElementError = (error) => {
     console.error('🔴 Payment Element load error:', error);
+    updateState({
+      paymentElementMounted: false,
+      paymentElementLoading: false,
+    });
     
     if (error.error?.type === 'validation_error' || error.error?.code === 'resource_missing') {
       updateState({
@@ -149,6 +165,33 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         paymentIntentExpired: true,
       });
     }
+  };
+
+  // Handle Payment Element loading states
+  const handlePaymentElementLoaderStart = () => {
+    console.log('🔵 Payment Element loading...');
+    updateState({ paymentElementLoading: true, paymentElementMounted: false });
+    
+    // Set a timeout to handle cases where Payment Element takes too long to load
+    setTimeout(() => {
+      setState(prev => {
+        if (prev.paymentElementLoading && !prev.paymentElementMounted) {
+          console.warn('⚠️ Payment Element loading timeout');
+          return {
+            ...prev,
+            paymentElementLoading: false,
+            error: 'Payment form is taking too long to load. Please try again.',
+            paymentIntentExpired: true,
+          };
+        }
+        return prev;
+      });
+    }, 30000); // 30 second timeout
+  };
+
+  const handlePaymentElementLoaderEnd = () => {
+    console.log('✅ Payment Element loaded successfully');
+    updateState({ paymentElementLoading: false, paymentElementMounted: true });
   };
 
   // Handle payment intent errors
@@ -230,15 +273,43 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
       paymentIntentIdPresent: !!paymentIntentId,
       clientSecretLength: clientSecret?.length || 0,
       clientSecretPrefix: clientSecret?.substring(0, 20) || 'N/A',
+      paymentElementMounted,
+      paymentElementLoading,
     });
 
-    if (!stripe || !elements || !clientSecret) {
-      updateState({ error: 'Payment system is not ready. Please try again.' });
+    // Comprehensive validation before proceeding
+    if (!stripe) {
+      updateState({ error: 'Stripe is not initialized. Please refresh the page and try again.' });
+      return;
+    }
+
+    if (!elements) {
+      updateState({ error: 'Payment form is not initialized. Please refresh the page and try again.' });
+      return;
+    }
+
+    if (!clientSecret) {
+      updateState({ error: 'Payment session is not ready. Please try again.' });
+      return;
+    }
+
+    if (!flight) {
+      updateState({ error: 'Flight information is missing. Please go back and try again.' });
+      return;
+    }
+
+    // Check if Payment Element is properly mounted
+    if (!paymentElementMounted) {
+      console.error('🔴 Payment Element not mounted. Cannot proceed with payment.');
+      updateState({ 
+        error: 'Payment form is not ready. Please wait for it to load or try again.',
+        paymentIntentExpired: true 
+      });
       return;
     }
 
     // Validate client secret format
-    if (!clientSecret.startsWith('pi_') && !clientSecret.startsWith('pi_')) {
+    if (!clientSecret.startsWith('pi_')) {
       console.error('🔴 Invalid client secret format:', clientSecret.substring(0, 20) + '...');
       updateState({ 
         error: 'Invalid payment session. Please try again.',
@@ -300,7 +371,13 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
 
   // Retry function to recreate PaymentIntent
   const handleRetry = async () => {
-    updateState({ paymentIntentExpired: false, error: '', loading: true });
+    updateState({ 
+      paymentIntentExpired: false, 
+      error: '', 
+      loading: true,
+      paymentElementMounted: false,
+      paymentElementLoading: false,
+    });
     
     try {
       const userString = localStorage.getItem('user');
@@ -338,6 +415,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         paymentIntentExpired: false,
         error: '',
         loading: false,
+        paymentElementMounted: false, // Reset to allow new element to mount
+        paymentElementLoading: false,
       });
       
       console.log('✅ PaymentIntent recreated successfully');
@@ -368,6 +447,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
           Booking ID: {bookingId || 'Not set'}<br/>
           Stripe Ready: {stripe ? 'Yes' : 'No'}<br/>
           Elements Ready: {elements ? 'Yes' : 'No'}<br/>
+          Payment Element Mounted: {paymentElementMounted ? 'Yes' : 'No'}<br/>
+          Payment Element Loading: {paymentElementLoading ? 'Yes' : 'No'}<br/>
           Environment: {import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.startsWith('pk_test_') ? 'Test' : 'Live'}
         </div>
       )}
@@ -382,8 +463,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         {clientSecret ? (
           <div className={styles.formGroup}>
             <PaymentElement 
-              onLoaderStart={() => console.log('🔵 Payment Element loading...')}
-              onLoaderEnd={() => console.log('✅ Payment Element loaded successfully')}
+              onLoaderStart={handlePaymentElementLoaderStart}
+              onLoaderEnd={handlePaymentElementLoaderEnd}
               onError={handlePaymentElementError}
             />
           </div>
@@ -455,9 +536,12 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
           <button 
             type="submit" 
             className={styles.payButton} 
-            disabled={!stripe || loading || isLoading || !clientSecret || !flight || paymentIntentExpired || processingPayment}
+            disabled={!stripe || loading || isLoading || !clientSecret || !flight || paymentIntentExpired || processingPayment || !paymentElementMounted || paymentElementLoading}
           >
-            {loading || isLoading ? 'Processing...' : `Pay ${calculateTotalPrice(flight, bookingData).toFixed(2)} ${bookingData?.currency}`}
+            {loading || isLoading ? 'Processing...' : 
+             paymentElementLoading ? 'Loading payment form...' :
+             !paymentElementMounted ? 'Payment form not ready' :
+             `Pay ${calculateTotalPrice(flight, bookingData).toFixed(2)} ${bookingData?.currency}`}
           </button>
         </div>
       </form>
