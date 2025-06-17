@@ -6,10 +6,13 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
+import { calculateTotalPrice } from '../../../utils/priceCalculations.js';
+import { useData } from "../../../components/context/DataContext.jsx";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const FinalDetails = ({ passengers, formData, onBack }) => {
+  const { flight } = useData();
   const [paymentStatus, setPaymentStatus] = useState('idle');
   const [paymentError, setPaymentError] = useState('');
   const [isLoadingPaymentStatus, setIsLoadingPaymentStatus] = useState(false);
@@ -117,7 +120,7 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
       }
 
       const newBookingId = bookingResponse.data.data.bookingId;
-      const amount = 149.82; // استبدل بحساب دقيق إذا لزم
+      const amount = calculateTotalPrice(formData.finalBookingData, flight);
       const currency = formData.finalBookingData.currency || 'USD';
 
       const paymentResult = await createPaymentIntent(newBookingId, amount, currency, token);
@@ -134,7 +137,7 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
         intervalRef.current = null;
       }
     };
-  }, [formData]);
+  }, [formData, flight]);
 
   const options = clientSecret ? { clientSecret, appearance: { theme: 'stripe' } } : {};
 
