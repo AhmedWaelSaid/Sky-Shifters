@@ -6,7 +6,7 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { useData } from "../../../components/context/DataContext.jsx";
+import { useData } from '../../../components/context/DataContext.jsx';
 import { calculateTotalPrice } from '../PaymentSection/PaymentSection'; // تأكد من المسار
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -17,14 +17,14 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
   const [paymentError, setPaymentError] = useState('');
   const [isLoadingPaymentStatus, setIsLoadingPaymentStatus] = useState(false);
   const [bookingDetails, setBookingDetails] = useState(null);
-  const [clientSecret, setClientSecret] = useState(null); // إضافة null كقيمة أولية
-  const [bookingId, setBookingId] = useState(null); // Add bookingId state
+  const [clientSecret, setClientSecret] = useState(null);
+  const [bookingId, setBookingId] = useState(null);
   const intervalRef = useRef(null);
 
-  // دالة إنشاء الـ Payment Intent
   const createPaymentIntent = async (bookingId, amount, currency, token) => {
     try {
       const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
+      console.log('🔵 Sending payment intent request to:', paymentIntentUrl, 'with amount:', amount, 'and currency:', currency);
       const intentResponse = await axios.post(paymentIntentUrl, {
         bookingId,
         amount,
@@ -36,17 +36,16 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
       }
 
       const { clientSecret, paymentIntentId } = intentResponse.data.data;
-      console.log('🔵 Received clientSecret:', clientSecret);
+      console.log('🔵 Received clientSecret:', clientSecret.substring(0, 10) + '...', 'and paymentIntentId:', paymentIntentId);
       setClientSecret(clientSecret);
       return { clientSecret, paymentIntentId };
     } catch (err) {
-      console.error('🔴 Error creating payment intent:', err);
-      setPaymentError(err.message || 'Failed to create payment intent.');
+      console.error('🔴 Error creating payment intent:', err.response ? err.response.data : err.message);
+      setPaymentError(err.response?.data?.message || err.message || 'Failed to create payment intent.');
       return null;
     }
   };
 
-  // دالة الاستعلام عن حالة الدفع
   const pollPaymentStatus = async (bookingId, token) => {
     if (!bookingId || !token) return;
 
@@ -119,7 +118,9 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
       }
 
       const bookingUrl = new URL('/booking/book-flight', import.meta.env.VITE_API_BASE_URL).toString();
-      const bookingResponse = await axios.post(bookingUrl, formData.finalBookingData, { headers: { 'Authorization': `Bearer ${token}` } });
+      const bookingResponse = await axios.post(bookingUrl, formData.finalBookingData, {
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      });
 
       if (!bookingResponse.data.success) {
         setPaymentError(bookingResponse.data.message || 'Failed to create booking.');
@@ -127,7 +128,7 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
       }
 
       const newBookingId = bookingResponse.data.data.bookingId;
-      setBookingId(newBookingId); // Store the bookingId
+      setBookingId(newBookingId);
       const amount = calculateTotalPrice(flight, formData.finalBookingData);
       const currency = formData.finalBookingData.currency || 'USD';
 
@@ -149,6 +150,8 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
     };
   }, [flight, formData]);
 
+  const options = clientSecret ? { clientSecret, appearance: { theme: 'stripe' } } : null;
+
   return (
     <div className={styles.finalDetails}>
       <div className={styles.mainContent}>
@@ -163,10 +166,10 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
             <h2>Payment failed.</h2>
             <p>{paymentError || 'Please try again or contact support.'}</p>
           </div>
-        ) : clientSecret ? ( // فقط إذا كان clientSecret موجود
-          <Elements stripe={stripePromise}>
-            <PaymentSection 
-              bookingData={formData.finalBookingData} 
+        ) : options ? (
+          <Elements stripe={stripePromise} options={options}>
+            <PaymentSection
+              bookingData={formData.finalBookingData}
               onPaymentSuccess={handlePaymentSuccess}
               onBack={onBack}
               isLoading={isLoadingPaymentStatus}
@@ -175,13 +178,12 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
             />
           </Elements>
         ) : (
-          <div>Loading payment setup...</div> // رسالة مؤقتة لحين تحميل clientSecret
+          <div>Loading payment setup...</div>
         )}
       </div>
-      
       <div className={styles.sidebar}>
-        <FlightSummary 
-          passengers={passengers} 
+        <FlightSummary
+          passengers={passengers}
           formData={formData}
           showBackButton={false}
           showContinueButton={false}

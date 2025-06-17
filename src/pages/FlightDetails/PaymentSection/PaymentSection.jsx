@@ -4,7 +4,7 @@ import styles from './paymentsection.module.css';
 import { ChevronLeft } from 'lucide-react';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import PropTypes from 'prop-types';
-import { useData } from "../../../components/context/DataContext.jsx";
+import { useData } from '../../../components/context/DataContext.jsx';
 
 // Helper function to safely get price from pricing info
 const getPriceFromPricingInfo = (pricingInfo) => {
@@ -58,7 +58,6 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
 
   const updateState = (newState) => setState((prev) => ({ ...prev, ...newState }));
 
-  // Update state when props change
   useEffect(() => {
     if (initialClientSecret && initialClientSecret !== clientSecret) {
       updateState({
@@ -72,7 +71,6 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
     }
   }, [initialClientSecret, initialBookingId, clientSecret, bookingId]);
 
-  // Handle payment intent errors
   const handlePaymentIntentError = (err) => {
     console.error('🔴 Payment Intent Error:', err);
     let errorMessage = 'An error occurred during payment. Please try again.';
@@ -82,11 +80,9 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
       errorMessage = err.response.data.message || errorMessage;
     }
     
-    // Check for client secret mismatch error
     if (err.type === 'invalid_request_error' && err.param === 'client_secret') {
       console.warn('⚠️ Client secret mismatch detected. PaymentIntent may be expired or from different account.');
       
-      // Check for environment mismatch
       const frontendKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
       const isFrontendTest = frontendKey?.startsWith('pk_test_');
       const isLiveKey = frontendKey?.startsWith('pk_live_');
@@ -99,8 +95,6 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
       });
       
       let specificError = 'Your payment session has expired or is invalid. Please try again.';
-      
-      // If we can detect an environment mismatch, provide a more specific error
       if (clientSecret && clientSecret.startsWith('pi_test_') && isLiveKey) {
         specificError = 'Environment mismatch detected. The payment was created in test mode but you are using live mode. Please contact support.';
       } else if (clientSecret && clientSecret.startsWith('pi_live_') && isFrontendTest) {
@@ -127,7 +121,6 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         paymentIntentExpired: true,
       });
     } else if (err.status === 400 || err.statusCode === 400) {
-      // Handle 400 Bad Request errors
       console.error('🔴 Stripe API 400 Bad Request:', err);
       updateState({
         error: 'Payment session is invalid. Please try again.',
@@ -155,12 +148,11 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
       if (!token) {
         updateState({
           error: 'Authentication token not found. Please log in again.',
-          loading: false
+          loading: false,
         });
         return;
       }
 
-      // Recreate PaymentIntent
       const amount = calculateTotalPrice(flight, bookingData);
       const currency = bookingData?.currency || 'USD';
 
@@ -208,7 +200,6 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
       clientSecretPrefix: clientSecret?.substring(0, 20) + '...',
     });
 
-    // Comprehensive validation before proceeding
     if (!stripe) {
       updateState({ error: 'Stripe is not initialized. Please refresh the page and try again.' });
       return;
@@ -229,12 +220,11 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
       return;
     }
 
-    // Validate client secret format
     if (!clientSecret.startsWith('pi_')) {
       console.error('🔴 Invalid client secret format:', clientSecret.substring(0, 20) + '...');
       updateState({
         error: 'Invalid payment session. Please try again.',
-        paymentIntentExpired: true
+        paymentIntentExpired: true,
       });
       return;
     }
@@ -249,7 +239,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         updateState({
           error: 'Card input form is not ready. Please try again.',
           processingPayment: false,
-          loading: false
+          loading: false,
         });
         return;
       }
@@ -297,7 +287,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         updateState({
           loading: false,
           processingPayment: true,
-          error: 'Payment processing - please do not close this window.'
+          error: 'Payment processing - please do not close this window.',
         });
       }
     } catch (err) {
@@ -311,7 +301,6 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
     <div className={styles.paymentSection}>
       <h2 className={styles.sectionTitle}>Payment Details</h2>
       
-      {/* Debug information - only show in development */}
       {import.meta.env.DEV && (
         <div className={styles.debugInfo} style={{ 
           background: '#f0f0f0', 

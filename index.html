@@ -2,15 +2,16 @@
 <html lang="en">
   <head>
     <meta http-equiv="Content-Security-Policy" content="
-    script-src 'self' https://js.stripe.com https://m.stripe.network blob: 'unsafe-eval' 'unsafe-inline';
-    connect-src 'self' https://api.stripe.com https://sky-shifters.duckdns.org https://api.mapbox.com https://api.amadeus.com;
-    style-src 'self' 'unsafe-inline';
+    script-src 'self' https://js.stripe.com https://m.stripe.network 'unsafe-eval' 'unsafe-inline' blob: data:;
+    script-src-elem 'self' https://js.stripe.com https://m.stripe.network 'unsafe-eval' 'unsafe-inline' blob:;
+    connect-src 'self' https://api.stripe.com https://sky-shifters.duckdns.org https://api.mapbox.com https://api.amadeus.com blob:;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' data: https://i.pinimg.com https://js.stripe.com https://m.stripe.network;
     frame-src 'self' https://js.stripe.com;
-    font-src 'self' data:;
+    font-src 'self' data: https://fonts.gstatic.com;
     object-src 'none';
     base-uri 'self';
-    form-action 'self';
+    form-action 'self' https://checkout.stripe.com;
     ">
         <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
