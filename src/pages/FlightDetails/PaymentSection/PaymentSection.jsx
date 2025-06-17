@@ -394,5 +394,4 @@ PaymentSection.propTypes = {
   clientSecret: PropTypes.string,
   bookingId: PropTypes.string,
 };
-
 export default PaymentSection;
