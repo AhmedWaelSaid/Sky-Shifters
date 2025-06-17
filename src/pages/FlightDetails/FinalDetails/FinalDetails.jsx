@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 
+// Load stripe outside of component render to avoid recreating the Stripe object
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const FinalDetails = ({ passengers, formData, onBack }) => {
@@ -14,6 +15,7 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
   const [paymentError, setPaymentError] = useState('');
   const [isLoadingPaymentStatus, setIsLoadingPaymentStatus] = useState(false);
   const [bookingDetails, setBookingDetails] = useState(null);
+  const [clientSecret, setClientSecret] = useState('');
   const intervalRef = useRef(null); // لتخزين معرف الـ interval
 
   // دالة الاستعلام عن حالة الدفع
@@ -101,14 +103,37 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
             <p>{paymentError || 'Please try again or contact support.'}</p>
           </div>
         ) : (
-          <Elements stripe={stripePromise}>
-            <PaymentSection 
-              bookingData={formData.finalBookingData} 
-              onPaymentSuccess={handlePaymentSuccess}
-              onBack={onBack}
-              isLoading={isLoadingPaymentStatus} 
-            />
-          </Elements>
+          clientSecret ? (
+            <Elements 
+              stripe={stripePromise} 
+              options={{
+                clientSecret,
+                appearance: {
+                  theme: 'stripe',
+                  variables: {
+                    colorPrimary: '#0570de',
+                    colorBackground: '#ffffff',
+                    colorText: '#30313d',
+                    colorDanger: '#df1b41',
+                    fontFamily: 'Roboto, Open Sans, Segoe UI, sans-serif',
+                    spacingUnit: '4px',
+                    borderRadius: '4px',
+                  },
+                },
+              }}
+            >
+              <PaymentSection 
+                bookingData={formData.finalBookingData} 
+                onPaymentSuccess={handlePaymentSuccess}
+                onBack={onBack}
+                isLoading={isLoadingPaymentStatus} 
+              />
+            </Elements>
+          ) : (
+            <div className="loading-payment">
+              <p>Preparing payment form...</p>
+            </div>
+          )
         )}
       </div>
       

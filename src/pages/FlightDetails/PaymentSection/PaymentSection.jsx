@@ -2,21 +2,9 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './paymentsection.module.css';
 import { ChevronLeft } from 'lucide-react';
-import { useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcElement } from '@stripe/react-stripe-js';
+import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
 import PropTypes from 'prop-types';
 import { useData } from "../../../components/context/DataContext.jsx";
-
-const ELEMENT_OPTIONS = {
-  style: {
-    base: {
-      color: 'var(--Darktext-color)',
-      fontSize: '14px',
-      fontFamily: 'inherit',
-      '::placeholder': { color: 'var(--LightDarktext-color)' },
-    },
-    invalid: { color: '#fa755a', iconColor: '#fa755a' },
-  },
-};
 
 // Helper function to safely get price from pricing info
 const getPriceFromPricingInfo = (pricingInfo) => {
@@ -61,21 +49,27 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
     error: '',
     clientSecret: '',
     bookingId: '',
-    cardHolderName: '',
     paymentIntentExpired: false,
     paymentIntentId: '',
+    processingPayment: false,
   });
 
-  const { loading, error, clientSecret, bookingId, cardHolderName, paymentIntentExpired, paymentIntentId } = state;
+  const { loading, error, clientSecret, bookingId, paymentIntentExpired, paymentIntentId, processingPayment } = state;
 
   const updateState = (newState) => setState((prev) => ({ ...prev, ...newState }));
 
   // Handle payment intent errors
   const handlePaymentIntentError = (err) => {
-    console.error('Payment Intent Error:', err);
+    console.error('🔴 Payment Intent Error:', err);
     let errorMessage = 'An error occurred during payment. Please try again.';
+    
+    if (err.response?.data) {
+      console.error('🔴 Server error details:', err.response.data);
+      errorMessage = err.response.data.message || errorMessage;
+    }
+    
     if (err.code === 'resource_missing' || err.type === 'invalid_request_error') {
-      console.warn('Payment intent not found. Possible API key mismatch or environment issue.');
+      console.warn('⚠️ Payment intent not found. Possible API key mismatch or environment issue.');
       updateState({
         paymentIntentExpired: true,
         error: 'Your payment session has expired or is invalid. Please try again.',
@@ -94,33 +88,46 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
 
   // Create payment intent
   const createPaymentIntent = async (bookingId, amount, currency, token) => {
-    console.log('Attempting to create payment intent with:', {
-      bookingId, amount, currency, token: token ? '[TOKEN_EXISTS]' : '[NO_TOKEN]'
+    console.log('🔵 Creating payment intent:', {
+      bookingId, 
+      amount, 
+      currency, 
+      token: token ? '✓ Token present' : '✗ Token missing'
     });
+    
     try {
       const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
+      console.log('🔵 Sending request to:', paymentIntentUrl);
+      
       const intentResponse = await axios.post(paymentIntentUrl, {
         bookingId,
         amount: amount,
         currency: currency.toLowerCase(),
       }, { headers: { 'Authorization': `Bearer ${token}` } });
       
-      console.log('Payment Intent Creation Response:', intentResponse.data);
+      console.log('✅ Payment Intent Created:', intentResponse.data);
 
       if (!intentResponse.data.success) {
         throw new Error(intentResponse.data.message || 'Failed to create payment intent.');
       }
 
       const { clientSecret, paymentIntentId } = intentResponse.data.data;
+      
+      if (!clientSecret || !paymentIntentId) {
+        console.error('🔴 Missing clientSecret or paymentIntentId in response');
+        throw new Error('Invalid payment intent response from server');
+      }
+      
+      console.log('✅ Received valid client secret and payment intent ID');
       updateState({
         clientSecret,
         paymentIntentId,
         paymentIntentExpired: false,
       });
-      console.log('PaymentIntentId after setting state:', paymentIntentId);
+      
       return true;
     } catch (err) {
-      console.error('Error creating payment intent:', err);
+      console.error('🔴 Error creating payment intent:', err);
       handlePaymentIntentError(err);
       return false;
     }
@@ -128,7 +135,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
 
   useEffect(() => {
     if (!bookingData || !flight) {
-      console.warn("PaymentSection: Missing required data.");
+      console.warn("⚠️ PaymentSection: Missing required data.");
       return;
     }
 
@@ -146,6 +153,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
 
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
+        console.log('🔵 Creating booking...');
         const bookingUrl = new URL('/booking/book-flight', import.meta.env.VITE_API_BASE_URL).toString();
         const bookingResponse = await axios.post(bookingUrl, bookingData, { headers });
 
@@ -154,7 +162,10 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
         }
 
         const newBookingId = bookingResponse.data.data.bookingId;
+        console.log('✅ Booking created with ID:', newBookingId);
+        
         const amount = calculateTotalPrice(flight, bookingData);
+        console.log('🔵 Calculated total amount:', amount, bookingData.currency);
 
         const success = await createPaymentIntent(newBookingId, amount, bookingData.currency, token);
 
@@ -163,9 +174,9 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
         }
 
         updateState({ bookingId: newBookingId, loading: false });
-        console.log('Booking created successfully with ID:', newBookingId);
+        console.log('✅ Payment setup complete and ready for customer input');
       } catch (err) {
-        console.error('Error during booking or payment-intent creation:', err);
+        console.error('🔴 Error during booking or payment-intent creation:', err);
         handlePaymentIntentError(err);
         updateState({ loading: false });
       }
@@ -177,56 +188,66 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    console.log('Checking payment system readiness:', {
+    console.log('🔵 Payment submission initiated');
+    console.log('🔵 Payment system status:', {
       stripeReady: !!stripe,
       elementsReady: !!elements,
       clientSecretPresent: !!clientSecret,
       paymentIntentIdPresent: !!paymentIntentId,
     });
 
-    if (!stripe || !elements || !clientSecret || !paymentIntentId) {
+    if (!stripe || !elements || !clientSecret) {
       updateState({ error: 'Payment system is not ready. Please try again.' });
       return;
     }
 
-    updateState({ loading: true, error: '', paymentIntentExpired: false });
+    updateState({ loading: true, error: '', paymentIntentExpired: false, processingPayment: true });
 
     try {
-      const cardNumberElement = elements.getElement(CardNumberElement);
-
-      console.log('Before confirmCardPayment:', { clientSecret, paymentIntentId });
-      const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardNumberElement,
-          billing_details: { name: cardHolderName },
+      console.log('🔵 Confirming payment with client secret:', clientSecret.substring(0, 10) + '...');
+      
+      const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/payment-success`,
         },
+        redirect: 'if_required',
       });
-      console.log('Stripe confirmCardPayment result:', { stripeError, paymentIntent });
+      
+      console.log('🔵 Payment confirmation result:', { 
+        error: stripeError ? '✗ Error present' : '✓ No error', 
+        paymentIntent: paymentIntent ? '✓ Payment intent returned' : '✗ No payment intent'
+      });
 
       if (stripeError) {
+        console.error('🔴 Stripe confirmation error:', stripeError);
         handlePaymentIntentError(stripeError);
-        updateState({ loading: false });
+        updateState({ loading: false, processingPayment: false });
         return;
       }
 
       if (!paymentIntent) {
-        updateState({
-          error: 'Payment processing failed. No payment intent returned. Please try again.',
-          loading: false,
+        // This might be a redirect flow, which is normal
+        console.log('🔵 No payment intent returned - likely a redirect flow');
+        updateState({ 
+          loading: false, 
+          processingPayment: true,
+          error: 'Payment processing - please do not close this window.'
         });
         return;
       }
 
-      updateState({ loading: false });
+      console.log('✅ Payment successful:', paymentIntent);
+      updateState({ loading: false, processingPayment: false });
       onPaymentSuccess({
         bookingId,
         paymentIntentId: paymentIntent.id,
         stripeStatus: paymentIntent.status,
       });
     } catch (err) {
-      console.error('Payment submission error:', err);
+      console.error('🔴 Payment submission error:', err);
       handlePaymentIntentError(err);
-      updateState({ loading: false });
+      updateState({ loading: false, processingPayment: false });
     }
   };
 
@@ -242,6 +263,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
         throw new Error('Authentication token not found.');
       }
 
+      console.log('🔵 Retrying payment - creating new booking...');
       const bookingUrl = new URL('/booking/book-flight', import.meta.env.VITE_API_BASE_URL).toString();
       const bookingResponse = await axios.post(bookingUrl, bookingData, {
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -252,6 +274,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
       }
 
       const newBookingId = bookingResponse.data.data.bookingId;
+      console.log('✅ New booking created with ID:', newBookingId);
+      
       const amount = calculateTotalPrice(flight, bookingData);
       const success = await createPaymentIntent(newBookingId, amount, bookingData.currency, token);
 
@@ -260,9 +284,9 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
       }
 
       updateState({ bookingId: newBookingId, loading: false });
-      console.log('New booking created for retry with ID:', newBookingId);
+      console.log('✅ Payment retry setup complete');
     } catch (err) {
-      console.error('Error during retry:', err);
+      console.error('🔴 Error during retry:', err);
       updateState({
         error: err.message || 'Failed to retry payment. Please try again.',
         loading: false,
@@ -274,32 +298,22 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
     <div className={styles.paymentSection}>
       <h2 className={styles.sectionTitle}>Payment Details</h2>
       
+      {processingPayment && (
+        <div className={styles.processingMessage}>
+          <p>Payment is being processed. Please do not close this window.</p>
+        </div>
+      )}
+      
       <form className={styles.cardForm} onSubmit={handleSubmit}>
-        <div className={styles.formGroup}>
-          <label>Card Number</label>
-          <div className={styles.inputContainer}><CardNumberElement options={ELEMENT_OPTIONS} /></div>
-        </div>
-        <div className={styles.formGroup}>
-          <label>Card Holder Name</label>
-          <input 
-            type="text"
-            value={cardHolderName}
-            onChange={(e) => updateState({ cardHolderName: e.target.value })}
-            placeholder="John Doe"
-            required
-            className={styles.formGroupInput} 
-          />
-        </div>
-        <div className={styles.formRow}>
+        {clientSecret ? (
           <div className={styles.formGroup}>
-            <label>Expiry Date</label>
-            <div className={styles.inputContainer}><CardExpiryElement options={ELEMENT_OPTIONS} /></div>
+            <PaymentElement />
           </div>
-          <div className={styles.formGroup}>
-            <label>CVV</label>
-            <div className={styles.inputContainer}><CardCvcElement options={ELEMENT_OPTIONS} /></div>
+        ) : (
+          <div className={styles.loadingPaymentElement}>
+            <p>Loading payment form...</p>
           </div>
-        </div>
+        )}
         
         {error && (
           <div className={styles.errorContainer}>
@@ -317,13 +331,18 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
         )}
         
         <div className={styles.buttonGroup}>
-          <button type="button" className={styles.backButton} onClick={onBack}>
+          <button 
+            type="button" 
+            className={styles.backButton} 
+            onClick={onBack}
+            disabled={processingPayment}
+          >
             <ChevronLeft size={16} /> Back
           </button>
           <button 
             type="submit" 
             className={styles.payButton} 
-            disabled={!stripe || loading || isLoading || !clientSecret || !paymentIntentId || !flight || paymentIntentExpired}
+            disabled={!stripe || loading || isLoading || !clientSecret || !flight || paymentIntentExpired || processingPayment}
           >
             {loading || isLoading ? 'Processing...' : `Pay ${calculateTotalPrice(flight, bookingData).toFixed(2)} ${bookingData?.currency}`}
           </button>
