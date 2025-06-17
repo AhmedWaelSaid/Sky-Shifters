@@ -39,7 +39,7 @@ function calculateTotalPrice(flightData, bookingData) {
   return total;
 }
 
-const PaymentSection = ({ bookingData, onPaymentSuccess, onClientSecretUpdate, onBack, isLoading, clientSecret, paymentIntentId }) => {
+const PaymentSection = ({ bookingData, onPaymentSuccess, onClientSecretUpdate, onBack, isLoading }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { flight } = useData();
@@ -47,11 +47,13 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onClientSecretUpdate, o
   const [state, setState] = useState({
     loading: false,
     error: '',
+    clientSecret: '',
     bookingId: '',
     paymentIntentExpired: false,
+    paymentIntentId: '',
   });
 
-  const { loading, error, bookingId, paymentIntentExpired } = state;
+  const { loading, error, clientSecret, bookingId, paymentIntentExpired, paymentIntentId } = state;
 
   const updateState = (newState) => setState((prev) => ({ ...prev, ...newState }));
 
@@ -64,6 +66,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onClientSecretUpdate, o
       updateState({
         paymentIntentExpired: true,
         error: 'Your payment session has expired or is invalid. Please try again.',
+        clientSecret: '',
+        paymentIntentId: '',
       });
     } else if (err.code === 'payment_intent_invalid_state') {
       updateState({
@@ -75,21 +79,93 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onClientSecretUpdate, o
     }
   };
 
-  // No longer responsible for creating payment intent, this is done by parent
-  // const createPaymentIntent = async (bookingId, amount, currency, token) => { ... };
+  // Create payment intent
+  const createPaymentIntent = async (bookingId, amount, currency, token) => {
+    console.log('Attempting to create payment intent with:', {
+      bookingId, amount, currency, token: token ? '[TOKEN_EXISTS]' : '[NO_TOKEN]'
+    });
+    try {
+      const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
+      const intentResponse = await axios.post(paymentIntentUrl, {
+        bookingId,
+        amount: amount,
+        currency: currency.toLowerCase(),
+      }, { headers: { 'Authorization': `Bearer ${token}` } });
+      
+      console.log('Payment Intent Creation Response:', intentResponse.data);
 
-  // Booking creation and payment intent fetching is now handled by the parent (FinalDetails)
-  useEffect(() => {
-    if (bookingData && flight && !bookingId) {
-      // This means a booking was just created by parent, but payment section hasn't got bookingId yet.
-      // This useEffect will be simplified to just set bookingId if it's missing.
-      // The actual payment intent creation will be handled in FinalDetails.
-      // We still need to ensure bookingId is set in state if it's passed after first render.
-      if (bookingData.bookingId) {
-        updateState({ bookingId: bookingData.bookingId });
+      if (!intentResponse.data.success) {
+        throw new Error(intentResponse.data.message || 'Failed to create payment intent.');
       }
+
+      const { clientSecret, paymentIntentId } = intentResponse.data.data;
+      updateState({
+        clientSecret,
+        paymentIntentId,
+        paymentIntentExpired: false,
+      });
+      
+      // Notify parent component about the client secret
+      if (onClientSecretUpdate) {
+        onClientSecretUpdate(clientSecret);
+      }
+      
+      console.log('PaymentIntentId after setting state:', paymentIntentId);
+      return true;
+    } catch (err) {
+      console.error('Error creating payment intent:', err);
+      handlePaymentIntentError(err);
+      return false;
     }
-  }, [bookingData, flight, bookingId]);
+  };
+
+  useEffect(() => {
+    if (!bookingData || !flight) {
+      console.warn("PaymentSection: Missing required data.");
+      return;
+    }
+
+    const processBookingAndPaymentIntent = async () => {
+      updateState({ loading: true, error: '', paymentIntentExpired: false });
+
+      try {
+        const userString = localStorage.getItem('user');
+        const userData = userString ? JSON.parse(userString) : null;
+        const token = userData?.token;
+
+        if (!token) {
+          throw new Error('Authentication token not found. Please log in again.');
+        }
+
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+        const bookingUrl = new URL('/booking/book-flight', import.meta.env.VITE_API_BASE_URL).toString();
+        const bookingResponse = await axios.post(bookingUrl, bookingData, { headers });
+
+        if (!bookingResponse.data.success) {
+          throw new Error(bookingResponse.data.message || 'Failed to create booking.');
+        }
+
+        const newBookingId = bookingResponse.data.data.bookingId;
+        const amount = calculateTotalPrice(flight, bookingData);
+
+        const success = await createPaymentIntent(newBookingId, amount, bookingData.currency, token);
+
+        if (!success) {
+          throw new Error('Failed to create payment intent.');
+        }
+
+        updateState({ bookingId: newBookingId, loading: false });
+        console.log('Booking created successfully with ID:', newBookingId);
+      } catch (err) {
+        console.error('Error during booking or payment-intent creation:', err);
+        handlePaymentIntentError(err);
+        updateState({ loading: false });
+      }
+    };
+
+    processBookingAndPaymentIntent();
+  }, [bookingData, flight]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -171,9 +247,10 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onClientSecretUpdate, o
 
       const newBookingId = bookingResponse.data.data.bookingId;
       const amount = calculateTotalPrice(flight, bookingData);
-      // Now calling the parent's onClientSecretUpdate to re-fetch payment intent
-      if (onClientSecretUpdate) {
-        onClientSecretUpdate(newBookingId, amount, bookingData.currency, token);
+      const success = await createPaymentIntent(newBookingId, amount, bookingData.currency, token);
+
+      if (!success) {
+        throw new Error('Failed to create new payment intent.');
       }
 
       updateState({ bookingId: newBookingId, loading: false });
@@ -235,8 +312,6 @@ PaymentSection.propTypes = {
   onClientSecretUpdate: PropTypes.func,
   onBack: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
-  clientSecret: PropTypes.string,
-  paymentIntentId: PropTypes.string,
 };
 
 export default PaymentSection;
