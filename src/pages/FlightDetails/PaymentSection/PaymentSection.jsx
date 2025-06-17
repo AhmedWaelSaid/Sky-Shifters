@@ -2,21 +2,9 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './paymentsection.module.css';
 import { ChevronLeft } from 'lucide-react';
-import { useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcElement } from '@stripe/react-stripe-js';
+import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
 import PropTypes from 'prop-types';
 import { useData } from "../../../components/context/DataContext.jsx";
-
-const ELEMENT_OPTIONS = {
-  style: {
-    base: {
-      color: 'var(--Darktext-color)',
-      fontSize: '14px',
-      fontFamily: 'inherit',
-      '::placeholder': { color: 'var(--LightDarktext-color)' },
-    },
-    invalid: { color: '#fa755a', iconColor: '#fa755a' },
-  },
-};
 
 // Helper function to safely get price from pricing info
 const getPriceFromPricingInfo = (pricingInfo) => {
@@ -51,9 +39,7 @@ function calculateTotalPrice(flightData, bookingData) {
   return total;
 }
 
-const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) => {
-  const stripe = useStripe();
-  const elements = useElements();
+const PaymentSection = ({ bookingData, onPaymentSuccess, onClientSecretUpdate, onBack, isLoading }) => {
   const { flight } = useData();
 
   const [state, setState] = useState({
@@ -61,14 +47,17 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
     error: '',
     clientSecret: '',
     bookingId: '',
-    cardHolderName: '',
     paymentIntentExpired: false,
     paymentIntentId: '',
   });
 
-  const { loading, error, clientSecret, bookingId, cardHolderName, paymentIntentExpired, paymentIntentId } = state;
+  const { loading, error, clientSecret, bookingId, paymentIntentExpired, paymentIntentId } = state;
 
   const updateState = (newState) => setState((prev) => ({ ...prev, ...newState }));
+
+  // Only use Stripe hooks when clientSecret is available
+  const stripe = clientSecret ? useStripe() : null;
+  const elements = clientSecret ? useElements() : null;
 
   // Handle payment intent errors
   const handlePaymentIntentError = (err) => {
@@ -117,6 +106,12 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
         paymentIntentId,
         paymentIntentExpired: false,
       });
+      
+      // Notify parent component about the client secret
+      if (onClientSecretUpdate) {
+        onClientSecretUpdate(clientSecret);
+      }
+      
       console.log('PaymentIntentId after setting state:', paymentIntentId);
       return true;
     } catch (err) {
@@ -177,6 +172,12 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    // Check if Stripe is available
+    if (!clientSecret) {
+      updateState({ error: 'Payment system is initializing. Please wait a moment and try again.' });
+      return;
+    }
+
     console.log('Checking payment system readiness:', {
       stripeReady: !!stripe,
       elementsReady: !!elements,
@@ -192,16 +193,17 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
     updateState({ loading: true, error: '', paymentIntentExpired: false });
 
     try {
-      const cardNumberElement = elements.getElement(CardNumberElement);
-
-      console.log('Before confirmCardPayment:', { clientSecret, paymentIntentId });
-      const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardNumberElement,
-          billing_details: { name: cardHolderName },
+      console.log('Before confirmPayment:', { clientSecret, paymentIntentId });
+      
+      const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: window.location.href,
         },
+        redirect: 'if_required',
       });
-      console.log('Stripe confirmCardPayment result:', { stripeError, paymentIntent });
+      
+      console.log('Stripe confirmPayment result:', { stripeError, paymentIntent });
 
       if (stripeError) {
         handlePaymentIntentError(stripeError);
@@ -274,61 +276,48 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
     <div className={styles.paymentSection}>
       <h2 className={styles.sectionTitle}>Payment Details</h2>
       
-      <form className={styles.cardForm} onSubmit={handleSubmit}>
-        <div className={styles.formGroup}>
-          <label>Card Number</label>
-          <div className={styles.inputContainer}><CardNumberElement options={ELEMENT_OPTIONS} /></div>
+      {!clientSecret ? (
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingMessage}>
+            {loading ? 'Initializing payment system...' : 'Setting up payment...'}
+          </div>
         </div>
-        <div className={styles.formGroup}>
-          <label>Card Holder Name</label>
-          <input 
-            type="text"
-            value={cardHolderName}
-            onChange={(e) => updateState({ cardHolderName: e.target.value })}
-            placeholder="John Doe"
-            required
-            className={styles.formGroupInput} 
-          />
-        </div>
-        <div className={styles.formRow}>
+      ) : (
+        <form className={styles.cardForm} onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label>Expiry Date</label>
-            <div className={styles.inputContainer}><CardExpiryElement options={ELEMENT_OPTIONS} /></div>
+            <label>Payment Information</label>
+            <PaymentElement />
           </div>
-          <div className={styles.formGroup}>
-            <label>CVV</label>
-            <div className={styles.inputContainer}><CardCvcElement options={ELEMENT_OPTIONS} /></div>
+          
+          {error && (
+            <div className={styles.errorContainer}>
+              <div className={styles.errorMessage}>{error}</div>
+              {paymentIntentExpired && (
+                <button 
+                  onClick={handleRetry} 
+                  className={styles.retryButton}
+                  disabled={loading}
+                >
+                  {loading ? 'Processing...' : 'Try Again'}
+                </button>
+              )}
+            </div>
+          )}
+          
+          <div className={styles.buttonGroup}>
+            <button type="button" className={styles.backButton} onClick={onBack}>
+              <ChevronLeft size={16} /> Back
+            </button>
+            <button 
+              type="submit" 
+              className={styles.payButton} 
+              disabled={!stripe || loading || isLoading || !clientSecret || !paymentIntentId || !flight || paymentIntentExpired}
+            >
+              {loading || isLoading ? 'Processing...' : `Pay ${calculateTotalPrice(flight, bookingData).toFixed(2)} ${bookingData?.currency}`}
+            </button>
           </div>
-        </div>
-        
-        {error && (
-          <div className={styles.errorContainer}>
-            <div className={styles.errorMessage}>{error}</div>
-            {paymentIntentExpired && (
-              <button 
-                onClick={handleRetry} 
-                className={styles.retryButton}
-                disabled={loading}
-              >
-                {loading ? 'Processing...' : 'Try Again'}
-              </button>
-            )}
-          </div>
-        )}
-        
-        <div className={styles.buttonGroup}>
-          <button type="button" className={styles.backButton} onClick={onBack}>
-            <ChevronLeft size={16} /> Back
-          </button>
-          <button 
-            type="submit" 
-            className={styles.payButton} 
-            disabled={!stripe || loading || isLoading || !clientSecret || !paymentIntentId || !flight || paymentIntentExpired}
-          >
-            {loading || isLoading ? 'Processing...' : `Pay ${calculateTotalPrice(flight, bookingData).toFixed(2)} ${bookingData?.currency}`}
-          </button>
-        </div>
-      </form>
+        </form>
+      )}
     </div>
   );
 };
@@ -336,6 +325,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
 PaymentSection.propTypes = {
   bookingData: PropTypes.object,
   onPaymentSuccess: PropTypes.func.isRequired,
+  onClientSecretUpdate: PropTypes.func,
   onBack: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
 };
