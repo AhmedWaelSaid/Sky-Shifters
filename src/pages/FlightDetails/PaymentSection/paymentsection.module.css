@@ -298,22 +298,6 @@
     cursor: not-allowed;
   }
   
-  .loadingContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    background-color: var(--bg-color);
-    border-radius: 8px;
-    border: 1px solid var(--menuHover-color);
-  }
-  
-  .loadingMessage {
-    color: var(--LightDarktext-color);
-    font-size: 1rem;
-    text-align: center;
-  }
-  
   @media (max-width: 768px) {
     .finalDetails {
       flex-direction: column;

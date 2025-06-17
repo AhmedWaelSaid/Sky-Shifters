@@ -9,28 +9,13 @@ import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-// Separate component to handle Stripe Elements with client secret
-const StripeProvider = ({ clientSecret, children }) => {
-  const options = {
-    clientSecret,
-    appearance: {
-      theme: 'stripe',
-    },
-  };
-
-  return (
-    <Elements stripe={stripePromise} options={options}>
-      {children}
-    </Elements>
-  );
-};
-
 const FinalDetails = ({ passengers, formData, onBack }) => {
   const [paymentStatus, setPaymentStatus] = useState('idle'); // 'idle', 'pending', 'succeeded', 'failed'
   const [paymentError, setPaymentError] = useState('');
   const [isLoadingPaymentStatus, setIsLoadingPaymentStatus] = useState(false);
   const [bookingDetails, setBookingDetails] = useState(null);
   const [clientSecret, setClientSecret] = useState('');
+  const [loading, setLoading] = useState(true); // Initialize loading to true
   const intervalRef = useRef(null); // لتخزين معرف الـ interval
 
   // دالة الاستعلام عن حالة الدفع
@@ -66,6 +51,37 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
     }
   };
 
+  // Create payment intent and booking (now in FinalDetails)
+  const createPaymentIntent = async (bookingId, amount, currency, token) => {
+    console.log('Attempting to create payment intent from FinalDetails with:', { bookingId, amount, currency, token: token ? '[TOKEN_EXISTS]' : '[NO_TOKEN]' });
+    try {
+      const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
+      const intentResponse = await axios.post(paymentIntentUrl, {
+        bookingId,
+        amount: amount,
+        currency: currency.toLowerCase(),
+      }, { headers: { 'Authorization': `Bearer ${token}` } });
+      
+      console.log('Payment Intent Creation Response from FinalDetails:', intentResponse.data);
+
+      if (!intentResponse.data.success) {
+        throw new Error(intentResponse.data.message || 'Failed to create payment intent.');
+      }
+
+      const { clientSecret: newClientSecret, paymentIntentId } = intentResponse.data.data;
+      setClientSecret(newClientSecret);
+      setLoading(false);
+      console.log('PaymentIntentId after setting state in FinalDetails:', paymentIntentId);
+      return true;
+    } catch (err) {
+      console.error('Error creating payment intent in FinalDetails:', err);
+      setPaymentError(err.message || 'Failed to create payment intent. Please try again.');
+      setPaymentStatus('failed');
+      setLoading(false);
+      return false;
+    }
+  };
+
   // هذه الدالة سيتم استدعاؤها من PaymentSection عند نجاح بدء عملية الدفع
   const handlePaymentSuccess = async ({ bookingId, paymentIntentId, stripeStatus }) => {
     console.log("Booking and Payment initiation successful! Starting polling...", { bookingId, paymentIntentId, stripeStatus });
@@ -92,20 +108,75 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
     intervalRef.current = setInterval(() => pollPaymentStatus(bookingId, token), 5000); // استعلام كل 5 ثوانٍ
   };
 
-  // Handle client secret update from PaymentSection
-  const handleClientSecretUpdate = (secret) => {
-    setClientSecret(secret);
+  // Handle client secret update from PaymentSection (now it triggers payment intent creation)
+  const handleClientSecretUpdate = async (bookingIdFromPaymentSection, amount, currency, token) => {
+    // This function is now responsible for initiating the payment intent creation from FinalDetails
+    // It's called by PaymentSection's retry mechanism or on initial booking
+    await createPaymentIntent(bookingIdFromPaymentSection, amount, currency, token);
   };
 
   useEffect(() => {
-    // تنظيف المؤقت عند تغيير paymentStatus أو عند إلغاء تحميل المكون
+    const processBookingAndPayment = async () => {
+      if (!formData.finalBookingData || !formData.flight) {
+        console.warn("FinalDetails: Missing required booking or flight data.");
+        setLoading(false);
+        setPaymentError('Missing required booking or flight data.');
+        setPaymentStatus('failed');
+        return;
+      }
+
+      setLoading(true);
+      setPaymentError('');
+      setPaymentStatus('idle');
+
+      try {
+        const userString = localStorage.getItem('user');
+        const userData = userString ? JSON.parse(userString) : null;
+        const token = userData?.token;
+
+        if (!token) {
+          throw new Error('Authentication token not found. Please log in again.');
+        }
+
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+        // Create booking
+        const bookingUrl = new URL('/booking/book-flight', import.meta.env.VITE_API_BASE_URL).toString();
+        const bookingResponse = await axios.post(bookingUrl, formData.finalBookingData, { headers });
+
+        if (!bookingResponse.data.success) {
+          throw new Error(bookingResponse.data.message || 'Failed to create booking.');
+        }
+
+        const newBookingId = bookingResponse.data.data.bookingId;
+        const amount = calculateTotalPrice(formData.flight, formData.finalBookingData);
+
+        // Create payment intent using the new booking ID
+        const success = await createPaymentIntent(newBookingId, amount, formData.finalBookingData.currency, token);
+
+        if (!success) {
+          throw new Error('Failed to finalize payment intent setup.');
+        }
+
+        console.log('Booking created and payment intent initiated successfully with ID:', newBookingId);
+      } catch (err) {
+        console.error('Error during booking or payment-intent creation in FinalDetails:', err);
+        setPaymentError(err.message || 'An error occurred during booking or payment setup. Please try again.');
+        setPaymentStatus('failed');
+        setLoading(false);
+      }
+    };
+
+    processBookingAndPayment();
+
+    // Cleanup for polling, remains here
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
-  }, [paymentStatus]);
+  }, [formData.finalBookingData, formData.flight]);
 
   return (
     <div className={styles.finalDetails}>
@@ -122,24 +193,24 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
             <h2>Payment failed.</h2>
             <p>{paymentError || 'Please try again or contact support.'}</p>
           </div>
-        ) : (
-          clientSecret ? (
-            <StripeProvider clientSecret={clientSecret}>
-              <PaymentSection 
-                bookingData={formData.finalBookingData} 
-                onPaymentSuccess={handlePaymentSuccess}
-                onClientSecretUpdate={handleClientSecretUpdate}
-                onBack={onBack}
-                isLoading={isLoadingPaymentStatus} 
-              />
-            </StripeProvider>
-          ) : (
-            <div className={styles.loadingContainer}>
-              <div className={styles.loadingMessage}>
-                Setting up payment system...
-              </div>
+        ) : loading ? (
+          <div className={styles.loadingContainer}>
+            <div className={styles.loadingMessage}>
+              Setting up payment system...
             </div>
-          )
+          </div>
+        ) : (
+          <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'stripe' } }}>
+            <PaymentSection 
+              bookingData={formData.finalBookingData} 
+              onPaymentSuccess={handlePaymentSuccess}
+              onClientSecretUpdate={handleClientSecretUpdate}
+              onBack={onBack}
+              isLoading={isLoadingPaymentStatus} 
+              clientSecret={clientSecret}
+              paymentIntentId={clientSecret ? clientSecret.split('_secret_')[0] : ''} // Derive paymentIntentId if needed
+            />
+          </Elements>
         )}
       </div>
       
