@@ -39,7 +39,7 @@ function calculateTotalPrice(flightData, bookingData) {
   return total;
 }
 
-const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) => {
+const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, onClientSecretUpdate }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { flight } = useData();
@@ -87,7 +87,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
   };
 
   // Create payment intent
-  const createPaymentIntent = async (bookingId, amount, currency, token) => {
+  const createPaymentIntent = async (bookingId, amount, currency, token, onClientSecretUpdate) => {
     console.log('🔵 Creating payment intent:', {
       bookingId, 
       amount, 
@@ -124,6 +124,11 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
         paymentIntentId,
         paymentIntentExpired: false,
       });
+      
+      // استدعاء الدالة لتحديث الـ clientSecret في FinalDetails
+      if (onClientSecretUpdate) {
+        onClientSecretUpdate(clientSecret);
+      }
       
       return true;
     } catch (err) {
@@ -167,7 +172,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
         const amount = calculateTotalPrice(flight, bookingData);
         console.log('🔵 Calculated total amount:', amount, bookingData.currency);
 
-        const success = await createPaymentIntent(newBookingId, amount, bookingData.currency, token);
+        const success = await createPaymentIntent(newBookingId, amount, bookingData.currency, token, onClientSecretUpdate);
 
         if (!success) {
           throw new Error('Failed to create payment intent.');
@@ -183,7 +188,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
     };
 
     processBookingAndPaymentIntent();
-  }, [bookingData, flight]);
+  }, [bookingData, flight, onClientSecretUpdate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -226,24 +231,22 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
         return;
       }
 
-      if (!paymentIntent) {
-        // This might be a redirect flow, which is normal
-        console.log('🔵 No payment intent returned - likely a redirect flow');
+      if (paymentIntent) {
+        console.log('✅ Payment successful:', paymentIntent);
+        updateState({ loading: false, processingPayment: false });
+        onPaymentSuccess({
+          bookingId,
+          paymentIntentId: paymentIntent.id,
+          stripeStatus: paymentIntent.status,
+        });
+      } else {
+        console.log('🔵 Redirect flow detected - awaiting return URL');
         updateState({ 
-          loading: false, 
+          loading: false,
           processingPayment: true,
           error: 'Payment processing - please do not close this window.'
         });
-        return;
       }
-
-      console.log('✅ Payment successful:', paymentIntent);
-      updateState({ loading: false, processingPayment: false });
-      onPaymentSuccess({
-        bookingId,
-        paymentIntentId: paymentIntent.id,
-        stripeStatus: paymentIntent.status,
-      });
     } catch (err) {
       console.error('🔴 Payment submission error:', err);
       handlePaymentIntentError(err);
@@ -277,7 +280,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading }) =>
       console.log('✅ New booking created with ID:', newBookingId);
       
       const amount = calculateTotalPrice(flight, bookingData);
-      const success = await createPaymentIntent(newBookingId, amount, bookingData.currency, token);
+      const success = await createPaymentIntent(newBookingId, amount, bookingData.currency, token, onClientSecretUpdate);
 
       if (!success) {
         throw new Error('Failed to create new payment intent.');
@@ -357,6 +360,7 @@ PaymentSection.propTypes = {
   onPaymentSuccess: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
+  onClientSecretUpdate: PropTypes.func, // إضافة الـ prop الجديد
 };
 
 export default PaymentSection;

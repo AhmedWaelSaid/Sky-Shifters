@@ -14,7 +14,8 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
   const [paymentError, setPaymentError] = useState('');
   const [isLoadingPaymentStatus, setIsLoadingPaymentStatus] = useState(false);
   const [bookingDetails, setBookingDetails] = useState(null);
-  const intervalRef = useRef(null); // لتخزين معرف الـ interval
+  const [clientSecret, setClientSecret] = useState(''); // إضافة حالة لـ clientSecret
+  const intervalRef = useRef(null);
 
   // دالة الاستعلام عن حالة الدفع
   const pollPaymentStatus = async (bookingId, token) => {
@@ -30,12 +31,12 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
         setPaymentStatus('succeeded');
         setBookingDetails(response.data.data);
         setIsLoadingPaymentStatus(false);
-        if (intervalRef.current) clearInterval(intervalRef.current); // إلغاء الاستعلام عند النجاح
+        if (intervalRef.current) clearInterval(intervalRef.current);
       } else if (response.data.success && response.data.data.status === 'failed') {
         setPaymentStatus('failed');
         setPaymentError('Payment failed. Please try again.');
         setIsLoadingPaymentStatus(false);
-        if (intervalRef.current) clearInterval(intervalRef.current); // إلغاء الاستعلام عند الفشل
+        if (intervalRef.current) clearInterval(intervalRef.current);
       } else if (!response.data.success) {
         setPaymentStatus('failed');
         setPaymentError(response.data.message || 'Failed to get payment status.');
@@ -67,23 +68,32 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
       return;
     }
 
+    // تحديث الـ clientSecret بناءً على البيانات اللي جت من PaymentSection
+    setClientSecret(''); // يمكن تكون فارغة هنا لأنها بتجي من PaymentSection
+
     // استدعاء الاستعلام مرة واحدة فوراً
     await pollPaymentStatus(bookingId, token);
 
     // إعداد الاستعلام الدوري
-    if (intervalRef.current) clearInterval(intervalRef.current); // مسح أي interval سابق
-    intervalRef.current = setInterval(() => pollPaymentStatus(bookingId, token), 5000); // استعلام كل 5 ثوانٍ
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => pollPaymentStatus(bookingId, token), 5000);
+  };
+
+  // استدعاء الـ clientSecret من PaymentSection
+  const handleClientSecretUpdate = (newClientSecret) => {
+    setClientSecret(newClientSecret);
   };
 
   useEffect(() => {
-    // تنظيف المؤقت عند تغيير paymentStatus أو عند إلغاء تحميل المكون
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
-  }, [paymentStatus]);
+  }, []);
+
+  const options = clientSecret ? { clientSecret } : {}; // تحديث الـ options ديناميكيًا
 
   return (
     <div className={styles.finalDetails}>
@@ -93,7 +103,6 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
             <h2>Your booking is confirmed!</h2>
             <p>Booking ID: {bookingDetails?.bookingId}</p>
             <p>Payment Intent ID: {bookingDetails?.paymentIntentId}</p>
-            {/* يمكنك إضافة المزيد من التفاصيل هنا */}
           </div>
         ) : paymentStatus === 'failed' ? (
           <div className={styles.errorMessage}>
@@ -101,12 +110,13 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
             <p>{paymentError || 'Please try again or contact support.'}</p>
           </div>
         ) : (
-          <Elements stripe={stripePromise}>
+          <Elements stripe={stripePromise} options={options}>
             <PaymentSection 
               bookingData={formData.finalBookingData} 
               onPaymentSuccess={handlePaymentSuccess}
               onBack={onBack}
-              isLoading={isLoadingPaymentStatus} 
+              isLoading={isLoadingPaymentStatus}
+              onClientSecretUpdate={handleClientSecretUpdate} // تمرير دالة لتحديث الـ clientSecret
             />
           </Elements>
         )}
