@@ -14,6 +14,7 @@ import VerifyEmail from '../components/Auth/VerifyEmail';
 import UserProfile from '../components/UserProfile/UserProfile';
 import FlightDetails from '../pages/FlightDetails/FlightDetails';
 import ErrorPage from '../components/ErrorPage';
+import BookingList from '../pages/MyBookings/BookingList';
 
 const router = createBrowserRouter([
   {
@@ -67,7 +68,10 @@ const router = createBrowserRouter([
           },
                   ]
       },
-      
+      {
+        path: 'my-bookings',
+        element: <BookingList />,
+      },
     ],
   },
 ]);

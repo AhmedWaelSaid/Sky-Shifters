@@ -1,7 +1,7 @@
 // src/components/SidebarMenu.jsx
 import styles from './SidebarMenu.module.css';
 import { useState } from 'react';
-import { FaHeart, FaCreditCard, FaLock, FaCog, FaQuestionCircle, FaInfoCircle, FaSignOutAlt } from 'react-icons/fa';
+import { FaHeart, FaCreditCard, FaLock, FaCog, FaQuestionCircle, FaInfoCircle, FaSignOutAlt, FaCalendarCheck } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import HamburgerMenu from './HamburgerMenu';
@@ -33,6 +33,11 @@ export default function SidebarMenu() {
           <li className={styles.menuItem}>
             <FaHeart className={styles.icon} />
             <Link to="/favorites" className={styles.link}>Favorites</Link>
+            <span className={styles.arrow}>›</span>
+          </li>
+          <li className={styles.menuItem}>
+            <FaCalendarCheck className={styles.icon} />
+            <Link to="/my-bookings" className={styles.link}>MyBooking</Link>
             <span className={styles.arrow}>›</span>
           </li>
           <li className={styles.menuItem}>
