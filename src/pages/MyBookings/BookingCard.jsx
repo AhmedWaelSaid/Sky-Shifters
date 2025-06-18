@@ -95,13 +95,13 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
               </div>
             </div>
 
-            <div className={styles.baggageInfo}>
+            {/* <div className={styles.baggageInfo}>
               <strong>Baggage Option:</strong> {booking.selectedBaggageOption ? `${booking.selectedBaggageOption.type} - ${booking.selectedBaggageOption.weight} - ${booking.selectedBaggageOption.price} ${booking.selectedBaggageOption.currency}` : 'N/A'}
             </div>
 
             <div className={styles.contactInfo}>
               <strong>Contact:</strong> {booking.contactDetails ? `${booking.contactDetails.email} | ${booking.contactDetails.phone}` : 'N/A'}
-            </div>
+            </div> */}
 
             <div className={styles.passengers}>
               <h4>Passengers</h4>
@@ -120,7 +120,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
             <h4>Flight Summary</h4>
             <div className={styles.summaryDetails}>
               <div className={styles.summaryItem}>
-                <span className={styles.label}>Flight ID:</span> {booking.flightId || '--'}
+                <span className={styles.label}>Flight ID:</span> {booking.flightID || '--'}
               </div>
               <div className={styles.summaryItem}>
                 <span className={styles.label}>Payment Status:</span> {booking.paymentStatus || '--'}

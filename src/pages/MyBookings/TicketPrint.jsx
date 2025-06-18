@@ -7,7 +7,7 @@ const TicketPrint = ({ booking, onClose }) => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('ar-EG', {
+    return new Date(dateString).toLocaleDateString('en-US', {
       weekday: 'short',
       year: 'numeric',
       month: 'short',
@@ -59,7 +59,7 @@ const TicketPrint = ({ booking, onClose }) => {
                 <div className={styles.plane}>✈</div>
                 <div className={styles.duration}>{booking.duration}</div>
                 {booking.stops > 0 && (
-                  <div className={styles.stops}>{booking.stops} توقف</div>
+                  <div className={styles.stops}>{booking.stops} Stop{booking.stops > 1 ? 's' : ''}</div>
                 )}
               </div>
               
