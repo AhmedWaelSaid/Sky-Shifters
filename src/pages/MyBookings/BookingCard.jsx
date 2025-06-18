@@ -120,7 +120,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
             <h4>Flight Summary</h4>
             <div className={styles.summaryDetails}>
               <div className={styles.summaryItem}>
-                <span className={styles.label}>Flight ID:</span> {booking.flightID || '--'}
+                <span className={styles.label}>Flight ID:</span> {booking.flightId || '--'}
               </div>
               <div className={styles.summaryItem}>
                 <span className={styles.label}>Payment Status:</span> {booking.paymentStatus || '--'}

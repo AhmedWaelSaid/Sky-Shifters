@@ -41,7 +41,7 @@ const TicketPrint = ({ booking, onClose }) => {
                 </div>
                 <div>
                   <div className={styles.airlineName}>{booking.airline || booking.originCity || booking.flightId || 'Flight'}</div>
-                  <div className={styles.flightNumber}>{booking.flightNumber || booking.flightId || booking.bookingRef || ''}</div>
+                  <div className={styles.flightNumber}>{booking.flightId || ''}</div>
                 </div>
               </div>
             </div>
@@ -97,7 +97,7 @@ const TicketPrint = ({ booking, onClose }) => {
             <div className={styles.bookingDetails}>
               <div className={styles.detailRow}>
                 <span>Booking Date:</span>
-                <span>{formatDate(booking.bookingDate)}</span>
+                <span>{formatDate(booking.createdAt)}</span>
               </div>
               <div className={styles.detailRow}>
                 <span>Booking Status:</span>
