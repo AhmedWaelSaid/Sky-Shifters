@@ -461,3 +461,30 @@
   }
 }
 
+.baggageInfo, .contactInfo {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px 18px;
+  margin: 10px 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.baggageInfo::before {
+  content: '\1F4E6'; /* أيقونة شنطة */
+  margin-right: 8px;
+  font-size: 1.1em;
+}
+.contactInfo::before {
+  content: '\2709'; /* أيقونة رسالة */
+  margin-right: 8px;
+  font-size: 1.1em;
+}
+.baggageInfo strong, .contactInfo strong {
+  color: #007bff;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
