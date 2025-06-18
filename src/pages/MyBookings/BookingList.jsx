@@ -163,7 +163,6 @@ const BookingList = () => {
           ))
         )}
       </div>
-
       {selectedBookingForPrint && (
         <TicketPrint
           booking={selectedBookingForPrint}
