@@ -4,12 +4,14 @@ import BookingCard from './BookingCard';
 import TicketPrint from './TicketPrint';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import toastStyles from './Toast.module.css';
 
 const BookingList = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedBookingForPrint, setSelectedBookingForPrint] = useState(null);
   const [error, setError] = useState(null);
+  const [showCancelToast, setShowCancelToast] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -82,7 +84,8 @@ const BookingList = () => {
               : b
           )
         );
-        // Optionally show a non-blocking success message here
+        setShowCancelToast(true);
+        setTimeout(() => setShowCancelToast(false), 2500);
       } else {
         // Optionally show a non-blocking error message here
       }
@@ -166,6 +169,12 @@ const BookingList = () => {
           booking={selectedBookingForPrint}
           onClose={() => setSelectedBookingForPrint(null)}
         />
+      )}
+      {/* Toast notification for cancel success */}
+      {showCancelToast && (
+        <div className={toastStyles.toast}>
+          Booking cancelled successfully.
+        </div>
       )}
     </div>
   );
