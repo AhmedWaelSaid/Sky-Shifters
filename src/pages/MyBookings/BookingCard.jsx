@@ -159,7 +159,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
         </button>
         <button
           className={styles.cancelButton}
-          onClick={() => onCancel(booking.id)}
+          onClick={() => onCancel(booking._id)}
           disabled={booking.status === 'cancelled'}
         >
           Cancel Booking
