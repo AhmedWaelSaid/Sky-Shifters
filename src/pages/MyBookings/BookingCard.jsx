@@ -1,18 +1,10 @@
-import React from 'react';
+import  { useState } from 'react';
 import styles from './BookingCard.module.css';
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from './ui/alert-dialog';
+import modalStyles from './ConfirmModal.module.css';
 
 const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const getStatusText = (status) => {
     switch (status) {
       case 'confirmed':
@@ -37,6 +29,13 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
       default:
         return '';
     }
+  };
+
+  const handleCancelClick = () => setShowConfirm(true);
+  const handleCloseModal = () => setShowConfirm(false);
+  const handleConfirmCancel = () => {
+    setShowConfirm(false);
+    onCancel(booking._id);
   };
 
   return (
@@ -168,31 +167,27 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
         >
           Print Ticket
         </button>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <button
-              className={styles.cancelButton}
-              disabled={booking.status === 'cancelled'}
-            >
-              Cancel Booking
-            </button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Cancel Booking</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to cancel this booking? This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Back</AlertDialogCancel>
-              <AlertDialogAction onClick={() => onCancel(booking._id)}>
-                Yes, Cancel
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <button
+          className={styles.cancelButton}
+          onClick={handleCancelClick}
+          disabled={booking.status === 'cancelled'}
+        >
+          Cancel Booking
+        </button>
       </div>
+
+      {showConfirm && (
+        <div className={modalStyles.overlay}>
+          <div className={modalStyles.modal}>
+            <div className={modalStyles.modalTitle}>Cancel Booking</div>
+            <div>Are you sure you want to cancel this booking? This action cannot be undone.</div>
+            <div className={modalStyles.modalActions}>
+              <button className={modalStyles.cancelBtn} onClick={handleCloseModal}>Back</button>
+              <button className={modalStyles.confirmBtn} onClick={handleConfirmCancel}>Yes, Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
