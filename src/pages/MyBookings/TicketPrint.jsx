@@ -31,21 +31,27 @@ const TicketPrint = ({ booking, onClose }) => {
               </div>
               <div className={styles.airline}>
                 <div className={styles.airlineLogo}>
-                  {booking.airline.charAt(0)}
+                  {(booking.airline && typeof booking.airline === 'string')
+                    ? booking.airline.charAt(0)
+                    : (booking.originCity && typeof booking.originCity === 'string')
+                      ? booking.originCity.charAt(0)
+                      : (booking.flightId && typeof booking.flightId === 'string')
+                        ? booking.flightId.charAt(0)
+                        : '?'}
                 </div>
                 <div>
-                  <div className={styles.airlineName}>{booking.airline}</div>
-                  <div className={styles.flightNumber}>{booking.flightNumber}</div>
+                  <div className={styles.airlineName}>{booking.airline || booking.originCity || booking.flightId || 'Flight'}</div>
+                  <div className={styles.flightNumber}>{booking.flightNumber || booking.flightId || booking.bookingRef || ''}</div>
                 </div>
               </div>
             </div>
             
             <div className={styles.flightRoute}>
               <div className={styles.departure}>
-                <div className={styles.city}>{booking.departure.city}</div>
-                <div className={styles.airport}>{booking.departure.airport}</div>
-                <div className={styles.time}>{booking.departure.time}</div>
-                <div className={styles.date}>{formatDate(booking.departure.date)}</div>
+                <div className={styles.city}>{booking.departure?.city || booking.originCity || '--'}</div>
+                <div className={styles.airport}>{booking.departure?.airport || booking.originAirportCode || '--'}</div>
+                <div className={styles.time}>{booking.departure?.time || booking.departureTime || (booking.departureDate ? new Date(booking.departureDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--')}</div>
+                <div className={styles.date}>{formatDate(booking.departure?.date || booking.departureDate || '')}</div>
               </div>
               
               <div className={styles.flightPath}>
@@ -58,10 +64,10 @@ const TicketPrint = ({ booking, onClose }) => {
               </div>
               
               <div className={styles.arrival}>
-                <div className={styles.city}>{booking.arrival.city}</div>
-                <div className={styles.airport}>{booking.arrival.airport}</div>
-                <div className={styles.time}>{booking.arrival.time}</div>
-                <div className={styles.date}>{formatDate(booking.arrival.date)}</div>
+                <div className={styles.city}>{booking.arrival?.city || booking.destinationCity || '--'}</div>
+                <div className={styles.airport}>{booking.arrival?.airport || booking.destinationAirportCode || '--'}</div>
+                <div className={styles.time}>{booking.arrival?.time || booking.arrivalTime || (booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--')}</div>
+                <div className={styles.date}>{formatDate(booking.arrival?.date || booking.arrivalDate || '')}</div>
               </div>
             </div>
           </div>
@@ -80,10 +86,10 @@ const TicketPrint = ({ booking, onClose }) => {
           <div className={styles.ticketBottom}>
             <div className={styles.passengerInfo}>
               <h3>معلومات المسافرين</h3>
-              {booking.passengers.map((passenger, index) => (
-                <div key={passenger.id} className={styles.passenger}>
-                  <span className={styles.passengerName}>{passenger.name}</span>
-                  <span className={styles.passengerType}>({passenger.type})</span>
+              {(booking.travellersInfo || []).map((passenger, index) => (
+                <div key={passenger.passportNumber || index} className={styles.passenger}>
+                  <span className={styles.passengerName}>{passenger.firstName} {passenger.lastName}</span>
+                  <span className={styles.passengerType}>({passenger.travelerType})</span>
                 </div>
               ))}
             </div>
@@ -99,7 +105,7 @@ const TicketPrint = ({ booking, onClose }) => {
               </div>
               <div className={styles.detailRow}>
                 <span>Amount Paid:</span>
-                <span className={styles.price}>${booking.price.toFixed(2)}</span>
+                <span className={styles.price}>${(Number(booking.totalPrice) || Number(booking.price) || 0).toFixed(2)}</span>
               </div>
             </div>
             
