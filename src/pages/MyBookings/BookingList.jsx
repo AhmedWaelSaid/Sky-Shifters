@@ -125,6 +125,21 @@ const BookingList = () => {
     );
   }
 
+  // Filter out cancelled bookings older than 1 day
+  const now = new Date();
+  const filteredBookings = bookings.filter(b => {
+    if (b.status !== 'cancelled') return true;
+    if (!b.cancelledAt) return true;
+    const cancelledAt = new Date(b.cancelledAt);
+    const diffMs = now - cancelledAt;
+    return diffMs < 24 * 60 * 60 * 1000; // less than 1 day
+  });
+
+  const sortedBookings = [
+    ...filteredBookings.filter(b => b.status !== 'cancelled').sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+    ...filteredBookings.filter(b => b.status === 'cancelled').sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+  ];
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -133,12 +148,12 @@ const BookingList = () => {
       </div>
 
       <div className={styles.bookingsList}>
-        {bookings.length === 0 ? (
+        {sortedBookings.length === 0 ? (
           <div className={styles.emptyState}>
             <p>No bookings available</p>
           </div>
         ) : (
-          bookings.map(booking => (
+          sortedBookings.map(booking => (
             <BookingCard
               key={booking._id}
               booking={booking}

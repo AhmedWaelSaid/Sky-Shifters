@@ -1,5 +1,16 @@
 import React from 'react';
 import styles from './BookingCard.module.css';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from './ui/alert-dialog';
 
 const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
   const getStatusText = (status) => {
@@ -157,13 +168,30 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
         >
           Print Ticket
         </button>
-        <button
-          className={styles.cancelButton}
-          onClick={() => onCancel(booking._id)}
-          disabled={booking.status === 'cancelled'}
-        >
-          Cancel Booking
-        </button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button
+              className={styles.cancelButton}
+              disabled={booking.status === 'cancelled'}
+            >
+              Cancel Booking
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Cancel Booking</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to cancel this booking? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Back</AlertDialogCancel>
+              <AlertDialogAction onClick={() => onCancel(booking._id)}>
+                Yes, Cancel
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
