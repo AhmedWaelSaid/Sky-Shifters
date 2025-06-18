@@ -32,7 +32,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
     <div className={styles.bookingCard}>
       <div className={styles.cardHeader}>
         <div className={styles.bookingInfo}>
-          <h3 className={styles.bookingReference}>Booking Ref: {booking.bookingRef || '--'}</h3>
+          <h3 className={styles.bookingReference}>{booking.bookingReference}</h3>
           <span className={`${styles.status} ${getStatusClass(booking.status)}`}>{getStatusText(booking.status)}</span>
         </div>
         <div className={styles.bookingDate}>
@@ -72,12 +72,25 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
             <div className={styles.flightDetails}>
               <div className={styles.flightRoute}>
                 <div className={styles.departureInfo}>
-                  <div><strong>From:</strong> {booking.originCity || '--'} ({booking.originAirportCode || '--'})</div>
-                  <div><strong>Departure:</strong> {booking.departureDate ? new Date(booking.departureDate).toLocaleString() : '--'}</div>
+                  <div className={styles.time}>{booking.departure?.time || booking.departureTime || (booking.departureDate ? new Date(booking.departureDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--')}</div>
+                  <div className={styles.airport}>{booking.departure?.airport || booking.originAirportCode || '--'}</div>
+                  <div className={styles.date}>{booking.departure?.date || (booking.departureDate ? new Date(booking.departureDate).toLocaleDateString() : '--')}</div>
+                </div>
+                <div className={styles.flightPath}>
+                  <div className={styles.stopsInfo}>
+                    {booking.stops > 0 ? `${booking.stops} Stop` : 'Direct'}
+                  </div>
+                  <div className={styles.pathLine}>
+                    <div className={styles.pathDot}></div>
+                    <div className={styles.pathConnector}></div>
+                    <div className={styles.pathArrow}>→</div>
+                  </div>
+                  <div className={styles.duration}>{booking.duration || '--'}</div>
                 </div>
                 <div className={styles.arrivalInfo}>
-                  <div><strong>To:</strong> {booking.destinationCity || '--'} ({booking.destinationAirportCode || '--'})</div>
-                  <div><strong>Arrival:</strong> {booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleString() : '--'}</div>
+                  <div className={styles.time}>{booking.arrival?.time || booking.arrivalTime || (booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--')}</div>
+                  <div className={styles.airport}>{booking.arrival?.airport || booking.destinationAirportCode || '--'}</div>
+                  <div className={styles.date}>{booking.arrival?.date || (booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleDateString() : '--')}</div>
                 </div>
               </div>
             </div>
