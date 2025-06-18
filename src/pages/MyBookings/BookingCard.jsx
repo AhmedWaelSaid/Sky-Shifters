@@ -139,11 +139,11 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
               <div className={styles.summaryItem}>
                 <span className={styles.label}>Cancellation and Date Change</span>
                 <div className={styles.policyInfo}>
-                  <div className={`${styles.policyItem} ${!booking.cancellationPolicy.refundable ? styles.nonRefundable : ''}`}>
-                    • {booking.cancellationPolicy.refundable ? 'Refundable' : 'Non-refundable'}
+                  <div className={`${styles.policyItem} ${!booking.cancellationPolicy?.refundable ? styles.nonRefundable : ''}`}>
+                    • {booking.cancellationPolicy?.refundable === true ? 'Refundable' : booking.cancellationPolicy?.refundable === false ? 'Non-refundable' : 'N/A'}
                   </div>
-                  <div className={`${styles.policyItem} ${booking.cancellationPolicy.changeableWithFees ? styles.changeable : ''}`}>
-                    • {booking.cancellationPolicy.changeableWithFees ? 'Changeable with fees' : 'Non-changeable'}
+                  <div className={`${styles.policyItem} ${booking.cancellationPolicy?.changeableWithFees ? styles.changeable : ''}`}>
+                    • {booking.cancellationPolicy?.changeableWithFees === true ? 'Changeable with fees' : booking.cancellationPolicy?.changeableWithFees === false ? 'Non-changeable' : 'N/A'}
                   </div>
                 </div>
               </div>
