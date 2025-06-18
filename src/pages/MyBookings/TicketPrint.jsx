@@ -19,7 +19,7 @@ const TicketPrint = ({ booking, onClose }) => {
     <div className={styles.overlay}>
       <div className={styles.ticketContainer}>
         <div className={styles.ticketHeader}>
-          <h2>تذكرة الطيران</h2>
+          <h2>Flight Ticket</h2>
           <button className={styles.closeButton} onClick={onClose}>×</button>
         </div>
         
@@ -27,7 +27,7 @@ const TicketPrint = ({ booking, onClose }) => {
           <div className={styles.ticketTop}>
             <div className={styles.ticketInfo}>
               <div className={styles.bookingRef}>
-                <strong>رقم الحجز: {booking.bookingReference}</strong>
+                <strong>Booking Ref: {booking.bookingReference}</strong>
               </div>
               <div className={styles.airline}>
                 <div className={styles.airlineLogo}>
@@ -85,7 +85,7 @@ const TicketPrint = ({ booking, onClose }) => {
           
           <div className={styles.ticketBottom}>
             <div className={styles.passengerInfo}>
-              <h3>معلومات المسافرين</h3>
+              <h3>Passenger Information</h3>
               {(booking.travellersInfo || []).map((passenger, index) => (
                 <div key={passenger.passportNumber || index} className={styles.passenger}>
                   <span className={styles.passengerName}>{passenger.firstName} {passenger.lastName}</span>
@@ -129,10 +129,10 @@ const TicketPrint = ({ booking, onClose }) => {
         
         <div className={styles.ticketActions}>
           <button className={styles.printButton} onClick={handlePrint}>
-            طباعة التذكرة
+            Print Ticket
           </button>
           <button className={styles.cancelButton} onClick={onClose}>
-            إغلاق
+            Close
           </button>
         </div>
       </div>
