@@ -50,20 +50,52 @@ const BookingList = () => {
   }, [navigate]);
 
   const handleCancelBooking = async (bookingId) => {
-    if (window.confirm('هل أنت متأكد من إلغاء هذا الحجز؟')) {
+    const booking = bookings.find(b => b._id === bookingId);
+    if (!booking) {
+      alert('Booking not found.');
+      return;
+    }
+    if (booking.status !== 'confirmed') {
+      alert('Only confirmed bookings can be cancelled.');
+      return;
+    }
+    if (window.confirm('Are you sure you want to cancel this booking?')) {
       try {
-        // محاكاة استدعاء API لإلغاء الحجز
-        setBookings(prevBookings => 
-          prevBookings.map(booking => 
-            booking.id === bookingId 
-              ? { ...booking, status: 'cancelled' }
-              : booking
-          )
-        );
-        alert('تم إلغاء الحجز بنجاح');
+        const userString = localStorage.getItem('user');
+        const userData = userString ? JSON.parse(userString) : null;
+        const token = userData?.token;
+        if (!token) {
+          navigate('/auth');
+          return;
+        }
+        const response = await axios.post(`https://sky-shifters.duckdns.org/booking/${bookingId}/cancel`, {
+          reason: 'Change of plans'
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.data?.success) {
+          setBookings(prevBookings =>
+            prevBookings.map(b =>
+              b._id === bookingId
+                ? { ...b, status: 'cancelled', cancellationReason: 'Change of plans', cancelledAt: new Date().toISOString() }
+                : b
+            )
+          );
+          alert('Booking cancelled successfully.');
+        } else {
+          alert('Failed to cancel booking.');
+        }
       } catch (error) {
-        console.error('Error cancelling booking:', error);
-        alert('حدث خطأ أثناء إلغاء الحجز');
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          localStorage.removeItem('user');
+          navigate('/auth');
+        } else if (error.response && error.response.data && error.response.data.message) {
+          alert(error.response.data.message);
+        } else {
+          alert('An error occurred while cancelling the booking.');
+        }
       }
     }
   };
