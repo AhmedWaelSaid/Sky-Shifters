@@ -153,12 +153,12 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
                 <div className={styles.priceBreakdown}>
                   <div className={styles.priceItem}>
                     <span>Passengers {(booking.travellersInfo || []).length}</span>
-                    <span>${booking.price.toFixed(2)}</span>
+                    <span>${(Number(booking.totalPrice) || Number(booking.price) || 0).toFixed(2)}</span>
                   </div>
                 </div>
                 <div className={styles.totalPrice}>
                   <span>Total amount required</span>
-                  <span>${booking.price.toFixed(2)}</span>
+                  <span>${(Number(booking.totalPrice) || Number(booking.price) || 0).toFixed(2)}</span>
                 </div>
               </div>
             </div>
