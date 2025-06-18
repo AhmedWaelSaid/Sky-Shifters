@@ -56,12 +56,18 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
             <div className={styles.airlineSection}>
               <div className={styles.airlineIcon}>
                 <div className={styles.airlineLogo}>
-                  {booking.airline.charAt(0)}
+                  {(booking.airline && typeof booking.airline === 'string')
+                    ? booking.airline.charAt(0)
+                    : (booking.originCity && typeof booking.originCity === 'string')
+                      ? booking.originCity.charAt(0)
+                      : (booking.flightId && typeof booking.flightId === 'string')
+                        ? booking.flightId.charAt(0)
+                        : '?'}
                 </div>
               </div>
               <div className={styles.airlineInfo}>
-                <h4>{booking.airline}</h4>
-                <p>{booking.flightNumber}</p>
+                <h4>{booking.airline || booking.originCity || booking.flightId || 'Flight'}</h4>
+                <p>{booking.flightNumber || booking.flightId || booking.bookingRef || ''}</p>
               </div>
             </div>
 
