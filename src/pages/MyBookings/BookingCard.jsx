@@ -5,11 +5,11 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
   const getStatusText = (status) => {
     switch (status) {
       case 'confirmed':
-        return 'مؤكد';
+        return 'Confirmed';
       case 'cancelled':
-        return 'ملغى';
+        return 'Cancelled';
       case 'pending':
-        return 'في الانتظار';
+        return 'Pending';
       default:
         return status;
     }
@@ -38,7 +38,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
           </span>
         </div>
         <div className={styles.bookingDate}>
-          تاريخ الحجز: {new Date(booking.bookingDate).toLocaleDateString('ar-EG')}
+          Booking Date: {new Date(booking.bookingDate).toLocaleDateString('en-US')}
         </div>
       </div>
 
@@ -48,8 +48,8 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
             <div className={styles.importantInfo}>
               <div className={styles.infoIcon}>!</div>
               <div className={styles.infoContent}>
-                <h4>معلومات مهمة عن الرحلة</h4>
-                <p>يرجى العلم أنه توجد رسوم إضافية قد تطبق عند المطار</p>
+                <h4>Important flight information</h4>
+                <p>Please note that additional fees may apply at the airport.</p>
               </div>
             </div>
 
@@ -94,7 +94,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
             </div>
 
             <div className={styles.passengers}>
-              <h4>المسافرون</h4>
+              <h4>Passengers</h4>
               {booking.passengers.map((passenger, index) => (
                 <div key={passenger.id} className={styles.passenger}>
                   <span>{passenger.name}</span>
@@ -107,10 +107,10 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
 
         <div className={styles.rightSection}>
           <div className={styles.flightSummary}>
-            <h4>ملخص الرحلة</h4>
+            <h4>Flight Summary</h4>
             <div className={styles.summaryDetails}>
               <div className={styles.summaryItem}>
-                <span className={styles.label}>المغادرة</span>
+                <span className={styles.label}>Departure</span>
                 <div className={styles.summaryFlight}>
                   <div>{booking.departure.date}</div>
                   <div className={styles.flightNumber}>{booking.flightNumber}</div>
@@ -131,27 +131,27 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
               </div>
 
               <div className={styles.summaryItem}>
-                <span className={styles.label}>الإلغاء وتغيير التاريخ</span>
+                <span className={styles.label}>Cancellation and Date Change</span>
                 <div className={styles.policyInfo}>
                   <div className={`${styles.policyItem} ${!booking.cancellationPolicy.refundable ? styles.nonRefundable : ''}`}>
-                    • {booking.cancellationPolicy.refundable ? 'قابل للاسترداد' : 'غير قابل للاسترداد'}
+                    • {booking.cancellationPolicy.refundable ? 'Refundable' : 'Non-refundable'}
                   </div>
                   <div className={`${styles.policyItem} ${booking.cancellationPolicy.changeableWithFees ? styles.changeable : ''}`}>
-                    • {booking.cancellationPolicy.changeableWithFees ? 'قابل للتغيير مع رسوم' : 'غير قابل للتغيير'}
+                    • {booking.cancellationPolicy.changeableWithFees ? 'Changeable with fees' : 'Non-changeable'}
                   </div>
                 </div>
               </div>
 
               <div className={styles.summaryItem}>
-                <span className={styles.label}>تفاصيل السعر</span>
+                <span className={styles.label}>Price Details</span>
                 <div className={styles.priceBreakdown}>
                   <div className={styles.priceItem}>
-                    <span>البالغون {booking.passengers.length}</span>
+                    <span>Adults {booking.passengers.length}</span>
                     <span>${booking.price.toFixed(2)}</span>
                   </div>
                 </div>
                 <div className={styles.totalPrice}>
-                  <span>المجموع المطلوب دفعه</span>
+                  <span>Total amount required</span>
                   <span>${booking.price.toFixed(2)}</span>
                 </div>
               </div>
@@ -166,14 +166,14 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
           onClick={() => onPrintTicket(booking)}
           disabled={booking.status === 'cancelled'}
         >
-          طباعة التذكرة
+          Print Ticket
         </button>
         <button
           className={styles.cancelButton}
           onClick={() => onCancel(booking.id)}
           disabled={booking.status === 'cancelled'}
         >
-          إلغاء الحجز
+          Cancel Booking
         </button>
       </div>
     </div>

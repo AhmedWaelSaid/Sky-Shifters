@@ -90,15 +90,15 @@ const TicketPrint = ({ booking, onClose }) => {
             
             <div className={styles.bookingDetails}>
               <div className={styles.detailRow}>
-                <span>تاريخ الحجز:</span>
+                <span>Booking Date:</span>
                 <span>{formatDate(booking.bookingDate)}</span>
               </div>
               <div className={styles.detailRow}>
-                <span>حالة الحجز:</span>
-                <span className={styles.status}>مؤكد</span>
+                <span>Booking Status:</span>
+                <span className={styles.status}>Confirmed</span>
               </div>
               <div className={styles.detailRow}>
-                <span>المبلغ المدفوع:</span>
+                <span>Amount Paid:</span>
                 <span className={styles.price}>${booking.price.toFixed(2)}</span>
               </div>
             </div>

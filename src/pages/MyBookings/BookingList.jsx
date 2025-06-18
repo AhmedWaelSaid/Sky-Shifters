@@ -1,110 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import styles from './BookingList.module.css';
 import BookingCard from './BookingCard';
-import ProgressSteps from './ProgressSteps';
 import TicketPrint from './TicketPrint';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const BookingList = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedBookingForPrint, setSelectedBookingForPrint] = useState(null);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  // محاكاة جلب البيانات من API
   useEffect(() => {
-    // محاكاة استدعاء API
     const fetchBookings = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        // هنا يمكن استبدال هذا بـ API حقيقي
-        const mockBookings = [
-          {
-            id: 1,
-            bookingReference: 'SV388-2025',
-            airline: 'Saudi Arabian Airlines',
-            flightNumber: 'SV-388',
-            departure: {
-              airport: 'CAI',
-              city: 'Cairo',
-              time: '11:25 PM',
-              date: 'Wed, 18 Jun 2025'
-            },
-            arrival: {
-              airport: 'RUH',
-              city: 'Riyadh',
-              time: '7:50 AM',
-              date: 'Thu, 19 Jun 2025'
-            },
-            duration: '8h 25m',
-            stops: 1,
-            passengers: [
-              {
-                id: 1,
-                name: 'Adult 1',
-                type: 'Adult'
-              }
-            ],
-            price: 96.02,
-            currency: 'USD',
-            status: 'confirmed',
-            bookingDate: '2025-06-15',
-            cancellationPolicy: {
-              refundable: false,
-              changeableWithFees: true
-            }
+        const userString = localStorage.getItem('user');
+        const userData = userString ? JSON.parse(userString) : null;
+        const token = userData?.token;
+        if (!token) {
+          navigate('/auth');
+          return;
+        }
+        const response = await axios.get('https://sky-shifters.duckdns.org/booking/my-bookings', {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-          {
-            id: 2,
-            bookingReference: 'EK205-2025',
-            airline: 'Emirates',
-            flightNumber: 'EK-205',
-            departure: {
-              airport: 'DXB',
-              city: 'Dubai',
-              time: '2:15 PM',
-              date: 'Fri, 20 Jun 2025'
-            },
-            arrival: {
-              airport: 'CAI',
-              city: 'Cairo',
-              time: '5:30 PM',
-              date: 'Fri, 20 Jun 2025'
-            },
-            duration: '4h 15m',
-            stops: 0,
-            passengers: [
-              {
-                id: 1,
-                name: 'Adult 1',
-                type: 'Adult'
-              },
-              {
-                id: 2,
-                name: 'Adult 2',
-                type: 'Adult'
-              }
-            ],
-            price: 245.50,
-            currency: 'USD',
-            status: 'confirmed',
-            bookingDate: '2025-06-16',
-            cancellationPolicy: {
-              refundable: true,
-              changeableWithFees: false
-            }
-          }
-        ];
-        
-        setTimeout(() => {
-          setBookings(mockBookings);
-          setLoading(false);
-        }, 1000);
-      } catch (error) {
-        console.error('Error fetching bookings:', error);
+        });
+        if (response.data?.data?.bookings) {
+          setBookings(response.data.data.bookings);
+        } else {
+          setBookings([]);
+        }
+      } catch (err) {
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+          // Token expired or invalid
+          localStorage.removeItem('user');
+          navigate('/auth');
+        } else {
+          setError('Failed to load bookings. Please try again.');
+        }
+      } finally {
         setLoading(false);
       }
     };
-
     fetchBookings();
-  }, []);
+  }, [navigate]);
 
   const handleCancelBooking = async (bookingId) => {
     if (window.confirm('هل أنت متأكد من إلغاء هذا الحجز؟')) {
@@ -134,7 +77,17 @@ const BookingList = () => {
       <div className={styles.container}>
         <div className={styles.loading}>
           <div className={styles.spinner}></div>
-          <p>جاري تحميل الحجوزات...</p>
+          <p>Loading bookings...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loading}>
+          <p>{error}</p>
         </div>
       </div>
     );
@@ -142,22 +95,20 @@ const BookingList = () => {
 
   return (
     <div className={styles.container}>
-      <ProgressSteps currentStep={4} />
-      
       <div className={styles.header}>
-        <h1 className={styles.title}>حجوزاتي</h1>
-        <p className={styles.subtitle}>عرض وإدارة جميع حجوزاتك</p>
+        <h1 className={styles.title}>My Bookings</h1>
+        <p className={styles.subtitle}>View and manage all your bookings</p>
       </div>
 
       <div className={styles.bookingsList}>
         {bookings.length === 0 ? (
           <div className={styles.emptyState}>
-            <p>لا توجد حجوزات حالياً</p>
+            <p>No bookings available</p>
           </div>
         ) : (
           bookings.map(booking => (
             <BookingCard
-              key={booking.id}
+              key={booking._id}
               booking={booking}
               onCancel={handleCancelBooking}
               onPrintTicket={handlePrintTicket}
