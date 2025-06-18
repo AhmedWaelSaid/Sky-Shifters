@@ -101,10 +101,10 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
 
             <div className={styles.passengers}>
               <h4>Passengers</h4>
-              {booking.passengers.map((passenger, index) => (
-                <div key={passenger.id} className={styles.passenger}>
-                  <span>{passenger.name}</span>
-                  <span className={styles.passengerType}>({passenger.type})</span>
+              {(booking.travellersInfo || []).map((passenger, index) => (
+                <div key={passenger.passportNumber || index} className={styles.passenger}>
+                  <span>{passenger.firstName} {passenger.lastName}</span>
+                  <span className={styles.passengerType}>({passenger.travelerType})</span>
                 </div>
               ))}
             </div>
@@ -152,7 +152,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
                 <span className={styles.label}>Price Details</span>
                 <div className={styles.priceBreakdown}>
                   <div className={styles.priceItem}>
-                    <span>Adults {booking.passengers.length}</span>
+                    <span>Passengers {(booking.travellersInfo || []).length}</span>
                     <span>${booking.price.toFixed(2)}</span>
                   </div>
                 </div>
