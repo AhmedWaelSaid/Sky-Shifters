@@ -239,7 +239,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         clientSecret,
         {
           payment_method: {
-            card: elements.getElement(CardElement),
+            card: elements.getElement(CardNumberElement),
             billing_details: {
               name: bookingData.contactDetails?.fullName || 'guest@example.com',
             },
