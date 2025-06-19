@@ -6,6 +6,7 @@
   background-color: #f8f9fa;
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin-top: 100px;
 }
 
 .loading {
