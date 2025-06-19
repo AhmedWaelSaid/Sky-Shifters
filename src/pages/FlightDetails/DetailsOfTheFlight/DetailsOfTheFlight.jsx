@@ -826,7 +826,7 @@ const DetailsOfTheFlight = (props) => {
               route={sharedData ? 
                 (sharedData.departure.dest.airport.iata +
                 " - " +
-                sharedData.return.dest.airport.iata) : ""
+                sharedData.departure.origin.airport.iata) : ""
               }
             />
           )}
@@ -1234,7 +1234,7 @@ const DetailsOfTheFlight = (props) => {
                 route={sharedData ? (
                   sharedData.return.dest.airport.iata +
                   " - " +
-                  sharedData.departure.dest.airport.iata): ""
+                  sharedData.return.origin.airport.iata): ""
                 }
               />
             )}
