@@ -10,7 +10,20 @@
 .fareSelectionHeader {
   padding: 20px;
 }
-
+.HeaderWrapper{
+  display: flex;
+  justify-content: space-between;
+}
+.detailsBtn {
+  background-color: inherit;
+  border: none;
+  color: #181818;
+  font-size: 16px;
+}
+.detailsBtn:hover {
+  cursor: pointer;
+  transform: scale(1.08);
+}
 .fareSelectionHeader h3 {
   font-size: 18px;
   font-weight: 600;

@@ -10,6 +10,151 @@ import FareSelection from "../../../components/FareSelection/FareSelection";
 import { useAirports } from "../../../helperFun";
 import { dealWithAirline } from "../FlightSummary/FlightSummary";
 
+function Cancellation({ openCancellationDialog, amenities, route }) {
+  const isRefundable = amenities.find(
+    (item) => item.description.toLowerCase() === "refundable ticket"
+  );
+  const isChangeable = amenities.find(
+    (item) => item.description.toLowerCase() === "changeable ticket"
+  );
+  return (
+    <div className={styles.infoCard}>
+      <div className={styles.infoCardHeader}>
+        <div>
+          <h3>Cancel & date change</h3>
+          <div className={styles.route}>{route}</div>
+        </div>
+        <button
+          className={styles.detailsButton}
+          onClick={() => openCancellationDialog(route)}
+        >
+          Details
+        </button>
+      </div>
+      <div className={styles.infoCardBody}>
+        <div className={styles.infoItem}>
+          <span className={isRefundable ? styles.checkIcon : styles.crossIcon}>
+            {isRefundable ? <CheckIcon /> : <XIcon />}
+          </span>
+          <div>Refundable</div>
+        </div>
+        <div className={styles.infoItem}>
+          <span className={isChangeable ? styles.checkIcon : styles.crossIcon}>
+            {isChangeable ? <CheckIcon /> : <XIcon />}
+          </span>
+          <div>Changeable</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+function BaggageDialog({ setBaggageDialogOpen, index, direction }) {
+  let checkedBaggageText;
+  let maxCheckedBaggage;
+  if (direction == "departure") {
+    checkedBaggageText =
+      index.depIndex == 0
+        ? "23 kg checked baggage, 1 piece"
+        : index.depIndex == 1
+          ? "23 kg checked baggage, 2 piece"
+          : "32 kg checked baggage, 1 piece";
+          maxCheckedBaggage = index.depIndex > 1 ? "32kg" : "23kg";
+      
+  } else {
+    checkedBaggageText =
+      index.retIndex == 0
+        ? "23 kg checked baggage, 1 piece"
+        : index.retIndex == 1
+          ? "23 kg checked baggage, 2 piece"
+          : "32 kg checked baggage, 1 piece";
+          maxCheckedBaggage = index.retIndex > 1 ? "32kg" : "23kg";
+  }
+  return (
+    <div className={styles.dialogOverlay}>
+      <div className={styles.detailsDialog}>
+        <div className={styles.dialogHeader}>
+          <div className={styles.dialogTitle}>
+            Baggage Allowance Details
+            <button
+              className={styles.dialogClose}
+              onClick={() => setBaggageDialogOpen(false)}
+            >
+              <XIcon />
+            </button>
+          </div>
+        </div>
+        <div className={styles.dialogContent}>
+          <div className={styles.baggageSection}>
+            <div className={styles.baggageItem}>
+              <span className={styles.checkIconLarge}>
+                <CheckIcon />
+              </span>
+              <div>
+                <div className={styles.baggageTitle}>Cabin baggage</div>
+                <div className={styles.baggageDetail}>
+                  7 kg cabin baggage, 1 piece
+                </div>
+              </div>
+            </div>
+            <div className={styles.baggageItem}>
+              <span className={styles.checkIconLarge}>
+                <CheckIcon />
+              </span>
+              <div>
+                <div className={styles.baggageTitle}>Checked baggage</div>
+                <div className={styles.baggageDetail}>{checkedBaggageText}</div>
+              </div>
+            </div>
+          </div>
+          <div className={styles.baggageNote}>
+            <span className={styles.noteIcon}>
+              <InfoIcon />
+            </span>
+            <p>
+              Please check with the airline for the most up-to-date baggage
+              policies.
+            </p>
+          </div>
+          <div className={styles.dimensionsSection}>
+            <h4>Baggage dimensions</h4>
+            <div className={styles.dimensionsContainer}>
+              <div className={styles.dimensionItem}>
+                <div className={styles.dimensionImageContainer}>
+                  <img
+                    src={baggageCabin}
+                    alt="Cabin Bag"
+                    className={styles.baggageIcon}
+                  />
+                </div>
+                <h5>Cabin bag</h5>
+                <div className={styles.dimensionMeasurements}>
+                  <span>Max 55×40×20cm</span>
+                  <span>Max 7kg</span>
+                </div>
+                <div className={styles.dimensionNote}>Fits in overhead bin</div>
+              </div>
+              <div className={styles.dimensionItem}>
+                <div className={styles.dimensionImageContainer}>
+                  <img
+                    src={baggageChecked}
+                    alt="Checked Bag"
+                    className={styles.baggageIcon}
+                  />
+                </div>
+                <h5>Checked bag</h5>
+                <div className={styles.dimensionMeasurements}>
+                  <span>Max 158cm (linear)</span>
+                  <span>Max {maxCheckedBaggage}</span>
+                </div>
+                <div className={styles.dimensionNote}>Checked at counter</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 // Icons defined as SVG components to avoid dependencies
 const ChevronDownIcon = () => (
   <svg
@@ -229,108 +374,42 @@ function getTimeOfWaiting(flight) {
   mins = waitingTime;
   return hours + "h " + mins + "m";
 }
-
-const baggageOptions = {
-  Economy: [
-    {
-      id: 1,
-      name: "Basic Fare (Included)",
-      checkedBags: "1 × Checked Bag (23kg / 50lbs)",
-      cabinBag: "1 × Cabin Bag (7kg / 15lbs, 55×40×20cm)",
-      extraPrice: 0,
-      extraLabel: "$0 (included)",
-    },
-    {
-      id: 2,
-      name: "Extra Bag Option",
-      checkedBags: "2 × Checked Bags (23kg each)",
-      cabinBag: "1 × Cabin Bag (7kg)",
-      extraPrice: 60,
-      extraLabel: "$60 per additional checked bag",
-    },
-    {
-      id: 3,
-      name: "Heavy Bag Option",
-      checkedBags: "1 × Checked Bag (32kg / 70lbs - overweight allowance)",
-      cabinBag: "1 × Cabin Bag (7kg)",
-      extraPrice: 85,
-      extraLabel: "$85 for overweight upgrade",
-    },
-  ],
-  Premium: [
-    {
-      id: 1,
-      name: "Standard Premium (Included)",
-      checkedBags: "2 × Checked Bags (32kg / 70lbs each)",
-      cabinBag: "2 × Cabin Bags (10kg / 22lbs each)",
-      extraPrice: 0,
-      extraLabel: "$0 (included)",
-    },
-    {
-      id: 2,
-      name: "Extra Premium Bag",
-      checkedBags: "3 × Checked Bags (32kg each)",
-      cabinBag: "2 × Cabin Bags (10kg each)",
-      extraPrice: 100,
-      extraLabel: "$100 per additional checked bag",
-    },
-    {
-      id: 3,
-      name: "Luxury Allowance",
-      checkedBags:
-        "2 × Checked Bags (32kg each) + 1 Oversized Bag (up to 158cm / 62in linear)",
-      cabinBag: "2 × Cabin Bags (10kg each)",
-      extraPrice: 150,
-      extraLabel: "$150 for oversized item",
-    },
-  ],
-};
-
 const DetailsOfTheFlight = (props) => {
   const { airports } = useAirports();
   const [expandedStops, setExpandedStops] = useState(false);
-  const [expandedServices, setExpandedServices] = useState(false);
   const [expandedReturnStops, setExpandedReturnStops] = useState(false);
-  const [expandedReturnServices, setExpandedReturnServices] = useState(false);
   const [baggageDialogOpen, setBaggageDialogOpen] = useState(false);
+  const [baggageDialogOpen2, setBaggageDialogOpen2] = useState(false);
   const [cancellationDialogOpen, setCancellationDialogOpen] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState("RUH-MNL");
   const { flight, sharedData } = useData();
-  const departureClass = flight?.departure?.data?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin || 'ECONOMY';
-  const returnClass = flight?.return?.data?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin || departureClass;
-  const [selectedClass, setSelectedClass] = useState("Economy");
-  const [baggageIndex, setBaggageIndex] = useState(0);
+  const [fareSelectionIndex, setFareSelectionIndex] = useState({
+    depIndex: 0,
+    retIndex: 0,
+  });
 
-  useEffect(() => {
-    const id = props.formData?.baggageSelection?.selectedId;
-    const options = baggageOptions[selectedClass];
-    const idx = options.findIndex((opt) => opt.id === id);
-    setBaggageIndex(idx >= 0 ? idx : 0);
-  }, [props.formData, selectedClass]);
-
-  const options = baggageOptions[selectedClass];
-  const selectedOption = options[baggageIndex];
-
+  const departureClass =
+    flight?.departure?.data?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]
+      ?.cabin || "ECONOMY";
+  const returnClass =
+    flight?.return?.data?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]
+      ?.cabin || departureClass;
 
   const toggleStopsDropdown = () => {
     setExpandedStops(!expandedStops);
-  };
-
-  const toggleServicesDropdown = () => {
-    setExpandedServices(!expandedServices);
   };
 
   const toggleReturnStopsDropdown = () => {
     setExpandedReturnStops(!expandedReturnStops);
   };
 
-  const toggleReturnServicesDropdown = () => {
-    setExpandedReturnServices(!expandedReturnServices);
-  };
-
   const openBaggageDialog = (route) => {
     setSelectedRoute(route);
     setBaggageDialogOpen(true);
+  };
+  const openBaggageDialog2 = (route) => {
+    setSelectedRoute(route);
+    setBaggageDialogOpen2(true);
   };
 
   const openCancellationDialog = (route) => {
@@ -735,81 +814,32 @@ const DetailsOfTheFlight = (props) => {
 
         {/* Additional Information */}
         <div className={styles.additionalInfo}>
-          {/* Baggage Allowance */}
-          <div className={styles.infoCard}>
-            <div className={styles.infoCardHeader}>
-              <div>
-                <h3>Baggage Allowance</h3>
-                <div className={styles.route}>RUH - MNL</div>
-              </div>
-              <button
-                className={styles.detailsButton}
-                onClick={() => openBaggageDialog("RUH-MNL")}
-              >
-                Details
-              </button>
-            </div>
-            <div className={styles.infoCardBody}>
-              <div className={styles.infoItem}>
-                <span className={styles.checkIcon}>
-                  <CheckIcon />
-                </span>
-                <div>
-                  <div>7 kg cabin baggage</div>
-                  <div className={styles.itemDetail}>1 piece</div>
-                </div>
-              </div>
-              <div className={styles.infoItem}>
-                <span className={styles.checkIcon}>
-                  <CheckIcon />
-                </span>
-                <div>
-                  <div>Checked baggage included</div>
-                  <div className={styles.itemDetail}>
-                    2 pieces, airline usually permits 23kg per bag
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Cancellation Policy */}
-          <div className={styles.infoCard}>
-            <div className={styles.infoCardHeader}>
-              <div>
-                <h3>Cancel & date change</h3>
-                <div className={styles.route}>RUH - MNL</div>
-              </div>
-              <button
-                className={styles.detailsButton}
-                onClick={() => openCancellationDialog("RUH-MNL")}
-              >
-                Details
-              </button>
-            </div>
-            <div className={styles.infoCardBody}>
-              <div className={styles.infoItem}>
-                <span className={styles.crossIcon}>
-                  <XIcon />
-                </span>
-                <div>Non-refundable</div>
-              </div>
-              <div className={styles.infoItem}>
-                <span className={styles.crossIcon}>
-                  <XIcon />
-                </span>
-                <div>Non-changeable fare</div>
-              </div>
-            </div>
-          </div>
+          {flight.departure.data.travelerPricings[0].fareDetailsBySegment[0]
+            .amenities && (
+            <Cancellation
+              openCancellationDialog={openCancellationDialog}
+              amenities={
+                flight.departure.data.travelerPricings[0]
+                  .fareDetailsBySegment[0].amenities
+              }
+              route={
+                sharedData.departure.dest.airport.iata +
+                " - " +
+                sharedData.return.dest.airport.iata
+              }
+            />
+          )}
         </div>
         {/* Fare Selection for Departure */}
-      <FareSelection
-        formData={props.formData}
-        onUpdateForm={props.onUpdateForm}
-        selectedClass={departureClass}
-        direction="departure"
-      />
+        <FareSelection
+          formData={props.formData}
+          onUpdateForm={props.onUpdateForm}
+          selectedClass={departureClass}
+          direction="departure"
+          openBaggageDialog={openBaggageDialog}
+          setIndex={setFareSelectionIndex}
+        />
       </section>
       {/* Return Flight */}
       {sharedData.return && (
@@ -878,190 +908,196 @@ const DetailsOfTheFlight = (props) => {
 
             {/* Flight */}
             {flight.return.data.itineraries[0].segments.length > 1 && (
-            <div className={styles.flightInfo}>
-              <div className={styles.stopContainer}>
-                <div className={styles.flightDuration}>
-                  <div className={styles.fixedTime}>
-                    {formatDuration(
-                      flight.return.data.itineraries[0].segments[0].duration
+              <div className={styles.flightInfo}>
+                <div className={styles.stopContainer}>
+                  <div className={styles.flightDuration}>
+                    <div className={styles.fixedTime}>
+                      {formatDuration(
+                        flight.return.data.itineraries[0].segments[0].duration
+                      )}
+                    </div>
+                    {!expandedReturnStops && (
+                      <div className={styles.stops}>
+                        <span className={styles.stopsBadge}>1 Stop</span>
+                      </div>
                     )}
                   </div>
-                  {!expandedReturnStops && (
-                    <div className={styles.stops}>
-                      <span className={styles.stopsBadge}>1 Stop</span>
-                    </div>
-                  )}
-                </div>
 
-                <div className={styles.airlineDetails}>
-                  <button
-                    className={styles.stopsDropdownButton}
-                    onClick={toggleReturnStopsDropdown}
-                  >
-                    {expandedReturnStops ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                  </button>
-                  <div className={styles.airlineLogoContainer}>
-                    <div className={styles.airlineLogo}>
-                      <img
-                        src="https://i.pinimg.com/originals/db/63/b5/db63b5aa67202c6a027b477a1f93c0f3.png"
-                        alt="Airline Logo"
-                      />
+                  <div className={styles.airlineDetails}>
+                    <button
+                      className={styles.stopsDropdownButton}
+                      onClick={toggleReturnStopsDropdown}
+                    >
+                      {expandedReturnStops ? (
+                        <ChevronUpIcon />
+                      ) : (
+                        <ChevronDownIcon />
+                      )}
+                    </button>
+                    <div className={styles.airlineLogoContainer}>
+                      <div className={styles.airlineLogo}>
+                        <img
+                          src="https://i.pinimg.com/originals/db/63/b5/db63b5aa67202c6a027b477a1f93c0f3.png"
+                          alt="Airline Logo"
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className={styles.airlineInfo}>
-                    <div className={styles.airlineName}>
-                      {dealWithAirline(flight.return.carrier) +
-                        " | " +
-                        flight.return.data.itineraries[0].segments[0]
-                          .carrierCode +
-                        "-" +
-                        flight.return.data.itineraries[0].segments[0].number}
-                    </div>
-                    <div className={styles.cabinClass}>
-                      {sharedData.passengerClass.class.text}
+                    <div className={styles.airlineInfo}>
+                      <div className={styles.airlineName}>
+                        {dealWithAirline(flight.return.carrier) +
+                          " | " +
+                          flight.return.data.itineraries[0].segments[0]
+                            .carrierCode +
+                          "-" +
+                          flight.return.data.itineraries[0].segments[0].number}
+                      </div>
+                      <div className={styles.cabinClass}>
+                        {sharedData.passengerClass.class.text}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              {expandedReturnStops && (
-                <div className={styles.stopDetailsContainer}>
-                  <div
-                    className={`${styles.stopsDropdownContent} ${expandedReturnStops ? styles.expanded : ""}`}
-                  >
-                    <div className={styles.timeOfStop}>
-                      <div className={styles.time}>
-                        {formatted(
-                          flight.return.data.itineraries[0].segments[0].arrival.at.split(
-                            "T"
-                          )[1]
-                        )}
+                {expandedReturnStops && (
+                  <div className={styles.stopDetailsContainer}>
+                    <div
+                      className={`${styles.stopsDropdownContent} ${expandedReturnStops ? styles.expanded : ""}`}
+                    >
+                      <div className={styles.timeOfStop}>
+                        <div className={styles.time}>
+                          {formatted(
+                            flight.return.data.itineraries[0].segments[0].arrival.at.split(
+                              "T"
+                            )[1]
+                          )}
+                        </div>
+                        <div className={styles.day}>
+                          {format(
+                            flight.return.data.itineraries[0].segments[0].arrival.at.split(
+                              "T"
+                            )[0],
+                            "d	LLL"
+                          )}
+                        </div>
                       </div>
-                      <div className={styles.day}>
-                        {format(
-                          flight.return.data.itineraries[0].segments[0].arrival.at.split(
-                            "T"
-                          )[0],
-                          "d	LLL"
-                        )}
-                      </div>
-                    </div>
-                    <div className={styles.stopDetail}>
-                      <div className={styles.stopLocation}>
-                        <span className={styles.stopDot}></span>
-                        <div>
-                          <div className={styles.stopAirport}>
-                            {stopAirportDep && stopAirportDep.name}
-                          </div>
-                          <div className={styles.stopIATA}>
-                            (
-                            {
-                              flight.return.data.itineraries[0].segments[0]
-                                .arrival.iataCode
-                            }
-                            )
-                          </div>
-                          <div className={styles.stopCity}>
-                            {stopAirportDep &&
-                              stopAirportDep.city +
-                                ", " +
-                                stopAirportDep.country}
+                      <div className={styles.stopDetail}>
+                        <div className={styles.stopLocation}>
+                          <span className={styles.stopDot}></span>
+                          <div>
+                            <div className={styles.stopAirport}>
+                              {stopAirportDep && stopAirportDep.name}
+                            </div>
+                            <div className={styles.stopIATA}>
+                              (
+                              {
+                                flight.return.data.itineraries[0].segments[0]
+                                  .arrival.iataCode
+                              }
+                              )
+                            </div>
+                            <div className={styles.stopCity}>
+                              {stopAirportDep &&
+                                stopAirportDep.city +
+                                  ", " +
+                                  stopAirportDep.country}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className={styles.waitingContainer}>
-                    <div className={styles.waitingStopTime}>
-                      {getTimeOfWaiting(flight.return)}
-                    </div>
-                    <div className={styles.stopDuration}>
-                      <span className={styles.waitingLabel}>
-                        Waiting time in{" "}
-                        <strong>{stopAirportDep && stopAirportDep.city}</strong>
-                      </span>
-                    </div>
-                  </div>
-                  <div className={styles.stopDeparture}>
-                    <div className={styles.timeOfStop}>
-                      <div className={styles.time}>
-                        {formatted(
-                          flight.return.data.itineraries[0].segments[1].departure.at.split(
-                            "T"
-                          )[1]
-                        )}
+                    <div className={styles.waitingContainer}>
+                      <div className={styles.waitingStopTime}>
+                        {getTimeOfWaiting(flight.return)}
                       </div>
-                      <div className={styles.day}>
-                        {format(
-                          flight.return.data.itineraries[0].segments[1].departure.at.split(
-                            "T"
-                          )[0],
-                          "d	LLL"
-                        )}
+                      <div className={styles.stopDuration}>
+                        <span className={styles.waitingLabel}>
+                          Waiting time in{" "}
+                          <strong>
+                            {stopAirportDep && stopAirportDep.city}
+                          </strong>
+                        </span>
                       </div>
                     </div>
-                    <div className={styles.stopDetail}>
-                      <div className={styles.stopLocation}>
-                        <span className={styles.dot1}></span>
-                        <div>
-                          <div className={styles.stopAirport}>
-                            {stopAirportDep && stopAirportDep.name}
-                          </div>
-                          <div className={styles.stopIATA}>
-                            (
-                            {
-                              flight.return.data.itineraries[0].segments[0]
-                                .arrival.iataCode
-                            }
-                            )
-                          </div>
-                          <div className={styles.stopCity}>
-                            {stopAirportDep &&
-                              stopAirportDep.city +
-                                ", " +
-                                stopAirportDep.country}
+                    <div className={styles.stopDeparture}>
+                      <div className={styles.timeOfStop}>
+                        <div className={styles.time}>
+                          {formatted(
+                            flight.return.data.itineraries[0].segments[1].departure.at.split(
+                              "T"
+                            )[1]
+                          )}
+                        </div>
+                        <div className={styles.day}>
+                          {format(
+                            flight.return.data.itineraries[0].segments[1].departure.at.split(
+                              "T"
+                            )[0],
+                            "d	LLL"
+                          )}
+                        </div>
+                      </div>
+                      <div className={styles.stopDetail}>
+                        <div className={styles.stopLocation}>
+                          <span className={styles.dot1}></span>
+                          <div>
+                            <div className={styles.stopAirport}>
+                              {stopAirportDep && stopAirportDep.name}
+                            </div>
+                            <div className={styles.stopIATA}>
+                              (
+                              {
+                                flight.return.data.itineraries[0].segments[0]
+                                  .arrival.iataCode
+                              }
+                              )
+                            </div>
+                            <div className={styles.stopCity}>
+                              {stopAirportDep &&
+                                stopAirportDep.city +
+                                  ", " +
+                                  stopAirportDep.country}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className={styles.stopFlight}>
-                    <div className={styles.flightDuration}>
-                      <div className={styles.fixedTime}>
-                        {formatDuration(
-                          flight.return.data.itineraries[0].segments[1]
-                            .duration
-                        )}
+                    <div className={styles.stopFlight}>
+                      <div className={styles.flightDuration}>
+                        <div className={styles.fixedTime}>
+                          {formatDuration(
+                            flight.return.data.itineraries[0].segments[1]
+                              .duration
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className={styles.airlineDetails}>
-                      <div className={styles.airlineLogoContainer}>
-                        <div className={styles.airlineLogo}>
-                          <img
-                            src="https://i.pinimg.com/originals/db/63/b5/db63b5aa67202c6a027b477a1f93c0f3.png"
-                            alt="Airline Logo"
-                          />
+                      <div className={styles.airlineDetails}>
+                        <div className={styles.airlineLogoContainer}>
+                          <div className={styles.airlineLogo}>
+                            <img
+                              src="https://i.pinimg.com/originals/db/63/b5/db63b5aa67202c6a027b477a1f93c0f3.png"
+                              alt="Airline Logo"
+                            />
+                          </div>
                         </div>
-                      </div>
-                      <div className={styles.airlineInfo}>
-                        <div className={styles.airlineName}>
-                          {dealWithAirline(flight.return.carrier) +
-                            " | " +
-                            flight.return.data.itineraries[0].segments[1]
-                              .carrierCode +
-                            "-" +
-                            flight.return.data.itineraries[0].segments[1]
-                              .number}
-                        </div>
-                        <div className={styles.cabinClass}>
-                          {sharedData.passengerClass.class.text}
+                        <div className={styles.airlineInfo}>
+                          <div className={styles.airlineName}>
+                            {dealWithAirline(flight.return.carrier) +
+                              " | " +
+                              flight.return.data.itineraries[0].segments[1]
+                                .carrierCode +
+                              "-" +
+                              flight.return.data.itineraries[0].segments[1]
+                                .number}
+                          </div>
+                          <div className={styles.cabinClass}>
+                            {sharedData.passengerClass.class.text}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
-              {/* <div className={styles.amenities}>
+                )}
+                {/* <div className={styles.amenities}>
                 <button
                   className={styles.servicesDropdownButton}
                   onClick={toggleServicesDropdown}
@@ -1120,8 +1156,8 @@ const DetailsOfTheFlight = (props) => {
                   <span>No in-seat power outlet</span>
                 </div>
               </div>*/}
-            </div>
-          )}
+              </div>
+            )}
 
             {/* Arrival */}
             <div className={styles.locationTimeInfo}>
@@ -1186,77 +1222,25 @@ const DetailsOfTheFlight = (props) => {
 
           {/* Additional Information */}
           <div className={styles.additionalInfo}>
-            {/* Baggage Allowance */}
-            <div className={styles.infoCard}>
-              <div className={styles.infoCardHeader}>
-                <div>
-                  <h3>Baggage Allowance</h3>
-                  <div className={styles.route}>MNL - RUH</div>
-                </div>
-                <button
-                  className={styles.detailsButton}
-                  onClick={() => openBaggageDialog("MNL-RUH")}
-                >
-                  Details
-                </button>
-              </div>
-              <div className={styles.infoCardBody}>
-                <div className={styles.infoItem}>
-                  <span className={styles.checkIcon}>
-                    <CheckIcon />
-                  </span>
-                  <div>
-                    <div>7 kg cabin baggage</div>
-                    <div className={styles.itemDetail}>1 piece</div>
-                  </div>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.checkIcon}>
-                    <CheckIcon />
-                  </span>
-                  <div>
-                    <div>Checked baggage included</div>
-                    <div className={styles.itemDetail}>
-                      2 pieces, airline usually permits 23kg per bag
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Cancellation Policy */}
-            <div className={styles.infoCard}>
-              <div className={styles.infoCardHeader}>
-                <div>
-                  <h3>Cancel & date change</h3>
-                  <div className={styles.route}>MNL - RUH</div>
-                </div>
-                <button
-                  className={styles.detailsButton}
-                  onClick={() => openCancellationDialog("MNL-RUH")}
-                >
-                  Details
-                </button>
-              </div>
-              <div className={styles.infoCardBody}>
-                <div className={styles.infoItem}>
-                  <span className={styles.crossIcon}>
-                    <XIcon />
-                  </span>
-                  <div>Non-refundable</div>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.crossIcon}>
-                    <XIcon />
-                  </span>
-                  <div>Non-changeable fare</div>
-                </div>
-              </div>
-            </div>
+            {flight.return.data.travelerPricings[0].fareDetailsBySegment[0]
+              .amenities && (
+              <Cancellation
+                openCancellationDialog={openCancellationDialog}
+                amenities={
+                  flight.return.data.travelerPricings[0].fareDetailsBySegment[0]
+                    .amenities
+                }
+                route={
+                  sharedData.return.dest.airport.iata +
+                  " - " +
+                  sharedData.departure.dest.airport.iata
+                }
+              />
+            )}
           </div>
         </section>
       )}
-
 
       {/* Fare Selection for Return (إذا كانت رحلة عودة) */}
       {sharedData.return && (
@@ -1265,100 +1249,26 @@ const DetailsOfTheFlight = (props) => {
           onUpdateForm={props.onUpdateForm}
           selectedClass={returnClass}
           direction="return"
+          openBaggageDialog={openBaggageDialog2}
+          setIndex={setFareSelectionIndex}
         />
       )}
 
       {/* Baggage Dialog */}
       {baggageDialogOpen && (
-        <div className={styles.dialogOverlay}>
-          <div className={styles.detailsDialog}>
-            <div className={styles.dialogHeader}>
-              <div className={styles.dialogTitle}>
-                Baggage Allowance Details
-                <button
-                  className={styles.dialogClose}
-                  onClick={() => setBaggageDialogOpen(false)}
-                >
-                  <XIcon />
-                </button>
-              </div>
-            </div>
-            <div className={styles.dialogContent}>
-              <div className={styles.baggageSection}>
-                <div className={styles.baggageItem}>
-                  <span className={styles.checkIconLarge}>
-                    <CheckIcon />
-                  </span>
-                  <div>
-                    <div className={styles.baggageTitle}>Cabin baggage</div>
-                    <div className={styles.baggageDetail}>
-                      7 kg cabin baggage, 1 piece
-                    </div>
-                  </div>
-                </div>
-                <div className={styles.baggageItem}>
-                  <span className={styles.checkIconLarge}>
-                    <CheckIcon />
-                  </span>
-                  <div>
-                    <div className={styles.baggageTitle}>Checked baggage</div>
-                    <div className={styles.baggageDetail}>
-                      2 pieces, airline usually permits 23kg per bag
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className={styles.baggageNote}>
-                <span className={styles.noteIcon}>
-                  <InfoIcon />
-                </span>
-                <p>
-                  Please check with the airline for the most up-to-date baggage
-                  policies.
-                </p>
-              </div>
-              <div className={styles.dimensionsSection}>
-                <h4>Baggage dimensions</h4>
-                <div className={styles.dimensionsContainer}>
-                  <div className={styles.dimensionItem}>
-                    <div className={styles.dimensionImageContainer}>
-                      <img
-                        src={baggageCabin}
-                        alt="Cabin Bag"
-                        className={styles.baggageIcon}
-                      />
-                    </div>
-                    <h5>Cabin bag</h5>
-                    <div className={styles.dimensionMeasurements}>
-                      <span>Max 55×40×20cm</span>
-                      <span>Max 7kg</span>
-                    </div>
-                    <div className={styles.dimensionNote}>
-                      Fits in overhead bin
-                    </div>
-                  </div>
-                  <div className={styles.dimensionItem}>
-                    <div className={styles.dimensionImageContainer}>
-                      <img
-                        src={baggageChecked}
-                        alt="Checked Bag"
-                        className={styles.baggageIcon}
-                      />
-                    </div>
-                    <h5>Checked bag</h5>
-                    <div className={styles.dimensionMeasurements}>
-                      <span>Max 158cm (linear)</span>
-                      <span>Max 23kg</span>
-                    </div>
-                    <div className={styles.dimensionNote}>
-                      Checked at counter
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <BaggageDialog
+          setBaggageDialogOpen={setBaggageDialogOpen}
+          index={fareSelectionIndex}
+          direction= "departure"
+        />
+      )}
+      {/* Baggage Dialog2 */}
+      {baggageDialogOpen2 && (
+        <BaggageDialog
+          setBaggageDialogOpen={setBaggageDialogOpen2}
+          index={fareSelectionIndex}
+          direction="return"
+        />
       )}
 
       {/* Cancellation Dialog */}
@@ -1477,5 +1387,14 @@ DetailsOfTheFlight.propTypes = {
   onUpdateForm: PropTypes.func,
   formData: PropTypes.object,
 };
-
+Cancellation.propTypes = {
+  openCancellationDialog: PropTypes.func,
+  amenities: PropTypes.array,
+  route: PropTypes.string,
+};
+BaggageDialog.propTypes = {
+  setBaggageDialogOpen: PropTypes.func,
+  index: PropTypes.number,
+  direction: PropTypes.string,
+};
 export default DetailsOfTheFlight;
