@@ -925,6 +925,10 @@ margin-top: 8px;
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
+}
+.policyCellAmount + .policyCellAmount{
+  border-left: 1px solid #f0f0f0;
 }
 
 .checkIconSmall {

@@ -33,16 +33,16 @@ function Cancellation({ openCancellationDialog, amenities, route }) {
       </div>
       <div className={styles.infoCardBody}>
         <div className={styles.infoItem}>
-          <span className={isRefundable ? styles.checkIcon : styles.crossIcon}>
-            {isRefundable ? <CheckIcon /> : <XIcon />}
+          <span className={ isRefundable ? styles.checkIcon : styles.crossIcon }>
+            { isRefundable? <CheckIcon /> :<XIcon/> }
           </span>
-          <div>Refundable</div>
+          {isRefundable ? <div>{isRefundable.isChargeable ? "Refundable but with fees": "Fully refundable"}</div> : <div>Non-refundable</div>}
         </div>
         <div className={styles.infoItem}>
-          <span className={isChangeable ? styles.checkIcon : styles.crossIcon}>
-            {isChangeable ? <CheckIcon /> : <XIcon />}
+          <span className={ isChangeable ? styles.checkIcon : styles.crossIcon}>
+            { isChangeable ? <CheckIcon /> :<XIcon/> }
           </span>
-          <div>Changeable</div>
+          <div>{isChangeable.isChargeable ? "Changeable but with fees": "Changeable no fees"}</div>
         </div>
       </div>
     </div>
@@ -1231,10 +1231,10 @@ const DetailsOfTheFlight = (props) => {
                   flight.return.data.travelerPricings[0].fareDetailsBySegment[0]
                     .amenities
                 }
-                route={
+                route={sharedData ? (
                   sharedData.return.dest.airport.iata +
                   " - " +
-                  sharedData.departure.dest.airport.iata
+                  sharedData.departure.dest.airport.iata): ""
                 }
               />
             )}
@@ -1286,20 +1286,6 @@ const DetailsOfTheFlight = (props) => {
                 </button>
               </div>
             </div>
-            <div className={styles.tabButtons}>
-              <button
-                className={`${styles.tabButton} ${selectedRoute === "RUH-MNL" ? styles.activeTab : ""}`}
-                onClick={() => setSelectedRoute("RUH-MNL")}
-              >
-                RUH to MNL
-              </button>
-              <button
-                className={`${styles.tabButton} ${selectedRoute === "MNL-RUH" ? styles.activeTab : ""}`}
-                onClick={() => setSelectedRoute("MNL-RUH")}
-              >
-                MNL to RUH
-              </button>
-            </div>
             <div className={styles.dialogContent}>
               {/* Cancel & change details */}
               <div className={styles.policySection}>
@@ -1313,6 +1299,8 @@ const DetailsOfTheFlight = (props) => {
                   <div className={styles.policyRow}>
                     <div className={styles.policyCellHeader}></div>
                     <div className={styles.policyCellHeader}>Adult</div>
+                    <div className={styles.policyCellHeader}>{sharedData ? (sharedData.passengerClass.children && sharedData.passengerClass.children > 0)  && "Child" : ""}</div>
+                    <div className={styles.policyCellHeader}>{sharedData ? (sharedData.passengerClass.infants && sharedData.passengerClass.infants > 0)  && "Infant" : ""}</div>
                   </div>
                   <div className={styles.policyRow}>
                     <div className={styles.policyCell}>Cancellation fees</div>
@@ -1324,6 +1312,22 @@ const DetailsOfTheFlight = (props) => {
                         USD 94
                       </span>
                     </div>
+                    {sharedData&& sharedData.passengerClass.children && sharedData.passengerClass.children > 0 &&<div className={styles.policyCellAmount}>
+                      <span className={styles.checkIconSmall}>
+                        <CheckIcon />
+                      </span>{" "}
+                      <span style={{ color: "#36b37e", fontWeight: "bold" }}>
+                        USD 58
+                      </span>
+                    </div>}
+                    {sharedData&& sharedData.passengerClass.infants && sharedData.passengerClass.infants > 0 &&<div className={styles.policyCellAmount}>
+                      <span className={styles.checkIconSmall}>
+                        <CheckIcon />
+                      </span>{" "}
+                      <span style={{ color: "#36b37e", fontWeight: "bold" }}>
+                        USD 15
+                      </span>
+                    </div>}
                   </div>
                 </div>
               </div>
@@ -1339,6 +1343,8 @@ const DetailsOfTheFlight = (props) => {
                   <div className={styles.policyRow}>
                     <div className={styles.policyCellHeader}></div>
                     <div className={styles.policyCellHeader}>Adult</div>
+                    <div className={styles.policyCellHeader}>{sharedData ? (sharedData.passengerClass.children && sharedData.passengerClass.children > 0)  && "Child" : ""}</div>
+                    <div className={styles.policyCellHeader}>{sharedData ? (sharedData.passengerClass.infants && sharedData.passengerClass.infants > 0)  && "Infant" : ""}</div>
                   </div>
                   <div className={styles.policyRow}>
                     <div className={styles.policyCell}>Date change fees</div>
@@ -1349,10 +1355,29 @@ const DetailsOfTheFlight = (props) => {
                       <span style={{ color: "#36b37e", fontWeight: "bold" }}>
                         USD 54
                       </span>
-                      <span className={styles.fareDifference}>
+                      <div className={styles.fareDifference}>
                         + Fare Difference
-                      </span>
+                      </div>
                     </div>
+                    {sharedData&& sharedData.passengerClass.children && sharedData.passengerClass.children > 0 &&<div className={styles.policyCellAmount}>
+                      <span className={styles.checkIconSmall}>
+                        <CheckIcon />
+                      </span>{" "}
+                      <span style={{ color: "#36b37e", fontWeight: "bold" }}>
+                        USD 35
+                      </span>
+                      <div className={styles.fareDifference}>
+                        + Fare Difference
+                      </div>
+                    </div>}
+                    {sharedData&& sharedData.passengerClass.infants && sharedData.passengerClass.infants > 0 &&<div className={styles.policyCellAmount}>
+                      <span className={styles.checkIconSmall}>
+                        <CheckIcon />
+                      </span>{" "}
+                      <span style={{ color: "#36b37e", fontWeight: "bold" }}>
+                        Free
+                      </span>
+                    </div>}
                   </div>
                 </div>
               </div>
