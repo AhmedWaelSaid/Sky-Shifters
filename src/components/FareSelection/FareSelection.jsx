@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import styles from "./FareSelection.module.css";
+import { useEffect, useState } from "react";
 
 const ChevronLeft = (props) => (
   <svg width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
@@ -24,9 +25,12 @@ const premiumOptions = [
 ];
 
 const FareSelection = ({ formData, onUpdateForm, selectedClass, direction }) => {
+  const [ranOnce,setRanOnce] = useState(false);
+
   const classStr = (selectedClass || "").toUpperCase();
   const fareOptions = classStr.includes("ECONOMY") ? economyOptions : premiumOptions;
   
+
   const baggageSelectionForDirection = formData?.baggageSelection?.[direction] || {};
   const activeFareId = baggageSelectionForDirection.selectedId || 1;
   const activeFareIndex = Math.max(0, fareOptions.findIndex(opt => opt.id === activeFareId));
@@ -46,7 +50,23 @@ const FareSelection = ({ formData, onUpdateForm, selectedClass, direction }) => 
       });
     }
   };
-
+  useEffect(()=>{
+    if (ranOnce) return;
+      const selectedOption = fareOptions[0];
+      if (onUpdateForm && selectedOption) {
+        onUpdateForm("baggageSelection", {
+          ...formData?.baggageSelection,
+          [direction]: {
+            selectedId: selectedOption.id,
+            price: selectedOption.price,
+            description: selectedOption.name,
+            type: selectedOption.type,
+            weight: selectedOption.weight
+          }
+        });
+      }
+      setRanOnce(true);
+  },[direction,fareOptions,formData?.baggageSelection,onUpdateForm,ranOnce])
   const handleNextFare = () => {
     const nextIndex = activeFareIndex === fareOptions.length - 1 ? 0 : activeFareIndex + 1;
     handleFareSelect(nextIndex);
