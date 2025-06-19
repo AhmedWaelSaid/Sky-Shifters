@@ -58,7 +58,7 @@ export default function FlightSearchForm() {
     adults: 1,
     children: 0,
     infants: 0,
-    class: { value: "ALL", text: "All" },
+    class: { value: "ECONOMY", text: "Economy" },
   });
   const [passengerClassFocus, setPassengerClassFocus] = useState(false);
   const { setSharedData } = useData();

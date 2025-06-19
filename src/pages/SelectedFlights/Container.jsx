@@ -28,8 +28,7 @@ async function getFlightsFromAPI(input, signal) {
     params.append("infants", input.passengerClass.infants);
 
     if (
-      input.passengerClass.class?.value &&
-      input.passengerClass.class.value !== "ALL"
+      input.passengerClass.class?.value
     ) {
       params.append("travelClass", input.passengerClass.class.value);
     }

@@ -141,7 +141,6 @@ export default function PassengerClass({ passengerClass, setPassengerClass }) {
             { value: "PREMIUM_ECONOMY", label: "Premium" },
             { value: "BUSINESS", label: "Business" },
             { value: "FIRST", label: "First Class" },
-            { value: "ALL", label: "All" },
           ].map((option) => (
             <label key={option.value} className={styles.radioOption}>
               <input
