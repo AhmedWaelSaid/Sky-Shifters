@@ -37,8 +37,8 @@ const CancellationPolicy = ({ onDetailsClick }) => {
       {sharedData &&
         (flight.departure.data.travelerPricings[0].fareDetailsBySegment[0]
           .amenities ||
-          flight.return.data.travelerPricings[0].fareDetailsBySegment[0]
-            .amenities) && (
+          (flight.return && flight.return.data.travelerPricings[0].fareDetailsBySegment[0]
+            .amenities)) && (
           <div className={styles.cancellationSection}>
             <div className={styles.cancelHeader}>
               <span>Cancel & date change</span>

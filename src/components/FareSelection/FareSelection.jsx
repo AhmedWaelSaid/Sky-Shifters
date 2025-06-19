@@ -135,8 +135,8 @@ const FareSelection = ({
   );
   const handleFareSelect = (index) => {
     if (direction == "return")
-    setIndex((prev)=>{return {...prev,retIndex: index}})
-  else setIndex((prev)=>{return {...prev,depIndex: index}})
+    setIndex((prev)=>{return {...prev,retIndex: index, class: classStr.toLowerCase()}})
+  else setIndex((prev)=>{return {...prev,depIndex: index, class: classStr.toLowerCase()}})
     const selectedOption = fareOptions[index];
     if (onUpdateForm && selectedOption) {
       onUpdateForm("baggageSelection", {
