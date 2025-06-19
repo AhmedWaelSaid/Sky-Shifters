@@ -311,29 +311,6 @@ const DetailsOfTheFlight = (props) => {
   const options = baggageOptions[selectedClass];
   const selectedOption = options[baggageIndex];
 
-  const handleSelectOption = (option) => {
-    if (props.onUpdateForm && props.formData) {
-      props.onUpdateForm("baggageSelection", {
-        ...props.formData.baggageSelection,
-        selectedId: option.id,
-        price: option.extraPrice,
-        description: option.name,
-      });
-    }
-    if (props.setExtraBaggagePrice) {
-      props.setExtraBaggagePrice(option.extraPrice || 0);
-    }
-  };
-
-  const handlePrev = () =>
-    setBaggageIndex((i) => (i === 0 ? options.length - 1 : i - 1));
-  const handleNext = () =>
-    setBaggageIndex((i) => (i === options.length - 1 ? 0 : i + 1));
-
-  const totalPrice = useMemo(
-    () => 5000 + (selectedOption?.extraPrice || 0),
-    [selectedOption]
-  );
 
   const toggleStopsDropdown = () => {
     setExpandedStops(!expandedStops);
@@ -826,6 +803,13 @@ const DetailsOfTheFlight = (props) => {
             </div>
           </div>
         </div>
+        {/* Fare Selection for Departure */}
+      <FareSelection
+        formData={props.formData}
+        onUpdateForm={props.onUpdateForm}
+        selectedClass={departureClass}
+        direction="departure"
+      />
       </section>
       {/* Return Flight */}
       {sharedData.return && (
@@ -1273,13 +1257,6 @@ const DetailsOfTheFlight = (props) => {
         </section>
       )}
 
-      {/* Fare Selection for Departure */}
-      <FareSelection
-        formData={props.formData}
-        onUpdateForm={props.onUpdateForm}
-        selectedClass={departureClass}
-        direction="departure"
-      />
 
       {/* Fare Selection for Return (إذا كانت رحلة عودة) */}
       {sharedData.return && (

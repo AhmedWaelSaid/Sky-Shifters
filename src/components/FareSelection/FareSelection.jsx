@@ -30,7 +30,7 @@ const FareSelection = ({ formData, onUpdateForm, selectedClass, direction }) => 
   const baggageSelectionForDirection = formData?.baggageSelection?.[direction] || {};
   const activeFareId = baggageSelectionForDirection.selectedId || 1;
   const activeFareIndex = Math.max(0, fareOptions.findIndex(opt => opt.id === activeFareId));
-
+  console.log(formData)
   const handleFareSelect = (index) => {
     const selectedOption = fareOptions[index];
     if (onUpdateForm && selectedOption) {
