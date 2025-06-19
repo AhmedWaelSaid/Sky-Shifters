@@ -320,68 +320,96 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   };
 
   return (
-    <div className={styles.paymentSection}>
-      <h2 className={styles.sectionTitle}>Payment Details</h2>
+    <div className={styles.container}>
+      <div className={styles.payment}>
+        {/* Card Preview */}
+        <div className={styles.card}>
+          <div className={styles['card__visa']}>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa" style={{ width: '100%' }} />
+          </div>
+          <div className={styles['card__number']}>
+            0000 0000 0000 0000
+          </div>
+          <div className={styles['card__name']}>
+            <h3>Card Holder</h3>
+            <p>{bookingData?.contactDetails?.fullName || 'FULL NAME'}</p>
+          </div>
+          <div className={styles['card__expiry']}>
+            <h3>Valid Thru</h3>
+            <p>MM/YY</p>
+          </div>
+        </div>
 
-      <form className={styles.cardForm} onSubmit={handleSubmit}>
-        {clientSecret ? (
-          <div className={styles.formGroup}>
-            <label htmlFor="card-element" className={styles.formLabel}>Card Details</label>
-            <CardElement
-              id="card-element"
-              options={cardElementOptions}
-              onReady={() => {
-                console.log('✅ Card Element is ready.');
-                updateState({ isCardElementReady: true });
-              }}
-              onChange={(e) => {
-                if (e.error) {
-                  updateState({ error: e.error.message });
-                } else {
-                  updateState({ error: '' });
-                }
-              }}
+        {/* Payment Form */}
+        <form className={styles.form} onSubmit={handleSubmit} autoComplete="off">
+          <h2>Payment Details</h2>
+          {/* Cardholder Name */}
+          <div className={`${styles['form__detail']} ${styles['form__name']}`}> 
+            <label htmlFor="cardholder">Cardholder Name</label>
+            <input
+              id="cardholder"
+              type="text"
+              value={bookingData?.contactDetails?.fullName || ''}
+              placeholder="Full Name"
+              disabled
             />
           </div>
-        ) : (
-          <div className={styles.loadingPaymentElement}>
-            <p>Initializing secure payment form...</p>
+          {/* Card Number (Stripe CardElement) */}
+          <div className={`${styles['form__detail']} ${styles['form__number']}`}> 
+            <label htmlFor="card-element">Card Number</label>
+            <div className={styles.stripeCardElement}>
+              <CardElement
+                id="card-element"
+                options={cardElementOptions}
+                onReady={() => updateState({ isCardElementReady: true })}
+                onChange={(e) => updateState({ error: e.error ? e.error.message : '' })}
+              />
+            </div>
           </div>
-        )}
-
-        {error && (
-          <div className={styles.errorContainer}>
-            <div className={styles.errorMessage}>{error}</div>
-            {paymentIntentExpired && (
-              <button
-                onClick={handleRetry}
-                className={styles.retryButton}
-                disabled={loading}
-              >
-                {loading ? 'Processing...' : 'Try Again'}
-              </button>
-            )}
+          {/* Expiry Date */}
+          <div className={`${styles['form__detail']} ${styles['form__expiry']}`}> 
+            <label htmlFor="exp-date">Exp Date</label>
+            <input
+              id="exp-date"
+              type="text"
+              placeholder="MM/YY"
+              disabled
+            />
           </div>
-        )}
-
-        <div className={styles.buttonGroup}>
+          {/* CVV */}
+          <div className={`${styles['form__detail']} ${styles['form__cvv']}`}> 
+            <label htmlFor="cvv">CVV</label>
+            <input
+              id="cvv"
+              type="password"
+              placeholder="000"
+              disabled
+            />
+          </div>
+          {/* Error Message */}
+          {error && (
+            <div className={styles.alert} style={{ opacity: 1 }}>{error}</div>
+          )}
+          {/* Buttons */}
           <button
             type="button"
             className={styles.backButton}
             onClick={onBack}
             disabled={processingPayment}
+            style={{ gridColumn: '1/2', marginTop: '1rem' }}
           >
             <ChevronLeft size={16} /> Back
           </button>
           <button
             type="submit"
-            className={styles.payButton}
+            className={styles.form__btn}
             disabled={!stripe || !elements || loading || isLoading || !clientSecret || !flight || paymentIntentExpired || processingPayment || !isCardElementReady}
+            style={{ gridColumn: '2/3', marginTop: '1rem' }}
           >
             {loading || isLoading || processingPayment ? 'Processing...' : `Pay ${totalAmount} ${currency}`}
           </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };
