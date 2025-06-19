@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './paymentsection.module.css';
 import { ChevronLeft } from 'lucide-react';
+import { useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcElement } from '@stripe/react-stripe-js';
 import PropTypes from 'prop-types';
 import { useData } from '../../../components/context/DataContext.jsx';
 
@@ -40,6 +41,8 @@ export function calculateTotalPrice(flightData, bookingData) {
 }
 
 const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clientSecret: initialClientSecret, bookingId: initialBookingId }) => {
+  const stripe = useStripe();
+  const elements = useElements();
   const { flight } = useData();
 
   const [state, setState] = useState({
@@ -210,56 +213,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
     }
   };
 
-  // State for card fields
-  const [cardFields, setCardFields] = useState({
-    name: bookingData?.contactDetails?.fullName || '',
-    number: '',
-    exp: '',
-    cvv: '',
-  });
-  const [fieldErrors, setFieldErrors] = useState({
-    name: false,
-    number: false,
-    exp: false,
-    cvv: false,
-  });
-
-  // Live update handlers
-  const handleFieldChange = (e) => {
-    const { name, value } = e.target;
-    let newValue = value;
-    // Format card number
-    if (name === 'number') {
-      newValue = value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim();
-    }
-    // Format exp date
-    if (name === 'exp') {
-      newValue = value.replace(/[^\d]/g, '').replace(/(\d{2})(\d{0,2})/, (match, p1, p2) => p2 ? `${p1}/${p2}` : p1);
-      if (newValue.length > 5) newValue = newValue.slice(0, 5);
-    }
-    // Format cvv
-    if (name === 'cvv') {
-      newValue = value.replace(/\D/g, '').slice(0, 4);
-    }
-    setCardFields((prev) => ({ ...prev, [name]: newValue }));
-    setFieldErrors((prev) => ({ ...prev, [name]: false }));
-  };
-
-  // Simple validation
-  const validateFields = () => {
-    const errors = {
-      name: cardFields.name.trim() === '',
-      number: cardFields.number.replace(/\s/g, '').length !== 16,
-      exp: !/^\d{2}\/\d{2}$/.test(cardFields.exp),
-      cvv: cardFields.cvv.length < 3,
-    };
-    setFieldErrors(errors);
-    return !Object.values(errors).some(Boolean);
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!validateFields()) return;
 
     if (!flight) {
       updateState({ error: 'Flight information is missing. Please go back and try again.' });
@@ -284,10 +239,9 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         clientSecret,
         {
           payment_method: {
-            card: cardElement,
+            card: elements.getElement(CardElement),
             billing_details: {
-              name: cardFields.name,
-              email: bookingData.contactDetails?.email || 'guest@example.com',
+              name: bookingData.contactDetails?.fullName || 'guest@example.com',
             },
           },
         }
@@ -334,24 +288,40 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   const totalAmount = bookingData ? calculateTotalPrice(flight, bookingData).toFixed(2) : "0.00";
   const currency = bookingData?.currency || "USD";
 
+  // Options for Stripe Elements styling
+  const elementOptions = {
+    style: {
+      base: {
+        fontSize: '16px',
+        color: 'var(--Darktext-color)',
+        '::placeholder': {
+          color: 'var(--LightDarktext-color)',
+        },
+      },
+      invalid: {
+        color: '#fa755a',
+      },
+    },
+  };
+
   return (
     <div className={styles.container}>
-      <div className={styles.payment} style={{ width: '50rem', height: '32rem', gridTemplateColumns: '20rem 1fr', padding: '2rem 2rem', gridGap: '2rem' }}>
+      <div className={styles.payment} style={{ width: '40rem', height: '22rem', gridTemplateColumns: '15rem 1fr', padding: '1.5rem 1.5rem', gridGap: '1.5rem' }}>
         {/* Card Preview */}
-        <div className={styles.card} style={{ width: '18rem', height: '11rem', padding: '0 1rem' }}>
-          <div className={styles['card__visa']}>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa" style={{ width: '100%' }} />
+        <div className={styles.card} style={{ width: '13rem', height: '7.5rem', padding: '0 0.7rem', fontSize: '0.9rem' }}>
+          <div className={styles['card__visa']} style={{ fontWeight: 'bold', fontSize: '1.1rem', textAlign: 'right', color: '#fff' }}>
+            VISA
           </div>
-          <div className={styles['card__number']} style={{ fontSize: '1.1rem' }}>
-            {cardFields.number || '0000 0000 0000 0000'}
+          <div className={styles['card__number']} style={{ fontSize: '1rem', marginTop: '0.5rem' }}>
+            0000 0000 0000 0000
           </div>
           <div className={styles['card__name']}>
-            <h3>Card Holder</h3>
-            <p>{cardFields.name || 'FULL NAME'}</p>
+            <h3 style={{ marginBottom: 0 }}>Card Holder</h3>
+            <p style={{ fontSize: '0.95rem' }}>{bookingData?.contactDetails?.fullName || 'FULL NAME'}</p>
           </div>
           <div className={styles['card__expiry']}>
-            <h3>Valid Thru</h3>
-            <p>{cardFields.exp || 'MM/YY'}</p>
+            <h3 style={{ marginBottom: 0 }}>Valid Thru</h3>
+            <p style={{ fontSize: '0.95rem' }}>MM/YY</p>
           </div>
         </div>
 
@@ -363,59 +333,45 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
             <label htmlFor="cardholder">Cardholder Name</label>
             <input
               id="cardholder"
-              name="name"
               type="text"
-              value={cardFields.name}
+              value={bookingData?.contactDetails?.fullName || ''}
               placeholder="Full Name"
-              onChange={handleFieldChange}
-              className={fieldErrors.name ? styles.alert : ''}
+              disabled
             />
-            {fieldErrors.name && <div className={styles.alert} style={{ opacity: 1 }}>Full name required</div>}
           </div>
           {/* Card Number */}
           <div className={`${styles['form__detail']} ${styles['form__number']}`}> 
             <label htmlFor="card-number">Card Number</label>
-            <input
-              id="card-number"
-              name="number"
-              type="text"
-              value={cardFields.number}
-              placeholder="0000 0000 0000 0000"
-              maxLength={19}
-              onChange={handleFieldChange}
-              className={fieldErrors.number ? styles.alert : ''}
-            />
-            {fieldErrors.number && <div className={styles.alert} style={{ opacity: 1 }}>Card number must be 16 digits</div>}
+            <div className={styles.stripeCardElement}>
+              <CardNumberElement
+                id="card-number"
+                options={elementOptions}
+                onReady={() => updateState({ isCardElementReady: true })}
+                onChange={(e) => updateState({ error: e.error ? e.error.message : '' })}
+              />
+            </div>
           </div>
           {/* Expiry Date */}
           <div className={`${styles['form__detail']} ${styles['form__expiry']}`}> 
             <label htmlFor="exp-date">Exp Date</label>
-            <input
-              id="exp-date"
-              name="exp"
-              type="text"
-              value={cardFields.exp}
-              placeholder="MM/YY"
-              maxLength={5}
-              onChange={handleFieldChange}
-              className={fieldErrors.exp ? styles.alert : ''}
-            />
-            {fieldErrors.exp && <div className={styles.alert} style={{ opacity: 1 }}>Invalid date</div>}
+            <div className={styles.stripeCardElement}>
+              <CardExpiryElement
+                id="exp-date"
+                options={elementOptions}
+                onChange={(e) => updateState({ error: e.error ? e.error.message : '' })}
+              />
+            </div>
           </div>
           {/* CVV */}
           <div className={`${styles['form__detail']} ${styles['form__cvv']}`}> 
             <label htmlFor="cvv">CVV</label>
-            <input
-              id="cvv"
-              name="cvv"
-              type="password"
-              value={cardFields.cvv}
-              placeholder="000"
-              maxLength={4}
-              onChange={handleFieldChange}
-              className={fieldErrors.cvv ? styles.alert : ''}
-            />
-            {fieldErrors.cvv && <div className={styles.alert} style={{ opacity: 1 }}>CVV required</div>}
+            <div className={styles.stripeCardElement}>
+              <CardCvcElement
+                id="cvv"
+                options={elementOptions}
+                onChange={(e) => updateState({ error: e.error ? e.error.message : '' })}
+              />
+            </div>
           </div>
           {/* Error Message */}
           {error && (
@@ -426,6 +382,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
             type="button"
             className={styles.backButton}
             onClick={onBack}
+            disabled={processingPayment}
             style={{ gridColumn: '1/2', marginTop: '1rem' }}
           >
             <ChevronLeft size={16} /> Back
@@ -433,9 +390,10 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
           <button
             type="submit"
             className={styles.form__btn}
+            disabled={!stripe || !elements || loading || isLoading || !clientSecret || !flight || paymentIntentExpired || processingPayment || !isCardElementReady}
             style={{ gridColumn: '2/3', marginTop: '1rem' }}
           >
-            Pay {totalAmount} {currency}
+            {loading || isLoading || processingPayment ? 'Processing...' : `Pay ${totalAmount} ${currency}`}
           </button>
         </form>
       </div>
