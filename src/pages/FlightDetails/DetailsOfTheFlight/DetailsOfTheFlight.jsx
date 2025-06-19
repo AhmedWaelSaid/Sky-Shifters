@@ -42,7 +42,7 @@ function Cancellation({ openCancellationDialog, amenities, route }) {
           <span className={ isChangeable ? styles.checkIcon : styles.crossIcon}>
             { isChangeable ? <CheckIcon /> :<XIcon/> }
           </span>
-          <div>{isChangeable.isChargeable ? "Changeable but with fees": "Changeable no fees"}</div>
+          {isChangeable ? <div>{isChangeable.isChargeable ? "Changeable but with fees": "Changeable no fees"}</div> : <div>Non-changeable</div>}
         </div>
       </div>
     </div>
@@ -1299,8 +1299,8 @@ const DetailsOfTheFlight = (props) => {
                   <div className={styles.policyRow}>
                     <div className={styles.policyCellHeader}></div>
                     <div className={styles.policyCellHeader}>Adult</div>
-                    <div className={styles.policyCellHeader}>{sharedData ? (sharedData.passengerClass.children && sharedData.passengerClass.children > 0)  && "Child" : ""}</div>
-                    <div className={styles.policyCellHeader}>{sharedData ? (sharedData.passengerClass.infants && sharedData.passengerClass.infants > 0)  && "Infant" : ""}</div>
+                    {sharedData  && sharedData.passengerClass.children > 0 &&<div className={styles.policyCellHeader}>Child</div>}
+                    {sharedData  && sharedData.passengerClass.infants > 0 &&<div className={styles.policyCellHeader}>Infant</div>}
                   </div>
                   <div className={styles.policyRow}>
                     <div className={styles.policyCell}>Cancellation fees</div>
@@ -1312,7 +1312,7 @@ const DetailsOfTheFlight = (props) => {
                         USD 94
                       </span>
                     </div>
-                    {sharedData&& sharedData.passengerClass.children && sharedData.passengerClass.children > 0 &&<div className={styles.policyCellAmount}>
+                    {sharedData && sharedData.passengerClass.children > 0 &&<div className={styles.policyCellAmount}>
                       <span className={styles.checkIconSmall}>
                         <CheckIcon />
                       </span>{" "}
@@ -1320,7 +1320,7 @@ const DetailsOfTheFlight = (props) => {
                         USD 58
                       </span>
                     </div>}
-                    {sharedData&& sharedData.passengerClass.infants && sharedData.passengerClass.infants > 0 &&<div className={styles.policyCellAmount}>
+                    {sharedData && sharedData.passengerClass.infants > 0 &&<div className={styles.policyCellAmount}>
                       <span className={styles.checkIconSmall}>
                         <CheckIcon />
                       </span>{" "}
@@ -1343,8 +1343,8 @@ const DetailsOfTheFlight = (props) => {
                   <div className={styles.policyRow}>
                     <div className={styles.policyCellHeader}></div>
                     <div className={styles.policyCellHeader}>Adult</div>
-                    <div className={styles.policyCellHeader}>{sharedData ? (sharedData.passengerClass.children && sharedData.passengerClass.children > 0)  && "Child" : ""}</div>
-                    <div className={styles.policyCellHeader}>{sharedData ? (sharedData.passengerClass.infants && sharedData.passengerClass.infants > 0)  && "Infant" : ""}</div>
+                    {sharedData  && sharedData.passengerClass.children > 0 &&<div className={styles.policyCellHeader}>Child</div>}
+                    {sharedData  && sharedData.passengerClass.infants > 0 &&<div className={styles.policyCellHeader}>Infant</div>}
                   </div>
                   <div className={styles.policyRow}>
                     <div className={styles.policyCell}>Date change fees</div>
@@ -1359,7 +1359,7 @@ const DetailsOfTheFlight = (props) => {
                         + Fare Difference
                       </div>
                     </div>
-                    {sharedData&& sharedData.passengerClass.children && sharedData.passengerClass.children > 0 &&<div className={styles.policyCellAmount}>
+                    {sharedData && sharedData.passengerClass.children > 0 &&<div className={styles.policyCellAmount}>
                       <span className={styles.checkIconSmall}>
                         <CheckIcon />
                       </span>{" "}
@@ -1370,7 +1370,7 @@ const DetailsOfTheFlight = (props) => {
                         + Fare Difference
                       </div>
                     </div>}
-                    {sharedData&& sharedData.passengerClass.infants && sharedData.passengerClass.infants > 0 &&<div className={styles.policyCellAmount}>
+                    {sharedData&& sharedData.passengerClass.infants > 0 &&<div className={styles.policyCellAmount}>
                       <span className={styles.checkIconSmall}>
                         <CheckIcon />
                       </span>{" "}

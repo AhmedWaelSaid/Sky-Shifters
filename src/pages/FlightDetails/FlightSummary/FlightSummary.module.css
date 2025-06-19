@@ -158,25 +158,33 @@
 
 .cancelHeader span {
   font-size: 16px;
-  font-weight: 500;
+  font-weight: bold;
 }
 
 .cancelInfo {
-  margin-top: 10px;
+  padding-top: 10px;
+  margin-bottom: 10px;
 }
-
+.cancelInfo + .cancelInfo {
+  border-top: 1px solid rgb(189, 189, 189);
+}
+.headerSegment{
+  font-size: 0.875rem;
+  font-weight: 500px;
+  margin-bottom: 10px;
+}
 .infoItem {
   margin-bottom: 5px;
 }
 
-.infoLabel {
+.infoLabelRed {
   font-size: 14px;
   color: #ff5a5f;
   position: relative;
   padding-left: 20px;
 }
 
-.infoLabel::before {
+.infoLabelRed::before {
   content: "•";
   color: #ff5a5f;
   font-size: 18px;
@@ -184,12 +192,16 @@
   left: 5px;
 }
 
-.infoItem:last-child .infoLabel {
-  color: var(--Btnbg-color);
+.infoLabelGreen{
+  composes : infoLabelRed;
+  color: #3a843d;
 }
-
-.infoItem:last-child .infoLabel::before {
-  color: var(--Btnbg-color);
+.infoLabelGreen::before{
+  content: "•";
+  color: #3a843d;
+  font-size: 18px;
+  position: absolute;
+  left: 5px;
 }
 
 .fareBreakdown {
