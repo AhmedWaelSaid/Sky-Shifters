@@ -823,10 +823,10 @@ const DetailsOfTheFlight = (props) => {
                 flight.departure.data.travelerPricings[0]
                   .fareDetailsBySegment[0].amenities
               }
-              route={
-                sharedData.departure.dest.airport.iata +
+              route={sharedData ? 
+                (sharedData.departure.dest.airport.iata +
                 " - " +
-                sharedData.return.dest.airport.iata
+                sharedData.return.dest.airport.iata) : ""
               }
             />
           )}
