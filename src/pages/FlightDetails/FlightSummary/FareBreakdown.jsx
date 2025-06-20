@@ -66,7 +66,7 @@ const FareBreakdown = ({
     };
 
     // Service fee
-    const serviceFee = 9.95;
+    const serviceFee = 0;
 
     // Add-ons calculation based on selections
     let addOns = 0;
