@@ -49,6 +49,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   const [cardNumber, setCardNumber] = useState('');
   const [expDate, setExpDate] = useState('');
   const [cardDotsCount, setCardDotsCount] = useState(0);
+  const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
   const [state, setState] = useState({
@@ -321,7 +322,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
 
       if (paymentIntent) {
         console.log('✅ Payment successful:', paymentIntent);
-        setSuccessMessage('Payment successful! Redirecting to your bookings...');
+        setSuccessMessage('Payment completed successfully!');
+        setPaymentCompleted(true);
         setTimeout(handleRedirectHome, 2500);
         updateState({ loading: false, processingPayment: false });
         onPaymentSuccess && onPaymentSuccess({
@@ -472,9 +474,14 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
           <button
             type="submit"
             className={styles.form__btn}
-            disabled={!stripe || !elements || loading || isLoading || !clientSecret || !flight || paymentIntentExpired || processingPayment || !isCardElementReady}
+            disabled={!stripe || !elements || loading || isLoading || !clientSecret || !flight || paymentIntentExpired || processingPayment || !isCardElementReady || paymentCompleted}
           >
-            {!clientSecret ? 'Loading...' : (loading || isLoading || processingPayment ? 'Processing...' : `Pay ${totalAmount} ${currency}`)}
+            {!clientSecret
+              ? 'Loading...'
+              : paymentCompleted
+                ? 'Payment Successful'
+                : (loading || isLoading || processingPayment ? 'Processing...' : `Pay ${totalAmount} ${currency}`)
+            }
           </button>
         </form>
       </div>
