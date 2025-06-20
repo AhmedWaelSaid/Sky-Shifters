@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './paymentsection.module.css';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, User, CreditCard, Calendar, Lock, AlertTriangle } from 'lucide-react';
 import { useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcElement } from '@stripe/react-stripe-js';
 import PropTypes from 'prop-types';
 import { useData } from '../../../components/context/DataContext.jsx';
@@ -44,21 +44,44 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   const stripe = useStripe();
   const elements = useElements();
   const { flight } = useData();
+  const [cardholderName, setCardholderName] = useState(bookingData?.contactDetails?.fullName || '');
+  const [cardExpiry, setCardExpiry] = useState('');
 
   const [state, setState] = useState({
     loading: false,
-    error: '',
     clientSecret: initialClientSecret || '',
     bookingId: initialBookingId || '',
     paymentIntentExpired: false,
     paymentIntentId: '',
     processingPayment: false,
     isCardElementReady: false,
+    errors: {
+        name: '',
+        number: '',
+        expiry: '',
+        cvc: '',
+        general: ''
+    }
   });
 
-  const { loading, error, clientSecret, bookingId, paymentIntentExpired, paymentIntentId, processingPayment, isCardElementReady } = state;
+  const { loading, clientSecret, bookingId, paymentIntentExpired, paymentIntentId, processingPayment, isCardElementReady, errors } = state;
 
-  const updateState = (newState) => setState((prev) => ({ ...prev, ...newState }));
+  const updateState = (newState) => setState((prev) => ({ 
+      ...prev, 
+      ...newState,
+      errors: { ...prev.errors, ...(newState.errors || {}) }
+    }));
+  
+  const handleCardElementChange = (elementName) => (event) => {
+    if (elementName === 'expiry') {
+        setCardExpiry(event.empty ? '' : '••/••');
+    }
+    if (event.error) {
+        updateState({ errors: { [elementName]: event.error.message } });
+    } else {
+        updateState({ errors: { [elementName]: '' } });
+    }
+  };
 
   useEffect(() => {
     // 🔍 LOG: Component receives new props from parent
@@ -288,112 +311,112 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   const totalAmount = bookingData ? calculateTotalPrice(flight, bookingData).toFixed(2) : "0.00";
   const currency = bookingData?.currency || "USD";
 
-  // Options for Stripe Elements styling
   const elementOptions = {
     style: {
       base: {
-        fontSize: '16px',
-        color: 'var(--Darktext-color)',
+        fontSize: '14px',
+        color: 'var(--greyDark-2)',
+        fontFamily: '"Nunito", sans-serif',
         '::placeholder': {
-          color: 'var(--LightDarktext-color)',
+          color: 'var(--greyLight-2)',
         },
       },
       invalid: {
-        color: '#fa755a',
+        color: 'var(--alert)',
       },
     },
   };
 
   return (
     <div className={styles.container}>
-      <div className={styles.payment} style={{ width: '40rem', height: '22rem', gridTemplateColumns: '15rem 1fr', padding: '1.5rem 1.5rem', gridGap: '1.5rem' }}>
+      <div className={styles.payment}>
         {/* Card Preview */}
-        <div className={styles.card} style={{ width: '13rem', height: '7.5rem', padding: '0 0.7rem', fontSize: '0.9rem' }}>
-          <div className={styles['card__visa']} style={{ fontWeight: 'bold', fontSize: '1.1rem', textAlign: 'right', color: '#fff' }}>
-            VISA
-          </div>
-          <div className={styles['card__number']} style={{ fontSize: '1rem', marginTop: '0.5rem' }}>
-            0000 0000 0000 0000
-          </div>
+        <div className={styles.card}>
+          <div className={styles['card__visa']}>VISA</div>
+          <div className={styles['card__number']}>•••• •••• •••• ••••</div>
           <div className={styles['card__name']}>
-            <h3 style={{ marginBottom: 0 }}>Card Holder</h3>
-            <p style={{ fontSize: '0.95rem' }}>{bookingData?.contactDetails?.fullName || 'FULL NAME'}</p>
+            <h3>Card Holder</h3>
+            <p>{cardholderName || 'FULL NAME'}</p>
           </div>
           <div className={styles['card__expiry']}>
-            <h3 style={{ marginBottom: 0 }}>Valid Thru</h3>
-            <p style={{ fontSize: '0.95rem' }}>MM/YY</p>
+            <h3>Valid Thru</h3>
+            <p>{cardExpiry || 'MM/YY'}</p>
           </div>
         </div>
 
         {/* Payment Form */}
         <form className={styles.form} onSubmit={handleSubmit} autoComplete="off">
-          <h2>Payment Details</h2>
+        
+          
           {/* Cardholder Name */}
-          <div className={`${styles['form__detail']} ${styles['form__name']}`}> 
+          <div className={`${styles['form__detail']} ${styles['form__name']}`}>
             <label htmlFor="cardholder">Cardholder Name</label>
+            <User className={styles.icon} size={20} />
             <input
               id="cardholder"
               type="text"
-              value={bookingData?.contactDetails?.fullName || ''}
-              placeholder="Full Name"
-              disabled
+              value={cardholderName}
+              onChange={(e) => setCardholderName(e.target.value)}
+              placeholder="Mrs Kate Smith"
             />
+            {errors.name && <div className={styles.alert}><AlertTriangle size={14}/> {errors.name}</div>}
           </div>
+
           {/* Card Number */}
-          <div className={`${styles['form__detail']} ${styles['form__number']}`}> 
+          <div className={`${styles['form__detail']} ${styles['form__number']}`}>
             <label htmlFor="card-number">Card Number</label>
+             <CreditCard className={styles.icon} size={20}/>
             <div className={styles.stripeCardElement}>
               <CardNumberElement
                 id="card-number"
                 options={elementOptions}
                 onReady={() => updateState({ isCardElementReady: true })}
-                onChange={(e) => updateState({ error: e.error ? e.error.message : '' })}
+                onChange={handleCardElementChange('number')}
               />
             </div>
+             {errors.number && <div className={styles.alert}><AlertTriangle size={14}/> {errors.number}</div>}
           </div>
+
           {/* Expiry Date */}
-          <div className={`${styles['form__detail']} ${styles['form__expiry']}`}> 
+          <div className={`${styles['form__detail']} ${styles['form__expiry']}`}>
             <label htmlFor="exp-date">Exp Date</label>
+            <Calendar className={styles.icon} size={20}/>
             <div className={styles.stripeCardElement}>
               <CardExpiryElement
                 id="exp-date"
                 options={elementOptions}
-                onChange={(e) => updateState({ error: e.error ? e.error.message : '' })}
+                onChange={handleCardElementChange('expiry')}
               />
             </div>
+             {errors.expiry && <div className={styles.alert}><AlertTriangle size={14}/> {errors.expiry}</div>}
           </div>
+
           {/* CVV */}
-          <div className={`${styles['form__detail']} ${styles['form__cvv']}`}> 
+          <div className={`${styles['form__detail']} ${styles['form__cvv']}`}>
             <label htmlFor="cvv">CVV</label>
+             <Lock className={styles.icon} size={20}/>
             <div className={styles.stripeCardElement}>
               <CardCvcElement
                 id="cvv"
                 options={elementOptions}
-                onChange={(e) => updateState({ error: e.error ? e.error.message : '' })}
+                onChange={handleCardElementChange('cvc')}
               />
             </div>
+             {errors.cvc && <div className={styles.alert}><AlertTriangle size={14}/> {errors.cvc}</div>}
           </div>
-          {/* Error Message */}
-          {error && (
-            <div className={styles.alert} style={{ opacity: 1 }}>{error}</div>
+
+          {/* General Error Message */}
+          {errors.general && (
+            <div className={`${styles.alert} ${styles.form__name}`}><AlertTriangle size={14}/> {errors.general}</div>
           )}
+
           {/* Buttons */}
-          <button
-            type="button"
-            className={styles.backButton}
-            onClick={onBack}
-            disabled={processingPayment}
-            style={{ gridColumn: '1/2', marginTop: '1rem' }}
-          >
-            <ChevronLeft size={16} /> Back
-          </button>
           <button
             type="submit"
             className={styles.form__btn}
             disabled={!stripe || !elements || loading || isLoading || !clientSecret || !flight || paymentIntentExpired || processingPayment || !isCardElementReady}
-            style={{ gridColumn: '2/3', marginTop: '1rem' }}
           >
-            {loading || isLoading || processingPayment ? 'Processing...' : `Pay ${totalAmount} ${currency}`}
+            {loading || isLoading || processingPayment ? 'Processing...' : 'Confirm'}
           </button>
         </form>
       </div>

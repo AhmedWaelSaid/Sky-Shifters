@@ -1,14 +1,18 @@
 .finalDetails {
-  display: flex;
-  gap: 20px;
-  margin-top: 20px;
+  display: grid;
+  
+  
+ 
+
+  
+ 
 }
 
 .mainContent {
-  flex: 1;
+  flex: 1; /* This can remain, it won't affect grid layout much */
 }
 
 .sidebar {
-  width: 350px;
+  /* width is now controlled by the grid-template-columns in .finalDetails */
 }
 
