@@ -365,7 +365,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
 
   return (
     <div className={styles.container}>
-      <div className={styles.payment}>
+      <div className={hideCardPreview ? styles.paymentOnlyForm : styles.payment}>
         {/* Card Preview */}
         {!hideCardPreview && (
           <div className={styles.card}>
