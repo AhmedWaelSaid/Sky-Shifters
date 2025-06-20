@@ -9,7 +9,7 @@ import paymentStyles from '../FlightDetails/PaymentSection/paymentsection.module
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment }) => {
+const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDelete }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [remainingTime, setRemainingTime] = useState(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -48,6 +48,16 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment }) =>
   const handleConfirmCancel = () => {
     setShowConfirm(false);
     onCancel(booking._id);
+  };
+
+  // حذف الحجز نهائياً (pending فقط)
+  const handleDeleteBooking = async () => {
+    if (booking.status === 'pending') {
+      // استدعاء دالة حذف الحجز من القائمة وقاعدة البيانات
+      if (typeof onDelete === 'function') {
+        onDelete(booking._id);
+      }
+    }
   };
 
   useEffect(() => {
@@ -231,10 +241,19 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment }) =>
         <button
           className={styles.cancelButton}
           onClick={handleCancelClick}
-          disabled={booking.status === 'cancelled'}
+          disabled={booking.status !== 'confirmed'}
         >
           Cancel Booking
         </button>
+        {/* زر حذف الحجز يظهر فقط في pending */}
+        {booking.status === 'pending' && (
+          <button
+            className={styles.deleteButton}
+            onClick={handleDeleteBooking}
+          >
+            Delete Booking
+          </button>
+        )}
         {booking.status === 'pending' && remainingTime > 0 && (
           <button
             className={styles.payButton}
