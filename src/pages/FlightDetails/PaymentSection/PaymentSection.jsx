@@ -444,11 +444,11 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
           )}
 
           {/* Buttons */}
-          <div className={styles.buttonGroup} style={{ display: 'flex', gap: '12px' }}>
+          <div className={styles.buttonGroup} style={{ display: 'flex', gap: '16px', marginTop: '32px', alignItems: 'center' }}>
             <button
               type="button"
               className={styles.form__btn}
-              style={{ background: '#888', minWidth: '120px' }}
+              style={{ background: '#888', minWidth: '110px', flex: 'none' }}
               onClick={onBack}
               disabled={loading || isLoading || processingPayment}
             >
@@ -457,6 +457,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
             <button
               type="submit"
               className={styles.form__btn}
+              style={{ flex: 1, width: '100%' }}
               disabled={!stripe || !elements || loading || isLoading || !clientSecret || !flight || paymentIntentExpired || processingPayment || !isCardElementReady}
             >
               {loading || isLoading || processingPayment ? 'Processing...' : 'Confirm'}
