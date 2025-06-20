@@ -387,6 +387,17 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         )}
 
         {/* Payment Form */}
+        {!hideCardPreview && (
+          <h2 style={{
+            fontSize: '1.7rem',
+            fontWeight: 700,
+            color: 'var(--greyDark-2)',
+            marginBottom: '1.5rem',
+            marginTop: 0,
+            gridColumn: '2/3',
+            alignSelf: 'start',
+          }}>Payment Details</h2>
+        )}
         {successMessage && (
           <div className={styles.successToastExact}>
             Payment completed successfully!
