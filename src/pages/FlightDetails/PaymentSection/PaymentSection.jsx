@@ -46,6 +46,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   const { flight } = useData();
   const [cardholderName, setCardholderName] = useState(bookingData?.contactDetails?.fullName || '');
   const [cardExpiry, setCardExpiry] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
+  const [expDate, setExpDate] = useState('');
 
   const [state, setState] = useState({
     loading: false,
@@ -75,6 +77,18 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   const handleCardElementChange = (elementName) => (event) => {
     if (elementName === 'expiry') {
         setCardExpiry(event.empty ? '' : '••/••');
+        if (event.complete && event.value) {
+          setExpDate(event.value);
+        } else if (event.empty) {
+          setExpDate('');
+        }
+    }
+    if (elementName === 'number') {
+        if (event.complete && event.value) {
+          setCardNumber(event.value);
+        } else if (event.empty) {
+          setCardNumber('');
+        }
     }
     if (event.error) {
         updateState({ errors: { [elementName]: event.error.message } });
@@ -333,14 +347,18 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         {/* Card Preview */}
         <div className={styles.card}>
           <div className={styles['card__visa']}>VISA</div>
-          <div className={styles['card__number']}>•••• •••• •••• ••••</div>
+          <div className={styles['card__number']}>
+            {cardNumber
+              ? cardNumber.replace(/\d{4}(?=\d)/g, '$& ')
+              : '•••• •••• •••• ••••'}
+          </div>
           <div className={styles['card__name']}>
             <h3>Card Holder</h3>
             <p>{cardholderName || 'FULL NAME'}</p>
           </div>
           <div className={styles['card__expiry']}>
             <h3>Valid Thru</h3>
-            <p>{cardExpiry || 'MM/YY'}</p>
+            <p>{expDate || 'MM/YY'}</p>
           </div>
         </div>
 
