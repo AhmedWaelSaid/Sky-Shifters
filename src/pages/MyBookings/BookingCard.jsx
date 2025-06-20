@@ -1,10 +1,19 @@
 import  { useState, useEffect } from 'react';
 import styles from './BookingCard.module.css';
 import modalStyles from './ConfirmModal.module.css';
+import PaymentSection from '../FlightDetails/PaymentSection/PaymentSection';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import axios from 'axios';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [remainingTime, setRemainingTime] = useState(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [clientSecret, setClientSecret] = useState(booking.clientSecret || '');
+  const [loadingPayment, setLoadingPayment] = useState(false);
 
   const getStatusText = (status) => {
     switch (status) {
@@ -52,6 +61,39 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment }) =>
       return () => clearInterval(interval);
     }
   }, [booking.status, booking.createdAt]);
+
+  const handleOpenPaymentModal = async () => {
+    setShowPaymentModal(true);
+    if (!clientSecret) {
+      setLoadingPayment(true);
+      try {
+        const userString = localStorage.getItem('user');
+        const userData = userString ? JSON.parse(userString) : null;
+        const token = userData?.token;
+        if (!token) throw new Error('No auth token');
+        const amount = booking.totalPrice || booking.price;
+        const currency = booking.currency || 'USD';
+        const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
+        const intentResponse = await axios.post(paymentIntentUrl, {
+          bookingId: booking._id,
+          amount,
+          currency: currency.toLowerCase(),
+        }, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (intentResponse.data.success) {
+          setClientSecret(intentResponse.data.data.clientSecret);
+        }
+      } catch (err) {
+        // يمكن عرض رسالة خطأ هنا
+      } finally {
+        setLoadingPayment(false);
+      }
+    }
+  };
+
+  const handlePaymentSuccess = () => {
+    setShowPaymentModal(false);
+    // يمكن هنا تحديث حالة الحجز في القائمة إذا أردت
+  };
 
   return (
     <div className={styles.bookingCard}>
@@ -192,7 +234,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment }) =>
         {booking.status === 'pending' && remainingTime > 0 && (
           <button
             className={styles.payButton}
-            onClick={onCompletePayment}
+            onClick={handleOpenPaymentModal}
           >
             Complete Payment
             {remainingTime !== null && (
@@ -212,6 +254,31 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment }) =>
             <div className={modalStyles.modalActions}>
               <button className={modalStyles.cancelBtn} onClick={handleCloseModal}>Back</button>
               <button className={modalStyles.confirmBtn} onClick={handleConfirmCancel}>Yes, Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPaymentModal && (
+        <div className={modalStyles.overlay}>
+          <div className={modalStyles.modal} style={{ minWidth: 400, maxWidth: 500 }}>
+            <div className={modalStyles.modalTitle}>Complete Payment</div>
+            {loadingPayment || !clientSecret ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>Loading payment form...</div>
+            ) : (
+              <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'stripe' } }}>
+                <PaymentSection
+                  bookingData={booking}
+                  onPaymentSuccess={handlePaymentSuccess}
+                  onBack={() => setShowPaymentModal(false)}
+                  isLoading={false}
+                  clientSecret={clientSecret}
+                  bookingId={booking._id}
+                />
+              </Elements>
+            )}
+            <div className={modalStyles.modalActions}>
+              <button className={modalStyles.cancelBtn} onClick={() => setShowPaymentModal(false)}>Close</button>
             </div>
           </div>
         </div>

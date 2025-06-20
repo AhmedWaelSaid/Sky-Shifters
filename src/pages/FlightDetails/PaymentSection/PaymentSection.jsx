@@ -322,7 +322,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
       if (paymentIntent) {
         console.log('✅ Payment successful:', paymentIntent);
         setSuccessMessage('Payment successful! Redirecting to your bookings...');
-        setTimeout(handleRedirectHome, 1000);
+        setTimeout(handleRedirectHome, 2500);
         updateState({ loading: false, processingPayment: false });
         onPaymentSuccess && onPaymentSuccess({
           bookingId,
@@ -386,7 +386,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
 
         {/* Payment Form */}
         {successMessage ? (
-          <div className={styles.successMessageSlide}>
+          <div className={styles.successToast}>
             {successMessage}
           </div>
         ) : (
