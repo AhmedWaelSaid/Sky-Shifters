@@ -114,12 +114,10 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
         };
     }, [flight, formData]); // الاعتماديات صحيحة
 
-    // **التغيير الرئيسي هنا**
-    // نقوم بتمرير clientSecret إلى options مباشرة، حتى لو كانت قيمته null في البداية
-    const options = {
-        clientSecret,
-        appearance: { theme: 'stripe' },
-    };
+    // لا نمرر clientSecret إلا إذا كان موجود فعلاً
+    const options = clientSecret
+      ? { clientSecret, appearance: { theme: 'stripe' } }
+      : undefined;
 
     const renderContent = () => {
         if (paymentStatus === 'succeeded') {
@@ -141,20 +139,29 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
                 </div>
             );
         }
-        
-        // **التغيير الرئيسي هنا**
-        // نعرض Elements provider دائماً، وندع PaymentSection يعرض حالته الداخلية
+        // نعرض PaymentSection دائماً، ونمرر options فقط إذا كان clientSecret موجود
         return (
-            <Elements stripe={stripePromise} options={options}>
+            options ? (
+                <Elements stripe={stripePromise} options={options}>
+                    <PaymentSection
+                        bookingData={formData.finalBookingData}
+                        onPaymentSuccess={handlePaymentSuccess}
+                        onBack={onBack}
+                        isLoading={isLoading || paymentStatus === 'pending'}
+                        clientSecret={clientSecret}
+                        bookingId={bookingId}
+                    />
+                </Elements>
+            ) : (
                 <PaymentSection
                     bookingData={formData.finalBookingData}
                     onPaymentSuccess={handlePaymentSuccess}
                     onBack={onBack}
-                    isLoading={isLoading || paymentStatus === 'pending'} // حالة التحميل الخاصة بالدفع
-                    clientSecret={clientSecret}
+                    isLoading={true}
+                    clientSecret={''}
                     bookingId={bookingId}
                 />
-            </Elements>
+            )
         );
     };
 
