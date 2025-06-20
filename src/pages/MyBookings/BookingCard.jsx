@@ -5,6 +5,7 @@ import PaymentSection from '../FlightDetails/PaymentSection/PaymentSection';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import axios from 'axios';
+import paymentStyles from '../FlightDetails/PaymentSection/paymentsection.module.css';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -14,6 +15,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment }) =>
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [clientSecret, setClientSecret] = useState(booking.clientSecret || '');
   const [loadingPayment, setLoadingPayment] = useState(false);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   const getStatusText = (status) => {
     switch (status) {
@@ -92,6 +94,8 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment }) =>
 
   const handlePaymentSuccess = () => {
     setShowPaymentModal(false);
+    setShowSuccessToast(true);
+    setTimeout(() => setShowSuccessToast(false), 2500);
     // يمكن هنا تحديث حالة الحجز في القائمة إذا أردت
   };
 
@@ -220,7 +224,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment }) =>
         <button
           className={styles.printButton}
           onClick={() => onPrintTicket(booking)}
-          disabled={booking.status === 'cancelled'}
+          disabled={booking.status !== 'confirmed'}
         >
           Print Ticket
         </button>
@@ -262,6 +266,11 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment }) =>
       {showPaymentModal && (
         <div className={modalStyles.overlay}>
           <div className={modalStyles.modal} style={{ minWidth: 400, maxWidth: 500 }}>
+            {showSuccessToast && (
+              <div className={paymentStyles.successToastExact}>
+                Payment completed successfully!
+              </div>
+            )}
             <div className={modalStyles.modalTitle}>Complete Payment</div>
             {loadingPayment || !clientSecret ? (
               <div style={{ textAlign: 'center', padding: '2rem' }}>Loading payment form...</div>
