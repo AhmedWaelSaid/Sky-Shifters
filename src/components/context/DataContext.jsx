@@ -18,12 +18,16 @@ export function DataProvider({ children }) {
     localStorage.setItem("flight", JSON.stringify(flight));
   }, [flight]);
   
+  // temp flight details
+  const [tempFlight,setTempFlight] = useState(null);
   // --- ✨ 3. إضافة flight و setFlight إلى القيمة التي يمررها الـ Provider ✨ ---
   const value = {
     sharedData,
     setSharedData,
     flight,
-    setFlight
+    setFlight,
+    tempFlight,
+    setTempFlight
 };
 
 // هذا السطر سيخبرنا أن المزود يعمل والبيانات موجودة

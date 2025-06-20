@@ -188,7 +188,7 @@ const FlightSummary = ({
       </div>
       <div className={`${styles.detailsPanel} ${isDetailsOpen ? styles.open : ''}`}>
         <div className={styles.detailsPanelContent}>
-          <DetailsOfTheFlight onClose={toggleDetails} onUpdateForm={onUpdateForm} formData={formData} />
+          <DetailsOfTheFlight onClose={toggleDetails} onUpdateForm={onUpdateForm} formData={formData} flight={flight}/>
         </div>
       </div>
       {isDetailsOpen && (

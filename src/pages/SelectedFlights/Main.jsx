@@ -6,7 +6,8 @@ import { format, parseISO } from "date-fns";
 import PropTypes from "prop-types";
 import { useData } from "../../components/context/DataContext";
 import { formatDuration } from "./someFun";
-
+import DetailsOfTheFlight from "../FlightDetails/DetailsOfTheFlight/DetailsOfTheFlight";
+import { useState, useEffect } from "react";
 const capitalizeWords = (str) =>
   str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
 function isDurationOneDayOrMore(isoDuration) {
@@ -20,7 +21,14 @@ function isDurationOneDayOrMore(isoDuration) {
 
   return totalHours >= 24;
 }
-export function FlightsUI({ flight, btnHandler, carrier, button }) {
+export function FlightsUI({
+  flight,
+  btnHandler,
+  btnHandler2,
+  carrier,
+  button,
+  button2 = { exist: false },
+}) {
   return (
     <div className={styles.flight}>
       <div className={styles.airLineContainer}>
@@ -29,11 +37,7 @@ export function FlightsUI({ flight, btnHandler, carrier, button }) {
           style={{ backgroundColor: "orange" }}
         ></div>
         <div className={styles.container}>
-          <div className={styles.airLine}>
-            {capitalizeWords(
-              carrier
-            )}
-          </div>
+          <div className={styles.airLine}>{capitalizeWords(carrier)}</div>
           <div className={styles.baggage}>zz</div>
         </div>
       </div>
@@ -85,6 +89,14 @@ export function FlightsUI({ flight, btnHandler, carrier, button }) {
       >
         {button.text}
       </button>
+      {button2.exist && (
+        <button
+          className={styles[button2.className]}
+          onClick={() => btnHandler2(flight)}
+        >
+          {button2.text}
+        </button>
+      )}
     </div>
   );
 }
@@ -98,9 +110,17 @@ export function Main({
   isReturn,
 }) {
   const navigate = useNavigate();
-  const { sharedData, flight, setFlight } = useData();
-  
+  const { sharedData, flight, setFlight, tempFlight, setTempFlight } =
+    useData();
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [fakeForm, setFakeForm] = useState({
+    baggageSelection: {},
+    fakeForm: true,
+  });
   const flightsPerPage = 8;
+  useEffect(() => {
+    if (tempFlight) setTempFlight(null);
+  }, []);
   if (!flightsData) return "Data not here";
   const totalPages = Math.ceil(flightsData.data.length / flightsPerPage);
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -108,7 +128,7 @@ export function Main({
   const endIndex = startIndex + flightsPerPage;
   const currentFlights = flightsData.data.slice(startIndex, endIndex);
 
-  function detailsBtnHandler(data) {
+  function selectBtnHandler(data) {
     const newFlight =
       !isReturn && !sharedData.return
         ? {
@@ -135,7 +155,7 @@ export function Main({
     navigate("./flight-details");
   }
 
-  function selectBtnHandler(data) {
+  function returnBtnHandler(data) {
     setFlight(() => ({
       return: null,
       departure: {
@@ -150,61 +170,109 @@ export function Main({
       ...sharedData.return,
       passengerClass: sharedData.passengerClass,
     });
-    setTimeout(()=>{setIsReturn(true);},200)
+    setTimeout(() => {
+      setIsReturn(true);
+    }, 200);
   }
-
+  const toggleDetails = (curFlight, carrier) => {
+    if (!isDetailsOpen && !sharedData.return) {
+      setTempFlight({ departure: { data: curFlight, carrier } });
+    } else if (!isDetailsOpen && sharedData.return) {
+      if (!isReturn) setTempFlight({ departure: { data: curFlight, carrier } });
+      else setTempFlight({ return: { data: curFlight, carrier }, departure:{data:flight.departure.data, carrier:flight.departure.carrier} });
+    }
+    setIsDetailsOpen(!isDetailsOpen);
+  };
+  console.log(tempFlight);
   return (
-    <div className={styles.mainBody}>
-      {sharedData.return
-        ? isReturn
-          ? currentFlights.map((flight) => (
-              <FlightsUI
-                key={flight.id}
-                flight={flight}
-                btnHandler={detailsBtnHandler}
-                carrier={flightsData.dictionaries.carriers[
-                  flight.itineraries[0].segments[0].carrierCode
-                ]}
-                button={{ text: "View Details", className: "detailsBtn" }}
-              />
-            ))
-          : currentFlights.map((flight) => (
-              <FlightsUI
-                key={flight.id}
-                flight={flight}
-                btnHandler={selectBtnHandler}
-                carrier={flightsData.dictionaries.carriers[
-                  flight.itineraries[0].segments[0].carrierCode
-                ]}
-                button={{ text: "Select flight", className: "selectFlightBtn" }}
-              />
-            ))
-        : currentFlights.map((flight) => (
-            <FlightsUI
-              key={flight.id}
-              flight={flight}
-              btnHandler={detailsBtnHandler}
-              carrier={flightsData.dictionaries.carriers[
-                flight.itineraries[0].segments[0].carrierCode
-              ]}
-              button={{ text: "View Details", className: "detailsBtn" }}
+    <>
+      {tempFlight && (
+        <div
+          className={`${styles.detailsPanel} ${isDetailsOpen ? styles.open : ""}`}
+        >
+          <div className={styles.detailsPanelContent}>
+            <DetailsOfTheFlight
+              onClose={toggleDetails}
+              onUpdateForm={setFakeForm}
+              formData={fakeForm}
+              flight={tempFlight}
             />
+          </div>
+        </div>
+      )}
+      <div className={styles.mainBody}>
+        {currentFlights.map((flight) => {
+          const carrier =
+            flightsData.dictionaries.carriers[
+              flight.itineraries[0].segments[0].carrierCode
+            ];
+
+          let btnHandler;
+          let button;
+          let button2 = { exist: false };
+          let btnHandler2;
+
+          if (sharedData.return) {
+            if (isReturn) {
+              btnHandler = () => toggleDetails(flight, carrier);
+              button = { text: "View Details", className: "detailsBtn" };
+              btnHandler2 = selectBtnHandler;
+              button2 = {
+                text: "Select flight",
+                className: "selectFlightBtn",
+                exist: true,
+              };
+            } else {
+              btnHandler2 = returnBtnHandler;
+              button2 = {
+                text: "Select flight",
+                className: "selectFlightBtn",
+                exist: true,
+              };
+              btnHandler = () => toggleDetails(flight, carrier);
+              button = { text: "View Details", className: "detailsBtn" };
+            }
+          } else {
+            btnHandler = () => toggleDetails(flight, carrier);
+            btnHandler2 = selectBtnHandler;
+            button = { text: "View Details", className: "detailsBtn" };
+            button2 = {
+              text: "Select flight",
+              className: "selectFlightBtn",
+              exist: true,
+            };
+          }
+
+          return (
+            <>
+              <FlightsUI
+                key={flight.id}
+                flight={flight}
+                btnHandler={btnHandler}
+                btnHandler2={btnHandler2}
+                carrier={carrier}
+                button={button}
+                button2={button2}
+              />
+            </>
+          );
+        })}
+        <div className={styles.pagination}>
+          {pages.map((page) => (
+            <button
+              key={page}
+              onClick={() => {
+                setCurrentPage(page);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className={`${currentPage === page ? styles.active : ""}`}
+            >
+              {page}
+            </button>
           ))}
-      <div className={styles.pagination}>
-        {pages.map((page) => (
-          <button
-            key={page}
-            onClick={() => {
-              setCurrentPage(page);
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            className={`${currentPage === page ? styles.active : ""}`}
-          >
-            {page}
-          </button>
-        ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -220,5 +288,7 @@ FlightsUI.propTypes = {
   carrier: PropTypes.string,
   flight: PropTypes.object,
   btnHandler: PropTypes.func,
+  btnHandler2: PropTypes.func,
   button: PropTypes.object,
+  button2: PropTypes.object,
 };

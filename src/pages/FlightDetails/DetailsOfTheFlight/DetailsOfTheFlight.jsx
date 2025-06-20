@@ -372,10 +372,16 @@ function formatted(time) {
   return `${hours}:${minutes} ${amOrPm}`;
 }
 function getTime(duration) {
-  const hours = duration.split("T")[1].split("H")[0];
+  let hours=0;
+  if (duration.includes("H")){
+   hours = duration.split("T")[1].split("H")[0];
+  }
   let mins = 0;
-  if (duration.includes("M")) {
+  if (duration.includes("M") && duration.includes("H")) {
     mins = duration.split("T")[1].split("H")[1].split("M")[0];
+  }
+  else if (duration.includes("M")){
+    mins = duration.split("T")[1].split("M")[0];
   }
   return Number(hours) * 60 + Number(mins);
 }
@@ -388,28 +394,27 @@ function getTimeOfWaiting(flight) {
   const secondFlightTime = getTime(secondFlightDuration);
   let waitingTime = totalTime - firstFlightTime - secondFlightTime;
   let [hours, mins] = [0, 0];
-  while (waitingTime > 60) {
+  while (waitingTime >= 60) {
     hours++;
     waitingTime -= 60;
   }
   mins = waitingTime;
   return hours + "h " + mins + "m";
 }
-const DetailsOfTheFlight = (props) => {
+const DetailsOfTheFlight = ({onClose, onUpdateForm, formData, flight}) => {
   const { airports } = useAirports();
   const [expandedStops, setExpandedStops] = useState(false);
   const [expandedReturnStops, setExpandedReturnStops] = useState(false);
   const [baggageDialogOpen, setBaggageDialogOpen] = useState(false);
   const [baggageDialogOpen2, setBaggageDialogOpen2] = useState(false);
   const [cancellationDialogOpen, setCancellationDialogOpen] = useState(false);
-  const [selectedRoute, setSelectedRoute] = useState("RUH-MNL");
-  const { flight, sharedData } = useData();
+  const {sharedData } = useData();
   const [fareSelectionIndex, setFareSelectionIndex] = useState({
     depIndex: 0,
     retIndex: 0,
     class:"economy",
   });
-
+  if (!flight) return;
   const departureClass =
     sharedData?.passengerClass.class.text || "ECONOMY";
   const returnClass =
@@ -423,17 +428,14 @@ const DetailsOfTheFlight = (props) => {
     setExpandedReturnStops(!expandedReturnStops);
   };
 
-  const openBaggageDialog = (route) => {
-    setSelectedRoute(route);
+  const openBaggageDialog = () => {
     setBaggageDialogOpen(true);
   };
-  const openBaggageDialog2 = (route) => {
-    setSelectedRoute(route);
+  const openBaggageDialog2 = () => {
     setBaggageDialogOpen2(true);
   };
 
-  const openCancellationDialog = (route) => {
-    setSelectedRoute(route);
+  const openCancellationDialog = () => {
     setCancellationDialogOpen(true);
   };
   function getAirportByIATA(iata) {
@@ -454,7 +456,7 @@ const DetailsOfTheFlight = (props) => {
     <div className={styles.flightDetailsContainer}>
       {/* Header */}
       <header className={styles.header}>
-        <button className={styles.closeButton} onClick={props.onClose}>
+        <button className={styles.closeButton} onClick={onClose}>
           <XIcon />
         </button>
         <h1 className={styles.title}>Flight details</h1>
@@ -853,8 +855,8 @@ const DetailsOfTheFlight = (props) => {
         </div>
         {/* Fare Selection for Departure */}
         <FareSelection
-          formData={props.formData}
-          onUpdateForm={props.onUpdateForm}
+          formData={formData}
+          onUpdateForm={onUpdateForm}
           selectedClass={departureClass}
           direction="departure"
           openBaggageDialog={openBaggageDialog}
@@ -862,7 +864,7 @@ const DetailsOfTheFlight = (props) => {
         />
       </section>
       {/* Return Flight */}
-      {sharedData.return && (
+      {sharedData.return &&flight.return && (
         <section className={styles.flightSegment}>
           <div className={styles.flightHeader}>
             <div className={styles.routeInfo}>
@@ -1263,10 +1265,10 @@ const DetailsOfTheFlight = (props) => {
       )}
 
       {/* Fare Selection for Return (إذا كانت رحلة عودة) */}
-      {sharedData.return && (
+      {sharedData.return && flight.return && (
         <FareSelection
-          formData={props.formData}
-          onUpdateForm={props.onUpdateForm}
+          formData={formData}
+          onUpdateForm={onUpdateForm}
           selectedClass={returnClass}
           direction="return"
           openBaggageDialog={openBaggageDialog2}
@@ -1428,9 +1430,9 @@ const DetailsOfTheFlight = (props) => {
 
 DetailsOfTheFlight.propTypes = {
   onClose: PropTypes.func,
-  setExtraBaggagePrice: PropTypes.func,
   onUpdateForm: PropTypes.func,
   formData: PropTypes.object,
+  flight:PropTypes.object,
 };
 Cancellation.propTypes = {
   openCancellationDialog: PropTypes.func,

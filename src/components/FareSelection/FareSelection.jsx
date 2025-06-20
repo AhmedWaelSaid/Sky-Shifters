@@ -119,13 +119,10 @@ const FareSelection = ({
   openBaggageDialog,
   setIndex,
 }) => {
-  const [ranOnce, setRanOnce] = useState(false);
-
   const classStr = (selectedClass || "").toUpperCase();
   const fareOptions = classStr.includes("ECONOMY")
     ? economyOptions
     : premiumOptions;
-
   const baggageSelectionForDirection =
     formData?.baggageSelection?.[direction] || {};
   const activeFareId = baggageSelectionForDirection.selectedId || 1;
@@ -135,10 +132,29 @@ const FareSelection = ({
   );
   const handleFareSelect = (index) => {
     if (direction == "return")
-    setIndex((prev)=>{return {...prev,retIndex: index, class: classStr.toLowerCase()}})
-  else setIndex((prev)=>{return {...prev,depIndex: index, class: classStr.toLowerCase()}})
+      setIndex((prev) => {
+        return { ...prev, retIndex: index, class: classStr.toLowerCase() };
+      });
+    else
+      setIndex((prev) => {
+        return { ...prev, depIndex: index, class: classStr.toLowerCase() };
+      });
     const selectedOption = fareOptions[index];
-    if (onUpdateForm && selectedOption) {
+    if (formData.fakeForm) {
+      onUpdateForm({
+        ...formData,
+        baggageSelection: {
+          ...formData.baggageSelection,
+          [direction]: {
+            selectedId: selectedOption.id,
+            price: selectedOption.price,
+            description: selectedOption.name,
+            type: selectedOption.type,
+            weight: selectedOption.weight,
+          },
+        },
+      });
+    } else if (onUpdateForm && selectedOption) {
       onUpdateForm("baggageSelection", {
         ...formData?.baggageSelection,
         [direction]: {
@@ -259,7 +275,7 @@ FareSelection.propTypes = {
   selectedClass: PropTypes.string,
   direction: PropTypes.string.isRequired,
   openBaggageDialog: PropTypes.func,
-  setIndex: PropTypes.object,
+  setIndex: PropTypes.func,
 };
 
 export default FareSelection;
