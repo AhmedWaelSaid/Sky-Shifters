@@ -33,8 +33,26 @@ export function calculateTotalPrice(flightData, bookingData) {
   }
 
   const totalBaggageCost = bookingData?.selectedBaggageOption?.price || 0;
-  const addOns = (formData.addOns?.insurance ? 27 * passengers.length : 0);
-  const specialServices = (formData.specialServices?.childSeat ? 15.99 : 0);
+  
+  let addOns = 0;
+  if (formData.addOns?.insurance) {
+    addOns += 27 * passengers.filter(p => p.travelerType !== 'infant').length;
+  }
+  if (formData.priorityBoarding) {
+    addOns += 6.99 * passengers.length;
+  }
+  if (formData.addOns?.stayDiscount) {
+    addOns += 5 * passengers.length;
+  }
+
+  let specialServices = 0;
+  if (formData.specialServices?.childSeat) {
+    specialServices += 15.99;
+  }
+  if (formData.specialServices?.childMeal) {
+    specialServices += 8.99 * passengers.filter((p) => p.travelerType === "child").length;
+  }
+  // Stroller is free, so no charge.
 
   const total = baseFareTotal + addOns + specialServices + totalBaggageCost;
   return total;
