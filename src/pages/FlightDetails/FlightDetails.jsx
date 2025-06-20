@@ -93,7 +93,19 @@ const Index = () => {
         currency: baggageDataFromState.currency || "USD"
       };
       
-      const basePrice = parseFloat(flight?.departure?.data?.price?.grandTotal) || 0;
+      const basePrice = passengers.reduce((total, passenger, index) => {
+        const travelerPricing = flight?.departure?.data?.travelerPricings?.[index];
+        if (travelerPricing?.price?.total) {
+          total += Number(travelerPricing.price.total);
+        }
+        // Add return flight price if available
+        const returnTravelerPricing = flight?.return?.data?.travelerPricings?.[index];
+        if (returnTravelerPricing?.price?.total) {
+          total += Number(returnTravelerPricing.price.total);
+        }
+        return total;
+      }, 0);
+
       let addOnsPrice = 0;
       if (formData.addOns?.insurance) {
         addOnsPrice += 27 * passengers.filter(p => p.type !== 'infant').length;
@@ -175,8 +187,20 @@ const Index = () => {
         price: baggagePrice,
         currency: baggageDataFromState.currency || "USD"
       };
-      const basePrice = parseFloat(flight?.departure?.data?.price?.grandTotal) || 0;
       
+      const basePrice = passengers.reduce((total, passenger, index) => {
+        const travelerPricing = flight?.departure?.data?.travelerPricings?.[index];
+        if (travelerPricing?.price?.total) {
+          total += Number(travelerPricing.price.total);
+        }
+        // Add return flight price if available
+        const returnTravelerPricing = flight?.return?.data?.travelerPricings?.[index];
+        if (returnTravelerPricing?.price?.total) {
+          total += Number(returnTravelerPricing.price.total);
+        }
+        return total;
+      }, 0);
+
       let addOnsPrice = 0;
       if (formData.addOns?.insurance) {
         addOnsPrice += 27 * passengers.filter(p => p.type !== 'infant').length;
