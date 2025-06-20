@@ -94,18 +94,32 @@ const Index = () => {
       };
       
       const basePrice = parseFloat(flight?.departure?.data?.price?.grandTotal) || 0;
-      const addOnsPrice = (formData.addOns?.insurance ? 4.99 * passengers.length : 0);
-      const specialServicesPrice = (formData.specialServices?.childSeat ? 15.99 : 0);
+      let addOnsPrice = 0;
+      if (formData.addOns?.insurance) {
+        addOnsPrice += 27 * passengers.filter(p => p.type !== 'infant').length;
+      }
+      if (formData.priorityBoarding) {
+        addOnsPrice += 6.99 * passengers.length;
+      }
+      if (formData.addOns?.stayDiscount) {
+        addOnsPrice += 5 * passengers.length;
+      }
+
+      const specialServicesPrice =
+        (formData.specialServices?.childSeat ? 15.99 : 0) +
+        (formData.specialServices?.childMeal
+          ? 8.99 * passengers.filter((p) => p.type === "child").length
+          : 0) +
+        (formData.specialServices?.stroller ? 0 : 0);
+      
       const finalTotalPrice = basePrice + baggagePrice + addOnsPrice + specialServicesPrice;
 
       const finalBookingData = {
         flightID: flight?.departure?.data?.id || "FL123456",
         originAirportCode: sharedData?.departure?.origin?.airport?.iata,
         destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
-        // --- ✨ تم تصحيح الخطأ الإملائي هنا ليتطابق مع الـ Docs الأخيرة ✨ ---
         originCIty: sharedData?.departure?.origin?.airport?.city,
         destinationCIty: sharedData?.departure?.dest?.airport?.city,
-        // -----------------------------------------------------------------
         departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at?.split('T')[0],
         arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at?.split('T')[0],
         selectedBaggageOption: baggageObjectForApi, 
@@ -162,8 +176,25 @@ const Index = () => {
         currency: baggageDataFromState.currency || "USD"
       };
       const basePrice = parseFloat(flight?.departure?.data?.price?.grandTotal) || 0;
-      const addOnsPrice = (formData.addOns?.insurance ? 4.99 * passengers.length : 0);
-      const specialServicesPrice = (formData.specialServices?.childSeat ? 15.99 : 0);
+      
+      let addOnsPrice = 0;
+      if (formData.addOns?.insurance) {
+        addOnsPrice += 27 * passengers.filter(p => p.type !== 'infant').length;
+      }
+      if (formData.priorityBoarding) {
+        addOnsPrice += 6.99 * passengers.length;
+      }
+      if (formData.addOns?.stayDiscount) {
+        addOnsPrice += 5 * passengers.length;
+      }
+
+      const specialServicesPrice =
+        (formData.specialServices?.childSeat ? 15.99 : 0) +
+        (formData.specialServices?.childMeal
+          ? 8.99 * passengers.filter((p) => p.type === "child").length
+          : 0) +
+        (formData.specialServices?.stroller ? 0 : 0);
+      
       const finalTotalPrice = basePrice + baggagePrice + addOnsPrice + specialServicesPrice;
       const finalBookingData = {
         flightID: flight?.departure?.data?.id || "FL123456",

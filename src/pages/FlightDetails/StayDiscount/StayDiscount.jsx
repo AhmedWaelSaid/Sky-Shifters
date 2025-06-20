@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import styles from './StayDiscount.module.css';
 import { Info, Hotel } from 'lucide-react';
@@ -55,14 +54,14 @@ const StayDiscount = ({ selected = false, onToggle = () => {} }) => {
           </div>
         )}
       </div>
-      <div className={styles.checkbox} onClick={toggleDiscount}>
+      <div className={styles.checkbox}>
         <input 
           type="checkbox" 
           id="stayDiscount" 
           checked={discountSelected} 
-          onChange={() => {}}
+          onChange={toggleDiscount}
         />
-        <label htmlFor="stayDiscount"></label>
+        <label htmlFor="stayDiscount" style={{cursor: 'pointer'}}></label>
       </div>
     </div>
   );

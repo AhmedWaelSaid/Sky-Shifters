@@ -123,7 +123,7 @@ const UpgradeExperience = ({ passengers, formData, onUpdateForm, onContinue, onB
               <InsuranceOption 
                 selected={insuranceSelected} 
                 onToggle={handleInsuranceToggle} 
-                price="$4.99"
+                price="$27.00"
               />
             </div>
             

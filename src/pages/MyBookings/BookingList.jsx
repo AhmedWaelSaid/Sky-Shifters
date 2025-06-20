@@ -12,6 +12,7 @@ const BookingList = () => {
   const [selectedBookingForPrint, setSelectedBookingForPrint] = useState(null);
   const [error, setError] = useState(null);
   const [showCancelToast, setShowCancelToast] = useState(false);
+  const [showPaymentToast, setShowPaymentToast] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -205,7 +206,10 @@ const BookingList = () => {
               booking={booking}
               onCancel={handleCancelBooking}
               onPrintTicket={handlePrintTicket}
-              onCompletePayment={() => navigate(`/payment?bookingId=${booking._id}`)}
+              onCompletePayment={() => {
+                setShowPaymentToast(true);
+                setTimeout(() => setShowPaymentToast(false), 2500);
+              }}
             />
           ))
         )}
@@ -220,6 +224,12 @@ const BookingList = () => {
       {showCancelToast && (
         <div className={toastStyles.toast}>
           Booking cancelled successfully.
+        </div>
+      )}
+      {/* Toast notification for payment success */}
+      {showPaymentToast && (
+        <div className={toastStyles.toast} style={{background: '#e6f9ed', color: '#137333', boxShadow: '0 4px 16px rgba(19,115,51,0.10)'}}>
+          Payment completed successfully!
         </div>
       )}
     </div>

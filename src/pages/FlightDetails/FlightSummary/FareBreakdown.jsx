@@ -73,12 +73,17 @@ const FareBreakdown = ({
 
     // Calculate insurance cost if selected
     if (formData.addOns?.insurance) {
-      addOns += 4.99 * passengers.length;
+      addOns += 27 * passengers.filter(p => p.type !== 'infant').length;
     }
 
     // Calculate priority boarding cost if selected
     if (formData.priorityBoarding) {
       addOns += 6.99 * passengers.length;
+    }
+
+    // Calculate stay discount cost if selected
+    if (formData.addOns?.stayDiscount) {
+      addOns += 5 * passengers.length;
     }
 
     // Special services calculation
@@ -94,8 +99,15 @@ const FareBreakdown = ({
 
     // Check for baggage selection from BaggageOptions component
     if (formData.baggageSelection) {
-      baggageCost += formData.baggageSelection.outbound?.price || 0;
-      baggageCost += formData.baggageSelection.inbound?.price || 0;
+      if (formData.baggageSelection.departure || formData.baggageSelection.return) {
+        baggageCost += formData.baggageSelection.departure?.price || 0;
+        baggageCost += formData.baggageSelection.return?.price || 0;
+      } else if (formData.baggageSelection.outbound || formData.baggageSelection.inbound) {
+        baggageCost += formData.baggageSelection.outbound?.price || 0;
+        baggageCost += formData.baggageSelection.inbound?.price || 0;
+      } else {
+        baggageCost = formData.baggageSelection.price || 0;
+      }
     }
 
     return {
@@ -103,13 +115,13 @@ const FareBreakdown = ({
       serviceFee,
       addOns,
       specialServices,
-      baggageUpgrade: extraBaggagePrice,
+      baggageUpgrade: baggageCost,
       total:
         Number(baseFare.total()) +
         serviceFee +
         addOns +
         specialServices +
-        extraBaggagePrice,
+        baggageCost,
     };
   };
 

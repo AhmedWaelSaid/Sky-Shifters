@@ -100,6 +100,9 @@
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .checkbox:hover label {
@@ -114,13 +117,14 @@
 .checkbox input:checked ~ label:after {
   content: "";
   position: absolute;
-  left: 8px;
-  top: 4px;
-  width: 6px;
-  height: 12px;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 13px;
   border: solid var(--LightText-color);
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  border-width: 0 3px 3px 0;
+  transform: translate(-50%, -55%) rotate(45deg);
+  box-sizing: border-box;
 }
 
 .benefitsPanel {

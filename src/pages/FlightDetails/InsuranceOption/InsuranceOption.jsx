@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import styles from './InsuranceOption.module.css';
 import { Info } from 'lucide-react';
 
-const InsuranceOption = ({ selected = false, onToggle = () => {}, price = "$4.99" }) => {
+const InsuranceOption = ({ selected = false, onToggle = () => {}, price = "$27.00" }) => {
   const [insuranceSelected, setInsuranceSelected] = useState(selected);
   const [showBenefits, setShowBenefits] = useState(false);
   
@@ -54,14 +53,14 @@ const InsuranceOption = ({ selected = false, onToggle = () => {}, price = "$4.99
           </div>
         )}
       </div>
-      <div className={styles.checkbox} onClick={toggleInsurance}>
+      <div className={styles.checkbox}>
         <input 
           type="checkbox" 
           id="insurance" 
           checked={insuranceSelected} 
-          onChange={() => {}} 
+          onChange={toggleInsurance}
         />
-        <label htmlFor="insurance"></label>
+        <label htmlFor="insurance" style={{cursor: 'pointer'}}></label>
       </div>
     </div>
   );

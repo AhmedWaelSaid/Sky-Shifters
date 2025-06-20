@@ -33,7 +33,7 @@ export function calculateTotalPrice(flightData, bookingData) {
   }
 
   const totalBaggageCost = bookingData?.selectedBaggageOption?.price || 0;
-  const addOns = (formData.addOns?.insurance ? 4.99 * passengers.length : 0);
+  const addOns = (formData.addOns?.insurance ? 27 * passengers.length : 0);
   const specialServices = (formData.specialServices?.childSeat ? 15.99 : 0);
 
   const total = baseFareTotal + addOns + specialServices + totalBaggageCost;
