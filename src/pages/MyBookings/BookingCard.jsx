@@ -60,6 +60,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
 
   const handleConfirmDelete = () => {
     setShowDeleteConfirm(false);
+    // احذف الكارد من الواجهة مباشرة
     if (typeof onDelete === 'function') {
       onDelete(booking._id);
     }
