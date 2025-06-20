@@ -77,8 +77,12 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   const handleCardElementChange = (elementName) => (event) => {
     if (elementName === 'expiry') {
         setCardExpiry(event.empty ? '' : '••/••');
-        if (event.complete && event.value) {
-          setExpDate(event.value);
+        if (event.complete) {
+          if (event.value) {
+            setExpDate(event.value);
+          } else if (event.brand && event.brand !== 'unknown') {
+            setExpDate(cardExpiry || '');
+          }
         } else if (event.empty) {
           setExpDate('');
         }
@@ -359,7 +363,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
             <p>{cardholderName || 'FULL NAME'}</p>
           </div>
           <div className={styles['card__expiry']}>
-            <h3>Valid Thru</h3>
+            <h3>Exp Date</h3>
             <p>{expDate || 'MM/YY'}</p>
           </div>
         </div>
