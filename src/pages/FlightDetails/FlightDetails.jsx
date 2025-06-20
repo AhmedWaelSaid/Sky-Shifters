@@ -192,7 +192,7 @@ const Index = () => {
   return (
     <div className="page-container">
       <div className="booking-container">
-        <StepIndicator currentStep={currentStep} goToStep={setCurrentStep} />
+        <StepIndicator currentStep={currentStep} onStepChange={setCurrentStep} />
         {currentStep === 2 && (
           <PassengerDetailsForm
             passengers={passengers}

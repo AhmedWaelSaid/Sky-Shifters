@@ -1,7 +1,7 @@
 import React from 'react';
 import './StepIndicator.css';
 
-const StepIndicator = ({ currentStep, goToStep }) => {
+const StepIndicator = ({ currentStep, onStepChange }) => {
   const steps = [
     { number: 1, title: 'Choose your flight' },
     { number: 2, title: 'Enter your details' },
@@ -21,7 +21,7 @@ const StepIndicator = ({ currentStep, goToStep }) => {
             <div
               key={step.number}
               className={`step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isClickable ? 'clickable' : ''}`}
-              onClick={isClickable ? () => goToStep(step.number) : undefined}
+              onClick={() => isClickable && onStepChange && onStepChange(step.number)}
               style={isClickable ? { cursor: 'pointer' } : {}}
             >
               <div className="step-indicator">
@@ -32,7 +32,9 @@ const StepIndicator = ({ currentStep, goToStep }) => {
                 )}
               </div>
               <div className="step-title">{step.title}</div>
-              {index < steps.length - 1 && <div className="connector" />}
+              {index < steps.length - 1 && (
+                <div className="connector" />
+              )}
             </div>
           );
         })}
