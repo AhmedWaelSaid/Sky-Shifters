@@ -592,3 +592,39 @@
 }
 /* === Custom Card Design End === */
   
+.successMessageSlide {
+  position: fixed;
+  top: 40px;
+  right: -400px;
+  z-index: 9999;
+  min-width: 320px;
+  max-width: 90vw;
+  padding: 1.2rem 2.2rem;
+  background: linear-gradient(90deg, #4BB543 60%, #2ecc40 100%);
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.15em;
+  border-radius: 12px 0 0 12px;
+  box-shadow: 0 4px 24px rgba(76, 175, 80, 0.18);
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  opacity: 0;
+  animation: slideInSuccess 0.7s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+@keyframes slideInSuccess {
+  0% {
+    right: -400px;
+    opacity: 0;
+  }
+  60% {
+    right: 30px;
+    opacity: 1;
+  }
+  100% {
+    right: 40px;
+    opacity: 1;
+  }
+}
+  

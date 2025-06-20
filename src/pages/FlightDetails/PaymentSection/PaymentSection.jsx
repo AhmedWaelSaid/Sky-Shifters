@@ -49,6 +49,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   const [cardNumber, setCardNumber] = useState('');
   const [expDate, setExpDate] = useState('');
   const [cardDotsCount, setCardDotsCount] = useState(0);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const [state, setState] = useState({
     loading: false,
@@ -265,6 +266,10 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
     }
   };
 
+  const handleRedirectHome = () => {
+    window.location.href = '/mybooking';
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -316,8 +321,10 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
 
       if (paymentIntent) {
         console.log('✅ Payment successful:', paymentIntent);
+        setSuccessMessage('Payment successful! Redirecting to your bookings...');
+        setTimeout(handleRedirectHome, 1000);
         updateState({ loading: false, processingPayment: false });
-        onPaymentSuccess({
+        onPaymentSuccess && onPaymentSuccess({
           bookingId,
           paymentIntentId: paymentIntent.id,
           stripeStatus: paymentIntent.status,
@@ -378,6 +385,11 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         </div>
 
         {/* Payment Form */}
+        {successMessage ? (
+          <div className={styles.successMessageSlide}>
+            {successMessage}
+          </div>
+        ) : (
         <form className={styles.form} onSubmit={handleSubmit} autoComplete="off">
         
           
@@ -449,9 +461,10 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
             className={styles.form__btn}
             disabled={!stripe || !elements || loading || isLoading || !clientSecret || !flight || paymentIntentExpired || processingPayment || !isCardElementReady}
           >
-            {loading || isLoading || processingPayment ? 'Processing...' : 'Confirm'}
+            {loading || isLoading || processingPayment ? 'Processing...' : `Pay ${totalAmount} ${currency}`}
           </button>
         </form>
+        )}
       </div>
     </div>
   );
