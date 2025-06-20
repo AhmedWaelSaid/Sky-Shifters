@@ -16,6 +16,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
   const [clientSecret, setClientSecret] = useState(booking.clientSecret || '');
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const getStatusText = (status) => {
     switch (status) {
@@ -53,12 +54,18 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
   // حذف الحجز نهائياً (pending فقط)
   const handleDeleteBooking = async () => {
     if (booking.status === 'pending') {
-      // استدعاء دالة حذف الحجز من القائمة وقاعدة البيانات
-      if (typeof onDelete === 'function') {
-        onDelete(booking._id);
-      }
+      setShowDeleteConfirm(true);
     }
   };
+
+  const handleConfirmDelete = () => {
+    setShowDeleteConfirm(false);
+    if (typeof onDelete === 'function') {
+      onDelete(booking._id);
+    }
+  };
+
+  const handleCloseDeleteModal = () => setShowDeleteConfirm(false);
 
   useEffect(() => {
     if (booking.status === 'pending' && booking.createdAt) {
@@ -308,6 +315,19 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
             )}
             <div className={modalStyles.modalActions}>
               <button className={modalStyles.cancelBtn} onClick={() => setShowPaymentModal(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeleteConfirm && (
+        <div className={modalStyles.overlay}>
+          <div className={modalStyles.modal}>
+            <div className={modalStyles.modalTitle}>Delete Booking</div>
+            <div>Are you sure you want to delete this booking? This action cannot be undone.</div>
+            <div className={modalStyles.modalActions}>
+              <button className={modalStyles.cancelBtn} onClick={handleCloseDeleteModal}>Back</button>
+              <button className={modalStyles.confirmBtn} onClick={handleConfirmDelete}>Yes, Delete</button>
             </div>
           </div>
         </div>

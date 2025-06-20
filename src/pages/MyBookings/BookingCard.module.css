@@ -512,7 +512,7 @@
 }
 
 .deleteButton {
-  background-color: #333;
+  background-color: #dc3545;
   color: #fff;
   padding: 12px 24px;
   border: none;
@@ -524,8 +524,8 @@
   margin-left: 8px;
 }
 .deleteButton:hover:not(:disabled) {
-  background-color: #111;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  background-color: #c82333;
+  box-shadow: 0 4px 16px rgba(220,53,69,0.18);
 }
 .deleteButton:disabled {
   background-color: #888;
