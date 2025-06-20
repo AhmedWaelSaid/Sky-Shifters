@@ -122,10 +122,6 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
     };
 
     const renderContent = () => {
-        if (isLoading) {
-            return <div>Loading payment setup...</div>;
-        }
-
         if (paymentStatus === 'succeeded') {
             return (
                 <div className={styles.successMessage}>
@@ -154,7 +150,7 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
                     bookingData={formData.finalBookingData}
                     onPaymentSuccess={handlePaymentSuccess}
                     onBack={onBack}
-                    isLoading={paymentStatus === 'pending'} // حالة التحميل الخاصة بالدفع
+                    isLoading={isLoading || paymentStatus === 'pending'} // حالة التحميل الخاصة بالدفع
                     clientSecret={clientSecret}
                     bookingId={bookingId}
                 />
