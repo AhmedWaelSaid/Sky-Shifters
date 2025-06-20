@@ -48,6 +48,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [expDate, setExpDate] = useState('');
+  const [cardDotsCount, setCardDotsCount] = useState(0);
 
   const [state, setState] = useState({
     loading: false,
@@ -88,6 +89,12 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         }
     }
     if (elementName === 'number') {
+        if (event.value) {
+          const digits = event.value.replace(/\D/g, '');
+          setCardDotsCount(digits.length);
+        } else if (event.empty) {
+          setCardDotsCount(0);
+        }
         if (event.complete && event.brand && event.brand !== 'unknown' && event.empty === false) {
           if (event.last4) {
             setCardNumber(`•••• •••• •••• ${event.last4}`);
@@ -356,7 +363,9 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         <div className={styles.card}>
           <div className={styles['card__visa']}>VISA</div>
           <div className={styles['card__number']}>
-            {cardNumber || '•••• •••• •••• ••••'}
+            {cardDotsCount > 0
+              ? Array.from({ length: cardDotsCount }, (_, i) => (i > 0 && i % 4 === 0 ? ' ' : '') + '•').join('')
+              : '•••• •••• •••• ••••'}
           </div>
           <div className={styles['card__name']}>
             <h3>Card Holder</h3>
