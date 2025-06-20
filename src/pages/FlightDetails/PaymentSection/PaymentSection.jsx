@@ -46,6 +46,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   const { flight } = useData();
   const [cardholderName, setCardholderName] = useState(bookingData?.contactDetails?.fullName || '');
   const [cardExpiry, setCardExpiry] = useState('');
+  const [cardBrand, setCardBrand] = useState('visa');
 
   const [state, setState] = useState({
     loading: false,
@@ -75,6 +76,9 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   const handleCardElementChange = (elementName) => (event) => {
     if (elementName === 'expiry') {
         setCardExpiry(event.empty ? '' : '••/••');
+    }
+    if (elementName === 'number' && event.brand) {
+        setCardBrand(event.brand);
     }
     if (event.error) {
         updateState({ errors: { [elementName]: event.error.message } });
@@ -314,7 +318,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   const elementOptions = {
     style: {
       base: {
-        fontSize: '14px',
+        fontSize: '16px',
         color: 'var(--greyDark-2)',
         fontFamily: '"Nunito", sans-serif',
         '::placeholder': {
@@ -332,7 +336,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
       <div className={styles.payment}>
         {/* Card Preview */}
         <div className={styles.card}>
-          <div className={styles['card__visa']}>VISA</div>
+          <div className={styles['card__visa']}>{cardBrand}</div>
           <div className={styles['card__number']}>•••• •••• •••• ••••</div>
           <div className={styles['card__name']}>
             <h3>Card Holder</h3>
@@ -357,7 +361,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
               type="text"
               value={cardholderName}
               onChange={(e) => setCardholderName(e.target.value)}
-              placeholder="Mrs Kate Smith"
+              placeholder="Cardholder Name"
             />
             {errors.name && <div className={styles.alert}><AlertTriangle size={14}/> {errors.name}</div>}
           </div>
