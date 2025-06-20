@@ -267,7 +267,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   };
 
   const handleRedirectHome = () => {
-    window.location.href = '/mybooking';
+    window.location.href = '/my-bookings';
   };
 
   const handleSubmit = async (event) => {

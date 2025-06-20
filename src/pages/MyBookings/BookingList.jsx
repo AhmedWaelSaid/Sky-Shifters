@@ -51,6 +51,28 @@ const BookingList = () => {
     fetchBookings();
   }, [navigate]);
 
+  // حذف الحجوزات pending المنتهية (أكثر من 5 دقائق)
+  useEffect(() => {
+    const now = new Date();
+    const expiredPending = bookings.filter(b => b.status === 'pending' && b.createdAt && (now - new Date(b.createdAt) > 5 * 60 * 1000));
+    if (expiredPending.length > 0) {
+      expiredPending.forEach(async (booking) => {
+        try {
+          const userString = localStorage.getItem('user');
+          const userData = userString ? JSON.parse(userString) : null;
+          const token = userData?.token;
+          if (!token) return;
+          await axios.delete(`https://sky-shifters.duckdns.org/booking/${booking._id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        } catch (err) {
+          // يمكن تجاهل الخطأ هنا
+        }
+      });
+      setBookings(prev => prev.filter(b => !(b.status === 'pending' && b.createdAt && (now - new Date(b.createdAt) > 5 * 60 * 1000))));
+    }
+  }, [bookings]);
+
   const handleCancelBooking = async (bookingId) => {
     const booking = bookings.find(b => b._id === bookingId);
     if (!booking) {
@@ -160,6 +182,7 @@ const BookingList = () => {
               booking={booking}
               onCancel={handleCancelBooking}
               onPrintTicket={handlePrintTicket}
+              onCompletePayment={() => navigate(`/payment?bookingId=${booking._id}`)}
             />
           ))
         )}

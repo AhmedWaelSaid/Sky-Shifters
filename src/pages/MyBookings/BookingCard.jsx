@@ -1,9 +1,10 @@
-import  { useState } from 'react';
+import  { useState, useEffect } from 'react';
 import styles from './BookingCard.module.css';
 import modalStyles from './ConfirmModal.module.css';
 
-const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
+const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment }) => {
   const [showConfirm, setShowConfirm] = useState(false);
+  const [remainingTime, setRemainingTime] = useState(null);
 
   const getStatusText = (status) => {
     switch (status) {
@@ -37,6 +38,20 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
     setShowConfirm(false);
     onCancel(booking._id);
   };
+
+  useEffect(() => {
+    if (booking.status === 'pending' && booking.createdAt) {
+      const created = new Date(booking.createdAt);
+      const updateCountdown = () => {
+        const now = new Date();
+        const diff = 5 * 60 * 1000 - (now - created);
+        setRemainingTime(diff > 0 ? diff : 0);
+      };
+      updateCountdown();
+      const interval = setInterval(updateCountdown, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [booking.status, booking.createdAt]);
 
   return (
     <div className={styles.bookingCard}>
@@ -174,6 +189,19 @@ const BookingCard = ({ booking, onCancel, onPrintTicket }) => {
         >
           Cancel Booking
         </button>
+        {booking.status === 'pending' && remainingTime > 0 && (
+          <button
+            className={styles.payButton}
+            onClick={onCompletePayment}
+          >
+            Complete Payment
+            {remainingTime !== null && (
+              <span style={{ marginLeft: 8, fontSize: '0.9em', color: '#555' }}>
+                ({Math.floor(remainingTime / 60000)}:{String(Math.floor((remainingTime % 60000) / 1000)).padStart(2, '0')})
+              </span>
+            )}
+          </button>
+        )}
       </div>
 
       {showConfirm && (
