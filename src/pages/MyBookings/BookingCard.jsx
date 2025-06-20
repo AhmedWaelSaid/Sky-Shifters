@@ -60,6 +60,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
 
   const handleConfirmDelete = () => {
     setShowDeleteConfirm(false);
+    // احذف الكارد من الواجهة مباشرة
     if (typeof onDelete === 'function') {
       onDelete(booking._id);
     }
@@ -252,15 +253,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
         >
           Cancel Booking
         </button>
-        {/* زر حذف الحجز يظهر فقط في pending */}
-        {booking.status === 'pending' && (
-          <button
-            className={styles.deleteButton}
-            onClick={handleDeleteBooking}
-          >
-            Delete Booking
-          </button>
-        )}
+        {/* زر حذف الحجز (Delete Booking) تمت إزالته بناءً على طلب المستخدم */}
         {booking.status === 'pending' && remainingTime > 0 && (
           <button
             className={styles.payButton}
