@@ -89,8 +89,7 @@ const Index = () => {
       const baggageObjectForApi = {
         type: baggageDataFromState.type || "checked",
         weight: baggageDataFromState.weight || "23kg",
-        price: baggagePrice,
-        currency: baggageDataFromState.currency || "USD"
+        price: baggagePrice
       };
       
       const basePrice = passengers.reduce((total, passenger, index) => {
@@ -228,8 +227,7 @@ const Index = () => {
       const baggageObjectForApi = {
         type: baggageDataFromState.type || "checked",
         weight: baggageDataFromState.weight || "23kg",
-        price: baggagePrice,
-        currency: baggageDataFromState.currency || "USD"
+        price: baggagePrice
       };
       
       const basePrice = passengers.reduce((total, passenger, index) => {
