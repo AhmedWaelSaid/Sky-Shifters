@@ -49,6 +49,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   const [cardNumber, setCardNumber] = useState('');
   const [expDate, setExpDate] = useState('');
   const [cardDotsCount, setCardDotsCount] = useState(0);
+  const [uiCardNumber, setUiCardNumber] = useState('');
+  const [uiExpDate, setUiExpDate] = useState('');
 
   const [state, setState] = useState({
     loading: false,
@@ -363,9 +365,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         <div className={styles.card}>
           <div className={styles['card__visa']}>VISA</div>
           <div className={styles['card__number']}>
-            {cardDotsCount > 0
-              ? Array.from({ length: cardDotsCount }, (_, i) => (i > 0 && i % 4 === 0 ? ' ' : '') + '•').join('')
-              : '•••• •••• •••• ••••'}
+            {uiCardNumber || '•••• •••• •••• ••••'}
           </div>
           <div className={styles['card__name']}>
             <h3>Card Holder</h3>
@@ -373,7 +373,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
           </div>
           <div className={styles['card__expiry']}>
             <h3>Exp Date</h3>
-            <p>{expDate || 'MM/YY'}</p>
+            <p>{uiExpDate || 'MM/YY'}</p>
           </div>
         </div>
 
@@ -443,14 +443,52 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
             <div className={`${styles.alert} ${styles.form__name}`}><AlertTriangle size={14}/> {errors.general}</div>
           )}
 
+          {/* UI Inputs for card preview only */}
+          <div className={styles.form__detail}>
+            <label htmlFor="ui-card-number">Card Number (UI Only)</label>
+            <input
+              id="ui-card-number"
+              type="text"
+              value={uiCardNumber}
+              onChange={e => setUiCardNumber(e.target.value.replace(/[^0-9 ]/g, '').replace(/(\d{4})/g, '$1 ').trim())}
+              placeholder="1234 5678 9012 3456"
+              maxLength={19}
+              autoComplete="off"
+              style={{ marginBottom: 8 }}
+            />
+          </div>
+          <div className={styles.form__detail}>
+            <label htmlFor="ui-exp-date">Exp Date (UI Only)</label>
+            <input
+              id="ui-exp-date"
+              type="text"
+              value={uiExpDate}
+              onChange={e => setUiExpDate(e.target.value.replace(/[^0-9/]/g, '').replace(/(\d{2})(\d{0,2})/, (m, m1, m2) => m2 ? m1 + ' / ' + m2 : m1))}
+              placeholder="MM / YY"
+              maxLength={7}
+              autoComplete="off"
+            />
+          </div>
+
           {/* Buttons */}
-          <button
-            type="submit"
-            className={styles.form__btn}
-            disabled={!stripe || !elements || loading || isLoading || !clientSecret || !flight || paymentIntentExpired || processingPayment || !isCardElementReady}
-          >
-            {loading || isLoading || processingPayment ? 'Processing...' : 'Confirm'}
-          </button>
+          <div className={styles.form__btnsRow} style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+            <button
+              type="button"
+              className={styles.form__btn}
+              style={{ background: '#e0e0e0', color: '#333' }}
+              onClick={onBack}
+              disabled={loading || isLoading || processingPayment}
+            >
+              Back
+            </button>
+            <button
+              type="submit"
+              className={styles.form__btn}
+              disabled={!stripe || !elements || loading || isLoading || !clientSecret || !flight || paymentIntentExpired || processingPayment || !isCardElementReady}
+            >
+              {loading || isLoading || processingPayment ? 'Processing...' : 'Confirm'}
+            </button>
+          </div>
         </form>
       </div>
     </div>
