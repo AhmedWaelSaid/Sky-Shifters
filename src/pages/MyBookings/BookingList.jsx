@@ -127,6 +127,29 @@ const BookingList = () => {
     setSelectedBookingForPrint(booking);
   };
 
+  // حذف الحجز نهائياً (pending فقط)
+  const handleDeleteBooking = async (bookingId) => {
+    const booking = bookings.find(b => b._id === bookingId);
+    if (!booking || booking.status !== 'pending') return;
+    try {
+      const userString = localStorage.getItem('user');
+      const userData = userString ? JSON.parse(userString) : null;
+      const token = userData?.token;
+      if (!token) {
+        navigate('/auth');
+        return;
+      }
+      await axios.delete(`https://sky-shifters.duckdns.org/booking/${bookingId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (err) {
+      // يمكن عرض رسالة خطأ هنا إذا أردت
+    } finally {
+      // احذف الحجز من القائمة فوراً حتى لو فشل الحذف من السيرفر
+      setBookings(prev => prev.filter(b => b._id !== bookingId));
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.container}>
