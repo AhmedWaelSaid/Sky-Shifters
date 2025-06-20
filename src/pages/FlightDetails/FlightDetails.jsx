@@ -141,6 +141,11 @@ const Index = () => {
         contactDetails: {
           email: formData.contactInfo.email,
           phone: `${formData.contactInfo.code}${formData.contactInfo.mobile}`
+        },
+        formData: {
+            addOns: formData.addOns,
+            priorityBoarding: formData.priorityBoarding,
+            specialServices: formData.specialServices
         }
       };
       
@@ -235,6 +240,11 @@ const Index = () => {
         contactDetails: {
           email: formData.contactInfo.email,
           phone: `${formData.contactInfo.code}${formData.contactInfo.mobile}`
+        },
+        formData: {
+            addOns: formData.addOns,
+            priorityBoarding: formData.priorityBoarding,
+            specialServices: formData.specialServices
         }
       };
       // إذا لم يكن finalBookingData موجود أو تغير السعر، حدثه
