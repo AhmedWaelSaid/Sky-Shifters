@@ -390,7 +390,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
               type="text"
               value={cardholderName}
               onChange={(e) => setCardholderName(e.target.value)}
-              placeholder="Mrs Kate Smith"
+              placeholder="cardholderName"
             />
             {errors.name && <div className={styles.alert}><AlertTriangle size={14}/> {errors.name}</div>}
           </div>
