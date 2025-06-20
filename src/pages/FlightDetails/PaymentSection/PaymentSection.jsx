@@ -235,7 +235,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         return;
       }
 
-      const amount = calculateTotalPrice(flight, bookingData);
+      const amount = bookingData?.totalPrice ?? calculateTotalPrice(flight, bookingData);
       const currency = bookingData?.currency || 'USD';
       // 🔍 LOG: Data being sent to the backend to create a new Payment Intent.
       console.log("🔍 handleRetry: Sending request to create new Payment Intent with:", {
@@ -364,7 +364,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
     }
   };
 
-  const totalAmount = bookingData ? calculateTotalPrice(flight, bookingData).toFixed(2) : "0.00";
+  const totalAmount = (bookingData?.totalPrice ?? (bookingData ? calculateTotalPrice(flight, bookingData) : 0)).toFixed(2);
   const currency = bookingData?.currency || "USD";
 
   const elementOptions = {
