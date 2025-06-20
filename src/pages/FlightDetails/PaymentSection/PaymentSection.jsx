@@ -84,8 +84,12 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         }
     }
     if (elementName === 'number') {
-        if (event.complete && event.value) {
-          setCardNumber(event.value);
+        if (event.complete && event.brand && event.brand !== 'unknown' && event.empty === false) {
+          if (event.last4) {
+            setCardNumber(`•••• •••• •••• ${event.last4}`);
+          } else {
+            setCardNumber('•••• •••• ••••');
+          }
         } else if (event.empty) {
           setCardNumber('');
         }
@@ -348,9 +352,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         <div className={styles.card}>
           <div className={styles['card__visa']}>VISA</div>
           <div className={styles['card__number']}>
-            {cardNumber
-              ? cardNumber.replace(/\d{4}(?=\d)/g, '$& ')
-              : '•••• •••• •••• ••••'}
+            {cardNumber || '•••• •••• •••• ••••'}
           </div>
           <div className={styles['card__name']}>
             <h3>Card Holder</h3>
