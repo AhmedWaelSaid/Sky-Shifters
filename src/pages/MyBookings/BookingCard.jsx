@@ -274,6 +274,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment }) =>
                   isLoading={false}
                   clientSecret={clientSecret}
                   bookingId={booking._id}
+                  hideCardPreview={true}
                 />
               </Elements>
             )}

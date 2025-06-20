@@ -40,7 +40,7 @@ export function calculateTotalPrice(flightData, bookingData) {
   return total;
 }
 
-const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clientSecret: initialClientSecret, bookingId: initialBookingId }) => {
+const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clientSecret: initialClientSecret, bookingId: initialBookingId, hideCardPreview }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { flight } = useData();
@@ -367,22 +367,24 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
     <div className={styles.container}>
       <div className={styles.payment}>
         {/* Card Preview */}
-        <div className={styles.card}>
-          <div className={styles['card__visa']}>VISA</div>
-          <div className={styles['card__number']}>
-            {cardDotsCount > 0
-              ? Array.from({ length: cardDotsCount }, (_, i) => (i > 0 && i % 4 === 0 ? ' ' : '') + '•').join('')
-              : '•••• •••• •••• ••••'}
+        {!hideCardPreview && (
+          <div className={styles.card}>
+            <div className={styles['card__visa']}>VISA</div>
+            <div className={styles['card__number']}>
+              {cardDotsCount > 0
+                ? Array.from({ length: cardDotsCount }, (_, i) => (i > 0 && i % 4 === 0 ? ' ' : '') + '•').join('')
+                : '•••• •••• •••• ••••'}
+            </div>
+            <div className={styles['card__name']}>
+              <h3>Card Holder</h3>
+              <p>{cardholderName || 'FULL NAME'}</p>
+            </div>
+            <div className={styles['card__expiry']}>
+              <h3>Exp Date</h3>
+              <p>{expDate || 'MM/YY'}</p>
+            </div>
           </div>
-          <div className={styles['card__name']}>
-            <h3>Card Holder</h3>
-            <p>{cardholderName || 'FULL NAME'}</p>
-          </div>
-          <div className={styles['card__expiry']}>
-            <h3>Exp Date</h3>
-            <p>{expDate || 'MM/YY'}</p>
-          </div>
-        </div>
+        )}
 
         {/* Payment Form */}
         {successMessage && (
@@ -476,6 +478,7 @@ PaymentSection.propTypes = {
   isLoading: PropTypes.bool,
   clientSecret: PropTypes.string,
   bookingId: PropTypes.string,
+  hideCardPreview: PropTypes.bool,
 };
 
 export default PaymentSection;
