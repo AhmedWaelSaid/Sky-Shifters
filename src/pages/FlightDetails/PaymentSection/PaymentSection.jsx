@@ -40,12 +40,70 @@ export function calculateTotalPrice(flightData, bookingData) {
   return total;
 }
 
+const formatCardNumber = (value) => {
+  const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+  const matches = v.match(/\d{4,16}/g);
+  const match = (matches && matches[0]) || '';
+  const parts = [];
+  for (let i = 0, len = match.length; i < len; i += 4) {
+    parts.push(match.substring(i, i + 4));
+  }
+  if (parts.length) {
+    return parts.join(' ');
+  }
+  return value;
+};
+
+const formatExpiryDate = (value) => {
+    const clearValue = value.replace(/\s*\/\s*/g, "").replace(/[^0-9]/g, '');
+    if (clearValue.length >= 3) {
+        return `${clearValue.slice(0, 2)} / ${clearValue.slice(2, 4)}`;
+    }
+    return clearValue;
+}
+
+const detectCardBrand = (number) => {
+    const cleaned = number.replace(/\s+/g, '');
+    if (/^4/.test(cleaned)) return 'visa';
+    if (/^5[1-5]/.test(cleaned)) return 'mastercard';
+    if (/^3[47]/.test(cleaned)) return 'amex';
+    return 'visa'; // Default brand
+}
+
+const CardLogo = ({ brand }) => {
+    const logos = {
+        visa: (
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 38 24" fill="none">
+                <path d="M37.36 9.429L32.189 9.17l-.396 6.838 5.171.259.396-6.838zM31.22 20.94l.395-6.838-5.17-.26.395 6.838 4.38.26z" fill="#E6A329"/>
+                <path d="M25.684 20.94l-.01-11.411-5.383 11.41h3.333l.97-2.172h3.9l.52 2.172h3.323L26.6 9.53h-3.56l-4.93 11.41h3.33l.25-1.157h5.18l-.209 1.157h3.32zM21.05 9.53l-6.08 11.41h3.33l6.08-11.41h-3.33z" fill="#2441C2"/>
+            </svg>
+        ),
+        mastercard: (
+             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 38 24" fill="none">
+                <circle cx="12" cy="12" r="12" fill="#EB001B"/>
+                <circle cx="26" cy="12" r="12" fill="#F79E1B" fillOpacity="0.8"/>
+            </svg>
+        ),
+         amex: (
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 38 24" fill="#006FCF">
+                <rect width="38" height="24" rx="3"/>
+                <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">AMEX</text>
+            </svg>
+        ),
+    };
+    return <div className={styles.card__logo_container}>{logos[brand.toLowerCase()] || logos.visa}</div>
+}
+
 const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clientSecret: initialClientSecret, bookingId: initialBookingId }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { flight } = useData();
   const [cardholderName, setCardholderName] = useState(bookingData?.contactDetails?.fullName || '');
+  
+  // UI-only state for card preview
+  const [cardNumber, setCardNumber] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvc, setCardCvc] = useState('');
   const [cardBrand, setCardBrand] = useState('visa');
 
   const [state, setState] = useState({
@@ -73,6 +131,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
       errors: { ...prev.errors, ...(newState.errors || {}) }
     }));
   
+  // NOTE: This handler is for the original Stripe Elements. It is not currently used
+  // but kept for easy reversion from design-mode.
   const handleCardElementChange = (elementName) => (event) => {
     if (elementName === 'expiry') {
         setCardExpiry(event.empty ? '' : '••/••');
@@ -86,6 +146,19 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         updateState({ errors: { [elementName]: '' } });
     }
   };
+  
+  // --- Handlers for UI-only inputs ---
+  const handleCardNumberInput = (e) => {
+    const formatted = formatCardNumber(e.target.value);
+    setCardNumber(formatted);
+    setCardBrand(detectCardBrand(e.target.value));
+  };
+  
+  const handleExpiryInput = (e) => {
+    const formatted = formatExpiryDate(e.target.value);
+    setCardExpiry(formatted);
+  };
+  // --- End of UI-only handlers ---
 
   useEffect(() => {
     // 🔍 LOG: Component receives new props from parent
@@ -315,6 +388,7 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
   const totalAmount = bookingData ? calculateTotalPrice(flight, bookingData).toFixed(2) : "0.00";
   const currency = bookingData?.currency || "USD";
 
+  // NOTE: These options are for the original Stripe Elements.
   const elementOptions = {
     style: {
       base: {
@@ -336,8 +410,8 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
       <div className={styles.payment}>
         {/* Card Preview */}
         <div className={styles.card}>
-          <div className={styles['card__visa']}>{cardBrand}</div>
-          <div className={styles['card__number']}>•••• •••• •••• ••••</div>
+          <CardLogo brand={cardBrand} />
+          <div className={styles['card__number']}>{cardNumber || '•••• •••• •••• ••••'}</div>
           <div className={styles['card__name']}>
             <h3>Card Holder</h3>
             <p>{cardholderName || 'FULL NAME'}</p>
@@ -351,6 +425,10 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         {/* Payment Form */}
         <form className={styles.form} onSubmit={handleSubmit} autoComplete="off">
         
+          <h3 className={styles.designModeWarning}>
+            <AlertTriangle size={14} style={{ marginRight: '8px' }}/> 
+            Design-Mode Active. Payments are disabled.
+          </h3>
           
           {/* Cardholder Name */}
           <div className={`${styles['form__detail']} ${styles['form__name']}`}>
@@ -370,14 +448,22 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
           <div className={`${styles['form__detail']} ${styles['form__number']}`}>
             <label htmlFor="card-number">Card Number</label>
              <CreditCard className={styles.icon} size={20}/>
-            <div className={styles.stripeCardElement}>
+            {/* <div className={styles.stripeCardElement}>
               <CardNumberElement
                 id="card-number"
                 options={elementOptions}
                 onReady={() => updateState({ isCardElementReady: true })}
                 onChange={handleCardElementChange('number')}
               />
-            </div>
+            </div> */}
+            <input
+              id="card-number"
+              type="text"
+              value={cardNumber}
+              onChange={handleCardNumberInput}
+              placeholder="0000 0000 0000 0000"
+              maxLength="19"
+            />
              {errors.number && <div className={styles.alert}><AlertTriangle size={14}/> {errors.number}</div>}
           </div>
 
@@ -385,13 +471,21 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
           <div className={`${styles['form__detail']} ${styles['form__expiry']}`}>
             <label htmlFor="exp-date">Exp Date</label>
             <Calendar className={styles.icon} size={20}/>
-            <div className={styles.stripeCardElement}>
+            {/* <div className={styles.stripeCardElement}>
               <CardExpiryElement
                 id="exp-date"
                 options={elementOptions}
                 onChange={handleCardElementChange('expiry')}
               />
-            </div>
+            </div> */}
+             <input
+              id="exp-date"
+              type="text"
+              value={cardExpiry}
+              onChange={handleExpiryInput}
+              placeholder="MM / YY"
+              maxLength="7"
+            />
              {errors.expiry && <div className={styles.alert}><AlertTriangle size={14}/> {errors.expiry}</div>}
           </div>
 
@@ -399,13 +493,21 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
           <div className={`${styles['form__detail']} ${styles['form__cvv']}`}>
             <label htmlFor="cvv">CVV</label>
              <Lock className={styles.icon} size={20}/>
-            <div className={styles.stripeCardElement}>
+            {/* <div className={styles.stripeCardElement}>
               <CardCvcElement
                 id="cvv"
                 options={elementOptions}
                 onChange={handleCardElementChange('cvc')}
               />
-            </div>
+            </div> */}
+            <input
+              id="cvv"
+              type="text"
+              value={cardCvc}
+              onChange={(e) => setCardCvc(e.target.value)}
+              placeholder="CVC"
+              maxLength="4"
+            />
              {errors.cvc && <div className={styles.alert}><AlertTriangle size={14}/> {errors.cvc}</div>}
           </div>
 
@@ -418,9 +520,9 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
           <button
             type="submit"
             className={styles.form__btn}
-            disabled={!stripe || !elements || loading || isLoading || !clientSecret || !flight || paymentIntentExpired || processingPayment || !isCardElementReady}
+            disabled={true}
           >
-            {loading || isLoading || processingPayment ? 'Processing...' : 'Confirm'}
+            {'Confirm'}
           </button>
         </form>
       </div>
