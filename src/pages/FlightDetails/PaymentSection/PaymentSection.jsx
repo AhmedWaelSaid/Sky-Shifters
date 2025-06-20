@@ -385,11 +385,11 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
         </div>
 
         {/* Payment Form */}
-        {successMessage ? (
-          <div className={styles.successToast}>
-            {successMessage}
+        {successMessage && (
+          <div className={styles.successToastExact}>
+            Payment completed successfully!
           </div>
-        ) : (
+        )}
         <form className={styles.form} onSubmit={handleSubmit} autoComplete="off">
         
           
@@ -461,10 +461,9 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
             className={styles.form__btn}
             disabled={!stripe || !elements || loading || isLoading || !clientSecret || !flight || paymentIntentExpired || processingPayment || !isCardElementReady}
           >
-            {loading || isLoading || processingPayment ? 'Processing...' : `Pay ${totalAmount} ${currency}`}
+            {!clientSecret ? 'Loading...' : (loading || isLoading || processingPayment ? 'Processing...' : `Pay ${totalAmount} ${currency}`)}
           </button>
         </form>
-        )}
       </div>
     </div>
   );
