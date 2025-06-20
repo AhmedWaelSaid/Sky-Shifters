@@ -91,7 +91,7 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
                 setBookingId(newBookingId);
 
                 // 2. إنشاء نية الدفع
-                const amount = calculateTotalPrice(flight, formData.finalBookingData);
+                const amount = formData.finalBookingData.totalPrice;
                 const currency = formData.finalBookingData.currency || 'USD';
                 console.log('🔵 Calculated total amount for payment intent:', amount, currency);
 
