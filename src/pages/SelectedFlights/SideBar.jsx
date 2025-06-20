@@ -120,7 +120,6 @@ export default function SideBar({
                 onChange={(e) => stopHandler(e)}
               />
               <label htmlFor="direct">Direct</label>
-              <label htmlFor="direct">30 USD</label>
             </div>
             <div>
               <input
@@ -132,7 +131,6 @@ export default function SideBar({
                 onChange={(e) => stopHandler(e)}
               />
               <label htmlFor="1-stop">1 Stop</label>
-              <label htmlFor="1-stop">45 USD</label>
             </div>
           </form>
         </div>

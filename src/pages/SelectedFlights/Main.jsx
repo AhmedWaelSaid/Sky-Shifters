@@ -20,7 +20,7 @@ function isDurationOneDayOrMore(isoDuration) {
 
   return totalHours >= 24;
 }
-export function FlightsUI({ value, btnHandler, flightsData, button }) {
+export function FlightsUI({ flight, btnHandler, carrier, button }) {
   return (
     <div className={styles.flight}>
       <div className={styles.airLineContainer}>
@@ -31,59 +31,57 @@ export function FlightsUI({ value, btnHandler, flightsData, button }) {
         <div className={styles.container}>
           <div className={styles.airLine}>
             {capitalizeWords(
-              flightsData.dictionaries.carriers[
-                value.itineraries[0].segments[0].carrierCode
-              ]
+              carrier
             )}
           </div>
           <div className={styles.baggage}>zz</div>
         </div>
       </div>
       <div className={styles.flightTime}>
-        {isDurationOneDayOrMore(value.itineraries[0].duration) && (
+        {isDurationOneDayOrMore(flight.itineraries[0].duration) && (
           <div className={styles.moreThanADay}>+1</div>
         )}
         <div className={styles.arrivalDeparture}>
           {format(
-            parseISO(value.itineraries[0].segments[0].departure.at),
+            parseISO(flight.itineraries[0].segments[0].departure.at),
             "h:mm a"
           )}{" "}
           -{" "}
           {format(
             parseISO(
-              value.itineraries[0].segments[
-                value.itineraries[0].segments.length - 1
+              flight.itineraries[0].segments[
+                flight.itineraries[0].segments.length - 1
               ].arrival.at
             ),
             "h:mm a"
           )}
         </div>
         <div className={styles.totalFlightTime}>
-          {formatDuration(value.itineraries[0].duration)}
+          {formatDuration(flight.itineraries[0].duration)}
         </div>
       </div>
       <div className={styles.stops}>
         <div className={styles.departureName}>
-          {value.itineraries[0].segments[0].departure.iataCode}
+          {flight.itineraries[0].segments[0].departure.iataCode}
         </div>
         <div>
           <img src={stopIcon} alt="stopIcon" />
           <div className={styles.stop}>
-            {value.itineraries[0].segments.length > 1
-              ? value.itineraries[0].segments.length - 1 + " Stop"
+            {flight.itineraries[0].segments.length > 1
+              ? flight.itineraries[0].segments.length - 1 + " Stop"
               : "Direct"}
           </div>
         </div>
         <div className={styles.arrivalName}>
-          {value.itineraries[0].segments.length > 1
-            ? value.itineraries[0].segments[1].arrival.iataCode
-            : value.itineraries[0].segments[0].arrival.iataCode}
+          {flight.itineraries[0].segments.length > 1
+            ? flight.itineraries[0].segments[1].arrival.iataCode
+            : flight.itineraries[0].segments[0].arrival.iataCode}
         </div>
       </div>
-      <div className={styles.flightPrice}>{value.price.total} USD</div>
+      <div className={styles.flightPrice}>{flight.price.total} USD</div>
       <button
         className={styles[button.className]}
-        onClick={() => btnHandler(value)}
+        onClick={() => btnHandler(flight)}
       >
         {button.text}
       </button>
@@ -152,37 +150,43 @@ export function Main({
       ...sharedData.return,
       passengerClass: sharedData.passengerClass,
     });
-    setIsReturn(true);
+    setTimeout(()=>{setIsReturn(true);},200)
   }
 
   return (
     <div className={styles.mainBody}>
       {sharedData.return
         ? isReturn
-          ? currentFlights.map((value) => (
+          ? currentFlights.map((flight) => (
               <FlightsUI
-                key={value.id}
-                value={value}
+                key={flight.id}
+                flight={flight}
                 btnHandler={detailsBtnHandler}
-                flightsData={flightsData}
+                carrier={flightsData.dictionaries.carriers[
+                  flight.itineraries[0].segments[0].carrierCode
+                ]}
                 button={{ text: "View Details", className: "detailsBtn" }}
               />
             ))
-          : currentFlights.map((value) => (
+          : currentFlights.map((flight) => (
               <FlightsUI
-                key={value.id}
-                value={value}
+                key={flight.id}
+                flight={flight}
                 btnHandler={selectBtnHandler}
-                flightsData={flightsData}
+                carrier={flightsData.dictionaries.carriers[
+                  flight.itineraries[0].segments[0].carrierCode
+                ]}
                 button={{ text: "Select flight", className: "selectFlightBtn" }}
               />
             ))
-        : currentFlights.map((value) => (
+        : currentFlights.map((flight) => (
             <FlightsUI
-              key={value.id}
-              value={value}
+              key={flight.id}
+              flight={flight}
               btnHandler={detailsBtnHandler}
-              flightsData={flightsData}
+              carrier={flightsData.dictionaries.carriers[
+                flight.itineraries[0].segments[0].carrierCode
+              ]}
               button={{ text: "View Details", className: "detailsBtn" }}
             />
           ))}
@@ -213,8 +217,8 @@ Main.propTypes = {
   isReturn: PropTypes.bool,
 };
 FlightsUI.propTypes = {
-  flightsData: PropTypes.object,
-  value: PropTypes.object,
+  carrier: PropTypes.string,
+  flight: PropTypes.object,
   btnHandler: PropTypes.func,
   button: PropTypes.object,
 };

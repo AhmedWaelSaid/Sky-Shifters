@@ -27,9 +27,7 @@ async function getFlightsFromAPI(input, signal) {
     params.append("children", input.passengerClass.children);
     params.append("infants", input.passengerClass.infants);
 
-    if (
-      input.passengerClass.class?.value
-    ) {
+    if (input.passengerClass.class?.value) {
       params.append("travelClass", input.passengerClass.class.value);
     }
   } else {
@@ -98,7 +96,7 @@ function useSearchData(searchData) {
   return { data, loading, error };
 }
 export default function Container() {
-  const { sharedData } = useData();
+  const { sharedData, flight } = useData();
   const [APISearch, setAPISearch] = useState({
     ...sharedData.departure,
     passengerClass: sharedData.passengerClass,
@@ -111,11 +109,12 @@ export default function Container() {
   const [currentPage, setCurrentPage] = useState(1);
   const [priceAndDuration, setPriceAndDuration] = useState({});
   const [isReturn, setIsReturn] = useState(false);
+  const [isReloading, setIsReloading] = useState(false);
 
   useEffect(() => {
     setCurrentPage(1);
   }, [airLinesChecked, stop, flightDuration, price]);
-  
+
   useEffect(() => {
     if (
       flightsData &&
@@ -139,7 +138,8 @@ export default function Container() {
     let filteredFlights = { ...flights };
     if (stop !== "") {
       filteredFlights.data = flights.data.filter((flight) => {
-        if (stop === "Direct") return flight.itineraries[0].segments.length === 1;
+        if (stop === "Direct")
+          return flight.itineraries[0].segments.length === 1;
         else return flight.itineraries[0].segments.length > 1;
       });
     }
@@ -151,8 +151,8 @@ export default function Container() {
         activeAirlines.includes(flight.validatingAirlineCodes[0])
       );
     if (price != null) {
-      filteredFlights.data = filteredFlights.data.filter((flight) =>
-        price >= Number(flight.price.total)
+      filteredFlights.data = filteredFlights.data.filter(
+        (flight) => price >= Number(flight.price.total)
       );
     }
     if (flightDuration != null) {
@@ -163,9 +163,17 @@ export default function Container() {
     }
     return filteredFlights;
   }
-  
+
   let filteredFlights = filteredData(flightsData);
-  
+  function ChangeDepHandler() {
+    setAPISearch({
+      ...sharedData.departure,
+      passengerClass: sharedData.passengerClass,
+    });
+    setTimeout(() => {
+      setIsReturn(false);
+    }, 200);
+  }
   return (
     <div className={styles.container}>
       <MainHeader isReturn={isReturn} setAPISearch={setAPISearch} />
@@ -177,6 +185,17 @@ export default function Container() {
       {sharedData.return && isReturn && (
         <div className={styles.flightTextContainer}>
           <h2>Choose your return flight!</h2>
+          <div className={styles.flight}>
+            <FlightsUI
+              flight={flight.departure.data}
+              carrier={flight.departure.carrier}
+              btnHandler={ChangeDepHandler}
+              button={{
+                text: "Change departure",
+                className: "selectDepFlightBtn",
+              }}
+            />
+          </div>
         </div>
       )}
       <SideBar

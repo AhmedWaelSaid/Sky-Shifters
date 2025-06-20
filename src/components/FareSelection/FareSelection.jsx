@@ -151,29 +151,6 @@ const FareSelection = ({
       });
     }
   };
-  useEffect(() => {
-    if (ranOnce) return;
-    const selectedOption = fareOptions[0];
-    if (onUpdateForm && selectedOption) {
-      onUpdateForm("baggageSelection", {
-        ...formData?.baggageSelection,
-        [direction]: {
-          selectedId: selectedOption.id,
-          price: selectedOption.price,
-          description: selectedOption.name,
-          type: selectedOption.type,
-          weight: selectedOption.weight,
-        },
-      });
-    }
-    setRanOnce(true);
-  }, [
-    direction,
-    fareOptions,
-    formData?.baggageSelection,
-    onUpdateForm,
-    ranOnce,
-  ]);
   const handleNextFare = () => {
     const nextIndex =
       activeFareIndex === fareOptions.length - 1 ? 0 : activeFareIndex + 1;

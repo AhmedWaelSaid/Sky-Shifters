@@ -20,6 +20,7 @@
   padding: 10px;
   position: relative;
   min-height: 104px;
+  max-width: 100%;
 }
 .airLineContainer {
   display: flex;
@@ -72,7 +73,7 @@
 }
 .departureName{
   position: absolute;
-  left: -5px;
+  left: -8px;
   top: 3px;
 }
 .departureName, .arrivalName{
@@ -80,7 +81,7 @@
 }
 .arrivalName {
   position: absolute;
-  right: 45px;
+  right: 55px;
   top: 3px;
 }
 .stops .stop {
@@ -120,6 +121,11 @@ color: var(--LightText-color);
 .selectFlightBtn:hover{
   cursor: pointer;
   background-color: rgb(247, 93, 93);
+}
+.selectDepFlightBtn{
+  composes: selectFlightBtn;
+  width: 160px;
+  font-size: 0.875rem;
 }
 .pagination .active {
   background-color: var(--Btnbg-color);
