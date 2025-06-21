@@ -13,7 +13,8 @@ const AirplaneSeatMap = () => {
   const bookedSeat = booking.travellersInfo && booking.travellersInfo.length > 0
     ? booking.travellersInfo[0].seatNumber
     : undefined;
-  const availableSeatsForChange = booking.availableSeatsForChange || [];
+  // Use available seats from booking, or mock data for demonstration
+  const availableSeatsForChange = booking.availableSeatsForChange || ['5A', '12F', '20B'];
 
   const [selectedSeat, setSelectedSeat] = useState(null);
   
