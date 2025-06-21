@@ -88,6 +88,10 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
     onCancel(booking._id);
   };
 
+  const handleKnowYourSeat = () => {
+    navigate('/airplane-seat-map', { state: { booking } });
+  };
+
   // حذف الحجز نهائياً (pending فقط)
   const handleDeleteBooking = async () => {
     if (booking.status === 'pending') {
@@ -275,14 +279,16 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
               <strong>Contact:</strong> {booking.contactDetails ? `${booking.contactDetails.email} | ${booking.contactDetails.phone}` : 'N/A'}
             </div> */}
 
-            <div className={styles.passengers}>
-              <h4>Passengers</h4>
-              {(booking.travellersInfo || []).map((passenger, index) => (
-                <div key={passenger.passportNumber || index} className={styles.passenger}>
-                  <span>{passenger.firstName} {passenger.lastName}</span>
-                  <span className={styles.passengerType}>({passenger.travelerType})</span>
-                </div>
-              ))}
+            <div className={styles.passengerDetails}>
+              <h4>Passenger Information</h4>
+              {booking.passengers && booking.passengers.length > 0 ? (
+                booking.passengers.map((p, index) => (
+                  <div key={index} className={styles.passengerInfo}>
+                    <p>{p.firstName} {p.lastName}<span>({p.passengerType})</span></p>
+                    <p>Seat: {p.seat || 'Not Assigned'}</p>
+                  </div>
+                ))
+              ) : <p>No passenger data</p>}
             </div>
           </div>
         </div>
@@ -318,46 +324,44 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div className={styles.cardActions}>
-        <button
-          className={styles.printButton}
-          onClick={() => onPrintTicket(booking)}
-          disabled={booking.status !== 'confirmed'}
-        >
-          Print Ticket
-        </button>
-        {booking.status === 'confirmed' && (
-          <button
-            className={styles.seatButton}
-            onClick={() => navigate('/seat-map', { state: { booking } })}
-          >
-            Know your seat
-          </button>
-        )}
-        <button
-          className={styles.cancelButton}
-          onClick={handleCancelClick}
-          disabled={booking.status !== 'confirmed'}
-        >
-          Cancel Booking
-        </button>
-        {/* زر حذف الحجز (Delete Booking) تمت إزالته بناءً على طلب المستخدم */}
-        {booking.status === 'pending' && remainingTime > 0 && (
-          <button
-            className={styles.payButton}
-            onClick={handleOpenPaymentModal}
-          >
-            Complete Payment
-            {remainingTime !== null && (
-              <span style={{ marginLeft: 8, fontSize: '0.9em', color: '#555' }}>
-                ({Math.floor(remainingTime / 60000)}:{String(Math.floor((remainingTime % 60000) / 1000)).padStart(2, '0')})
-              </span>
+          <div className={styles.actions}>
+            {booking.status === 'pending' && (
+              <button
+                className={styles.cancelButton}
+                onClick={handleCancelClick}
+              >
+                Cancel Booking
+              </button>
             )}
-          </button>
-        )}
+            {booking.status === 'confirmed' && (
+              <button
+                className={styles.printButton}
+                onClick={() => onPrintTicket(booking)}
+              >
+                Print Ticket
+              </button>
+            )}
+            <button
+              className={styles.seatButton}
+              onClick={handleKnowYourSeat}
+            >
+              Know your seat
+            </button>
+            {booking.status === 'pending' && remainingTime > 0 && (
+              <button
+                className={styles.payButton}
+                onClick={handleOpenPaymentModal}
+              >
+                Complete Payment
+                {remainingTime !== null && (
+                  <span style={{ marginLeft: 8, fontSize: '0.9em', color: '#555' }}>
+                    ({Math.floor(remainingTime / 60000)}:{String(Math.floor((remainingTime % 60000) / 1000)).padStart(2, '0')})
+                  </span>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {showConfirm && (
