@@ -57,34 +57,27 @@ body.dark {
 }
 
 @media print {
-  /* When printing, hide everything by default */
-  body.print-modal-active * {
-    visibility: hidden;
+  /* When printing, hide the header, footer, and main page content */
+  body.print-modal-active header,
+  body.print-modal-active footer,
+  body.print-modal-active main,
+  body.print-modal-active .main-content-class-if-any { /* A placeholder for main content if it has a specific class */
+    display: none !important;
   }
 
-  /* Then, reveal the ticket wrapper and all its children */
-  body.print-modal-active .ticket-print-wrapper,
-  body.print-modal-active .ticket-print-wrapper * {
-    visibility: visible;
-  }
-
-  /* Position the ticket wrapper to fill the entire page for printing */
+  /* Then, ensure the ticket wrapper and its content are visible and fill the page */
   body.print-modal-active .ticket-print-wrapper {
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
     height: auto;
-    overflow: visible;
-    background: none;
-    padding: 0;
+    display: block !important;
+    visibility: visible;
   }
   
-  /* Remove shadows and unnecessary styles from the inner container for a cleaner print */
-  body.print-modal-active .ticket-print-wrapper .ticketContainer {
-    max-height: none;
-    box-shadow: none;
-    border: none;
+  body.print-modal-active .ticket-print-wrapper * {
+    visibility: visible;
   }
 }
 
