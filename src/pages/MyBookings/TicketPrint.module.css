@@ -432,6 +432,11 @@
 
 /* Print Styles */
 @media print {
+  body {
+    -webkit-print-color-adjust: exact; /* Chrome, Safari */
+    color-adjust: exact; /* Firefox */
+  }
+
   .overlay {
     position: static;
     background: none;
@@ -455,28 +460,31 @@
   }
   
   .ticketTop {
-    background: #f0f0f0 !important;
-    color: #000 !important;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    color: white !important;
   }
   
   .airlineLogo {
-    background-color: #e0e0e0 !important;
-    color: #000 !important;
-    border-color: #ccc !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
   }
   
   .pathLine {
-    background-color: #000 !important;
+    background-color: rgba(255, 255, 255, 0.6) !important;
   }
   
   .dividerLine {
-    background: repeating-linear-gradient(
-      to right,
-      #000 0,
-      #000 10px,
-      transparent 10px,
-      transparent 20px
-    ) !important;
+    display: none;
+  }
+  
+  .navTabs {
+    border-top: 1px solid #dee2e6;
+  }
+  
+  .activeTab {
+    color: #007bff !important;
+    border-bottom: 3px solid #007bff !important;
   }
   
   .circle {
