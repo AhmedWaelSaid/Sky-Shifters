@@ -57,17 +57,18 @@ body.dark {
 }
 
 @media print {
-  /* When printing and our modal is active */
-  body.print-modal-active > *:not(.ticket-print-wrapper) {
-    display: none;
+  /* When printing, hide everything by default */
+  body.print-modal-active * {
+    visibility: hidden;
   }
 
-  /* Ensure the ticket wrapper and its content are visible and properly formatted for print */
+  /* Then, reveal the ticket wrapper and all its children */
   body.print-modal-active .ticket-print-wrapper,
   body.print-modal-active .ticket-print-wrapper * {
     visibility: visible;
   }
 
+  /* Position the ticket wrapper to fill the entire page for printing */
   body.print-modal-active .ticket-print-wrapper {
     position: absolute;
     left: 0;
@@ -75,6 +76,15 @@ body.dark {
     width: 100%;
     height: auto;
     overflow: visible;
+    background: none;
+    padding: 0;
+  }
+  
+  /* Remove shadows and unnecessary styles from the inner container for a cleaner print */
+  body.print-modal-active .ticket-print-wrapper .ticketContainer {
+    max-height: none;
+    box-shadow: none;
+    border: none;
   }
 }
 
