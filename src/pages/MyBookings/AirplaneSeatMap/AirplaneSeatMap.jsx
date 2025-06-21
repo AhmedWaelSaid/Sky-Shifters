@@ -9,18 +9,21 @@ const AirplaneSeatMap = () => {
   // Provide a default empty object for booking if state is not passed
   const { booking } = location.state || { booking: {} };
 
-  // Get the booked seat from the first traveller's info in the booking object.
-  const bookedSeat = booking.travellersInfo && booking.travellersInfo.length > 0
-    ? booking.travellersInfo[0].seatNumber
-    : undefined;
-
+  const [requestsMade, setRequestsMade] = useState([]);
   const [availableSeatsForChange, setAvailableSeatsForChange] = useState([]);
   const [selectedSeat, setSelectedSeat] = useState(null);
+
+  const totalTravelers = booking.travellersInfo?.length || 0;
+  const nextTravelerIndex = booking.travellersInfo?.findIndex((_, index) => !requestsMade.includes(index));
+  const currentTraveler = nextTravelerIndex !== -1 ? booking.travellersInfo[nextTravelerIndex] : null;
+  const bookedSeat = currentTraveler?.seatNumber;
   
   const rows = 30;
   const seatsPerRow = ['A', 'B', 'C', 'D', 'E', 'F'];
 
   useEffect(() => {
+    if (!currentTraveler) return;
+
     if (booking.availableSeatsForChange && booking.availableSeatsForChange.length > 0) {
       setAvailableSeatsForChange(booking.availableSeatsForChange);
     } else {
@@ -63,7 +66,7 @@ const AirplaneSeatMap = () => {
         generateSeededRandomSeats();
       }
     }
-  }, [booking.bookingRef, bookedSeat]);
+  }, [booking.bookingRef, bookedSeat, currentTraveler]);
 
   const getSeatType = (rowNumber) => {
     if (rowNumber <= 3) return 'firstClass';
@@ -121,6 +124,9 @@ const AirplaneSeatMap = () => {
       className: styles.customToast,
     });
     setSelectedSeat(null);
+    if (nextTravelerIndex !== -1) {
+      setRequestsMade([...requestsMade, nextTravelerIndex]);
+    }
   };
 
   const getSeatClass = (seatId, rowNumber) => {
@@ -273,28 +279,34 @@ const AirplaneSeatMap = () => {
 
       <div className={styles.mainContainer}>
         <div className={styles.infoCard}>
-          <h2>Request a Different Seat</h2>
-          <div className={styles.changeOptions}>
-            {availableSeatsForChange.filter(seat => seat !== bookedSeat).map(seat => {
-              const match = seat.match(/(\d+)/);
-              if (!match) return null;
-              const rowNumber = parseInt(match[0], 10);
-              return (
-                <div
-                  key={seat}
-                  className={getSeatClass(seat, rowNumber)}
-                  onClick={() => handleSeatClick(seat)}
-                  title={`Seat ${seat}`}
-                >
-                  <span className={styles.seatNumber}>{seat}</span>
-                </div>
-              )
-            })}
-          </div>
-          {selectedSeat && (
-            <button className={styles.sendRequestButton} onClick={handleSendRequest}>
-              Send Request
-            </button>
+          {nextTravelerIndex !== -1 && currentTraveler ? (
+            <>
+              <h2>Request a Different Seat for {currentTraveler.firstName} {currentTraveler.lastName}</h2>
+              <div className={styles.changeOptions}>
+                {availableSeatsForChange.filter(seat => seat !== bookedSeat).map(seat => {
+                  const match = seat.match(/(\d+)/);
+                  if (!match) return null;
+                  const rowNumber = parseInt(match[0], 10);
+                  return (
+                    <div
+                      key={seat}
+                      className={getSeatClass(seat, rowNumber)}
+                      onClick={() => handleSeatClick(seat)}
+                      title={`Seat ${seat}`}
+                    >
+                      <span className={styles.seatNumber}>{seat}</span>
+                    </div>
+                  )
+                })}
+              </div>
+              {selectedSeat && (
+                <button className={styles.sendRequestButton} onClick={handleSendRequest}>
+                  Send Request
+                </button>
+              )}
+            </>
+          ) : (
+            <h2>All seat change requests have been submitted.</h2>
           )}
         </div>
       </div>
