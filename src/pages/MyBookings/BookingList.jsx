@@ -205,14 +205,14 @@ const BookingList = () => {
     );
   }
 
-  // Filter out cancelled bookings older than 1 hour
+  // Filter out cancelled bookings older than 5 minutes
   const now = new Date();
   const filteredBookings = bookings.filter(b => {
     if (b.status !== 'cancelled') return true;
     if (!b.cancelledAt) return true;
     const cancelledAt = new Date(b.cancelledAt);
     const diffMs = now - cancelledAt;
-    return diffMs < 1 * 60 * 60 * 1000; // less than 1 hour
+    return diffMs < 5 * 60 * 1000; // less than 5 minutes
   });
 
   const sortedBookings = [
