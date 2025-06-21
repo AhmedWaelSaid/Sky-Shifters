@@ -386,18 +386,20 @@
 
 .cardActions {
   padding: 20px;
-  border-top: 1px solid #e9ecef;
   display: flex;
-  gap: 15px;
   justify-content: flex-end;
+  gap: 15px;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
 }
 
 .printButton,
-.cancelButton {
-  padding: 12px 24px;
+.cancelButton,
+.seatButton {
+  padding: 10px 20px;
   border: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
+  border-radius: 6px;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -412,6 +414,15 @@
   background-color: #0056b3;
 }
 
+.seatButton {
+  background-color: #007bff;
+  color: white;
+}
+
+.seatButton:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
 .cancelButton {
   background-color: #dc3545;
   color: white;
@@ -422,10 +433,12 @@
 }
 
 .printButton:disabled,
-.cancelButton:disabled {
-  background-color: #6c757d;
+.cancelButton:disabled,
+.seatButton:disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
   cursor: not-allowed;
-  opacity: 0.6;
+  border: 1px solid #ced4da;
 }
 
 /* Responsive Design */
@@ -456,8 +469,10 @@
   }
   
   .printButton,
-  .cancelButton {
+  .cancelButton,
+  .seatButton {
     width: 100%;
+    padding: 12px;
   }
 }
 

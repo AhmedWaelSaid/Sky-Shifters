@@ -1,0 +1,466 @@
+/* AirplaneSeatMap.module.css - تصميم واقعي للطائرة */
+
+.airplaneContainer {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  font-family: 'Arial', sans-serif;
+  direction: rtl;
+  position: relative;
+}
+
+/* شكل الطائرة الكامل */
+.airplaneBody {
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%);
+  border: 3px solid #dee2e6;
+  position: relative;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.1),
+    inset 0 2px 10px rgba(255, 255, 255, 0.8);
+}
+
+/* مقدمة الطائرة - شكل مدبب */
+.airplaneNose {
+  width: 100%;
+  height: 80px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 50% 50% 20px 20px / 100% 100% 20px 20px;
+  border: 3px solid #dee2e6;
+  border-bottom: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 10px 20px rgba(0, 0, 0, 0.1),
+    inset 0 2px 8px rgba(255, 255, 255, 0.9);
+}
+
+.cockpit h2 {
+  color: #495057;
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* جسم الطائرة الرئيسي */
+.seatMap {
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+  border-left: 3px solid #dee2e6;
+  border-right: 3px solid #dee2e6;
+  padding: 20px 15px;
+  position: relative;
+  box-shadow: 
+    inset 0 3px 15px rgba(0, 0, 0, 0.05),
+    inset -3px 0 10px rgba(0, 0, 0, 0.05),
+    inset 3px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+/* الأجنحة الرئيسية */
+.seatMap::before,
+.seatMap::after {
+  content: '';
+  position: absolute;
+  top: 30%;
+  width: 150px;
+  height: 100px;
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 50%, #ced4da 100%);
+  border: 3px solid #ced4da;
+  box-shadow: 
+    0 15px 30px rgba(0, 0, 0, 0.2),
+    inset 0 3px 8px rgba(255, 255, 255, 0.7);
+  z-index: -1;
+}
+
+.seatMap::before {
+  left: -120px;
+  border-radius: 80px 20px 80px 20px;
+  transform: rotate(-10deg);
+  clip-path: polygon(0 20%, 100% 0%, 100% 80%, 0 100%);
+}
+
+.seatMap::after {
+  right: -120px;
+  border-radius: 20px 80px 20px 80px;
+  transform: rotate(10deg);
+  clip-path: polygon(0 0%, 100% 20%, 100% 100%, 0 80%);
+}
+
+/* مؤخرة الطائرة - شكل مدبب */
+.airplaneTail {
+  width: 100%;
+  height: 120px;
+  background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 20px 20px 50% 50% / 20px 20px 100% 100%;
+  border: 3px solid #dee2e6;
+  border-top: none;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 20px;
+  box-shadow: 
+    0 15px 30px rgba(0, 0, 0, 0.1),
+    inset 0 -2px 8px rgba(255, 255, 255, 0.9);
+}
+
+/* زعنفة الذيل العمودية */
+.airplaneTail::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 100px;
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  border: 3px solid #ced4da;
+  border-radius: 30px 30px 0 0;
+  box-shadow: 
+    0 10px 20px rgba(0, 0, 0, 0.15),
+    inset 0 2px 5px rgba(255, 255, 255, 0.8);
+  clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+}
+
+/* زعانف الذيل الجانبية */
+.airplaneTail::after {
+  content: '';
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 40px;
+  background: linear-gradient(90deg, #e9ecef 0%, #dee2e6 50%, #e9ecef 100%);
+  border: 2px solid #ced4da;
+  border-radius: 20px;
+  box-shadow: 
+    0 5px 15px rgba(0, 0, 0, 0.1),
+    inset 0 1px 3px rgba(255, 255, 255, 0.8);
+}
+
+.tailSection h3 {
+  color: #495057;
+  margin: 0;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* رأس الأعمدة */
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.columnHeader {
+  width: 35px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #495057;
+  background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+  border-radius: 6px;
+  margin: 0 1px;
+  font-size: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #dee2e6;
+}
+
+/* الصفوف */
+.row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+  padding: 3px 0;
+  transition: all 0.3s ease;
+}
+
+.row:hover {
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 8px;
+  transform: translateX(-1px);
+}
+
+.rowNumber {
+  width: 30px;
+  text-align: center;
+  font-weight: bold;
+  color: #6c757d;
+  font-size: 11px;
+}
+
+.leftSection,
+.rightSection {
+  display: flex;
+  gap: 1px;
+}
+
+/* الممر المركزي */
+.aisle {
+  width: 40px;
+  height: 30px;
+  background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%);
+  border-radius: 6px;
+  margin: 0 8px;
+  position: relative;
+  border: 2px solid #ced4da;
+  box-shadow: 
+    inset 0 2px 6px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.aisle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 25px;
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    #ced4da 0px,
+    #ced4da 3px,
+    transparent 3px,
+    transparent 6px
+  );
+  border-radius: 1px;
+}
+
+/* المقاعد */
+.seat {
+  width: 35px;
+  height: 30px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  margin: 0 1px;
+  box-shadow: 
+    0 3px 6px rgba(0, 0, 0, 0.12),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.08);
+  border: 2px solid transparent;
+  font-weight: bold;
+}
+
+.seat:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 12px rgba(0, 0, 0, 0.18),
+    inset 0 1px 3px rgba(255, 255, 255, 0.8),
+    inset 0 -1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.seatNumber {
+  font-size: 9px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.3px;
+}
+
+/* أنواع المقاعد */
+.seat.firstClass {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  border-color: #1e40af;
+}
+
+.seat.firstClass:hover {
+  background: linear-gradient(135deg, #1e40af 0%, #60a5fa 100%);
+}
+
+.seat.business {
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  border-color: #2563eb;
+}
+
+.seat.business:hover {
+  background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%);
+}
+
+.seat.economy {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  border-color: #047857;
+}
+
+.seat.economy:hover {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+}
+
+/* حالات المقاعد */
+.seat.booked {
+  background: linear-gradient(135deg, #ef4444 0%, #f87171 100%) !important;
+  border-color: #dc2626 !important;
+  animation: pulse 2s infinite;
+  cursor: not-allowed;
+}
+
+.seat.booked:hover {
+  transform: none !important;
+  background: linear-gradient(135deg, #ef4444 0%, #f87171 100%) !important;
+}
+
+.seat.selected {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
+  border-color: #059669 !important;
+  animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 3px 6px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow: 0 6px 12px rgba(239, 68, 68, 0.5);
+  }
+  100% {
+    box-shadow: 0 3px 6px rgba(239, 68, 68, 0.3);
+  }
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 6px 12px rgba(16, 185, 129, 0.4);
+  }
+  to {
+    box-shadow: 0 8px 16px rgba(16, 185, 129, 0.6);
+  }
+}
+
+/* مفتاح الألوان */
+.legend {
+  background: white;
+  border-radius: 15px;
+  padding: 15px;
+  margin-top: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+}
+
+.legend h3 {
+  margin: 0 0 12px 0;
+  color: #495057;
+  font-size: 16px;
+  text-align: center;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 8px;
+}
+
+.legendItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.legendItem:hover {
+  background: #e9ecef;
+  transform: translateY(-1px);
+}
+
+.legendSeat {
+  width: 20px;
+  height: 16px;
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.legendSeat.firstClass {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+}
+
+.legendSeat.business {
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+}
+
+.legendSeat.economy {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+}
+
+.legendSeat.booked {
+  background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+}
+
+.legendSeat.selected {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+}
+
+.legendItem span {
+  font-size: 12px;
+  color: #495057;
+  font-weight: 500;
+}
+
+/* تحسينات للشاشات الصغيرة */
+@media (max-width: 768px) {
+  .airplaneContainer {
+    max-width: 350px;
+    padding: 15px;
+    margin: 10px;
+  }
+  
+  .seat {
+    width: 30px;
+    height: 25px;
+  }
+  
+  .seatNumber {
+    font-size: 8px;
+  }
+  
+  .columnHeader {
+    width: 30px;
+    height: 20px;
+    font-size: 10px;
+  }
+  
+  .aisle {
+    width: 35px;
+    height: 25px;
+    margin: 0 6px;
+  }
+  
+  .seatMap::before,
+  .seatMap::after {
+    width: 120px;
+    height: 80px;
+  }
+  
+  .seatMap::before {
+    left: -100px;
+  }
+  
+  .seatMap::after {
+    right: -100px;
+  }
+  
+  .legendItems {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+

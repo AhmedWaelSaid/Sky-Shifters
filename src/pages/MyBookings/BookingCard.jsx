@@ -1,4 +1,5 @@
 import  { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './BookingCard.module.css';
 import modalStyles from './ConfirmModal.module.css';
 import PaymentSection from '../FlightDetails/PaymentSection/PaymentSection';
@@ -10,6 +11,7 @@ import paymentStyles from '../FlightDetails/PaymentSection/paymentsection.module
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDelete }) => {
+  const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
   const [remainingTime, setRemainingTime] = useState(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -246,6 +248,14 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
         >
           Print Ticket
         </button>
+        {booking.status === 'confirmed' && (
+          <button
+            className={styles.seatButton}
+            onClick={() => navigate('/seat-map', { state: { booking } })}
+          >
+            Know your seat
+          </button>
+        )}
         <button
           className={styles.cancelButton}
           onClick={handleCancelClick}
