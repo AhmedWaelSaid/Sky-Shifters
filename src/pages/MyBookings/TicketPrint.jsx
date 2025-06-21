@@ -173,6 +173,20 @@ const TicketPrint = ({ booking, onClose }) => {
                 <span>Booking Date:</span>
                 <span>{formatDate(booking.createdAt)}</span>
               </div>
+              
+              {/* Show Seat(s) if available */}
+              {(booking.travellersInfo || []).some(p => p.seatNumber) && (
+                <div className={styles.detailRow}>
+                  <span>Seat(s):</span>
+                  <span>
+                    {(booking.travellersInfo || [])
+                      .map(p => p.seatNumber)
+                      .filter(Boolean) // Remove any falsy values
+                      .join(', ')}
+                  </span>
+                </div>
+              )}
+
               <div className={styles.detailRow}>
                 <span>Booking Ref:</span>
                 <span>{booking.bookingRef}</span>
