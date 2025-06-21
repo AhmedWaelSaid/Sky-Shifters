@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './TicketPrint.module.css';
 
 const TicketPrint = ({ booking, onClose }) => {
+  const [activeFlightIndex, setActiveFlightIndex] = useState(0);
+
   const handlePrint = () => {
     window.print();
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'Invalid Date';
     return new Date(dateString).toLocaleDateString('en-US', {
       weekday: 'short',
       year: 'numeric',
@@ -14,6 +17,9 @@ const TicketPrint = ({ booking, onClose }) => {
       day: 'numeric'
     });
   };
+
+  const isRoundTrip = booking.flightData && booking.flightData.length > 1;
+  const activeFlight = (booking.flightData && booking.flightData[activeFlightIndex]) || {};
 
   return (
     <div className={styles.overlay}>
@@ -27,60 +33,58 @@ const TicketPrint = ({ booking, onClose }) => {
           <div className={styles.ticketTop}>
             <div className={styles.ticketInfo}>
               <div className={styles.bookingRef}>
-                <strong>Booking Ref: {booking.bookingReference}</strong>
+                <strong>Booking Ref: {booking.bookingRef}</strong>
               </div>
               <div className={styles.airline}>
                 <div className={styles.airlineLogo}>
-                  {(booking.airline && typeof booking.airline === 'string')
-                    ? booking.airline.charAt(0)
-                    : (booking.originCity && typeof booking.originCity === 'string')
-                      ? booking.originCity.charAt(0)
-                      : (booking.flightId && typeof booking.flightId === 'string')
-                        ? booking.flightId.charAt(0)
-                        : '?'}
+                  {(activeFlight.originCIty || 'F').charAt(0)}
                 </div>
                 <div>
-                  <div className={styles.airlineName}>{booking.airline || booking.originCity || booking.flightId || 'Flight'}</div>
-                  <div className={styles.flightNumber}>{booking.flightId || ''}</div>
+                  <div className={styles.airlineName}>{activeFlight.originCIty || 'Flight'}</div>
+                  <div className={styles.flightNumber}>{activeFlight.flightID || ''}</div>
                 </div>
               </div>
             </div>
             
             <div className={styles.flightRoute}>
               <div className={styles.departure}>
-                <div className={styles.city}>{booking.departure?.city || booking.originCity || '--'}</div>
-                <div className={styles.airport}>{booking.departure?.airport || booking.originAirportCode || '--'}</div>
-                <div className={styles.time}>{booking.departure?.time || booking.departureTime || (booking.departureDate ? new Date(booking.departureDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--')}</div>
-                <div className={styles.date}>{formatDate(booking.departure?.date || booking.departureDate || '')}</div>
+                <div className={styles.city}>{activeFlight.originCIty || '--'}</div>
+                <div className={styles.airport}>{activeFlight.originAirportCode || '--'}</div>
+                <div className={styles.time}>{new Date(activeFlight.departureDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || '--'}</div>
+                <div className={styles.date}>{formatDate(activeFlight.departureDate)}</div>
               </div>
               
               <div className={styles.flightPath}>
                 <div className={styles.pathLine}></div>
                 <div className={styles.plane}>✈</div>
-                <div className={styles.duration}>{booking.duration}</div>
-                {booking.stops > 0 && (
-                  <div className={styles.stops}>{booking.stops} Stop{booking.stops > 1 ? 's' : ''}</div>
+                <div className={styles.duration}>{activeFlight.duration || '--'}</div>
+                {activeFlight.numberOfStops > 0 && (
+                  <div className={styles.stops}>{activeFlight.numberOfStops} Stop{activeFlight.numberOfStops > 1 ? 's' : ''}</div>
                 )}
               </div>
               
               <div className={styles.arrival}>
-                <div className={styles.city}>{booking.arrival?.city || booking.destinationCity || '--'}</div>
-                <div className={styles.airport}>{booking.arrival?.airport || booking.destinationAirportCode || '--'}</div>
-                <div className={styles.time}>{booking.arrival?.time || booking.arrivalTime || (booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--')}</div>
-                <div className={styles.date}>{formatDate(booking.arrival?.date || booking.arrivalDate || '')}</div>
+                <div className={styles.city}>{activeFlight.destinationCIty || '--'}</div>
+                <div className={styles.airport}>{activeFlight.destinationAirportCode || '--'}</div>
+                <div className={styles.time}>{new Date(activeFlight.arrivalDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || '--'}</div>
+                <div className={styles.date}>{formatDate(activeFlight.arrivalDate)}</div>
               </div>
             </div>
           </div>
           
           <div className={styles.ticketDivider}>
             <div className={styles.dividerLine}></div>
-            <div className={styles.dividerCircles}>
-              <div className={styles.circle}></div>
-              <div className={styles.circle}></div>
-              <div className={styles.circle}></div>
-              <div className={styles.circle}></div>
-              <div className={styles.circle}></div>
-            </div>
+            {isRoundTrip && (
+              <div className={styles.navDots}>
+                {booking.flightData.map((_, index) => (
+                  <button 
+                    key={index}
+                    className={`${styles.dot} ${index === activeFlightIndex ? styles.activeDot : ''}`}
+                    onClick={() => setActiveFlightIndex(index)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
           
           <div className={styles.ticketBottom}>

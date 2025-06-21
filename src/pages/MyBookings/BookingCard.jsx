@@ -156,7 +156,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                     </div>
                     <div className={styles.airlineInfo}>
                       <h4>{flight.originCIty || flight.originCity || 'Flight'}</h4>
-                      <p>{flight.flightID || ''}</p>
+                      <p>{booking.bookingRef || ''}</p>
                     </div>
                   </div>
                   <div className={styles.flightDetails}>
@@ -203,7 +203,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                   </div>
                   <div className={styles.airlineInfo}>
                     <h4>{booking.airline || booking.originCity || booking.flightId || 'Flight'}</h4>
-                    <p>{booking.flightNumber || booking.flightId || booking.bookingRef || ''}</p>
+                    <p>{booking.bookingRef || ''}</p>
                   </div>
                 </div>
                 <div className={styles.flightDetails}>
