@@ -41,13 +41,14 @@ const AirplaneSeatMap = () => {
       </div>
     );
     toast.info(message, {
-      position: "bottom-right",
+      position: "top-center",
       autoClose: 10000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
       progress: undefined,
+      className: styles.customToast,
     });
     setSelectedSeat(null);
   };

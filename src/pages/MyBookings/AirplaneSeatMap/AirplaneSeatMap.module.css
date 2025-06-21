@@ -629,3 +629,22 @@
   background-color: #f8f9fa;
 }
 
+.customToast {
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.customToast .Toastify__close-button {
+  color: white;
+}
+
+.customToast .Toastify__progress-bar {
+  background: white;
+}
+
+.customToast .Toastify__toast-icon svg {
+  fill: white;
+}
+
