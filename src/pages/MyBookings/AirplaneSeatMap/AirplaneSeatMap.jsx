@@ -7,8 +7,10 @@ const AirplaneSeatMap = () => {
   // Provide a default empty object for booking if state is not passed
   const { booking } = location.state || { booking: {} };
 
-  // Get the booked seat and available seats for change from the booking object.
-  const bookedSeat = booking.seat;
+  // Get the booked seat from the first traveller's info in the booking object.
+  const bookedSeat = booking.travellersInfo && booking.travellersInfo.length > 0
+    ? booking.travellersInfo[0].seatNumber
+    : undefined;
   const availableSeatsForChange = booking.availableSeatsForChange || [];
 
   const [selectedSeat, setSelectedSeat] = useState(null);
