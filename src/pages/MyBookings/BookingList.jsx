@@ -37,7 +37,18 @@ const BookingList = () => {
         if (response.data?.data?.bookings) {
           const bookingsFromApi = response.data.data.bookings;
 
-          const augmentedBookings = bookingsFromApi.map(booking => {
+          // فلترة الحجوزات الملغية القديمة (أكثر من 5 دقائق) قبل معالجتها
+          const now = new Date();
+          const filteredBookingsFromApi = bookingsFromApi.filter(booking => {
+            if (booking.status !== 'cancelled') return true;
+            if (!booking.cancelledAt) return true;
+            const cancelledAt = new Date(booking.cancelledAt);
+            // إذا كان التاريخ في المستقبل، اعتبره قديم (أكثر من 5 دقائق)
+            const diffMs = now > cancelledAt ? now - cancelledAt : 5 * 60 * 1000 + 1;
+            return diffMs < 5 * 60 * 1000; // أقل من 5 دقائق
+          });
+
+          const augmentedBookings = filteredBookingsFromApi.map(booking => {
             // Use bookingRef if available, otherwise fall back to _id
             const bookingKey = booking.bookingRef || booking._id;
             const storedDetailsRaw = localStorage.getItem(`flightDetails_${bookingKey}`);
