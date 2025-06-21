@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -13,14 +13,37 @@ const AirplaneSeatMap = () => {
   const bookedSeat = booking.travellersInfo && booking.travellersInfo.length > 0
     ? booking.travellersInfo[0].seatNumber
     : undefined;
-  // Use available seats from booking, or mock data for demonstration
-  const availableSeatsForChange = booking.availableSeatsForChange || ['5A', '12F', '20B'];
 
+  const [availableSeatsForChange, setAvailableSeatsForChange] = useState([]);
   const [selectedSeat, setSelectedSeat] = useState(null);
   
   const rows = 30;
   const seatsPerRow = ['A', 'B', 'C', 'D', 'E', 'F'];
-  
+
+  useEffect(() => {
+    if (booking.availableSeatsForChange && booking.availableSeatsForChange.length > 0) {
+      setAvailableSeatsForChange(booking.availableSeatsForChange);
+    } else {
+      const generateRandomSeats = () => {
+        const generatedSeats = new Set();
+        const numberOfSeats = Math.floor(Math.random() * 5) + 3; // 3 to 7 seats
+
+        while (generatedSeats.size < numberOfSeats) {
+          const row = Math.floor(Math.random() * rows) + 1;
+          const seatLetter = seatsPerRow[Math.floor(Math.random() * seatsPerRow.length)];
+          const seatId = `${row}${seatLetter}`;
+
+          if (seatId !== bookedSeat) {
+            generatedSeats.add(seatId);
+          }
+        }
+        setAvailableSeatsForChange(Array.from(generatedSeats));
+      };
+
+      generateRandomSeats();
+    }
+  }, [booking, bookedSeat]);
+
   const getSeatType = (rowNumber) => {
     if (rowNumber <= 3) return 'firstClass';
     if (rowNumber <= 8) return 'business';
