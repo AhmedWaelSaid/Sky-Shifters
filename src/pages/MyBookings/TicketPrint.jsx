@@ -1,12 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './TicketPrint.module.css';
 
 const TicketPrint = ({ booking, onClose }) => {
   const [activeFlightIndex, setActiveFlightIndex] = useState(0);
+  const [isFading, setIsFading] = useState(false);
 
   const handlePrint = () => {
     window.print();
   };
+
+  const handleNavClick = (index) => {
+    if (index === activeFlightIndex) return;
+    setIsFading(true);
+    setTimeout(() => {
+      setActiveFlightIndex(index);
+      // Fading in is handled by the re-render with the new key/class
+    }, 300); // This duration should match the CSS fade-out duration
+  };
+
+  useEffect(() => {
+    if (isFading) {
+      const timer = setTimeout(() => setIsFading(false), 300); // Reset fading state
+      return () => clearTimeout(timer);
+    }
+  }, [activeFlightIndex]);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Invalid Date';
@@ -30,18 +47,15 @@ const TicketPrint = ({ booking, onClose }) => {
         </div>
         
         <div className={styles.ticket}>
-          <div className={styles.ticketTop}>
+          <div className={`${styles.ticketTop} ${isFading ? styles.fadeOut : styles.fadeIn}`}>
             <div className={styles.ticketInfo}>
-              <div className={styles.bookingRef}>
-                <strong>Booking Ref: {booking.bookingRef}</strong>
-              </div>
               <div className={styles.airline}>
                 <div className={styles.airlineLogo}>
                   {(activeFlight.originCIty || 'F').charAt(0)}
                 </div>
                 <div>
                   <div className={styles.airlineName}>{activeFlight.originCIty || 'Flight'}</div>
-                  <div className={styles.flightNumber}>{activeFlight.flightID || ''}</div>
+                  <div className={styles.flightNumber}>{booking.bookingRef || ''}</div>
                 </div>
               </div>
             </div>
@@ -73,17 +87,20 @@ const TicketPrint = ({ booking, onClose }) => {
           </div>
           
           <div className={styles.ticketDivider}>
-            <div className={styles.dividerLine}></div>
-            {isRoundTrip && (
-              <div className={styles.navDots}>
-                {booking.flightData.map((_, index) => (
-                  <button 
+            {isRoundTrip ? (
+              <div className={styles.navTabs}>
+                {booking.flightData.map((flight, index) => (
+                  <button
                     key={index}
-                    className={`${styles.dot} ${index === activeFlightIndex ? styles.activeDot : ''}`}
-                    onClick={() => setActiveFlightIndex(index)}
-                  />
+                    className={`${styles.tabButton} ${index === activeFlightIndex ? styles.activeTab : ''}`}
+                    onClick={() => handleNavClick(index)}
+                  >
+                    {flight.typeOfFlight === 'GO' ? 'Departure' : 'Return'}
+                  </button>
                 ))}
               </div>
+            ) : (
+              <div className={styles.dividerLine}></div>
             )}
           </div>
           
@@ -102,6 +119,10 @@ const TicketPrint = ({ booking, onClose }) => {
               <div className={styles.detailRow}>
                 <span>Booking Date:</span>
                 <span>{formatDate(booking.createdAt)}</span>
+              </div>
+              <div className={styles.detailRow}>
+                <span>Booking Ref:</span>
+                <span>{booking.bookingRef}</span>
               </div>
               <div className={styles.detailRow}>
                 <span>Booking Status:</span>
