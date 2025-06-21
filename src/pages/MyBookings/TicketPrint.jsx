@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './TicketPrint.module.css';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const toTitleCase = (str) => {
   if (!str || typeof str !== 'string') return '';
@@ -11,8 +12,13 @@ const toTitleCase = (str) => {
 
 const TicketPrint = ({ booking, onClose }) => {
   const [activeFlightIndex, setActiveFlightIndex] = useState(0);
+  const [currentTicketIndex, setCurrentTicketIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
   const ticketRef = useRef(null);
+
+  // Filter out infants to create a list of passengers who get a ticket
+  const ticketableTravelers = booking.travellersInfo?.filter(p => p.travelerType !== 'infant') || [];
+  const currentTraveler = ticketableTravelers[currentTicketIndex] || {};
 
   // Normalize flight data to handle both one-way and round-trip structures
   const flights = (booking.flightData && booking.flightData.length > 0)
@@ -72,6 +78,13 @@ const TicketPrint = ({ booking, onClose }) => {
       setActiveFlightIndex(index);
       // Fading in is handled by the re-render with the new key/class
     }, 300); // This duration should match the CSS fade-out duration
+  };
+
+  const handleTicketNav = (direction) => {
+    const newIndex = currentTicketIndex + direction;
+    if (newIndex >= 0 && newIndex < ticketableTravelers.length) {
+      setCurrentTicketIndex(newIndex);
+    }
   };
 
   useEffect(() => {
@@ -159,13 +172,20 @@ const TicketPrint = ({ booking, onClose }) => {
           
           <div className={styles.ticketBottom}>
             <div className={styles.passengerInfo}>
-              <h3>Passenger Information</h3>
-              {(booking.travellersInfo || []).map((passenger, index) => (
-                <div key={passenger.passportNumber || index} className={styles.passenger}>
-                  <span className={styles.passengerName}>{passenger.firstName} {passenger.lastName}</span>
-                  <span className={styles.passengerType}>({passenger.travelerType})</span>
-                </div>
-              ))}
+              <div className={styles.passengerHeader}>
+                <h3>Passenger Information</h3>
+                {ticketableTravelers.length > 1 && (
+                  <div className={styles.ticketNav}>
+                    <button onClick={() => handleTicketNav(-1)} disabled={currentTicketIndex === 0}><ChevronLeft size={20} /></button>
+                    <span>{currentTicketIndex + 1} of {ticketableTravelers.length}</span>
+                    <button onClick={() => handleTicketNav(1)} disabled={currentTicketIndex === ticketableTravelers.length - 1}><ChevronRight size={20} /></button>
+                  </div>
+                )}
+              </div>
+              <div className={styles.passenger}>
+                <span className={styles.passengerName}>{currentTraveler.firstName} {currentTraveler.lastName}</span>
+                <span className={styles.passengerType}>({currentTraveler.travelerType})</span>
+              </div>
             </div>
             
             <div className={styles.bookingDetails}>
@@ -174,16 +194,10 @@ const TicketPrint = ({ booking, onClose }) => {
                 <span>{formatDate(booking.createdAt)}</span>
               </div>
               
-              {/* Show Seat(s) if available */}
-              {(booking.travellersInfo || []).some(p => p.seatNumber) && (
+              {currentTraveler.seatNumber && (
                 <div className={styles.detailRow}>
                   <span>Seat(s):</span>
-                  <span>
-                    {(booking.travellersInfo || [])
-                      .map(p => p.seatNumber)
-                      .filter(Boolean) // Remove any falsy values
-                      .join(', ')}
-                  </span>
+                  <span>{currentTraveler.seatNumber}</span>
                 </div>
               )}
 

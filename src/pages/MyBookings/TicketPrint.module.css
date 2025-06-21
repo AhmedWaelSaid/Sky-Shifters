@@ -319,6 +319,46 @@
   color: #333;
 }
 
+.passengerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.passengerHeader h3 {
+  margin: 0;
+}
+
+.ticketNav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ticketNav button {
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.ticketNav button:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.ticketNav button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .passenger {
   display: flex;
   justify-content: space-between;
