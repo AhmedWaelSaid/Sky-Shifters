@@ -57,23 +57,17 @@ body.dark {
 }
 
 @media print {
-  /* This is the key: hide the entire React app root */
-  body.print-modal-active #root {
-    display: none !important;
+  /* Hide everything on the page */
+  body.print-modal-active > * {
+    display: none;
   }
-
-  /* And ensure the ticket wrapper, which is outside the root, is visible and positioned correctly */
+  
+  /* Except for our ticket wrapper, which we make visible and position correctly */
   body.print-modal-active .ticket-print-wrapper {
+    display: block;
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    visibility: visible;
-    display: block;
-  }
-
-  body.print-modal-active .ticket-print-wrapper * {
-    visibility: visible;
   }
 }
 
