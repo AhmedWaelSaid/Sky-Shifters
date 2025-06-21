@@ -321,8 +321,8 @@
 }
 
 .seat.selected {
-  background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
-  border-color: #059669 !important;
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 100%) !important;
+  border-color: #ea580c !important;
   animation: glow 1.5s ease-in-out infinite alternate;
 }
 
@@ -340,10 +340,10 @@
 
 @keyframes glow {
   from {
-    box-shadow: 0 6px 12px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 6px 12px rgba(249, 115, 22, 0.4);
   }
   to {
-    box-shadow: 0 8px 16px rgba(16, 185, 129, 0.6);
+    box-shadow: 0 8px 16px rgba(249, 115, 22, 0.6);
   }
 }
 
@@ -412,7 +412,7 @@
 }
 
 .legendSeat.selected {
-  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
 }
 
 .legendItem span {
@@ -562,6 +562,23 @@
 
 .seatOption.currentSeat {
   background-color: #ef5350;
+}
+
+.sendRequestButton {
+  margin-top: 1rem;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.6rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sendRequestButton:hover {
+  background-color: #45a049;
 }
 
 .howToUse {

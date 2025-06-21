@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import styles from './AirplaneSeatMap.module.css';
 
 const AirplaneSeatMap = () => {
@@ -28,11 +30,28 @@ const AirplaneSeatMap = () => {
     if (seatId === bookedSeat) return; // Can't select the booked seat
     
     setSelectedSeat(seatId);
-    if (onSeatSelect) {
-      onSeatSelect(seatId);
-    }
   };
   
+  const handleSendRequest = () => {
+    const message = (
+      <div>
+        Your request has been submitted.
+        <br />
+        If the seat becomes available at the airport (due to a no-show or cancellation), we will notify you via the website and email.
+      </div>
+    );
+    toast.info(message, {
+      position: "bottom-right",
+      autoClose: 10000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+    setSelectedSeat(null);
+  };
+
   const getSeatClass = (seatId, rowNumber) => {
     const baseClass = `${styles.seat} ${styles[getSeatType(rowNumber)]}`;
     
@@ -49,6 +68,7 @@ const AirplaneSeatMap = () => {
 
   return (
     <div className={styles.seatMapPage}>
+      <ToastContainer />
       <header className={styles.pageHeader}>
         <h1>Airplane Seat Map</h1>
         <p>View your booked seat and choose another</p>
@@ -195,6 +215,11 @@ const AirplaneSeatMap = () => {
               </button>
             ))}
           </div>
+          {selectedSeat && (
+            <button className={styles.sendRequestButton} onClick={handleSendRequest}>
+              Send Request
+            </button>
+          )}
         </div>
       </div>
 
