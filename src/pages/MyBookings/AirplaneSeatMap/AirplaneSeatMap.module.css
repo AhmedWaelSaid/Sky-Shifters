@@ -144,6 +144,11 @@
     inset 0 1px 3px rgba(255, 255, 255, 0.8);
 }
 
+.tailSection {
+  position: relative;
+  z-index: 1;
+}
+
 .tailSection h3 {
   color: #495057;
   margin: 0;
