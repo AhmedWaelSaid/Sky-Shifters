@@ -142,49 +142,97 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
               </div>
             </div>
 
-            <div className={styles.airlineSection}>
-              <div className={styles.airlineIcon}>
-                <div className={styles.airlineLogo}>
-                  {(booking.airline && typeof booking.airline === 'string')
-                    ? booking.airline.charAt(0)
-                    : (booking.originCity && typeof booking.originCity === 'string')
-                      ? booking.originCity.charAt(0)
-                      : (booking.flightId && typeof booking.flightId === 'string')
-                        ? booking.flightId.charAt(0)
-                        : '?'}
-                </div>
-              </div>
-              <div className={styles.airlineInfo}>
-                <h4>{booking.airline || booking.originCity || booking.flightId || 'Flight'}</h4>
-                <p>{booking.flightNumber || booking.flightId || booking.bookingRef || ''}</p>
-              </div>
-            </div>
-
-            <div className={styles.flightDetails}>
-              <div className={styles.flightRoute}>
-                <div className={styles.departureInfo}>
-                  <div className={styles.time}>{booking.departure?.time || booking.departureTime || (booking.departureDate ? new Date(booking.departureDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--')}</div>
-                  <div className={styles.airport}>{booking.departure?.airport || booking.originAirportCode || '--'}</div>
-                  <div className={styles.date}>{booking.departure?.date || (booking.departureDate ? new Date(booking.departureDate).toLocaleDateString() : '--')}</div>
-                </div>
-                <div className={styles.flightPath}>
-                  <div className={styles.stopsInfo}>
-                    {booking.stops > 0 ? `${booking.stops} Stop` : 'Direct'}
+            {(booking.flightData && booking.flightData.length > 0) ? (
+              booking.flightData.map((flight, index) => (
+                <div key={flight.flightID || index} className={styles.flightSegment}>
+                  <h4 className={styles.segmentTitle}>
+                    {flight.typeOfFlight === 'GO' ? 'Departure Flight' : 'Return Flight'}
+                  </h4>
+                  <div className={styles.airlineSection}>
+                    <div className={styles.airlineIcon}>
+                      <div className={styles.airlineLogo}>
+                        {(flight.originCIty || flight.originCity || 'F').charAt(0)}
+                      </div>
+                    </div>
+                    <div className={styles.airlineInfo}>
+                      <h4>{flight.originCIty || flight.originCity || 'Flight'}</h4>
+                      <p>{flight.flightID || ''}</p>
+                    </div>
                   </div>
-                  <div className={styles.pathLine}>
-                    <div className={styles.pathDot}></div>
-                    <div className={styles.pathConnector}></div>
-                    <div className={styles.pathArrow}>→</div>
+                  <div className={styles.flightDetails}>
+                    <div className={styles.flightRoute}>
+                      <div className={styles.departureInfo}>
+                        <div className={styles.time}>{new Date(flight.departureDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                        <div className={styles.airport}>{flight.originAirportCode}</div>
+                        <div className={styles.date}>{new Date(flight.departureDate).toLocaleDateString()}</div>
+                      </div>
+                      <div className={styles.flightPath}>
+                        <div className={styles.stopsInfo}>
+                          {flight.numberOfStops > 0 ? `${flight.numberOfStops} Stop(s)` : 'Direct'}
+                        </div>
+                        <div className={styles.pathLine}>
+                          <div className={styles.pathDot}></div>
+                          <div className={styles.pathConnector}></div>
+                          <div className={styles.pathArrow}>→</div>
+                        </div>
+                        <div className={styles.duration}>--</div>
+                      </div>
+                      <div className={styles.arrivalInfo}>
+                        <div className={styles.time}>{new Date(flight.arrivalDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                        <div className={styles.airport}>{flight.destinationAirportCode}</div>
+                        <div className={styles.date}>{new Date(flight.arrivalDate).toLocaleDateString()}</div>
+                      </div>
+                    </div>
                   </div>
-                  <div className={styles.duration}>{booking.duration || '--'}</div>
                 </div>
-                <div className={styles.arrivalInfo}>
-                  <div className={styles.time}>{booking.arrival?.time || booking.arrivalTime || (booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--')}</div>
-                  <div className={styles.airport}>{booking.arrival?.airport || booking.destinationAirportCode || '--'}</div>
-                  <div className={styles.date}>{booking.arrival?.date || (booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleDateString() : '--')}</div>
+              ))
+            ) : (
+              // Fallback for old booking structure
+              <>
+                <div className={styles.airlineSection}>
+                  <div className={styles.airlineIcon}>
+                    <div className={styles.airlineLogo}>
+                      {(booking.airline && typeof booking.airline === 'string')
+                        ? booking.airline.charAt(0)
+                        : (booking.originCity && typeof booking.originCity === 'string')
+                          ? booking.originCity.charAt(0)
+                          : (booking.flightId && typeof booking.flightId === 'string')
+                            ? booking.flightId.charAt(0)
+                            : '?'}
+                    </div>
+                  </div>
+                  <div className={styles.airlineInfo}>
+                    <h4>{booking.airline || booking.originCity || booking.flightId || 'Flight'}</h4>
+                    <p>{booking.flightNumber || booking.flightId || booking.bookingRef || ''}</p>
+                  </div>
                 </div>
-              </div>
-            </div>
+                <div className={styles.flightDetails}>
+                  <div className={styles.flightRoute}>
+                    <div className={styles.departureInfo}>
+                      <div className={styles.time}>{booking.departure?.time || booking.departureTime || (booking.departureDate ? new Date(booking.departureDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--')}</div>
+                      <div className={styles.airport}>{booking.departure?.airport || booking.originAirportCode || '--'}</div>
+                      <div className={styles.date}>{booking.departure?.date || (booking.departureDate ? new Date(booking.departureDate).toLocaleDateString() : '--')}</div>
+                    </div>
+                    <div className={styles.flightPath}>
+                      <div className={styles.stopsInfo}>
+                        {booking.stops > 0 ? `${booking.stops} Stop` : 'Direct'}
+                      </div>
+                      <div className={styles.pathLine}>
+                        <div className={styles.pathDot}></div>
+                        <div className={styles.pathConnector}></div>
+                        <div className={styles.pathArrow}>→</div>
+                      </div>
+                      <div className={styles.duration}>{booking.duration || '--'}</div>
+                    </div>
+                    <div className={styles.arrivalInfo}>
+                      <div className={styles.time}>{booking.arrival?.time || booking.arrivalTime || (booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--')}</div>
+                      <div className={styles.airport}>{booking.arrival?.airport || booking.destinationAirportCode || '--'}</div>
+                      <div className={styles.date}>{booking.arrival?.date || (booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleDateString() : '--')}</div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* <div className={styles.baggageInfo}>
               <strong>Baggage Option:</strong> {booking.selectedBaggageOption ? `${booking.selectedBaggageOption.type} - ${booking.selectedBaggageOption.weight} - ${booking.selectedBaggageOption.price} ${booking.selectedBaggageOption.currency}` : 'N/A'}
@@ -211,7 +259,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
             <h4>Flight Summary</h4>
             <div className={styles.summaryDetails}>
               <div className={styles.summaryItem}>
-                <span className={styles.label}>Flight ID:</span> {booking.flightId || '--'}
+                <span className={styles.label}>Booking Reference:</span> {booking.bookingRef || '--'}
               </div>
               <div className={styles.summaryItem}>
                 <span className={styles.label}>Payment Status:</span> {booking.paymentStatus || '--'}
