@@ -230,7 +230,9 @@ const AirplaneSeatMap = () => {
           <h2>Request a Different Seat</h2>
           <div className={styles.changeOptions}>
             {availableSeatsForChange.filter(seat => seat !== bookedSeat).map(seat => {
-              const rowNumber = parseInt(seat.match(/(\\d+)/)[0], 10);
+              const match = seat.match(/(\d+)/);
+              if (!match) return null;
+              const rowNumber = parseInt(match[0], 10);
               return (
                 <div
                   key={seat}
