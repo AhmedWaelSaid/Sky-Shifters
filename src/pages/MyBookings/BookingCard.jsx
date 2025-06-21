@@ -154,10 +154,6 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
     // يمكن هنا تحديث حالة الحجز في القائمة إذا أردت
   };
 
-  const isRoundTrip = booking.flightData && booking.flightData.length > 1;
-  const departureFlight = (booking.flightData && booking.flightData.find(f => f.typeOfFlight === 'GO')) || booking;
-  const returnFlight = isRoundTrip ? booking.flightData.find(f => f.typeOfFlight === 'RETURN') : null;
-
   return (
     <div className={styles.bookingCard}>
       <div className={styles.cardHeader}>
@@ -167,22 +163,6 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
         </div>
         <div className={styles.bookingDate}>
           Booking Date: {booking.createdAt ? new Date(booking.createdAt).toLocaleString() : '--'}
-        </div>
-      </div>
-
-      <div className={styles.routeSummary}>
-        <div className={styles.summaryDeparture}>
-          <span className={styles.summaryCity}>{departureFlight.originCIty || departureFlight.originCity}</span>
-          <span className={styles.summaryAirport}>{departureFlight.originAirportCode}</span>
-        </div>
-        <div className={styles.summaryPath}>
-          <div className={styles.summaryLine}></div>
-          <span className={styles.summaryPlane}>✈</span>
-          <div className={styles.summaryLine}></div>
-        </div>
-        <div className={styles.summaryArrival}>
-          <span className={styles.summaryCity}>{departureFlight.destinationCIty || departureFlight.destinationCity}</span>
-          <span className={styles.summaryAirport}>{departureFlight.destinationAirportCode}</span>
         </div>
       </div>
 

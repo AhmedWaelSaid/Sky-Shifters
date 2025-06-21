@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './TicketPrint.module.css';
 
+const toTitleCase = (str) => {
+  if (!str || typeof str !== 'string') return '';
+  return str.replace(/_/g, ' ').toLowerCase().split(' ').map(word => {
+    if (word.length === 0) return '';
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }).join(' ');
+};
+
 const TicketPrint = ({ booking, onClose }) => {
   const [activeFlightIndex, setActiveFlightIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
@@ -96,10 +104,10 @@ const TicketPrint = ({ booking, onClose }) => {
             <div className={styles.ticketInfo}>
               <div className={styles.airline}>
                 <div className={styles.airlineLogo}>
-                  {(activeFlight.originCIty || 'F').charAt(0)}
+                  {(activeFlight.airline || 'F').charAt(0)}
                 </div>
                 <div>
-                  <div className={styles.airlineName}>{activeFlight.originCIty || 'Flight'}</div>
+                  <div className={styles.airlineName}>{toTitleCase(activeFlight.airline) || 'Flight'}</div>
                   <div className={styles.flightNumber}>{booking.bookingRef || activeFlight.flightID || ''}</div>
                 </div>
               </div>
