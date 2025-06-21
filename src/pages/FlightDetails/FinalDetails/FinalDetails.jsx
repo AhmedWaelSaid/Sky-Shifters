@@ -88,6 +88,7 @@ const FinalDetails = ({ passengers, formData, onBack, sharedData }) => {
                 }
 
                 const newBookingId = bookingResponse.data.data.bookingId;
+                const newBookingRef = bookingResponse.data.data.bookingRef;
                 setBookingId(newBookingId);
 
                 // Store detailed flight data in localStorage
@@ -120,9 +121,13 @@ const FinalDetails = ({ passengers, formData, onBack, sharedData }) => {
                           destinationAirportCode: sharedData?.return?.dest?.airport?.iata,
                       };
                   }
-                  // NOTE: using bookingId from backend response as the key.
-                  // This needs to match the reference used in BookingList.
-                  localStorage.setItem(`flightDetails_${newBookingId}`, JSON.stringify(flightDetailsToStore));
+                  // NOTE: using bookingRef from backend response as the key.
+                  if (newBookingRef) {
+                    localStorage.setItem(`flightDetails_${newBookingRef}`, JSON.stringify(flightDetailsToStore));
+                  } else {
+                    // Fallback in case bookingRef is not returned, though it should be.
+                    localStorage.setItem(`flightDetails_${newBookingId}`, JSON.stringify(flightDetailsToStore));
+                  }
                 } catch (e) {
                     console.error("Failed to store flight details in localStorage", e);
                 }
