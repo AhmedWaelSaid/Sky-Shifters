@@ -490,6 +490,27 @@
   .circle {
     background-color: #000 !important;
   }
+  
+  /* Overrides for responsive styles that affect print */
+  .flightRoute {
+    grid-template-columns: 1fr auto 1fr !important;
+  }
+  
+  .flightPath {
+    transform: none !important;
+  }
+
+  .ticketBottom {
+    background-color: white !important;
+  }
+
+  .passengerInfo h3,
+  .passengerName,
+  .passengerType,
+  .detailRow,
+  .barcodeText {
+    color: #000 !important;
+  }
 }
 
 /* Responsive Design */
