@@ -57,25 +57,21 @@ body.dark {
 }
 
 @media print {
-  /* When printing, hide the header, footer, and main page content */
-  body.print-modal-active header,
-  body.print-modal-active footer,
-  body.print-modal-active main,
-  body.print-modal-active .main-content-class-if-any { /* A placeholder for main content if it has a specific class */
+  /* This is the key: hide the entire React app root */
+  body.print-modal-active #root {
     display: none !important;
   }
 
-  /* Then, ensure the ticket wrapper and its content are visible and fill the page */
+  /* And ensure the ticket wrapper, which is outside the root, is visible and positioned correctly */
   body.print-modal-active .ticket-print-wrapper {
     position: absolute;
-    left: 0;
     top: 0;
+    left: 0;
     width: 100%;
-    height: auto;
-    display: block !important;
     visibility: visible;
+    display: block;
   }
-  
+
   body.print-modal-active .ticket-print-wrapper * {
     visibility: visible;
   }
