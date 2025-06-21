@@ -23,7 +23,7 @@ const AirplaneSeatMap = () => {
   };
   
   const handleSeatClick = (seatId) => {
-    if (seatId === bookedSeat) return; // لا يمكن اختيار المقعد المحجوز
+    if (seatId === bookedSeat) return; // Can't select the booked seat
     
     setSelectedSeat(seatId);
     if (onSeatSelect) {
@@ -46,28 +46,28 @@ const AirplaneSeatMap = () => {
   };
 
   return (
-    <>
+    <div className={styles.seatMapPage}>
       <header className={styles.pageHeader}>
-        <h1>خريطة مقاعد الطائرة</h1>
-        <p>اعرض مقعدك المحجوز واختر مقعد آخر</p>
+        <h1>Airplane Seat Map</h1>
+        <p>View your booked seat and choose another</p>
       </header>
 
       <div className={styles.mainContainer}>
         <div className={styles.infoCard}>
-          <h2>معلومات الحجز</h2>
+          <h2>Booking Information</h2>
           {bookedSeat ? (
             <div className={styles.bookedSeatInfo}>
-              <span>مقعدك المحجوز:</span>
+              <span>Your Booked Seat:</span>
               <button className={styles.seatButton}>{bookedSeat}</button>
             </div>
           ) : (
-            <p>لم يتم حجز مقعد بعد.</p>
+            <p>No seat has been booked yet.</p>
           )}
         </div>
 
         <div className={styles.infoCard}>
-          <h2>اختار تغيير المقعد المحجوز</h2>
-          <p>(محاكاة للبيانات القادمة من الباك إند)</p>
+          <h2>Choose to Change the Booked Seat</h2>
+          <p>(Simulating data from the back-end)</p>
           <div className={styles.changeOptions}>
             {availableSeatsForChange.map(seat => (
               <button
@@ -75,7 +75,7 @@ const AirplaneSeatMap = () => {
                 className={`${styles.seatOption} ${seat === bookedSeat ? styles.currentSeat : ''}`}
                 onClick={() => handleSeatClick(seat)}
               >
-                {seat.replace(/([0-9]+)([A-Z])/,'$2 مقعد $1')}
+                {seat.replace(/([0-9]+)([A-Z])/,'Seat $1$2')}
               </button>
             ))}
           </div>
@@ -83,16 +83,16 @@ const AirplaneSeatMap = () => {
       </div>
 
       <div className={styles.airplaneContainer}>
-        {/* مقدمة الطائرة */}
+        {/* Airplane Nose */}
         <div className={styles.airplaneNose}>
           <div className={styles.cockpit}>
-            <h2>قمرة القيادة</h2>
+            <h2>Cockpit</h2>
           </div>
         </div>
 
-        {/* جسم الطائرة الرئيسي */}
+        {/* Main aircraft body */}
         <div className={styles.seatMap}>
-          {/* رأس الأعمدة */}
+          {/* Column Headers */}
           <div className={styles.header}>
             <div className={styles.rowNumber}></div>
             <div className={styles.leftSection}>
@@ -109,14 +109,14 @@ const AirplaneSeatMap = () => {
             <div className={styles.rowNumber}></div>
           </div>
 
-          {/* صفوف المقاعد */}
+          {/* Seat Rows */}
           {Array.from({ length: rows }, (_, index) => {
             const rowNumber = index + 1;
             return (
               <div key={rowNumber} className={styles.row}>
                 <div className={styles.rowNumber}>{rowNumber}</div>
               
-                {/* المقاعد اليسرى */}
+                {/* Left Seats */}
                 <div className={styles.leftSection}>
                   {['F', 'E', 'D'].map(letter => {
                     const seatId = `${rowNumber}${letter}`;
@@ -125,7 +125,7 @@ const AirplaneSeatMap = () => {
                         key={seatId}
                         className={getSeatClass(seatId, rowNumber)}
                         onClick={() => handleSeatClick(seatId)}
-                        title={`مقعد ${seatId}`}
+                        title={`Seat ${seatId}`}
                       >
                         <span className={styles.seatNumber}>{seatId}</span>
                       </div>
@@ -133,10 +133,10 @@ const AirplaneSeatMap = () => {
                   })}
                 </div>
 
-                {/* الممر */}
+                {/* Aisle */}
                 <div className={styles.aisle}></div>
 
-                {/* المقاعد اليمنى */}
+                {/* Right Seats */}
                 <div className={styles.rightSection}>
                   {['C', 'B', 'A'].map(letter => {
                     const seatId = `${rowNumber}${letter}`;
@@ -145,7 +145,7 @@ const AirplaneSeatMap = () => {
                         key={seatId}
                         className={getSeatClass(seatId, rowNumber)}
                         onClick={() => handleSeatClick(seatId)}
-                        title={`مقعد ${seatId}`}
+                        title={`Seat ${seatId}`}
                       >
                         <span className={styles.seatNumber}>{seatId}</span>
                       </div>
@@ -159,51 +159,51 @@ const AirplaneSeatMap = () => {
           })}
         </div>
 
-        {/* مؤخرة الطائرة */}
+        {/* Airplane Tail */}
         <div className={styles.airplaneTail}>
           <div className={styles.tailSection}>
-            <h3>مؤخرة الطائرة</h3>
+            <h3>Airplane Tail</h3>
           </div>
         </div>
 
-        {/* مفتاح الألوان */}
+        {/* Legend */}
         <div className={styles.legend}>
-          <h3>مفتاح الألوان</h3>
+          <h3>Legend</h3>
           <div className={styles.legendItems}>
             <div className={styles.legendItem}>
               <div className={`${styles.legendSeat} ${styles.firstClass}`}></div>
-              <span>درجة أولى</span>
+              <span>First Class</span>
             </div>
             <div className={styles.legendItem}>
               <div className={`${styles.legendSeat} ${styles.business}`}></div>
-              <span>درجة رجال أعمال</span>
+              <span>Business Class</span>
             </div>
             <div className={styles.legendItem}>
               <div className={`${styles.legendSeat} ${styles.economy}`}></div>
-              <span>درجة اقتصادية</span>
+              <span>Economy Class</span>
             </div>
             <div className={styles.legendItem}>
               <div className={`${styles.legendSeat} ${styles.booked}`}></div>
-              <span>مقعدك المحجوز</span>
+              <span>Your Booked Seat</span>
             </div>
             <div className={styles.legendItem}>
               <div className={`${styles.legendSeat} ${styles.selected}`}></div>
-              <span>مقعد مختار</span>
+              <span>Selected Seat</span>
             </div>
           </div>
         </div>
       </div>
 
       <div className={styles.howToUse}>
-        <h2>كيفية الاستخدام</h2>
+        <h2>How to Use</h2>
         <ul>
-          <li>المقعد الأحمر هو مقعدك المحجوز من الباك إند.</li>
-          <li>يمكنك النقر على أي مقعد آخر لاختياره.</li>
-          <li>الألوان المختلفة تمثل درجات السفر المختلفة.</li>
-          <li>استخدم الأزرار أعلاه لمحاكاة تغيير المقعد المحجوز.</li>
+          <li>The red seat is your seat booked from the back-end.</li>
+          <li>You can click on any other seat to select it.</li>
+          <li>The different colors represent different travel classes.</li>
+          <li>Use the buttons above to simulate changing the booked seat.</li>
         </ul>
       </div>
-    </>
+    </div>
   );
 };
 
