@@ -47,7 +47,7 @@
 }
 
 .subtitle {
-  font-size: 1rem;
+  font-size: 1.1rem;
   color: #666;
   margin: 0;
 }
@@ -70,22 +70,6 @@
   font-size: 1.2rem;
   color: #666;
   margin: 0;
-}
-
-.removeAllButton {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  margin-top: 10px;
-}
-
-.removeAllButton:hover {
-  background-color: #c82333;
 }
 
 /* Responsive Design */
