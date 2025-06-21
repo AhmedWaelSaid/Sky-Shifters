@@ -1,11 +1,59 @@
 /* BookingCard.module.css */
+.pageContainer {
+  background-color: #f7f9fc;
+  padding: 40px 20px;
+  min-height: 100vh;
+}
+
+.pageTitle {
+  text-align: center;
+  margin-bottom: 40px;
+  color: #1e3a8a;
+  font-size: 3rem;
+  font-weight: 700;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+.pageSubtitle {
+  text-align: center;
+  margin-top: -30px;
+  margin-bottom: 50px;
+  color: #4a5568;
+  font-size: 1.2rem;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .bookingCard {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  margin: 0 auto 30px;
+  max-width: 1100px;
   overflow: hidden;
-  margin-bottom: 20px;
-  transition: box-shadow 0.3s ease;
+  border: 1px solid #e2e8f0;
+  animation: fadeInUp 1s ease-out;
 }
 
 .bookingCard:hover {
