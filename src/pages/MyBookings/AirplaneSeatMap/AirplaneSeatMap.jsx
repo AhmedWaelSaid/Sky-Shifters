@@ -41,7 +41,7 @@ const AirplaneSeatMap = () => {
       </div>
     );
     toast.info(message, {
-      position: "top-center",
+      position: "top-right",
       autoClose: 10000,
       hideProgressBar: false,
       closeOnClick: true,
@@ -69,7 +69,7 @@ const AirplaneSeatMap = () => {
 
   return (
     <div className={styles.seatMapPage}>
-      <ToastContainer />
+      <ToastContainer className={styles.toastContainer} />
       <header className={styles.pageHeader}>
         <h1>Airplane Seat Map</h1>
         <p>View your booked seat and choose another</p>
@@ -230,10 +230,11 @@ const AirplaneSeatMap = () => {
       <div className={styles.howToUse}>
         <h2>How to Use</h2>
         <ul>
-          <li>The red seat is your seat booked from the back-end.</li>
-          <li>You can click on any other seat to select it.</li>
+          <li>The red seat is your currently booked seat.</li>
+          <li>You can select an alternative seat from the available options or the seat map.</li>
           <li>The different colors represent different travel classes.</li>
-          <li>Use the buttons above to simulate changing the booked seat.</li>
+          <li>Requesting a seat change is not a confirmation. It depends on availability due to no-shows or cancellations.</li>
+          <li>If the seat becomes available, you will be notified on the website and by email.</li>
         </ul>
       </div>
     </div>

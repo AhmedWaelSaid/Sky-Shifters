@@ -582,8 +582,8 @@
 }
 
 .howToUse {
-  background-color: #f3e5f5;
-  color: #4a148c;
+  background-color: #eef2ff;
+  color: #312e81;
   padding: 2rem;
   border-radius: 12px;
   max-width: 900px;
@@ -598,7 +598,7 @@
 .howToUse ul {
   list-style: none;
   padding: 0;
-  text-align: right;
+  text-align: left;
 }
 
 .howToUse li {
@@ -607,7 +607,7 @@
 
 .howToUse li::before {
   content: '•';
-  color: #9c27b0;
+  color: #4338ca;
   font-weight: bold;
   display: inline-block; 
   width: 1em;
@@ -627,6 +627,10 @@
 .seatMapPage {
   padding-top: 150px;
   background-color: #f8f9fa;
+}
+
+.toastContainer {
+  margin-top: 150px;
 }
 
 .customToast {
