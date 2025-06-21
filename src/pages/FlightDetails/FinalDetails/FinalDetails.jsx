@@ -12,7 +12,7 @@ import { calculateTotalPrice } from '../PaymentSection/PaymentSection';
 // تهيئة Stripe مرة واحدة خارج المكون
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-const FinalDetails = ({ passengers, formData, onBack }) => {
+const FinalDetails = ({ passengers, formData, onBack, sharedData }) => {
     const { flight } = useData();
     const [paymentStatus, setPaymentStatus] = useState('idle'); // idle, pending, succeeded, failed
     const [paymentError, setPaymentError] = useState('');
@@ -90,6 +90,43 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
                 const newBookingId = bookingResponse.data.data.bookingId;
                 setBookingId(newBookingId);
 
+                // Store detailed flight data in localStorage
+                try {
+                  const isRoundTrip = flight?.return?.data;
+                  const flightDetailsToStore = {
+                      departure: {
+                          duration: flight.departure.data.itineraries[0].duration,
+                          departureDate: flight.departure.data.itineraries[0].segments[0].departure.at,
+                          arrivalDate: flight.departure.data.itineraries[0].segments.slice(-1)[0].arrival.at,
+                          airline: flight.departure.carrier,
+                          numberOfStops: flight.departure.data.itineraries[0].segments.length - 1,
+                          originCIty: sharedData?.departure?.origin?.airport?.city,
+                          destinationCIty: sharedData?.departure?.dest?.airport?.city,
+                          originAirportCode: sharedData?.departure?.origin?.airport?.iata,
+                          destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
+                      }
+                  };
+
+                  if (isRoundTrip) {
+                      flightDetailsToStore.return = {
+                          duration: flight.return.data.itineraries[0].duration,
+                          departureDate: flight.return.data.itineraries[0].segments[0].departure.at,
+                          arrivalDate: flight.return.data.itineraries[0].segments.slice(-1)[0].arrival.at,
+                          airline: flight.return.carrier,
+                          numberOfStops: flight.return.data.itineraries[0].segments.length - 1,
+                          originCIty: sharedData?.return?.origin?.airport?.city,
+                          destinationCIty: sharedData?.return?.dest?.airport?.city,
+                          originAirportCode: sharedData?.return?.origin?.airport?.iata,
+                          destinationAirportCode: sharedData?.return?.dest?.airport?.iata,
+                      };
+                  }
+                  // NOTE: using bookingId from backend response as the key.
+                  // This needs to match the reference used in BookingList.
+                  localStorage.setItem(`flightDetails_${newBookingId}`, JSON.stringify(flightDetailsToStore));
+                } catch (e) {
+                    console.error("Failed to store flight details in localStorage", e);
+                }
+
                 // 2. إنشاء نية الدفع
                 const amount = formData.finalBookingData.totalPrice;
                 const currency = formData.finalBookingData.currency || 'USD';
@@ -112,7 +149,7 @@ const FinalDetails = ({ passengers, formData, onBack }) => {
                 clearInterval(intervalRef.current);
             }
         };
-    }, [flight, formData]); // الاعتماديات صحيحة
+    }, [flight, formData, sharedData]); // الاعتماديات صحيحة
 
     // لا نمرر clientSecret إلا إذا كان موجود فعلاً
     const options = clientSecret
@@ -186,6 +223,7 @@ FinalDetails.propTypes = {
     passengers: PropTypes.array.isRequired,
     formData: PropTypes.object.isRequired,
     onBack: PropTypes.func.isRequired,
+    sharedData: PropTypes.object.isRequired
 };
 
 export default FinalDetails;

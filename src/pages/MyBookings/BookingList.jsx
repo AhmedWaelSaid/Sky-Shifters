@@ -33,7 +33,40 @@ const BookingList = () => {
           },
         });
         if (response.data?.data?.bookings) {
-          setBookings(response.data.data.bookings);
+          const bookingsFromApi = response.data.data.bookings;
+
+          const augmentedBookings = bookingsFromApi.map(booking => {
+            // Use bookingRef if available, otherwise fall back to _id
+            const bookingKey = booking.bookingRef || booking._id;
+            const storedDetailsRaw = localStorage.getItem(`flightDetails_${bookingKey}`);
+            
+            if (storedDetailsRaw) {
+              const storedDetails = JSON.parse(storedDetailsRaw);
+              
+              // Handle round-trip bookings (they have a flightData array)
+              if (booking.flightData && booking.flightData.length > 0) {
+                const newFlightData = booking.flightData.map(flightLeg => {
+                  const legType = flightLeg.typeOfFlight === 'GO' ? 'departure' : 'return';
+                  const details = storedDetails[legType];
+                  if (details) {
+                    return { ...flightLeg, ...details };
+                  }
+                  return flightLeg;
+                });
+                return { ...booking, flightData: newFlightData };
+              } 
+              // Handle one-way bookings (data is on the root object)
+              else if (storedDetails.departure) {
+                return {
+                  ...booking,
+                  ...storedDetails.departure
+                };
+              }
+            }
+            return booking;
+          });
+
+          setBookings(augmentedBookings);
         } else {
           setBookings([]);
         }

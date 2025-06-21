@@ -358,6 +358,7 @@ const Index = () => {
             passengers={passengers}
             formData={formData}
             onBack={handleBack}
+            sharedData={sharedData}
           />
         )}
       </div>
