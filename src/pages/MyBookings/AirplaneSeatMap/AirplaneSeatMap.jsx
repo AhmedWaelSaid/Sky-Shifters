@@ -7,9 +7,9 @@ const AirplaneSeatMap = () => {
   // Provide a default empty object for booking if state is not passed
   const { booking } = location.state || { booking: {} };
 
-  // Mocked current seat and available seats for change, assuming they come from booking
-  const bookedSeat = booking.seat || '25E'; // Example from image
-  const availableSeatsForChange = ['5A', '12F', '20B', bookedSeat]; // Example from image
+  // Get the booked seat and available seats for change from the booking object.
+  const bookedSeat = booking.seat;
+  const availableSeatsForChange = booking.availableSeatsForChange || [];
 
   const [selectedSeat, setSelectedSeat] = useState(null);
   
