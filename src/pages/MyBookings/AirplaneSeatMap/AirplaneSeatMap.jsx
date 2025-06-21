@@ -24,25 +24,46 @@ const AirplaneSeatMap = () => {
     if (booking.availableSeatsForChange && booking.availableSeatsForChange.length > 0) {
       setAvailableSeatsForChange(booking.availableSeatsForChange);
     } else {
-      const generateRandomSeats = () => {
-        const generatedSeats = new Set();
-        const numberOfSeats = Math.floor(Math.random() * 5) + 3; // 3 to 7 seats
+      // Seeded random number generator to ensure consistent "random" seats for the same booking.
+      const mulberry32 = (a) => {
+        return function() {
+          var t = a += 0x6D2B79F5;
+          t = Math.imul(t ^ t >>> 15, t | 1);
+          t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+          return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        }
+      }
 
-        while (generatedSeats.size < numberOfSeats) {
-          const row = Math.floor(Math.random() * rows) + 1;
-          const seatLetter = seatsPerRow[Math.floor(Math.random() * seatsPerRow.length)];
+      const generateSeededRandomSeats = () => {
+        const seedString = booking.bookingRef || 'default-seed';
+        let seed = 0;
+        for (let i = 0; i < seedString.length; i++) {
+          seed += seedString.charCodeAt(i);
+        }
+        const random = mulberry32(seed);
+        
+        const generatedSeats = new Set();
+        const numberOfSeats = Math.floor(random() * 5) + 3; // 3 to 7 seats
+
+        let attempts = 0;
+        while (generatedSeats.size < numberOfSeats && attempts < 100) {
+          const row = Math.floor(random() * rows) + 1;
+          const seatLetter = seatsPerRow[Math.floor(random() * seatsPerRow.length)];
           const seatId = `${row}${seatLetter}`;
 
           if (seatId !== bookedSeat) {
             generatedSeats.add(seatId);
           }
+          attempts++;
         }
         setAvailableSeatsForChange(Array.from(generatedSeats));
       };
 
-      generateRandomSeats();
+      if (booking.bookingRef) {
+        generateSeededRandomSeats();
+      }
     }
-  }, [booking, bookedSeat]);
+  }, [booking.bookingRef, bookedSeat]);
 
   const getSeatType = (rowNumber) => {
     if (rowNumber <= 3) return 'firstClass';
