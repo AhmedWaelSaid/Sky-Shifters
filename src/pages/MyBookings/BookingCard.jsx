@@ -10,6 +10,31 @@ import paymentStyles from '../FlightDetails/PaymentSection/paymentsection.module
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
+// Helper function to format ISO 8601 duration
+const formatDuration = (isoDuration) => {
+  if (!isoDuration || typeof isoDuration !== 'string') return '--';
+  const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+  if (!match) return '--';
+  
+  const hours = match[1] ? parseInt(match[1], 10) : 0;
+  const minutes = match[2] ? parseInt(match[2], 10) : 0;
+
+  if (hours > 0 && minutes > 0) return `${hours}h ${minutes}m`;
+  if (hours > 0) return `${hours}h`;
+  if (minutes > 0) return `${minutes}m`;
+  return '--';
+};
+
+// Helper function to format time
+const formatTime = (dateString) => {
+  if (!dateString) return '--';
+  return new Date(dateString).toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+};
+
 const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDelete }) => {
   const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
@@ -162,7 +187,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                   <div className={styles.flightDetails}>
                     <div className={styles.flightRoute}>
                       <div className={styles.departureInfo}>
-                        <div className={styles.time}>{new Date(flight.departureDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                        <div className={styles.time}>{formatTime(flight.departureDate)}</div>
                         <div className={styles.airport}>{flight.originAirportCode}</div>
                         <div className={styles.date}>{new Date(flight.departureDate).toLocaleDateString()}</div>
                       </div>
@@ -175,10 +200,10 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                           <div className={styles.pathConnector}></div>
                           <div className={styles.pathArrow}>→</div>
                         </div>
-                        <div className={styles.duration}>--</div>
+                        <div className={styles.duration}>{formatDuration(flight.duration)}</div>
                       </div>
                       <div className={styles.arrivalInfo}>
-                        <div className={styles.time}>{new Date(flight.arrivalDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                        <div className={styles.time}>{formatTime(flight.arrivalDate)}</div>
                         <div className={styles.airport}>{flight.destinationAirportCode}</div>
                         <div className={styles.date}>{new Date(flight.arrivalDate).toLocaleDateString()}</div>
                       </div>
@@ -209,7 +234,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                 <div className={styles.flightDetails}>
                   <div className={styles.flightRoute}>
                     <div className={styles.departureInfo}>
-                      <div className={styles.time}>{booking.departure?.time || booking.departureTime || (booking.departureDate ? new Date(booking.departureDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--')}</div>
+                      <div className={styles.time}>{formatTime(booking.departureDate)}</div>
                       <div className={styles.airport}>{booking.departure?.airport || booking.originAirportCode || '--'}</div>
                       <div className={styles.date}>{booking.departure?.date || (booking.departureDate ? new Date(booking.departureDate).toLocaleDateString() : '--')}</div>
                     </div>
@@ -222,10 +247,10 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                         <div className={styles.pathConnector}></div>
                         <div className={styles.pathArrow}>→</div>
                       </div>
-                      <div className={styles.duration}>{booking.duration || '--'}</div>
+                      <div className={styles.duration}>{formatDuration(booking.duration)}</div>
                     </div>
                     <div className={styles.arrivalInfo}>
-                      <div className={styles.time}>{booking.arrival?.time || booking.arrivalTime || (booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--')}</div>
+                      <div className={styles.time}>{formatTime(booking.arrivalDate)}</div>
                       <div className={styles.airport}>{booking.arrival?.airport || booking.destinationAirportCode || '--'}</div>
                       <div className={styles.date}>{booking.arrival?.date || (booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleDateString() : '--')}</div>
                     </div>
