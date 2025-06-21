@@ -64,22 +64,6 @@ const AirplaneSeatMap = () => {
             <p>No seat has been booked yet.</p>
           )}
         </div>
-
-        <div className={styles.infoCard}>
-          <h2>Choose to Change the Booked Seat</h2>
-          <p>(Simulating data from the back-end)</p>
-          <div className={styles.changeOptions}>
-            {availableSeatsForChange.map(seat => (
-              <button
-                key={seat}
-                className={`${styles.seatOption} ${seat === bookedSeat ? styles.currentSeat : ''}`}
-                onClick={() => handleSeatClick(seat)}
-              >
-                {seat.replace(/([0-9]+)([A-Z])/,'Seat $1$2')}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
       <div className={styles.airplaneContainer}>
@@ -190,6 +174,24 @@ const AirplaneSeatMap = () => {
               <div className={`${styles.legendSeat} ${styles.selected}`}></div>
               <span>Selected Seat</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.mainContainer}>
+        <div className={styles.infoCard}>
+          <h2>Choose to Change the Booked Seat</h2>
+          <p>(Simulating data from the back-end)</p>
+          <div className={styles.changeOptions}>
+            {availableSeatsForChange.map(seat => (
+              <button
+                key={seat}
+                className={`${styles.seatOption} ${seat === bookedSeat ? styles.currentSeat : ''}`}
+                onClick={() => handleSeatClick(seat)}
+              >
+                {seat.replace(/([0-9]+)([A-Z])/,'Seat $1$2')}
+              </button>
+            ))}
           </div>
         </div>
       </div>

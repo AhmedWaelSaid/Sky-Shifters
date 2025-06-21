@@ -3,7 +3,7 @@
 .airplaneContainer {
   max-width: 400px;
   margin: 0 auto;
-  margin-top: 100px;
+  margin-top: 2rem;
   padding: 20px;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border-radius: 20px;
@@ -465,7 +465,7 @@
 }
 
 .pageHeader {
-  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  background: linear-gradient(135deg, #6e8efb, #000000);
   color: white;
   padding: 2rem 1rem;
   text-align: center;
