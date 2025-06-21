@@ -5,6 +5,7 @@ import TicketPrint from './TicketPrint';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toastStyles from './Toast.module.css';
+import modalStyles from './ConfirmModal.module.css';
 
 const BookingList = () => {
   const [bookings, setBookings] = useState([]);
@@ -13,6 +14,7 @@ const BookingList = () => {
   const [error, setError] = useState(null);
   const [showCancelToast, setShowCancelToast] = useState(false);
   const [showPaymentToast, setShowPaymentToast] = useState(false);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -173,10 +175,11 @@ const BookingList = () => {
     setSelectedBookingForPrint(booking);
   };
 
-  // حذف الحجز نهائياً (pending فقط)
+  // حذف الحجز نهائياً من قاعدة البيانات (pending و cancelled)
   const handleDeleteBooking = async (bookingId) => {
     const booking = bookings.find(b => b._id === bookingId);
-    if (!booking || booking.status !== 'pending') return;
+    if (!booking || (booking.status !== 'pending' && booking.status !== 'cancelled')) return;
+    
     try {
       const userString = localStorage.getItem('user');
       const userData = userString ? JSON.parse(userString) : null;
@@ -185,13 +188,18 @@ const BookingList = () => {
         navigate('/auth');
         return;
       }
+      
+      // حذف من قاعدة البيانات
       await axios.delete(`https://sky-shifters.duckdns.org/booking/${bookingId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      
+      // حذف من الواجهة
+      setBookings(prev => prev.filter(b => b._id !== bookingId));
+      
     } catch (err) {
-      // يمكن عرض رسالة خطأ هنا إذا أردت
-    } finally {
-      // احذف الحجز من القائمة فوراً حتى لو فشل الحذف من السيرفر
+      console.error('Error deleting booking:', err);
+      // حتى لو فشل الحذف من السيرفر، احذف من الواجهة
       setBookings(prev => prev.filter(b => b._id !== bookingId));
     }
   };
@@ -201,9 +209,45 @@ const BookingList = () => {
     setBookings(prev => prev.filter(b => b._id !== bookingId));
   };
 
-  // حذف جميع الحجوزات الملغية من الواجهة
-  const handleRemoveAllCancelled = () => {
-    setBookings(prev => prev.filter(b => b.status !== 'cancelled'));
+  // حذف جميع الحجوزات الملغية من قاعدة البيانات
+  const handleRemoveAllCancelled = async () => {
+    setShowDeleteAllConfirm(true);
+  };
+
+  const handleConfirmDeleteAll = async () => {
+    setShowDeleteAllConfirm(false);
+    const cancelledBookings = bookings.filter(b => b.status === 'cancelled');
+    if (cancelledBookings.length === 0) return;
+    
+    try {
+      const userString = localStorage.getItem('user');
+      const userData = userString ? JSON.parse(userString) : null;
+      const token = userData?.token;
+      if (!token) {
+        navigate('/auth');
+        return;
+      }
+      
+      // حذف جميع الحجوزات الملغية من قاعدة البيانات
+      const deletePromises = cancelledBookings.map(booking => 
+        axios.delete(`https://sky-shifters.duckdns.org/booking/${booking._id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }).catch(err => {
+          console.error(`Error deleting booking ${booking._id}:`, err);
+          return null; // تجاهل الأخطاء الفردية
+        })
+      );
+      
+      await Promise.all(deletePromises);
+      
+      // حذف من الواجهة
+      setBookings(prev => prev.filter(b => b.status !== 'cancelled'));
+      
+    } catch (err) {
+      console.error('Error deleting cancelled bookings:', err);
+      // حتى لو فشل الحذف من السيرفر، احذف من الواجهة
+      setBookings(prev => prev.filter(b => b.status !== 'cancelled'));
+    }
   };
 
   if (loading) {
@@ -253,7 +297,7 @@ const BookingList = () => {
             className={styles.removeAllButton}
             onClick={handleRemoveAllCancelled}
           >
-            Remove All Cancelled Bookings
+            Delete All Cancelled Bookings Permanently
           </button>
         )}
       </div>
@@ -270,7 +314,7 @@ const BookingList = () => {
               booking={booking}
               onCancel={handleCancelBooking}
               onPrintTicket={handlePrintTicket}
-              onDelete={booking.status === 'pending' ? handleDeleteBooking : handleRemoveFromUI}
+              onDelete={handleDeleteBooking}
               onCompletePayment={() => {
                 setShowPaymentToast(true);
                 setTimeout(() => setShowPaymentToast(false), 2500);
@@ -295,6 +339,20 @@ const BookingList = () => {
       {showPaymentToast && (
         <div className={toastStyles.toast} style={{background: '#e6f9ed', color: '#137333', boxShadow: '0 4px 16px rgba(19,115,51,0.10)'}}>
           Payment completed successfully!
+        </div>
+      )}
+      
+      {/* Confirmation modal for deleting all cancelled bookings */}
+      {showDeleteAllConfirm && (
+        <div className={modalStyles.overlay}>
+          <div className={modalStyles.modal}>
+            <div className={modalStyles.modalTitle}>Delete All Cancelled Bookings</div>
+            <div>Are you sure you want to permanently delete all cancelled bookings? This action cannot be undone and all cancelled bookings will be removed from the database.</div>
+            <div className={modalStyles.modalActions}>
+              <button className={modalStyles.cancelBtn} onClick={() => setShowDeleteAllConfirm(false)}>Cancel</button>
+              <button className={modalStyles.confirmBtn} onClick={handleConfirmDeleteAll}>Yes, Delete All</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

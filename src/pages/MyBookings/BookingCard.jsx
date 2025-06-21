@@ -358,7 +358,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
             className={styles.deleteButton}
             onClick={handleDeleteBooking}
           >
-            Remove from List
+            Delete Permanently
           </button>
         )}
         {booking.status === 'pending' && remainingTime > 0 && (
@@ -424,18 +424,18 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
         <div className={modalStyles.overlay}>
           <div className={modalStyles.modal}>
             <div className={modalStyles.modalTitle}>
-              {booking.status === 'pending' ? 'Delete Booking' : 'Remove from List'}
+              {booking.status === 'pending' ? 'Delete Booking' : 'Delete Permanently'}
             </div>
             <div>
               {booking.status === 'pending' 
                 ? 'Are you sure you want to delete this pending booking? This action cannot be undone.'
-                : 'Are you sure you want to remove this cancelled booking from your list?'
+                : 'Are you sure you want to permanently delete this cancelled booking? This action cannot be undone and the booking will be removed from the database.'
               }
             </div>
             <div className={modalStyles.modalActions}>
               <button className={modalStyles.cancelBtn} onClick={handleCloseDeleteModal}>Back</button>
               <button className={modalStyles.confirmBtn} onClick={handleConfirmDelete}>
-                {booking.status === 'pending' ? 'Yes, Delete' : 'Yes, Remove'}
+                {booking.status === 'pending' ? 'Yes, Delete' : 'Yes, Delete Permanently'}
               </button>
             </div>
           </div>
