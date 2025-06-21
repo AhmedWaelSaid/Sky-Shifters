@@ -5,6 +5,16 @@ const TicketPrint = ({ booking, onClose }) => {
   const [activeFlightIndex, setActiveFlightIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
 
+  useEffect(() => {
+    // Add a class to the body when the modal is open to control printing
+    document.body.classList.add('print-modal-active');
+
+    // Cleanup function to remove the class when the modal is closed
+    return () => {
+      document.body.classList.remove('print-modal-active');
+    };
+  }, []); // Empty dependency array ensures this runs only once on mount and unmount
+
   const handlePrint = () => {
     window.print();
   };
@@ -39,7 +49,7 @@ const TicketPrint = ({ booking, onClose }) => {
   const activeFlight = (booking.flightData && booking.flightData[activeFlightIndex]) || {};
 
   return (
-    <div className={styles.overlay}>
+    <div className={`${styles.overlay} ticket-print-wrapper`}>
       <div className={styles.ticketContainer}>
         <div className={styles.ticketHeader}>
           <h2>Flight Ticket</h2>

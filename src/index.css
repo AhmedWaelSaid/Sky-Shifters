@@ -56,5 +56,27 @@ body.dark {
   --menuHover-color:   #333 ;
 }
 
+@media print {
+  /* When printing and our modal is active */
+  body.print-modal-active > *:not(.ticket-print-wrapper) {
+    display: none;
+  }
+
+  /* Ensure the ticket wrapper and its content are visible and properly formatted for print */
+  body.print-modal-active .ticket-print-wrapper,
+  body.print-modal-active .ticket-print-wrapper * {
+    visibility: visible;
+  }
+
+  body.print-modal-active .ticket-print-wrapper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+}
+
 
 
