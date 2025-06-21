@@ -338,8 +338,9 @@
 }
 
 .ticketNav button {
-  background: #f0f0f0;
-  border: 1px solid #ddd;
+  background: #e7f1ff;
+  border: 1px solid #b3d1ff;
+  color: #0056b3;
   border-radius: 50%;
   width: 28px;
   height: 28px;
@@ -351,7 +352,7 @@
 }
 
 .ticketNav button:hover:not(:disabled) {
-  background: #e0e0e0;
+  background: #d0e1ff;
 }
 
 .ticketNav button:disabled {
@@ -481,6 +482,7 @@
     position: static;
     background: none;
     padding: 0;
+    overflow: visible;
   }
   
   .ticketContainer {
@@ -490,7 +492,8 @@
   }
   
   .ticketHeader,
-  .ticketActions {
+  .ticketActions,
+  .ticketNav {
     display: none;
   }
   
