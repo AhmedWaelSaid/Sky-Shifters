@@ -6,6 +6,27 @@ const TicketPrint = ({ booking, onClose }) => {
   const [isFading, setIsFading] = useState(false);
   const ticketRef = useRef(null);
 
+  // Normalize flight data to handle both one-way and round-trip structures
+  const flights = (booking.flightData && booking.flightData.length > 0)
+    ? booking.flightData
+    : [{
+        // Fallback for old one-way trip data structure
+        flightID: booking.flightId,
+        typeOfFlight: 'GO',
+        numberOfStops: booking.stops,
+        originAirportCode: booking.originAirportCode || booking.departure?.airport,
+        destinationAirportCode: booking.destinationAirportCode || booking.arrival?.airport,
+        originCIty: booking.originCity || booking.departure?.city,
+        destinationCIty: booking.destinationCity || booking.arrival?.city,
+        departureDate: booking.departureDate || booking.departure?.date,
+        arrivalDate: booking.arrivalDate || booking.arrival?.date,
+        airline: booking.airline,
+        duration: booking.duration,
+      }];
+
+  const isRoundTrip = flights.length > 1;
+  const activeFlight = flights[activeFlightIndex] || {};
+
   const handlePrint = () => {
     const printContent = ticketRef.current;
     if (printContent) {
@@ -62,9 +83,6 @@ const TicketPrint = ({ booking, onClose }) => {
     });
   };
 
-  const isRoundTrip = booking.flightData && booking.flightData.length > 1;
-  const activeFlight = (booking.flightData && booking.flightData[activeFlightIndex]) || {};
-
   return (
     <div className={styles.overlay}>
       <div className={styles.ticketContainer} ref={ticketRef}>
@@ -82,7 +100,7 @@ const TicketPrint = ({ booking, onClose }) => {
                 </div>
                 <div>
                   <div className={styles.airlineName}>{activeFlight.originCIty || 'Flight'}</div>
-                  <div className={styles.flightNumber}>{booking.bookingRef || ''}</div>
+                  <div className={styles.flightNumber}>{booking.bookingRef || activeFlight.flightID || ''}</div>
                 </div>
               </div>
             </div>
@@ -91,7 +109,7 @@ const TicketPrint = ({ booking, onClose }) => {
               <div className={styles.departure}>
                 <div className={styles.city}>{activeFlight.originCIty || '--'}</div>
                 <div className={styles.airport}>{activeFlight.originAirportCode || '--'}</div>
-                <div className={styles.time}>{new Date(activeFlight.departureDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || '--'}</div>
+                <div className={styles.time}>{activeFlight.departureDate ? new Date(activeFlight.departureDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--'}</div>
                 <div className={styles.date}>{formatDate(activeFlight.departureDate)}</div>
               </div>
               
@@ -107,7 +125,7 @@ const TicketPrint = ({ booking, onClose }) => {
               <div className={styles.arrival}>
                 <div className={styles.city}>{activeFlight.destinationCIty || '--'}</div>
                 <div className={styles.airport}>{activeFlight.destinationAirportCode || '--'}</div>
-                <div className={styles.time}>{new Date(activeFlight.arrivalDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || '--'}</div>
+                <div className={styles.time}>{activeFlight.arrivalDate ? new Date(activeFlight.arrivalDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--'}</div>
                 <div className={styles.date}>{formatDate(activeFlight.arrivalDate)}</div>
               </div>
             </div>
@@ -116,7 +134,7 @@ const TicketPrint = ({ booking, onClose }) => {
           <div className={styles.ticketDivider}>
             {isRoundTrip ? (
               <div className={styles.navTabs}>
-                {booking.flightData.map((flight, index) => (
+                {flights.map((flight, index) => (
                   <button
                     key={index}
                     className={`${styles.tabButton} ${index === activeFlightIndex ? styles.activeTab : ''}`}
