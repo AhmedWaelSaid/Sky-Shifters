@@ -57,15 +57,40 @@ const AirplaneSeatMap = () => {
   };
   
   const handleSendRequest = () => {
+    const classValues = {
+      'firstClass': 2,
+      'business': 1,
+      'economy': 0
+    };
+
+    let additionalMessage = '';
+    if (bookedSeat && selectedSeat) {
+      const selectedSeatRow = parseInt(selectedSeat.match(/(\d+)/)[0], 10);
+      const bookedSeatRow = parseInt(bookedSeat.match(/(\d+)/)[0], 10);
+      const selectedSeatClass = getSeatType(selectedSeatRow);
+      const bookedSeatClass = getSeatType(bookedSeatRow);
+
+      if (classValues[selectedSeatClass] > classValues[bookedSeatClass]) {
+        additionalMessage = 'Please note: You have selected a seat in a higher travel class. The price difference will be charged at the airport.';
+      }
+    }
+    
     const message = (
       <div>
         Your request has been submitted.
         <br />
         If the seat becomes available at the airport (due to a no-show or cancellation), we will notify you via the website and email.
+        {additionalMessage && (
+          <>
+            <br /><br />
+            <strong>{additionalMessage}</strong>
+          </>
+        )}
       </div>
     );
+
     toast.info(message, {
-      position: "top-right",
+      position: "bottom-right",
       autoClose: 10000,
       hideProgressBar: false,
       closeOnClick: true,
@@ -260,6 +285,7 @@ const AirplaneSeatMap = () => {
           <li>You can select an alternative seat from the available options or the seat map.</li>
           <li>The different colors represent different travel classes.</li>
           <li>Requesting a seat change is not a confirmation. It depends on availability due to no-shows or cancellations.</li>
+          <li>If you select a seat in a higher class (e.g., from Economy to Business), the price difference will be charged at the airport.</li>
           <li>If the seat becomes available, you will be notified on the website and by email.</li>
         </ul>
       </div>
