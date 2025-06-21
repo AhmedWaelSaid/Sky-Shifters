@@ -56,20 +56,5 @@ body.dark {
   --menuHover-color:   #333 ;
 }
 
-@media print {
-  /* Hide everything on the page */
-  body.print-modal-active > * {
-    display: none;
-  }
-  
-  /* Except for our ticket wrapper, which we make visible and position correctly */
-  body.print-modal-active .ticket-print-wrapper {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-}
-
 
 

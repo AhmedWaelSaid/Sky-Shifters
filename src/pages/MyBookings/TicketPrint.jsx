@@ -1,22 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './TicketPrint.module.css';
 
 const TicketPrint = ({ booking, onClose }) => {
   const [activeFlightIndex, setActiveFlightIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
-
-  useEffect(() => {
-    // Add a class to the body when the modal is open to control printing
-    document.body.classList.add('print-modal-active');
-
-    // Cleanup function to remove the class when the modal is closed
-    return () => {
-      document.body.classList.remove('print-modal-active');
-    };
-  }, []); // Empty dependency array ensures this runs only once on mount and unmount
+  const ticketRef = useRef(null);
 
   const handlePrint = () => {
-    window.print();
+    const printContent = ticketRef.current;
+    if (printContent) {
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write('<html><head><title>Print Ticket</title>');
+        
+        // Clone all styles and links from the main document head
+        const headEls = document.head.querySelectorAll('link, style');
+        headEls.forEach(el => {
+          printWindow.document.head.appendChild(el.cloneNode(true));
+        });
+
+        printWindow.document.write('</head><body style="margin: 0;">');
+        printWindow.document.write(printContent.innerHTML);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+
+        // Use a timeout to ensure styles are applied before printing
+        setTimeout(() => {
+          printWindow.focus();
+          printWindow.print();
+          printWindow.close();
+        }, 500);
+      } else {
+        alert('Please allow popups for this website to print the ticket.');
+      }
+    }
   };
 
   const handleNavClick = (index) => {
@@ -49,8 +66,8 @@ const TicketPrint = ({ booking, onClose }) => {
   const activeFlight = (booking.flightData && booking.flightData[activeFlightIndex]) || {};
 
   return (
-    <div className={`${styles.overlay} ticket-print-wrapper`}>
-      <div className={styles.ticketContainer}>
+    <div className={styles.overlay}>
+      <div className={styles.ticketContainer} ref={ticketRef}>
         <div className={styles.ticketHeader}>
           <h2>Flight Ticket</h2>
           <button className={styles.closeButton} onClick={onClose}>×</button>
