@@ -90,7 +90,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
 
   // حذف الحجز نهائياً (pending فقط)
   const handleDeleteBooking = async () => {
-    if (booking.status === 'pending') {
+    if (booking.status === 'pending' || booking.status === 'cancelled') {
       setShowDeleteConfirm(true);
     }
   };
@@ -345,6 +345,22 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
           Cancel Booking
         </button>
         {/* زر حذف الحجز (Delete Booking) تمت إزالته بناءً على طلب المستخدم */}
+        {booking.status === 'pending' && (
+          <button
+            className={styles.deleteButton}
+            onClick={handleDeleteBooking}
+          >
+            Delete Booking
+          </button>
+        )}
+        {booking.status === 'cancelled' && (
+          <button
+            className={styles.deleteButton}
+            onClick={handleDeleteBooking}
+          >
+            Remove from List
+          </button>
+        )}
         {booking.status === 'pending' && remainingTime > 0 && (
           <button
             className={styles.payButton}
@@ -407,11 +423,20 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
       {showDeleteConfirm && (
         <div className={modalStyles.overlay}>
           <div className={modalStyles.modal}>
-            <div className={modalStyles.modalTitle}>Delete Booking</div>
-            <div>Are you sure you want to delete this booking? This action cannot be undone.</div>
+            <div className={modalStyles.modalTitle}>
+              {booking.status === 'pending' ? 'Delete Booking' : 'Remove from List'}
+            </div>
+            <div>
+              {booking.status === 'pending' 
+                ? 'Are you sure you want to delete this pending booking? This action cannot be undone.'
+                : 'Are you sure you want to remove this cancelled booking from your list?'
+              }
+            </div>
             <div className={modalStyles.modalActions}>
               <button className={modalStyles.cancelBtn} onClick={handleCloseDeleteModal}>Back</button>
-              <button className={modalStyles.confirmBtn} onClick={handleConfirmDelete}>Yes, Delete</button>
+              <button className={modalStyles.confirmBtn} onClick={handleConfirmDelete}>
+                {booking.status === 'pending' ? 'Yes, Delete' : 'Yes, Remove'}
+              </button>
             </div>
           </div>
         </div>

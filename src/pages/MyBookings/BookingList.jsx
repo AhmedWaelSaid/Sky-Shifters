@@ -88,7 +88,14 @@ const BookingList = () => {
   // حذف الحجوزات pending المنتهية (أكثر من 5 دقائق)
   useEffect(() => {
     const now = new Date();
-    const expiredPending = bookings.filter(b => b.status === 'pending' && b.createdAt && (now - new Date(b.createdAt) > 5 * 60 * 1000));
+    const expiredPending = bookings.filter(b => {
+      if (b.status !== 'pending' || !b.createdAt) return false;
+      const createdAt = new Date(b.createdAt);
+      // إذا كان التاريخ في المستقبل، اعتبره قديم (أكثر من 5 دقائق)
+      const timeDiff = now > createdAt ? now - createdAt : 5 * 60 * 1000 + 1;
+      return timeDiff > 5 * 60 * 1000;
+    });
+    
     if (expiredPending.length > 0) {
       expiredPending.forEach(async (booking) => {
         try {
@@ -103,7 +110,12 @@ const BookingList = () => {
           // يمكن تجاهل الخطأ هنا
         }
       });
-      setBookings(prev => prev.filter(b => !(b.status === 'pending' && b.createdAt && (now - new Date(b.createdAt) > 5 * 60 * 1000))));
+      setBookings(prev => prev.filter(b => {
+        if (b.status !== 'pending' || !b.createdAt) return true;
+        const createdAt = new Date(b.createdAt);
+        const timeDiff = now > createdAt ? now - createdAt : 5 * 60 * 1000 + 1;
+        return timeDiff <= 5 * 60 * 1000;
+      }));
     }
   }, [bookings]);
 
@@ -184,6 +196,16 @@ const BookingList = () => {
     }
   };
 
+  // حذف الحجز من الواجهة فقط (للحجوزات الملغية)
+  const handleRemoveFromUI = (bookingId) => {
+    setBookings(prev => prev.filter(b => b._id !== bookingId));
+  };
+
+  // حذف جميع الحجوزات الملغية من الواجهة
+  const handleRemoveAllCancelled = () => {
+    setBookings(prev => prev.filter(b => b.status !== 'cancelled'));
+  };
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -211,7 +233,8 @@ const BookingList = () => {
     if (b.status !== 'cancelled') return true;
     if (!b.cancelledAt) return true;
     const cancelledAt = new Date(b.cancelledAt);
-    const diffMs = now - cancelledAt;
+    // إذا كان التاريخ في المستقبل، اعتبره قديم (أكثر من 5 دقائق)
+    const diffMs = now > cancelledAt ? now - cancelledAt : 5 * 60 * 1000 + 1;
     return diffMs < 5 * 60 * 1000; // less than 5 minutes
   });
 
@@ -225,6 +248,14 @@ const BookingList = () => {
       <div className={styles.header}>
         <h1 className={styles.title}>My Bookings</h1>
         <p className={styles.subtitle}>View and manage all your bookings</p>
+        {filteredBookings.some(b => b.status === 'cancelled') && (
+          <button 
+            className={styles.removeAllButton}
+            onClick={handleRemoveAllCancelled}
+          >
+            Remove All Cancelled Bookings
+          </button>
+        )}
       </div>
 
       <div className={styles.bookingsList}>
@@ -239,6 +270,7 @@ const BookingList = () => {
               booking={booking}
               onCancel={handleCancelBooking}
               onPrintTicket={handlePrintTicket}
+              onDelete={booking.status === 'pending' ? handleDeleteBooking : handleRemoveFromUI}
               onCompletePayment={() => {
                 setShowPaymentToast(true);
                 setTimeout(() => setShowPaymentToast(false), 2500);
