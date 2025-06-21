@@ -9,7 +9,13 @@ const AirplaneSeatMap = () => {
   // Provide a default empty object for booking if state is not passed
   const { booking } = location.state || { booking: {} };
 
-  const [requestsMade, setRequestsMade] = useState([]);
+  const storageKey = `seatChangeRequests_${booking.bookingRef}`;
+  const [requestsMade, setRequestsMade] = useState(() => {
+    if (!booking.bookingRef) return [];
+    const savedRequests = localStorage.getItem(storageKey);
+    return savedRequests ? JSON.parse(savedRequests) : [];
+  });
+
   const [availableSeatsForChange, setAvailableSeatsForChange] = useState([]);
   const [selectedSeat, setSelectedSeat] = useState(null);
 
@@ -18,8 +24,16 @@ const AirplaneSeatMap = () => {
   const currentTraveler = nextTravelerIndex !== -1 ? booking.travellersInfo[nextTravelerIndex] : null;
   const bookedSeat = currentTraveler?.seatNumber;
   
+  const allBookedSeats = booking.travellersInfo?.map(t => t.seatNumber).filter(Boolean) || [];
+  
   const rows = 30;
   const seatsPerRow = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+  useEffect(() => {
+    if (booking.bookingRef) {
+      localStorage.setItem(storageKey, JSON.stringify(requestsMade));
+    }
+  }, [requestsMade, storageKey]);
 
   useEffect(() => {
     if (!currentTraveler) return;
@@ -132,7 +146,7 @@ const AirplaneSeatMap = () => {
   const getSeatClass = (seatId, rowNumber) => {
     const baseClass = `${styles.seat} ${styles[getSeatType(rowNumber)]}`;
     
-    if (seatId === bookedSeat) {
+    if (allBookedSeats.includes(seatId)) {
       return `${baseClass} ${styles.booked}`;
     }
     
@@ -154,13 +168,17 @@ const AirplaneSeatMap = () => {
       <div className={styles.mainContainer}>
         <div className={styles.infoCard}>
           <h2>Booking Information</h2>
-          {bookedSeat ? (
-            <div className={styles.bookedSeatInfo}>
-              <span>Your Booked Seat:</span>
-              <button className={styles.seatButton}>{bookedSeat}</button>
+          {booking.travellersInfo && booking.travellersInfo.length > 0 ? (
+            <div className={styles.travelersList}>
+              {booking.travellersInfo.map((traveler, index) => (
+                <div key={index} className={styles.travelerInfo}>
+                  <span>{traveler.firstName} {traveler.lastName}:</span>
+                  <button className={styles.seatButton}>{traveler.seatNumber || 'Not Assigned'}</button>
+                </div>
+              ))}
             </div>
           ) : (
-            <p>No seat has been booked yet.</p>
+            <p>No traveler information available.</p>
           )}
         </div>
       </div>
@@ -306,7 +324,10 @@ const AirplaneSeatMap = () => {
               )}
             </>
           ) : (
-            <h2>All seat change requests have been submitted.</h2>
+            <>
+              <h2>All seat change requests have been submitted.</h2>
+              <p>You can check for updates on this page later, or inquire at the airport check-in counter.</p>
+            </>
           )}
         </div>
       </div>
