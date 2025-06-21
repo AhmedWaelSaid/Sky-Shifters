@@ -89,7 +89,7 @@ const AirplaneSeatMap = () => {
   };
   
   const handleSeatClick = (seatId) => {
-    if (seatId === bookedSeat) return; // Can't select the booked seat
+    if (!currentTraveler || allBookedSeats.includes(seatId)) return;
     
     setSelectedSeat(seatId);
   };
@@ -152,6 +152,10 @@ const AirplaneSeatMap = () => {
     
     if (seatId === selectedSeat) {
       return `${baseClass} ${styles.selected}`;
+    }
+
+    if (!currentTraveler) {
+      return `${baseClass} ${styles.disabled}`;
     }
     
     return baseClass;
