@@ -10,6 +10,16 @@ import paymentStyles from '../FlightDetails/PaymentSection/paymentsection.module
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
+// Helper function to convert string to Title Case
+const toTitleCase = (str) => {
+  if (!str || typeof str !== 'string') return '';
+  // Handles snake_case and ensures each word is capitalized
+  return str.replace(/_/g, ' ').toLowerCase().split(' ').map(word => {
+    if (word.length === 0) return '';
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }).join(' ');
+};
+
 // Helper function to format ISO 8601 duration
 const formatDuration = (isoDuration) => {
   if (!isoDuration || typeof isoDuration !== 'string') return '--';
@@ -144,6 +154,10 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
     // يمكن هنا تحديث حالة الحجز في القائمة إذا أردت
   };
 
+  const isRoundTrip = booking.flightData && booking.flightData.length > 1;
+  const departureFlight = (booking.flightData && booking.flightData.find(f => f.typeOfFlight === 'GO')) || booking;
+  const returnFlight = isRoundTrip ? booking.flightData.find(f => f.typeOfFlight === 'RETURN') : null;
+
   return (
     <div className={styles.bookingCard}>
       <div className={styles.cardHeader}>
@@ -153,6 +167,22 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
         </div>
         <div className={styles.bookingDate}>
           Booking Date: {booking.createdAt ? new Date(booking.createdAt).toLocaleString() : '--'}
+        </div>
+      </div>
+
+      <div className={styles.routeSummary}>
+        <div className={styles.summaryDeparture}>
+          <span className={styles.summaryCity}>{departureFlight.originCIty || departureFlight.originCity}</span>
+          <span className={styles.summaryAirport}>{departureFlight.originAirportCode}</span>
+        </div>
+        <div className={styles.summaryPath}>
+          <div className={styles.summaryLine}></div>
+          <span className={styles.summaryPlane}>✈</span>
+          <div className={styles.summaryLine}></div>
+        </div>
+        <div className={styles.summaryArrival}>
+          <span className={styles.summaryCity}>{departureFlight.destinationCIty || departureFlight.destinationCity}</span>
+          <span className={styles.summaryAirport}>{departureFlight.destinationAirportCode}</span>
         </div>
       </div>
 
@@ -176,11 +206,11 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                   <div className={styles.airlineSection}>
                     <div className={styles.airlineIcon}>
                       <div className={styles.airlineLogo}>
-                        {(flight.originCIty || flight.originCity || 'F').charAt(0)}
+                        {(flight.airline || 'F').charAt(0)}
                       </div>
                     </div>
                     <div className={styles.airlineInfo}>
-                      <h4>{flight.originCIty || flight.originCity || 'Flight'}</h4>
+                      <h4>{toTitleCase(flight.airline) || 'Flight'}</h4>
                       <p>{booking.bookingRef || ''}</p>
                     </div>
                   </div>
@@ -188,6 +218,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                     <div className={styles.flightRoute}>
                       <div className={styles.departureInfo}>
                         <div className={styles.time}>{formatTime(flight.departureDate)}</div>
+                        <div className={styles.city}>{flight.originCIty || flight.originCity}</div>
                         <div className={styles.airport}>{flight.originAirportCode}</div>
                         <div className={styles.date}>{new Date(flight.departureDate).toLocaleDateString()}</div>
                       </div>
@@ -204,6 +235,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                       </div>
                       <div className={styles.arrivalInfo}>
                         <div className={styles.time}>{formatTime(flight.arrivalDate)}</div>
+                        <div className={styles.city}>{flight.destinationCIty || flight.destinationCity}</div>
                         <div className={styles.airport}>{flight.destinationAirportCode}</div>
                         <div className={styles.date}>{new Date(flight.arrivalDate).toLocaleDateString()}</div>
                       </div>
@@ -217,17 +249,11 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                 <div className={styles.airlineSection}>
                   <div className={styles.airlineIcon}>
                     <div className={styles.airlineLogo}>
-                      {(booking.airline && typeof booking.airline === 'string')
-                        ? booking.airline.charAt(0)
-                        : (booking.originCity && typeof booking.originCity === 'string')
-                          ? booking.originCity.charAt(0)
-                          : (booking.flightId && typeof booking.flightId === 'string')
-                            ? booking.flightId.charAt(0)
-                            : '?'}
+                      {(booking.airline || 'F').charAt(0)}
                     </div>
                   </div>
                   <div className={styles.airlineInfo}>
-                    <h4>{booking.airline || booking.originCity || booking.flightId || 'Flight'}</h4>
+                    <h4>{toTitleCase(booking.airline) || 'Flight'}</h4>
                     <p>{booking.bookingRef || ''}</p>
                   </div>
                 </div>
@@ -235,6 +261,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                   <div className={styles.flightRoute}>
                     <div className={styles.departureInfo}>
                       <div className={styles.time}>{formatTime(booking.departureDate)}</div>
+                      <div className={styles.city}>{booking.originCIty || booking.originCity}</div>
                       <div className={styles.airport}>{booking.departure?.airport || booking.originAirportCode || '--'}</div>
                       <div className={styles.date}>{booking.departure?.date || (booking.departureDate ? new Date(booking.departureDate).toLocaleDateString() : '--')}</div>
                     </div>
@@ -251,6 +278,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                     </div>
                     <div className={styles.arrivalInfo}>
                       <div className={styles.time}>{formatTime(booking.arrivalDate)}</div>
+                      <div className={styles.city}>{booking.destinationCIty || booking.destinationCity}</div>
                       <div className={styles.airport}>{booking.arrival?.airport || booking.destinationAirportCode || '--'}</div>
                       <div className={styles.date}>{booking.arrival?.date || (booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleDateString() : '--')}</div>
                     </div>
