@@ -85,9 +85,11 @@ export default function TravelOffers() {
     fetchDestinations();
   }, []);
 
-  // Initialize map
+  // Initialize map and update markers
   useEffect(() => {
-    if (map) return; // a map has been already initialized
+    if (map) return; // Map is already initialized
+
+    console.log("Initializing map...");
     const newMap = new mapboxgl.Map({
       container: mapContainer.current,
       style: "mapbox://styles/ahmedwael315/cm9sv08xa00js01sb9wd35jsx",
@@ -97,18 +99,28 @@ export default function TravelOffers() {
       projection: 'globe'
     });
 
-    newMap.on('style.load', () => {
+    newMap.on('load', () => {
+      console.log("Map 'load' event fired.");
       newMap.setFog({});
+      setMap(newMap);
     });
 
-    setMap(newMap);
+    newMap.on('error', (e) => console.error("Mapbox error:", e.error?.message || e));
 
-    return () => newMap.remove();
-  }, [map]);
+    return () => {
+      console.log("Removing map instance.");
+      newMap.remove();
+    };
+  }, []); // Run only once
 
-  // Update markers when destinations or map instance change
+  // Update markers when the map is ready or destinations change
   useEffect(() => {
-    if (!map || !map.isStyleLoaded()) return;
+    if (!map) {
+      console.log("Marker effect skipped: map not ready.");
+      return;
+    };
+    
+    console.log("Updating markers for destinations:", destinations);
 
     // Clear existing markers
     markersRef.current.forEach(marker => marker.remove());
@@ -117,12 +129,12 @@ export default function TravelOffers() {
     const newMarkers = [];
     if (destinations.length > 0) {
       destinations.forEach(coord => {
-        const marker = new mapboxgl.Marker({ color: '#FF6347' }) // Tomato color for destinations
+        const marker = new mapboxgl.Marker({ color: '#FF6347' })
           .setLngLat(coord)
           .addTo(map);
         newMarkers.push(marker);
       });
-      // Adjust map to show all destinations
+
       if (destinations.length > 1) {
         const bounds = new mapboxgl.LngLatBounds();
         destinations.forEach(coord => bounds.extend(coord));
@@ -131,13 +143,14 @@ export default function TravelOffers() {
         map.flyTo({ center: destinations[0], zoom: 5, duration: 2000 });
       }
     } else {
-      // Add default marker if no destinations
+      console.log("No destinations, adding default marker.");
       const defaultMarker = new mapboxgl.Marker()
         .setLngLat([31.257847, 30.143224])
         .addTo(map);
       newMarkers.push(defaultMarker);
     }
     markersRef.current = newMarkers;
+    console.log("Markers updated.");
 
   }, [map, destinations]);
 
