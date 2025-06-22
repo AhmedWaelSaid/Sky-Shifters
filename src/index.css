@@ -22,6 +22,17 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Modern forced-colors-mode support to replace deprecated -ms-high-contrast */
+@media (forced-colors: active) {
+  body {
+    forced-color-adjust: none;
+  }
+  
+  * {
+    forced-color-adjust: auto;
+  }
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   color-scheme: light dark;

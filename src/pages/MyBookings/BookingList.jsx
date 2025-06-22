@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './BookingList.module.css';
 import BookingCard from './BookingCard';
 import TicketPrint from './TicketPrint';
-import axios from 'axios';
+import { bookingService } from '../../services/bookingService';
 import { useNavigate } from 'react-router-dom';
 import toastStyles from './Toast.module.css';
 
@@ -27,14 +27,10 @@ const BookingList = () => {
           navigate('/auth');
           return;
         }
-        const response = await axios.get('https://sky-shifters.duckdns.org/booking/my-bookings', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.data?.data?.bookings) {
-          const bookingsFromApi = response.data.data.bookings;
-
+        
+        const bookingsFromApi = await bookingService.getMyBookings();
+        
+        if (bookingsFromApi && bookingsFromApi.length > 0) {
           const augmentedBookings = bookingsFromApi.map(booking => {
             // Use bookingRef if available, otherwise fall back to _id
             const bookingKey = booking.bookingRef || booking._id;
@@ -71,13 +67,7 @@ const BookingList = () => {
           setBookings([]);
         }
       } catch (err) {
-        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-          // Token expired or invalid
-          localStorage.removeItem('user');
-          navigate('/auth');
-        } else {
-          setError('Failed to load bookings. Please try again.');
-        }
+        setError('Failed to load bookings. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -92,47 +82,30 @@ const BookingList = () => {
     if (expiredPending.length > 0) {
       expiredPending.forEach(async (booking) => {
         try {
-          const userString = localStorage.getItem('user');
-          const userData = userString ? JSON.parse(userString) : null;
-          const token = userData?.token;
-          if (!token) return;
-          await axios.delete(`https://sky-shifters.duckdns.org/booking/${booking._id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const success = await bookingService.deleteBooking(booking._id);
+          if (success) {
+            setBookings(prev => prev.filter(b => b._id !== booking._id));
+          }
         } catch (err) {
-          // يمكن تجاهل الخطأ هنا
+          console.warn('Failed to delete expired pending booking:', booking._id, err.message);
+          // Still remove from state to prevent UI issues
+          setBookings(prev => prev.filter(b => b._id !== booking._id));
         }
       });
-      setBookings(prev => prev.filter(b => !(b.status === 'pending' && b.createdAt && (now - new Date(b.createdAt) > 5 * 60 * 1000))));
     }
   }, [bookings]);
 
   const handleCancelBooking = async (bookingId) => {
     const booking = bookings.find(b => b._id === bookingId);
     if (!booking) {
-      // Optionally show a non-blocking error message here
       return;
     }
     if (booking.status !== 'confirmed') {
-      // Optionally show a non-blocking error message here
       return;
     }
     try {
-      const userString = localStorage.getItem('user');
-      const userData = userString ? JSON.parse(userString) : null;
-      const token = userData?.token;
-      if (!token) {
-        navigate('/auth');
-        return;
-      }
-      const response = await axios.post(`https://sky-shifters.duckdns.org/booking/${bookingId}/cancel`, {
-        reason: 'Change of plans'
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.data?.success) {
+      const success = await bookingService.cancelBooking(bookingId, 'Change of plans');
+      if (success) {
         setBookings(prevBookings =>
           prevBookings.map(b =>
             b._id === bookingId
@@ -142,18 +115,9 @@ const BookingList = () => {
         );
         setShowCancelToast(true);
         setTimeout(() => setShowCancelToast(false), 2500);
-      } else {
-        // Optionally show a non-blocking error message here
       }
     } catch (error) {
-      if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-        localStorage.removeItem('user');
-        navigate('/auth');
-      } else if (error.response && error.response.data && error.response.data.message) {
-        // Optionally show a non-blocking error message here
-      } else {
-        // Optionally show a non-blocking error message here
-      }
+      console.warn('Failed to cancel booking:', bookingId, error.message);
     }
   };
 
@@ -166,21 +130,16 @@ const BookingList = () => {
     const booking = bookings.find(b => b._id === bookingId);
     if (!booking || booking.status !== 'pending') return;
     try {
-      const userString = localStorage.getItem('user');
-      const userData = userString ? JSON.parse(userString) : null;
-      const token = userData?.token;
-      if (!token) {
-        navigate('/auth');
-        return;
+      const success = await bookingService.deleteBooking(bookingId);
+      if (success) {
+        setBookings(prev => prev.filter(b => b._id !== bookingId));
       }
-      await axios.delete(`https://sky-shifters.duckdns.org/booking/${bookingId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
     } catch (err) {
-      // يمكن عرض رسالة خطأ هنا إذا أردت
-    } finally {
-      // احذف الحجز من القائمة فوراً حتى لو فشل الحذف من السيرفر
-      setBookings(prev => prev.filter(b => b._id !== bookingId));
+      console.warn('Failed to delete booking:', bookingId, err.message);
+      // Still remove from state to prevent UI issues for pending bookings
+      if (booking?.status === 'pending') {
+        setBookings(prev => prev.filter(b => b._id !== bookingId));
+      }
     }
   };
 
