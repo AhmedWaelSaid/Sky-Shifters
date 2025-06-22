@@ -47,16 +47,18 @@ const bangladeshImages = [losAngelesImg, newYorkImg, bangladesh5 , bangladesh4];
 
 export default function TravelOffers() {
   const mapContainer = useRef(null);
-  const mapRef = useRef(null); // Use a ref to hold the map instance
-  const animationFrameRef = useRef(null); // Ref to hold animation frame id
+  const mapRef = useRef(null);
+  const animationFrameRef = useRef(null);
+  const [timeRemaining, setTimeRemaining] = useState('');
 
   useEffect(() => {
-    let isMounted = true; // Flag to check if the component is still mounted
+    let isMounted = true;
 
     const fetchAndInitializeMap = async () => {
       console.log('Step 1: Starting map initialization process...');
       let originCoords = null;
       let destinationCoords = null;
+      let flightDurationSeconds = 0; // To store the flight duration
 
       try {
         const userString = localStorage.getItem('user');
@@ -68,9 +70,8 @@ export default function TravelOffers() {
             console.log('Step 3: Received response from bookings API.');
 
             if (bookings && bookings.length > 0) {
-              console.log(`Found ${bookings.length} bookings. Starting filter...`);
               const futureConfirmedBookings = bookings
-                .filter(booking => booking.status === 'confirmed' && new Date(booking.flightData?.[0]?.departureDate) > new Date())
+                .filter(booking => booking.status === 'confirmed' && (booking.flightData ? new Date(booking.flightData[0].departureDate) > new Date() : new Date(booking.departureDate) > new Date()))
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
               console.log(`Filter complete. Found ${futureConfirmedBookings.length} future confirmed bookings.`);
@@ -79,15 +80,30 @@ export default function TravelOffers() {
                 const latestBooking = futureConfirmedBookings[0];
                 console.log(`Latest booking for map:`, latestBooking);
 
-                const originCode = latestBooking.flightData?.[0]?.originAirportCode;
-                const destCode = latestBooking.flightData?.[latestBooking.flightData.length - 1]?.destinationAirportCode;
+                // Handle both data structures (with and without flightData array)
+                const originCode = latestBooking.flightData?.[0]?.originAirportCode || latestBooking.originAirportCode;
+                const destCode = latestBooking.flightData?.[latestBooking.flightData.length - 1]?.destinationAirportCode || latestBooking.destinationAirportCode;
+
+                // Attempt to get flight duration (assuming it's in ISO 8601 format e.g., "PT10H30M")
+                const durationISO = latestBooking.flightData?.[0]?.duration || latestBooking.duration;
+                if (durationISO && typeof durationISO === 'string') {
+                    const match = durationISO.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+                    if (match) {
+                        const hours = match[1] ? parseInt(match[1], 10) : 0;
+                        const minutes = match[2] ? parseInt(match[2], 10) : 0;
+                        flightDurationSeconds = (hours * 3600) + (minutes * 60);
+                    }
+                }
                 
                 if (originCode && destCode) {
                   console.log(`Fetching coordinates for origin: ${originCode} and destination: ${destCode}`);
                   const [origin, dest] = await Promise.all([
                     getAirportCoordinates(originCode),
                     getAirportCoordinates(destCode)
-                  ]);
+                  ]).catch(err => {
+                    console.error("Error fetching coordinates:", err);
+                    return [null, null];
+                  });
                   originCoords = origin;
                   destinationCoords = dest;
                   if(originCoords && destinationCoords) console.log(`Coordinates found.`);
@@ -157,37 +173,24 @@ export default function TravelOffers() {
             });
 
             // 3. Add airplane icon
-            const airplane = {
+            const airplaneSource = {
               'type': 'geojson',
               'data': {
                 'type': 'FeatureCollection',
-                'features': [{
-                    'type': 'Feature',
-                    'properties': {},
-                    'geometry': {
-                      'type': 'Point',
-                      'coordinates': originCoords
-                    }
-                  }]
+                'features': [{ 'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'Point', 'coordinates': originCoords } }]
               }
             };
-            map.addSource('airplane', airplane);
+            map.addSource('airplane', airplaneSource);
             map.addLayer({
               'id': 'airplane',
               'source': 'airplane',
               'type': 'symbol',
-              'layout': {
-                'icon-image': 'airport-15', // a default mapbox icon
-                'icon-rotate': ['get', 'bearing'],
-                'icon-rotation-alignment': 'map',
-                'icon-allow-overlap': true,
-                'icon-ignore-placement': true
-              }
+              'layout': { 'icon-image': 'airport-15', 'icon-rotate': ['get', 'bearing'], 'icon-rotation-alignment': 'map', 'icon-allow-overlap': true, 'icon-ignore-placement': true }
             });
 
             // 4. Animate the plane
             const routeDistance = turf.length(line);
-            const animationDuration = 15000; // 15 seconds for the animation
+            const animationDuration = 15000; // 15 seconds
             let startTime = 0;
 
             const animate = (timestamp) => {
@@ -198,20 +201,28 @@ export default function TravelOffers() {
               const progress = runtime / animationDuration;
 
               if (progress > 1) {
-                // reset animation
-                startTime = timestamp;
+                startTime = timestamp; // loop
+              }
+
+              // Update time remaining
+              if (flightDurationSeconds > 0) {
+                  const timeElapsed = flightDurationSeconds * progress;
+                  const remainingSeconds = flightDurationSeconds - timeElapsed;
+                  const hours = Math.floor(remainingSeconds / 3600);
+                  const minutes = Math.floor((remainingSeconds % 3600) / 60);
+                  setTimeRemaining(`${hours}h ${minutes}m remaining`);
               }
 
               const alongRoute = turf.along(line, routeDistance * progress).geometry.coordinates;
-              airplane.data.features[0].geometry.coordinates = alongRoute;
+              const airplaneData = map.getSource('airplane')._data;
+              airplaneData.features[0].geometry.coordinates = alongRoute;
 
-              // Calculate bearing for icon rotation
-              const nextPoint = turf.along(line, routeDistance * (progress + 0.001)).geometry.coordinates;
-              const bearing = turf.bearing(turf.point(alongRoute), turf.point(nextPoint));
-              airplane.data.features[0].properties.bearing = bearing;
+              const nextPoint = turf.along(line, routeDistance * (progress + 0.001));
+              const bearing = turf.bearing(turf.point(alongRoute), turf.point(nextPoint.geometry.coordinates));
+              airplaneData.features[0].properties.bearing = bearing;
               
-              map.getSource('airplane').setData(airplane.data);
-              map.panTo(alongRoute);
+              map.getSource('airplane').setData(airplaneData);
+              map.panTo(alongRoute, { duration: 0 });
 
               animationFrameRef.current = requestAnimationFrame(animate);
             }
@@ -258,8 +269,23 @@ export default function TravelOffers() {
         <div
           ref={mapContainer}
           className="map-container"
-          style={{ width: "90%", height: "450px", borderRadius: "20px" }}
-        />
+          style={{ width: "90%", height: "450px", borderRadius: "20px", position: 'relative' }}
+        >
+          {timeRemaining && (
+            <div style={{
+              position: 'absolute',
+              bottom: '20px',
+              left: '20px',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              padding: '5px 10px',
+              borderRadius: '5px',
+              zIndex: 1
+            }}>
+              {timeRemaining}
+            </div>
+          )}
+        </div>
         <div className="offers-flex home-flex">
           {offersData.map((offer) => (
             <div key={offer.id} className="offer-card">
