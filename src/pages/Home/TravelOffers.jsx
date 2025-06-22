@@ -125,7 +125,30 @@ export default function TravelOffers() {
                       setFlightDuration('--');
                   }
               } else {
-                  setFlightDuration('--');
+                  // Try to calculate from arrivalDate and departureDate
+                  let dep, arr;
+                  if (bookingToShow.flightData && bookingToShow.flightData.length > 0) {
+                    dep = bookingToShow.flightData[0].departureDate;
+                    arr = bookingToShow.flightData[0].arrivalDate;
+                  } else {
+                    dep = bookingToShow.departureDate;
+                    arr = bookingToShow.arrivalDate;
+                  }
+                  if (dep && arr) {
+                    const depDate = new Date(dep);
+                    const arrDate = new Date(arr);
+                    const diffMs = arrDate - depDate;
+                    if (!isNaN(diffMs) && diffMs > 0) {
+                      const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                      flightDurationSeconds = Math.floor(diffMs / 1000);
+                      setFlightDuration(`${hours}h ${minutes}m`);
+                    } else {
+                      setFlightDuration('--');
+                    }
+                  } else {
+                    setFlightDuration('--');
+                  }
               }
               
               if (originCode && destCode) {
