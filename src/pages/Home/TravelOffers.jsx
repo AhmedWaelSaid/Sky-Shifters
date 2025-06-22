@@ -8,7 +8,7 @@ import bangladesh5 from "../../assets/pexels-asadphoto-1266831.jpg";
 import bangladesh6 from "../../assets/pexels-pixabay-38238.jpg";
 import bangladesh7 from "../../assets/pexels-pixabay-237272.jpg";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { getAirportCoordinates } from "../../services/airportService";
@@ -87,7 +87,7 @@ export default function TravelOffers() {
                   
                   const hasFlightData = booking.flightData && booking.flightData.length > 0;
                   const departureDateStr = hasFlightData ? booking.flightData[0].departureDate : booking.departureDate;
-
+                  
                   if (!departureDateStr) return false;
 
                   return new Date(departureDateStr) > new Date();
@@ -321,12 +321,7 @@ export default function TravelOffers() {
               const progress = runtime / animationDuration;
 
               if (progress > 1) {
-                if (bookingToShow && bookingToShow.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.length > 1) {
-                  setShowingLeg(prev => prev === 'GO' ? 'RETURN' : 'GO');
-                  return; // stop this animation, will re-run useEffect
-                } else {
-                  startTime = timestamp; // loop for one-way
-                }
+                startTime = timestamp; // loop
               }
 
               // Update time remaining
@@ -382,28 +377,6 @@ export default function TravelOffers() {
     };
   }, [showingLeg]); // Add showingLeg as a dependency
 
-  // Calculate flight duration for the selected leg (GO/RETURN) using useMemo
-  const flightDurationDisplay = useMemo(() => {
-    if (bookingToShow && bookingToShow.flightData && bookingToShow.flightData.length > 0) {
-      const legIndex = showingLeg === 'RETURN' ? 1 : 0;
-      const leg = bookingToShow.flightData[legIndex];
-      const dep = leg?.departureDate;
-      const arr = leg?.arrivalDate;
-      console.log('useMemo - showingLeg:', showingLeg, 'leg:', leg);
-      if (dep && arr) {
-        const depDate = new Date(dep);
-        const arrDate = new Date(arr);
-        const diffMs = arrDate - depDate;
-        if (!isNaN(diffMs) && diffMs > 0) {
-          const hours = Math.floor(diffMs / (1000 * 60 * 60));
-          const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-          return `${hours}h ${minutes}m`;
-        }
-      }
-    }
-    return '--';
-  }, [bookingToShow, showingLeg]);
-
   return (
     <section className="travel-offers">
       <div className="offers-section">
@@ -422,7 +395,29 @@ export default function TravelOffers() {
           className="map-container"
           style={{ width: "90%", height: "450px", borderRadius: "20px", position: 'relative' }}
         >
-          {flightDurationDisplay && (
+          {/* Toggle button for round-trip */}
+          {bookingToShow && bookingToShow.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.length > 1 && (
+            <button
+              style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                zIndex: 3,
+                background: '#222',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '7px',
+                padding: '8px 18px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontSize: '1em'
+              }}
+              onClick={() => setShowingLeg(showingLeg === 'GO' ? 'RETURN' : 'GO')}
+            >
+              {showingLeg === 'GO' ? 'عرض مسار العودة' : 'عرض مسار الذهاب'}
+            </button>
+          )}
+          {flightDuration && (
             <div style={{
               position: 'absolute',
               top: '20px',
@@ -435,7 +430,7 @@ export default function TravelOffers() {
               fontSize: '1.1em',
               zIndex: 2
             }}>
-              Flight Duration: {flightDurationDisplay}
+              Flight Duration: {flightDuration}
             </div>
           )}
           {timeRemaining && (
