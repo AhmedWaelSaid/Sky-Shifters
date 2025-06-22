@@ -12,7 +12,7 @@ import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-mapboxgl.accessToken = "pk.eyJ1IjoiYWhtZWR3YWVsMzE1IiwiYSI6ImNtOXNzcGg5ZjA0cjEyaXNkOHdwdzRramcifQ.HYZyW_BX-tqJa-qcntCbUw"; 
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN; 
 
 const offersData = [
   {
@@ -68,7 +68,7 @@ export default function TravelOffers() {
       <div className="offers-section">
         <div className="offers-header">
           <div className="offers-header-text">
-            <h2>Let’s go Places Together</h2>
+            <h2>Let's go Places Together</h2>
             <p>
               Discover the latest offers and news and alerts and start planning
               your trip
@@ -135,10 +135,10 @@ export default function TravelOffers() {
           <div className="offers-header-text">
             <h2>Fall into Travel</h2>
             <p>
-              Going somewhere to celebrate this season? Whether you’re going
+              Going somewhere to celebrate this season? Whether you're going
               home or somewhere to roam,
               <br />
-              we’ve got the travel tools to get you to your destination.
+              we've got the travel tools to get you to your destination.
             </p>
           </div>
           <button className="see-all-btn">See all</button>
