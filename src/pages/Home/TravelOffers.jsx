@@ -152,24 +152,36 @@ export default function TravelOffers() {
           map.setFog({});
 
           if (originCoords && destinationCoords) {
-            // 1. Create the route
-            const route = {
-              'type': 'FeatureCollection',
-              'features': [{
-                'type': 'Feature',
-                'geometry': {
-                  'type': 'LineString',
-                  'coordinates': [originCoords, destinationCoords]
-                }
-              }]
-            };
+            // Add markers for origin and destination
+            new mapboxgl.Marker({ color: '#32CD32' }) // Green for origin
+              .setLngLat(originCoords)
+              .addTo(map);
+            new mapboxgl.Marker({ color: '#FF4500' }) // OrangeRed for destination
+              .setLngLat(destinationCoords)
+              .addTo(map);
 
-            // 2. Create a curved line
-            const line = turf.greatCircle(turf.point(originCoords), turf.point(destinationCoords), { 'npoints': 500 });
+            // 1. Create a more elevated and curved flight path
+            const routeLine = turf.lineString([originCoords, destinationCoords]);
+            const routeDistance = turf.length(routeLine, {units: 'kilometers'});
+            const midpoint = turf.midpoint(turf.point(originCoords), turf.point(destinationCoords));
+            
+            // Define how high the arc should be
+            const arcHeight = routeDistance / 4; 
+            
+            const bearing = turf.bearing(turf.point(originCoords), turf.point(destinationCoords));
+            // The control point is perpendicular to the flight path at its midpoint
+            const controlPoint = turf.destination(midpoint, arcHeight, bearing + 90, {units: 'kilometers'});
 
+            const curvedPath = turf.bezierSpline(turf.lineString([
+              originCoords,
+              controlPoint.geometry.coordinates,
+              destinationCoords
+            ]));
+
+            // 2. Add the styled route to the map
             map.addSource('route', {
               'type': 'geojson',
-              'data': line
+              'data': curvedPath
             });
             
             map.addLayer({
@@ -177,8 +189,14 @@ export default function TravelOffers() {
               'source': 'route',
               'type': 'line',
               'paint': {
-                'line-width': 2,
-                'line-color': '#007cbf'
+                'line-width': 3,
+                'line-gradient': [
+                  'step',
+                  ['line-progress'],
+                  '#32CD32', // Green at the start
+                  0.5, '#FFFF00', // Yellow in the middle
+                  1, '#FF4500'  // Red at the end
+                ]
               }
             });
 
@@ -198,8 +216,7 @@ export default function TravelOffers() {
               'layout': { 'icon-image': 'airport-15', 'icon-rotate': ['get', 'bearing'], 'icon-rotation-alignment': 'map', 'icon-allow-overlap': true, 'icon-ignore-placement': true }
             });
 
-            // 4. Animate the plane
-            const routeDistance = turf.length(line);
+            // 4. Animate the plane along the NEW curved path
             const animationDuration = 15000; // 15 seconds
             let startTime = 0;
 
@@ -223,11 +240,12 @@ export default function TravelOffers() {
                   setTimeRemaining(`${hours}h ${minutes}m remaining`);
               }
 
-              const alongRoute = turf.along(line, routeDistance * progress).geometry.coordinates;
+              // Use the new curvedPath for animation
+              const alongRoute = turf.along(curvedPath, turf.length(curvedPath) * progress).geometry.coordinates;
               const airplaneData = map.getSource('airplane')._data;
               airplaneData.features[0].geometry.coordinates = alongRoute;
 
-              const nextPoint = turf.along(line, routeDistance * (progress + 0.001));
+              const nextPoint = turf.along(curvedPath, turf.length(curvedPath) * (progress + 0.001));
               const bearing = turf.bearing(turf.point(alongRoute), turf.point(nextPoint.geometry.coordinates));
               airplaneData.features[0].properties.bearing = bearing;
               
