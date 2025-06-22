@@ -7,9 +7,8 @@ import bangladesh4 from "../../assets/Image frame (5).png";
 import bangladesh5 from "../../assets/pexels-asadphoto-1266831.jpg";
 import bangladesh6 from "../../assets/pexels-pixabay-38238.jpg";
 import bangladesh7 from "../../assets/pexels-pixabay-237272.jpg";
-import logo1 from "../../assets/logo.png";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { getAirportCoordinates } from "../../services/airportService";
@@ -51,172 +50,423 @@ export default function TravelOffers() {
   const mapRef = useRef(null);
   const animationFrameRef = useRef(null);
   const [timeRemaining, setTimeRemaining] = useState('');
-  
-  const [showingLeg, setShowingLeg] = useState('GO');
+  const [flightDuration, setFlightDuration] = useState('');
+  const [showingLeg, setShowingLeg] = useState('GO'); // 'GO' or 'RETURN'
   const [bookingToShow, setBookingToShow] = useState(null);
 
-  // 1. Get booking data directly from localStorage
-  useEffect(() => {
-    const storedBooking = localStorage.getItem('selectedBookingForMap');
-    if (storedBooking) {
-      setBookingToShow(JSON.parse(storedBooking));
-      localStorage.removeItem('selectedBookingForMap'); // Clean up
-    } else {
-      // (Optional) Fetch latest booking if none is selected
-      // For now, we'll just handle the selected one.
-    }
-  }, []);
-
-  // 2. Derive all needed data from bookingToShow and showingLeg
-  const activeLegData = useMemo(() => {
-    if (!bookingToShow) return null;
-    if (bookingToShow.bookingType === 'ROUND_TRIP') {
-      return showingLeg === 'GO' ? bookingToShow.flightData?.[0] : bookingToShow.flightData?.[1];
-    }
-    return bookingToShow.flightData?.[0] || bookingToShow; // For ONE_WAY
-  }, [bookingToShow, showingLeg]);
-  
-  const flightDuration = useMemo(() => {
-    if (!activeLegData) return null;
-    if (activeLegData.duration && typeof activeLegData.duration === 'string') {
-        const match = activeLegData.duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
-        if (match) {
-            const hours = parseInt(match[1] || 0, 10);
-            const minutes = parseInt(match[2] || 0, 10);
-            return { text: `${hours}h ${minutes}m`, seconds: (hours * 3600) + (minutes * 60) };
-        }
-    }
-    if (activeLegData.departureDate && activeLegData.arrivalDate) {
-        const depDate = new Date(activeLegData.departureDate);
-        const arrDate = new Date(activeLegData.arrivalDate);
-        const diffMs = arrDate - depDate;
-        if (!isNaN(diffMs) && diffMs > 0) {
-            const hours = Math.floor(diffMs / (1000 * 60 * 60));
-            const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-            return { text: `${hours}h ${minutes}m`, seconds: Math.floor(diffMs / 1000) };
-        }
-    }
-    return null;
-  }, [activeLegData]);
-
-  // 3. Main map effect
   useEffect(() => {
     let isMounted = true;
-    let map = null;
 
-    const initializeMap = async () => {
-      if (!isMounted || !bookingToShow || !activeLegData) return;
+    const fetchAndInitializeMap = async () => {
+      console.log('Step 1: Starting map initialization process...');
+      let originCoords = null;
+      let destinationCoords = null;
+      let flightDurationSeconds = 0;
+      let booking = null;
+      let legIndex = 0;
 
-      const originCode = activeLegData.originAirportCode;
-      const destCode = activeLegData.destinationAirportCode;
+      try {
+        const userString = localStorage.getItem('user');
+        if (userString) {
+          const userData = JSON.parse(userString);
+          if (userData?.token) {
+            console.log('Step 2: User token found. Fetching bookings...');
+            const bookings = await bookingService.getMyBookings();
+            console.log('Step 3: Received response from bookings API.');
 
-      if (!originCode || !destCode) return;
+            const selectedBookingId = localStorage.getItem('selectedBookingId');
 
-      const [originCoords, destinationCoords] = await Promise.all([
-        getAirportCoordinates(originCode),
-        getAirportCoordinates(destCode)
-      ]).catch(() => [null, null]);
+            if (selectedBookingId) {
+              booking = bookings.find(b => b._id === selectedBookingId);
+              console.log(`Found selected booking from BookingList:`, booking);
+              localStorage.removeItem('selectedBookingId'); // Clean up
+            } else if (bookings && bookings.length > 0) {
+              const futureConfirmedBookings = bookings
+                .filter(booking => {
+                  if (booking.status !== 'confirmed') return false;
+                  
+                  const hasFlightData = booking.flightData && booking.flightData.length > 0;
+                  const departureDateStr = hasFlightData ? booking.flightData[0].departureDate : booking.departureDate;
+                  
+                  if (!departureDateStr) return false;
 
-      if (!isMounted || !originCoords || !destinationCoords) return;
+                  return new Date(departureDateStr) > new Date();
+                })
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+              
+              console.log(`Filter complete. Found ${futureConfirmedBookings.length} future confirmed bookings.`);
 
-      if (mapRef.current) mapRef.current.remove();
-
-      map = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: "mapbox://styles/ahmedwael315/cm9sv08xa00js01sb9wd35jsx",
-        center: destinationCoords,
-        zoom: 3.5,
-        pitch: 59.00,
-        projection: 'globe'
-      });
-
-      mapRef.current = map;
-
-      map.on('load', () => {
-        if (!isMounted) return;
-
-        map.setFog({});
-
-        // Add markers
-        new mapboxgl.Marker({ color: '#32CD32' }).setLngLat(originCoords).addTo(map);
-        new mapboxgl.Marker({ color: '#FF4500' }).setLngLat(destinationCoords).addTo(map);
-
-        // Create flight path
-        const line = turf.greatCircle(turf.point(originCoords), turf.point(destinationCoords), { 'npoints': 500 });
-        map.addSource('route', { 'type': 'geojson', 'data': line });
-        map.addLayer({
-            'id': 'route',
-            'source': 'route',
-            'type': 'line',
-            'paint': { 'line-width': 4, 'line-color': '#FF4500' }
-        });
-
-        // Add airplane icon
-        map.addSource('airplane', {
-            'type': 'geojson',
-            'data': { 'type': 'FeatureCollection', 'features': [{ 'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'Point', 'coordinates': originCoords } }] }
-        });
-        map.addLayer({
-            'id': 'airplane', 'source': 'airplane', 'type': 'circle',
-            'paint': { 'circle-radius': 6, 'circle-color': '#FFFFFF', 'circle-stroke-width': 2, 'circle-stroke-color': '#000000' }
-        });
-
-        // Animate plane
-        const routeDistance = turf.length(line);
-        let animationDuration = 15000; // Default
-        if (flightDuration?.seconds > 0) {
-            animationDuration = Math.max(10000, Math.min(flightDuration.seconds * 1000, 180000));
-        }
-        let startTime = 0;
-
-        const animate = (timestamp) => {
-            if (!isMounted) return;
-            if (!startTime) startTime = timestamp;
-            const runtime = timestamp - startTime;
-            let progress = runtime / animationDuration;
-            if (progress > 1) {
-              progress = 1; // Stop at the end
+              if (futureConfirmedBookings.length > 0) {
+                booking = futureConfirmedBookings[0];
+                console.log(`Latest booking for map:`, booking);
+              }
             }
             
-            // Update time remaining display
-            if (flightDuration?.seconds > 0) {
-                const timeElapsed = flightDuration.seconds * progress;
-                const remainingSeconds = flightDuration.seconds - timeElapsed;
-                const hours = Math.floor(remainingSeconds / 3600);
-                const minutes = Math.floor((remainingSeconds % 3600) / 60);
-                setTimeRemaining(`${hours}h ${minutes}m remaining`);
-            }
+            if (booking) {
+              setBookingToShow(booking);
+              if (booking.bookingType === 'ROUND_TRIP' && booking.flightData?.length > 1) {
+                legIndex = showingLeg === 'RETURN' ? 1 : 0;
+              }
+              console.log('--- TOGGLE DEBUG ---');
+              console.log('showingLeg:', showingLeg);
+              console.log('legIndex:', legIndex);
+              console.log('bookingToShow:', booking);
+              console.log('flightData[legIndex]:', booking.flightData ? booking.flightData[legIndex] : null);
+              const originCode = booking.flightData?.[legIndex]?.originAirportCode || booking.originAirportCode;
+              let destCode;
+              if (booking.bookingType === 'ROUND_TRIP' && booking.flightData?.[legIndex]) {
+                destCode = booking.flightData[legIndex].destinationAirportCode;
+              } else {
+                destCode = booking.flightData?.[booking.flightData.length - 1]?.destinationAirportCode || booking.destinationAirportCode;
+              }
+              console.log('originCode:', originCode, 'destCode:', destCode);
+              const durationISO = booking.flightData?.[legIndex]?.duration || booking.duration;
+              console.log('Flight Duration ISO:', durationISO);
 
-            const alongRoute = turf.along(line, routeDistance * progress).geometry.coordinates;
-            map.getSource('airplane').setData({
-                'type': 'FeatureCollection',
-                'features': [{'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'Point', 'coordinates': alongRoute }}]
+              // Try to get more precise timing from localStorage (flight or sharedData)
+              let preciseDep = null, preciseArr = null;
+              try {
+                const flightLS = JSON.parse(localStorage.getItem('flight'));
+                if (flightLS && booking && booking.bookingRef) {
+                  let depSeg, arrSeg;
+                  if (showingLeg === 'RETURN' && flightLS.return) {
+                    depSeg = flightLS.return.data?.itineraries?.[0]?.segments?.[0];
+                    arrSeg = flightLS.return.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
+                  } else if (flightLS.departure) {
+                    depSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.[0];
+                    arrSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
+                  }
+                  if (depSeg && arrSeg) {
+                    if (
+                      depSeg.departure.iataCode === (booking.flightData?.[legIndex]?.originAirportCode || booking.originAirportCode) &&
+                      arrSeg.arrival.iataCode === (booking.flightData?.[legIndex]?.destinationAirportCode || booking.destinationAirportCode)
+                    ) {
+                      preciseDep = depSeg.departure.at;
+                      preciseArr = arrSeg.arrival.at;
+                    }
+                  }
+                }
+              } catch (e) { /* ignore */ }
+              console.log('preciseDep:', preciseDep, 'preciseArr:', preciseArr);
+              // Fallback: use bookingToShow.flightData[legIndex].departureDate/arrivalDate for both legs
+              if ((!preciseDep || !preciseArr) && booking && booking.flightData && booking.flightData[legIndex]) {
+                preciseDep = booking.flightData[legIndex].departureDate;
+                preciseArr = booking.flightData[legIndex].arrivalDate;
+              }
+              console.log('finalDep:', preciseDep, 'finalArr:', preciseArr);
+
+              if (preciseDep && preciseArr) {
+                const depDate = new Date(preciseDep);
+                const arrDate = new Date(preciseArr);
+                const diffMs = arrDate - depDate;
+                if (!isNaN(diffMs) && diffMs > 0) {
+                  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                  flightDurationSeconds = Math.floor(diffMs / 1000);
+                  setFlightDuration(`${hours}h ${minutes}m`);
+                } else {
+                  setFlightDuration('--');
+                }
+              } else if (durationISO && typeof durationISO === 'string') {
+                  const match = durationISO.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+                  if (match) {
+                      const hours = match[1] ? parseInt(match[1], 10) : 0;
+                      const minutes = match[2] ? parseInt(match[2], 10) : 0;
+                      flightDurationSeconds = (hours * 3600) + (minutes * 60);
+                      setFlightDuration(`${hours}h ${minutes}m`);
+                  } else {
+                      setFlightDuration('--');
+                  }
+              } else {
+                  // Try to calculate from arrivalDate and departureDate
+                  let dep, arr;
+                  if (booking.flightData && booking.flightData.length > 0) {
+                    dep = booking.flightData[legIndex].departureDate;
+                    arr = booking.flightData[legIndex].arrivalDate;
+                  } else {
+                    dep = booking.departureDate;
+                    arr = booking.arrivalDate;
+                  }
+                  if (dep && arr) {
+                    const depDate = new Date(dep);
+                    const arrDate = new Date(arr);
+                    const diffMs = arrDate - depDate;
+                    if (!isNaN(diffMs) && diffMs > 0) {
+                      const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                      flightDurationSeconds = Math.floor(diffMs / 1000);
+                      setFlightDuration(`${hours}h ${minutes}m`);
+                    } else {
+                      setFlightDuration('--');
+                    }
+                  } else {
+                    setFlightDuration('--');
+                  }
+              }
+              
+              if (originCode && destCode) {
+                console.log(`Fetching coordinates for origin: ${originCode} and destination: ${destCode}`);
+                const [origin, dest] = await Promise.all([
+                  getAirportCoordinates(originCode),
+                  getAirportCoordinates(destCode)
+                ]).catch(err => {
+                  console.error("Error fetching coordinates:", err);
+                  return [null, null];
+                });
+                originCoords = origin;
+                destinationCoords = dest;
+                if(originCoords && destinationCoords) console.log(`Coordinates found.`);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to process user data for map:", error);
+      }
+      
+      if (!isMounted) return;
+      
+      console.log(`Step 9: Proceeding to initialize map.`);
+
+      if (mapContainer.current) {
+        if (mapRef.current) {
+            mapRef.current.remove();
+        }
+
+        const center = destinationCoords || [31.257847, 30.143224];
+        const map = new mapboxgl.Map({
+          container: mapContainer.current,
+          style: "mapbox://styles/ahmedwael315/cm9sv08xa00js01sb9wd35jsx",
+          center: center,
+          zoom: 3.5,
+          pitch: 59.00,
+          projection: 'globe'
+        });
+
+        mapRef.current = map;
+
+        map.on('load', () => {
+          console.log('Step 10: Map loaded.');
+          map.setFog({});
+
+          if (originCoords && destinationCoords) {
+            // Add markers for origin and destination
+            new mapboxgl.Marker({ color: '#32CD32' }) // Green for origin
+              .setLngLat(originCoords)
+              .addTo(map);
+            new mapboxgl.Marker({ color: '#FF4500' }) // OrangeRed for destination
+              .setLngLat(destinationCoords)
+              .addTo(map);
+
+            // 1. Create a curved flight path using the reliable greatCircle method
+            const line = turf.greatCircle(
+                turf.point(originCoords), 
+                turf.point(destinationCoords), 
+                { 'npoints': 500 }
+            );
+
+            // 2. Add the styled route to the map
+            map.addSource('route', {
+              'type': 'geojson',
+              'data': line
             });
-            map.panTo(alongRoute, { duration: 0 });
+            
+            map.addLayer({
+              'id': 'route',
+              'source': 'route',
+              'type': 'line',
+              'paint': {
+                'line-width': 4,
+                'line-color': '#FF4500'
+              }
+            });
 
-            if (progress < 1) {
-                animationFrameRef.current = requestAnimationFrame(animate);
+            // 3. Add airplane icon source
+            const airplaneSource = {
+              'type': 'geojson',
+              'data': {
+                'type': 'FeatureCollection',
+                'features': [{ 'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'Point', 'coordinates': originCoords } }]
+              }
+            };
+            map.addSource('airplane', airplaneSource);
+
+            // Use a circle layer instead of a missing symbol
+            map.addLayer({
+              'id': 'airplane',
+              'source': 'airplane',
+              'type': 'circle',
+              'paint': {
+                'circle-radius': 6,
+                'circle-color': '#FFFFFF', // White circle
+                'circle-stroke-width': 2,
+                'circle-stroke-color': '#000000' // Black outline
+              }
+            });
+
+            // 4. Animate the plane along the greatCircle path
+            const routeDistance = turf.length(line);
+            // Animation duration is proportional to real flight duration, but clamped between 10s and 3min
+            let animationDuration = 15000;
+            if (flightDurationSeconds > 0) {
+              animationDuration = Math.max(10000, Math.min(flightDurationSeconds * 1000, 180000));
             }
-        };
-        animate(0);
-      });
-      map.on('error', (e) => console.error("Mapbox error:", e.error?.message || e));
+            let startTime = 0;
+
+            const animate = (timestamp) => {
+              if (!isMounted) return;
+              if (!startTime) startTime = timestamp;
+              
+              const runtime = timestamp - startTime;
+              const progress = runtime / animationDuration;
+
+              if (progress > 1) {
+                startTime = timestamp; // loop
+              }
+
+              // Update time remaining
+              if (flightDurationSeconds > 0) {
+                  const timeElapsed = flightDurationSeconds * progress;
+                  const remainingSeconds = flightDurationSeconds - timeElapsed;
+                  const hours = Math.floor(remainingSeconds / 3600);
+                  const minutes = Math.floor((remainingSeconds % 3600) / 60);
+                  setTimeRemaining(`${hours}h ${minutes}m remaining`);
+              }
+
+              // Use the 'line' variable for the animation path
+              const alongRoute = turf.along(line, routeDistance * progress).geometry.coordinates;
+              const airplaneData = map.getSource('airplane')._data;
+              airplaneData.features[0].geometry.coordinates = alongRoute;
+
+              // Bearing calculation is no longer needed for a circle, but doesn't hurt to keep
+              const nextPoint = turf.along(line, routeDistance * (progress + 0.001));
+              const bearing = turf.bearing(turf.point(alongRoute), turf.point(nextPoint.geometry.coordinates));
+              airplaneData.features[0].properties.bearing = bearing;
+              
+              map.getSource('airplane').setData(airplaneData);
+
+              // Auto-follow logic: if enabled and plane is out of bounds, pan to it
+              map.panTo(alongRoute, { duration: 0 });
+
+              animationFrameRef.current = requestAnimationFrame(animate);
+            }
+            animate(0);
+          } else {
+             // Default marker if no booking found
+             new mapboxgl.Marker({ color: '#808080' })
+              .setLngLat([31.257847, 30.143224])
+            .addTo(map);
+          }
+        });
+        map.on('error', (e) => console.error("Mapbox error:", e.error?.message || e));
+      }
     };
-    
-    initializeMap();
+
+    fetchAndInitializeMap();
 
     return () => {
       isMounted = false;
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
       if (mapRef.current) {
+        console.log('Component unmounting. Removing map instance.');
         mapRef.current.remove();
         mapRef.current = null;
       }
     };
-  }, [bookingToShow, activeLegData, flightDuration]);
+  }, [showingLeg]); // Add showingLeg as a dependency
 
   return (
     <section className="travel-offers">
+      <div className="offers-section">
+        <div className="offers-header">
+          <div className="offers-header-text">
+            <h2>Let's go Places Together</h2>
+            <p>
+              Discover the latest offers and news and alerts and start planning
+              your trip
+            </p>
+          </div>
+          <button className="see-all-btn">See all</button>
+        </div>
+        <div
+          ref={mapContainer}
+          className="map-container"
+          style={{ width: "90%", height: "450px", borderRadius: "20px", position: 'relative' }}
+        >
+          {/* Toggle button for round-trip */}
+          {bookingToShow && bookingToShow.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.length > 1 && (
+            <button
+              style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                zIndex: 3,
+                background: '#222',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '7px',
+                padding: '8px 18px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontSize: '1em'
+              }}
+              onClick={() => setShowingLeg(showingLeg === 'GO' ? 'RETURN' : 'GO')}
+            >
+              {showingLeg === 'GO' ? 'عرض مسار العودة' : 'عرض مسار الذهاب'}
+            </button>
+          )}
+          {flightDuration && (
+            <div style={{
+              position: 'absolute',
+              top: '20px',
+              left: '20px',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              padding: '7px 16px',
+              borderRadius: '7px',
+              fontWeight: 600,
+              fontSize: '1.1em',
+              zIndex: 2
+            }}>
+              Flight Duration: {flightDuration}
+            </div>
+          )}
+          {timeRemaining && (
+            <div style={{
+              position: 'absolute',
+              bottom: '20px',
+              left: '20px',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              padding: '5px 10px',
+              borderRadius: '5px',
+              zIndex: 1
+            }}>
+              {timeRemaining}
+            </div>
+          )}
+        </div>
+        <div className="offers-flex home-flex">
+          {offersData.map((offer) => (
+            <div key={offer.id} className="offer-card">
+              <img
+                src={offer.image}
+                alt={offer.title}
+                className="offer-image"
+              />
+              <div className="offer-details">
+                <h3>{offer.title}</h3>
+                <p>{offer.date}</p>
+                <span className="offer-duration">{offer.duration}</span>
+                <p className="offer-price">{offer.price}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="offers-section">
         <div className="offers-header">
           <div className="offers-header-text">
@@ -228,73 +478,7 @@ export default function TravelOffers() {
           </div>
           <button className="see-all-btn">See all</button>
         </div>
-        
-        {/* Map Container and Overlays */}
-        <div
-          style={{ 
-            position: 'relative', 
-            width: "90%", 
-            height: "450px", 
-            margin: 'auto',
-            borderRadius: "20px" 
-          }}
-        >
-          <div
-            ref={mapContainer}
-            className="map-container"
-            style={{ width: "100%", height: "100%", borderRadius: "20px" }}
-          />
-
-          {/* Overlays Wrapper */}
-          {bookingToShow && (
-            <>
-              {/* Top-Right Info Box */}
-              <div style={{
-                position: 'absolute', top: '20px', right: '20px',
-                backgroundColor: 'rgba(0, 0, 0, 0.8)', color: 'white',
-                padding: '10px 15px', borderRadius: '8px', zIndex: 2,
-                maxWidth: '300px', fontSize: '0.9em'
-              }}>
-                <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
-                  Airline: {bookingToShow.airlineName || 'N/A'}
-                </div>
-                {flightDuration && (
-                  <div>Flight Duration: {flightDuration.text}</div>
-                )}
-              </div>
-
-              {/* Bottom-Center Time Remaining */}
-              {timeRemaining && (
-                <div style={{
-                  position: 'absolute', bottom: '80px', left: '50%',
-                  transform: 'translateX(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                  color: 'white', padding: '8px 15px', borderRadius: '8px',
-                  zIndex: 2, fontWeight: 600, fontSize: '1em'
-                }}>
-                  {timeRemaining}
-                </div>
-              )}
-              
-              {/* Bottom-Center Toggle Buttons */}
-              {bookingToShow.bookingType === 'ROUND_TRIP' && (
-                <div className="flight-toggle-buttons" style={{
-                    position: 'absolute', bottom: '20px', left: '50%',
-                    transform: 'translateX(-50%)', zIndex: 2,
-                    display: 'flex', gap: '10px'
-                }}>
-                  <button onClick={() => setShowingLeg('GO')} className={showingLeg === 'GO' ? 'active' : ''}>
-                    Departure Flight
-                  </button>
-                  <button onClick={() => setShowingLeg('RETURN')} className={showingLeg === 'RETURN' ? 'active' : ''}>
-                    Return Flight
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-        
-        <div className="offers-grid">
+        <div className="more-offers">
           {londonOffers.map((offer) => (
             <div key={offer.id} className="more-offers-card">
               <img
@@ -313,7 +497,7 @@ export default function TravelOffers() {
         </div>
       </div>
 
-      <div className="bangladesh-section">
+      <div className="offers-section">
         <div className="offers-header">
           <div className="offers-header-text">
             <h2>Fall into Travel</h2>
