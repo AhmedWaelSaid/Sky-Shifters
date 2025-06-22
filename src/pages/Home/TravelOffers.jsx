@@ -103,6 +103,7 @@ export default function TravelOffers() {
             }
             
             if (booking) {
+              setBookingToShow(booking);
               if (booking.bookingType === 'ROUND_TRIP' && booking.flightData?.length > 1) {
                 legIndex = showingLeg === 'RETURN' ? 1 : 0;
               }
