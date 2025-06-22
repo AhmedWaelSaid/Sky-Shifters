@@ -19,7 +19,16 @@ export default defineConfig({
   server: {
     port: 3000,
     headers: {
-      'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://api.mapbox.com https://js.stripe.com https://m.stripe.network https://infird.com blob:; script-src-elem 'self' https://api.mapbox.com https://js.stripe.com https://m.stripe.network https://infird.com 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline' https://api.mapbox.com https://fonts.googleapis.com; img-src 'self' data: https://api.mapbox.com https://infird.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.mapbox.com https://events.mapbox.com https://api.stripe.com https://sky-shifters.duckdns.org https://api.amadeus.com https://infird.com https://overbridgenet.com https://www.google-analytics.com; worker-src 'self' blob:; frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://infird.com;",
+      'Content-Security-Policy': [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' https://js.stripe.com https://api.mapbox.com",
+        "worker-src 'self' blob:",
+        "style-src 'self' 'unsafe-inline' https://api.mapbox.com https://fonts.googleapis.com",
+        "img-src 'self' data: https://*.mapbox.com",
+        "font-src 'self' https://fonts.gstatic.com",
+        "connect-src 'self' https://api.mapbox.com https://events.mapbox.com https://api.stripe.com https://sky-shifters.duckdns.org https://api.amadeus.com https://infird.com https://overbridgenet.com https://www.google-analytics.com",
+        "frame-src 'self' https://js.stripe.com https://hooks.stripe.com"
+      ].join('; ')
     },
   },
 })

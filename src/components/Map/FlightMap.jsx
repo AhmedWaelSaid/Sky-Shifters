@@ -32,6 +32,8 @@ const formatRemainingTime = (ms) => {
 };
 
 const FlightMap = ({ flight }) => {
+  console.log('%c[FlightMap] Received flight prop:', 'color: #22c55e; font-weight: bold;', flight);
+
   const mapContainer = useRef(null);
   const map = useRef(null);
   const animationFrameId = useRef(null);
