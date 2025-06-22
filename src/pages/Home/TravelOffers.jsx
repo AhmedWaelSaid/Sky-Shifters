@@ -65,42 +65,52 @@ export default function TravelOffers() {
         const bookings = response.data?.data?.bookings;
         if (!bookings || bookings.length === 0) {
           console.log("No bookings found for user.");
+          setDestinations([]);
           return;
         }
 
-        console.log("Processing user bookings:", bookings);
-        const uniqueDestinations = new Map();
-        for (const booking of bookings) {
-          if (booking.status !== 'confirmed') continue;
+        const futureConfirmedBookings = bookings
+          .filter(booking => {
+            if (booking.status !== 'confirmed') return false;
+            // Check for future date in flightData or at root
+            if (booking.flightData && booking.flightData.length > 0) {
+              return booking.flightData.some(f => new Date(f.departureDate) > new Date());
+            }
+            if (booking.departureDate) {
+              return new Date(booking.departureDate) > new Date();
+            }
+            return false;
+          })
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by most recently created
 
-          // Handle cases where flight info is in flightData array
-          if (booking.flightData && booking.flightData.length > 0) {
-            const isFuture = booking.flightData.some(f => new Date(f.departureDate) > new Date());
-            if (isFuture) {
-              for (const flight of booking.flightData) {
-                if (flight.destinationAirportCode) {
-                  const destCoord = await getAirportCoordinates(flight.destinationAirportCode);
-                  if (destCoord) {
-                    uniqueDestinations.set(flight.destinationAirportCode, destCoord);
-                  }
-                }
-              }
-            }
-          }
-          // Handle cases where flight info is at the root of the booking object
-          else if (booking.destinationAirportCode) {
-            const isFuture = new Date(booking.departureDate) > new Date();
-            if (isFuture) {
-              const destCoord = await getAirportCoordinates(booking.destinationAirportCode);
-              if (destCoord) {
-                uniqueDestinations.set(booking.destinationAirportCode, destCoord);
-              }
-            }
-          }
+        if (futureConfirmedBookings.length === 0) {
+          console.log("No future confirmed bookings found.");
+          setDestinations([]);
+          return;
         }
-        
-        console.log("Found unique destinations:", Array.from(uniqueDestinations.keys()));
-        setDestinations(Array.from(uniqueDestinations.values()));
+
+        const latestBooking = futureConfirmedBookings[0];
+        console.log("Latest confirmed future booking:", latestBooking);
+
+        let destinationCode = null;
+        // Find destination code from flightData or root
+        if (latestBooking.flightData && latestBooking.flightData.length > 0) {
+          destinationCode = latestBooking.flightData[latestBooking.flightData.length - 1].destinationAirportCode;
+        } else if (latestBooking.destinationAirportCode) {
+          destinationCode = latestBooking.destinationAirportCode;
+        }
+
+        if (destinationCode) {
+          const destCoord = await getAirportCoordinates(destinationCode);
+          if (destCoord) {
+            console.log("Setting map destination to:", destinationCode, destCoord);
+            setDestinations([destCoord]);
+          } else {
+            setDestinations([]);
+          }
+        } else {
+          setDestinations([]);
+        }
       } catch (error) {
         console.error("Failed to fetch user bookings for map:", error);
       }
