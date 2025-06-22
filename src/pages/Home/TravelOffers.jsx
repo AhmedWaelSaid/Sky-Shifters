@@ -14,7 +14,6 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { getAirportCoordinates } from "../../services/airportService";
 import { bookingService } from "../../services/bookingService";
 import * as turf from '@turf/turf';
-import { useData } from "../../components/context/DataContext.jsx";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN; 
 
@@ -51,19 +50,8 @@ export default function TravelOffers() {
   const mapRef = useRef(null);
   const animationFrameRef = useRef(null);
   const [timeRemaining, setTimeRemaining] = useState('');
-  const { flight } = useData(); // Get flight data from context
 
   useEffect(() => {
-    // Check for post-booking flag to force refresh
-    const postBookingFlag = sessionStorage.getItem('post-booking');
-    if (postBookingFlag) {
-      sessionStorage.removeItem('post-booking');
-      // A simple way to force a re-render and thus a re-fetch is to reload.
-      // A more elegant solution could involve a state update.
-      window.location.reload();
-      return; // Stop execution to allow reload to happen
-    }
-
     let isMounted = true;
 
     const fetchAndInitializeMap = async () => {
@@ -283,7 +271,7 @@ export default function TravelOffers() {
         mapRef.current = null;
       }
     };
-  }, [flight]); // Re-run effect when flight data changes
+  }, []); // Run only once on mount
 
   return (
     <section className="travel-offers">
