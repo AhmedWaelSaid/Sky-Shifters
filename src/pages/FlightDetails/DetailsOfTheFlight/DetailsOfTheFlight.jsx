@@ -553,7 +553,7 @@ const DetailsOfTheFlight = ({onClose, onUpdateForm, formData, flight}) => {
                   <div className={styles.airlineLogoContainer}>
                     <div className={styles.airlineLogo}>
                       <img
-                        src="https://i.pinimg.com/originals/db/63/b5/db63b5aa67202c6a027b477a1f93c0f3.png"
+                        src={`https://pics.avs.io/60/60/${flight.departure.data.itineraries[0].segments[0].carrierCode}.png`}
                         alt="Airline Logo"
                       />
                     </div>
@@ -688,7 +688,7 @@ const DetailsOfTheFlight = ({onClose, onUpdateForm, formData, flight}) => {
                       <div className={styles.airlineLogoContainer}>
                         <div className={styles.airlineLogo}>
                           <img
-                            src="https://i.pinimg.com/originals/db/63/b5/db63b5aa67202c6a027b477a1f93c0f3.png"
+                            src={`https://pics.avs.io/60/60/${flight.departure.data.itineraries[0].segments[1].carrierCode}.png`}
                             alt="Airline Logo"
                           />
                         </div>

@@ -32,10 +32,16 @@ export function FlightsUI({
   return (
     <div className={styles.flight}>
       <div className={styles.airLineContainer}>
-        <div
+        <img
           className={styles.airLineIcon}
-          style={{ backgroundColor: "orange" }}
-        ></div>
+          src={`https://pics.avs.io/60/60/${flight.itineraries[0].segments[0].carrierCode}.png`}
+          alt={flight.itineraries[0].segments[0].carrierCode}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "src/assets/no-logo.jpg"; // local fallback
+            console.warn("Logo failed to load:", e.target.src);
+          }}
+        />
         <div className={styles.container}>
           <div className={styles.airLine}>{capitalizeWords(carrier)}</div>
           <div className={styles.baggage}>zz</div>
@@ -117,7 +123,7 @@ export function Main({
     baggageSelection: {},
     fakeForm: true,
   });
-  const flightsPerPage = 8;
+  const flightsPerPage = 12;
   useEffect(() => {
     if (tempFlight) setTempFlight(null);
   }, []);
@@ -179,7 +185,14 @@ export function Main({
       setTempFlight({ departure: { data: curFlight, carrier } });
     } else if (!isDetailsOpen && sharedData.return) {
       if (!isReturn) setTempFlight({ departure: { data: curFlight, carrier } });
-      else setTempFlight({ return: { data: curFlight, carrier }, departure:{data:flight.departure.data, carrier:flight.departure.carrier} });
+      else
+        setTempFlight({
+          return: { data: curFlight, carrier },
+          departure: {
+            data: flight.departure.data,
+            carrier: flight.departure.carrier,
+          },
+        });
     }
     setIsDetailsOpen(!isDetailsOpen);
   };
