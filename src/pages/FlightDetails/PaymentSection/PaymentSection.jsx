@@ -340,15 +340,19 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
 
       if (paymentIntent) {
         console.log('✅ Payment successful:', paymentIntent);
-        setSuccessMessage('Payment completed successfully!');
+        setSuccessMessage('Payment confirmed! Redirecting...');
         setPaymentCompleted(true);
-        setTimeout(handleRedirectHome, 2500);
+        if (onPaymentSuccess) {
+          onPaymentSuccess({ 
+            bookingId: bookingId, 
+            paymentIntentId: paymentIntent.id,
+            stripeStatus: paymentIntent.status 
+          });
+        }
+        // ✨ Set the flag after successful payment
+        sessionStorage.setItem('post-booking', 'true');
+        setTimeout(handleRedirectHome, 2000);
         updateState({ loading: false, processingPayment: false });
-        onPaymentSuccess && onPaymentSuccess({
-          bookingId,
-          paymentIntentId: paymentIntent.id,
-          stripeStatus: paymentIntent.status,
-        });
       } else {
         console.log('🔵 Redirect flow detected - awaiting return URL');
         updateState({
