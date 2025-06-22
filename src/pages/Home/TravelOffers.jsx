@@ -51,7 +51,6 @@ export default function TravelOffers() {
   const animationFrameRef = useRef(null);
   const [timeRemaining, setTimeRemaining] = useState('');
   const [flightDuration, setFlightDuration] = useState('');
-  const [autoFollow, setAutoFollow] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -238,11 +237,6 @@ export default function TravelOffers() {
 
         mapRef.current = map;
 
-        // Disable auto-follow on user interaction
-        map.on('mousedown', () => setAutoFollow(false));
-        // Re-enable auto-follow on double click
-        map.on('dblclick', () => setAutoFollow(true));
-
         map.on('load', () => {
           console.log('Step 10: Map loaded.');
           map.setFog({});
@@ -344,13 +338,7 @@ export default function TravelOffers() {
               map.getSource('airplane').setData(airplaneData);
 
               // Auto-follow logic: if enabled and plane is out of bounds, pan to it
-              if (autoFollow) {
-                const bounds = map.getBounds();
-                const [lng, lat] = alongRoute;
-                if (!bounds.contains([lng, lat])) {
-                  map.panTo(alongRoute, { duration: 500 });
-                }
-              }
+              map.panTo(alongRoute, { duration: 0 });
 
               animationFrameRef.current = requestAnimationFrame(animate);
             }
