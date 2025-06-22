@@ -35,6 +35,8 @@ const FlightMap = ({ flight }) => {
   const mapContainer = useRef(null);
   const map = useRef(null);
   const animationFrameId = useRef(null);
+  const markersRef = useRef([]);
+  const popupRef = useRef(null);
 
   const {
     originAirport,
@@ -45,7 +47,7 @@ const FlightMap = ({ flight }) => {
   } = flight || {};
 
   useEffect(() => {
-    if (map.current) return; // Initialize map only once
+    if (map.current) return;
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -72,7 +74,6 @@ const FlightMap = ({ flight }) => {
       });
       map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
       
-      // Add country boundaries for location tracking
       map.current.addSource('country-boundaries', {
           type: 'vector',
           url: 'mapbox://mapbox.country-boundaries-v1',
@@ -80,9 +81,7 @@ const FlightMap = ({ flight }) => {
     });
     
     return () => {
-        if (animationFrameId.current) {
-            cancelAnimationFrame(animationFrameId.current);
-        }
+        if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
         if (map.current) {
             map.current.remove();
             map.current = null;
@@ -92,8 +91,11 @@ const FlightMap = ({ flight }) => {
 
   useEffect(() => {
     if (!map.current || !map.current.isStyleLoaded() || !originAirport || !destinationAirport || !departure?.at || !arrival?.at) return;
-    
-    // Clear previous layers and markers if they exist
+
+    if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current = [];
+    if (popupRef.current) popupRef.current.remove();
     if (map.current.getLayer('route')) map.current.removeLayer('route');
     if (map.current.getSource('route')) map.current.removeSource('route');
     if (map.current.getLayer('plane')) map.current.removeLayer('plane');
@@ -102,35 +104,33 @@ const FlightMap = ({ flight }) => {
     const originCoords = [originAirport.lon, originAirport.lat];
     const destinationCoords = [destinationAirport.lon, destinationAirport.lat];
 
-    const originMarker = new mapboxgl.Marker({ color: '#FFD700' }).setLngLat(originCoords).addTo(map.current);
-    const destinationMarker = new mapboxgl.Marker({ color: '#FF6347' }).setLngLat(destinationCoords).addTo(map.current);
+    const originMarker = new mapboxgl.Marker({ color: '#22c55e' }).setLngLat(originCoords).addTo(map.current);
+    const destinationMarker = new mapboxgl.Marker({ color: '#ef4444' }).setLngLat(destinationCoords).addTo(map.current);
+    markersRef.current = [originMarker, destinationMarker];
 
     const route = turf.greatCircle(turf.point(originCoords), turf.point(destinationCoords), { npoints: 500 });
     const routeDistance = turf.length(route);
 
     map.current.addSource('route', { type: 'geojson', data: route });
-    map.current.addLayer({ id: 'route', source: 'route', type: 'line', paint: { 'line-width': 2.5, 'line-color': '#FF8C00' } });
+    map.current.addLayer({ id: 'route', source: 'route', type: 'line', paint: { 'line-width': 2, 'line-color': '#e2e8f0' } });
 
-    const planePoint = { type: 'FeatureCollection', features: [{ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: originCoords }}]};
-    map.current.addSource('plane', { type: 'geojson', data: planePoint });
-    map.current.addLayer({
-        id: 'plane',
-        source: 'plane',
-        type: 'symbol',
-        layout: {
-            'icon-image': 'airport-15',
-            'icon-size': 1.2,
-            'icon-rotate': ['get', 'bearing'],
-            'icon-rotation-alignment': 'map',
-            'icon-allow-overlap': true,
-            'icon-ignore-placement': true
-        },
-        paint: {
-            "icon-color": "#FFD700"
-        }
-    });
+    const planeGeoJSON = { type: 'FeatureCollection', features: [{ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: originCoords }}]};
+    if (!map.current.getSource('plane')) {
+      map.current.addSource('plane', { type: 'geojson', data: planeGeoJSON });
+    }
+    
+    if (!map.current.getLayer('plane')) {
+      map.current.addLayer({
+          id: 'plane',
+          source: 'plane',
+          type: 'symbol',
+          layout: { 'icon-image': 'airport-15', 'icon-size': 1.5, 'icon-rotate': ['get', 'bearing'], 'icon-rotation-alignment': 'map', 'icon-allow-overlap': true, 'icon-ignore-placement': true },
+          paint: { "icon-color": "#FFD700" }
+      });
+    }
 
-    const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false, offset: 25 });
+    const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false, offset: 25, className: 'mapbox-popup' });
+    popupRef.current = popup;
 
     const bounds = new mapboxgl.LngLatBounds(originCoords, destinationCoords);
     map.current.fitBounds(bounds, { padding: 100, maxZoom: 10, duration: 2000 });
@@ -143,15 +143,15 @@ const FlightMap = ({ flight }) => {
         const now = Date.now();
         const timeElapsed = now - departureTimeMs;
 
-        let currentCoords = originCoords;
-        let htmlContent = '';
+        let currentCoords, htmlContent;
 
         if (now < departureTimeMs) {
+            currentCoords = originCoords;
             const timeToDeparture = departureTimeMs - now;
-            htmlContent = `<h4>Departs in</h4><p>${formatRemainingTime(timeToDeparture)}</p>`;
-        } else if (now > arrivalTimeMs) {
+            htmlContent = `<div style="text-align:center;color:white;"><h4>Departs in</h4><p style="font-size:1.2rem; margin:0;">${formatRemainingTime(timeToDeparture)}</p></div>`;
+        } else if (now >= arrivalTimeMs) {
             currentCoords = destinationCoords;
-            htmlContent = `<h4>Flight Arrived</h4><p>Duration: ${formatDuration(duration)}</p>`;
+            htmlContent = `<div style="text-align:center;color:white;"><h4>Flight Arrived</h4><p style="font-size:1.1rem; margin:0;">Total Duration: ${formatDuration(duration)}</p></div>`;
             if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
         } else {
             const progress = Math.min(timeElapsed / totalFlightDurationMs, 1);
@@ -160,25 +160,23 @@ const FlightMap = ({ flight }) => {
 
             const nextPoint = turf.along(route, routeDistance * Math.min(progress + 0.001, 1));
             const bearing = turf.bearing(currentPoint, nextPoint);
-            planePoint.features[0].properties.bearing = bearing;
             
-            const features = map.current.queryRenderedFeatures(map.current.project(currentCoords), {
-                layers: ['country-boundaries']
-            });
+            planeGeoJSON.features[0].geometry.coordinates = currentCoords;
+            planeGeoJSON.features[0].properties.bearing = bearing;
+            map.current.getSource('plane').setData(planeGeoJSON);
+            
+            const features = map.current.queryRenderedFeatures(map.current.project(currentCoords), { layers: ['country-boundaries'] });
             const country = features.length > 0 && features[0].properties ? features[0].properties.name_en : 'Over an ocean';
-
             const remainingTime = arrivalTimeMs - now;
+            
             htmlContent = `
-              <div style="text-align:left;">
-                <strong>Remaining:</strong> ${formatRemainingTime(remainingTime)}<br/>
-                <strong>Over:</strong> ${country}<br/>
-                <strong>Duration:</strong> ${formatDuration(duration)}
-              </div>
-            `;
+              <div style="text-align:left;color:white;min-width:180px;">
+                <div style="font-weight:bold;font-size:1rem;">Remaining: ${formatRemainingTime(remainingTime)}</div>
+                <div style="font-size:0.9rem;"><strong>Over:</strong> ${country}</div>
+                <div style="font-size:0.9rem;"><strong>Duration:</strong> ${formatDuration(duration)}</div>
+              </div>`;
         }
-
-        planePoint.features[0].geometry.coordinates = currentCoords;
-        map.current.getSource('plane').setData(planePoint);
+        
         popup.setLngLat(currentCoords).setHTML(htmlContent).addTo(map.current);
         
         if (now < arrivalTimeMs) {
@@ -190,9 +188,6 @@ const FlightMap = ({ flight }) => {
 
     return () => {
       if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
-      if(popup) popup.remove();
-      originMarker.remove();
-      destinationMarker.remove();
     };
   }, [flight, originAirport, destinationAirport, departure, arrival, duration]);
 
