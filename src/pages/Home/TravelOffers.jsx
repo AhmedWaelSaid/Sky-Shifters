@@ -122,9 +122,15 @@ export default function TravelOffers() {
               let preciseDep = null, preciseArr = null;
               try {
                 const flightLS = JSON.parse(localStorage.getItem('flight'));
-                if (flightLS && booking.bookingRef && flightLS.departure) {
-                  const depSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.[0];
-                  const arrSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
+                if (flightLS && booking && booking.bookingRef) {
+                  let depSeg, arrSeg;
+                  if (showingLeg === 'RETURN' && flightLS.return) {
+                    depSeg = flightLS.return.data?.itineraries?.[0]?.segments?.[0];
+                    arrSeg = flightLS.return.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
+                  } else if (flightLS.departure) {
+                    depSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.[0];
+                    arrSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
+                  }
                   if (depSeg && arrSeg) {
                     if (
                       depSeg.departure.iataCode === (booking.flightData?.[legIndex]?.originAirportCode || booking.originAirportCode) &&
