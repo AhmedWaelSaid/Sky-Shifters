@@ -179,14 +179,8 @@ export default function TravelOffers() {
               'source': 'route',
               'type': 'line',
               'paint': {
-                'line-width': 3,
-                'line-gradient': [
-                  'step',
-                  ['line-progress'],
-                  '#32CD32', // Green at the start
-                  0.5, '#FFFF00', // Yellow in the middle
-                  1, '#FF4500'  // Red at the end
-                ]
+                'line-width': 2.5,
+                'line-color': '#FFA500'
               }
             });
 
