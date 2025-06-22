@@ -78,19 +78,25 @@ const BookingList = () => {
   // حذف الحجوزات pending المنتهية (أكثر من 5 دقائق)
   useEffect(() => {
     const now = new Date();
-    const expiredPending = bookings.filter(b => b.status === 'pending' && b.createdAt && (now - new Date(b.createdAt) > 5 * 60 * 1000));
+    // Find all expired pending bookings
+    const expiredPending = bookings.filter(b => 
+      b.status === 'pending' && 
+      b.createdAt && 
+      (now - new Date(b.createdAt) > 5 * 60 * 1000)
+    );
+    
     if (expiredPending.length > 0) {
-      expiredPending.forEach(async (booking) => {
-        try {
-          const success = await bookingService.deleteBooking(booking._id);
-          if (success) {
-            setBookings(prev => prev.filter(b => b._id !== booking._id));
-          }
-        } catch (err) {
-          console.warn('Failed to delete expired pending booking:', booking._id, err.message);
-          // Still remove from state to prevent UI issues
-          setBookings(prev => prev.filter(b => b._id !== booking._id));
-        }
+      const expiredIds = expiredPending.map(b => b._id);
+      
+      // 1. Immediately remove all expired bookings from the UI state.
+      // This prevents re-renders from trying to delete them again.
+      setBookings(prev => prev.filter(b => !expiredIds.includes(b._id)));
+      
+      // 2. Then, try to delete them from the server in the background.
+      // We don't need to wait for the result or handle errors here, 
+      // as the UI is already updated and it's okay if they were already deleted.
+      expiredPending.forEach(booking => {
+        bookingService.deleteBooking(booking._id);
       });
     }
   }, [bookings]);
