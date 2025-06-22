@@ -7,6 +7,8 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import axios from 'axios';
 import paymentStyles from '../FlightDetails/PaymentSection/paymentsection.module.css';
+import FlightMap from '../../components/Map/FlightMap';
+import { getAirportCoordinates } from '../../services/airportService';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -54,6 +56,8 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [flightCoords, setFlightCoords] = useState(null);
+  const [showMap, setShowMap] = useState(false);
 
   const getStatusText = (status) => {
     switch (status) {
@@ -86,6 +90,31 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
   const handleConfirmCancel = () => {
     setShowConfirm(false);
     onCancel(booking._id);
+  };
+
+  const handleShowMap = async (flight) => {
+    if (showMap && flightCoords?.flightId === flight.flightID) {
+      // If map for the same flight is already shown, hide it
+      setShowMap(false);
+      setFlightCoords(null);
+      return;
+    }
+
+    const originCode = flight.originAirportCode;
+    const destCode = flight.destinationAirportCode;
+
+    if (originCode && destCode) {
+      const origin = await getAirportCoordinates(originCode);
+      const destination = await getAirportCoordinates(destCode);
+
+      if (origin && destination) {
+        setFlightCoords({ origin, destination, flightId: flight.flightID });
+        setShowMap(true);
+      } else {
+        console.error('Could not find coordinates for one or both airports');
+        // Maybe show a toast notification to the user
+      }
+    }
   };
 
   // حذف الحجز نهائياً (pending فقط)
@@ -180,9 +209,19 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
             {(booking.flightData && booking.flightData.length > 0) ? (
               booking.flightData.map((flight, index) => (
                 <div key={flight.flightID || index} className={styles.flightSegment}>
-                  <h4 className={styles.segmentTitle}>
-                    {flight.typeOfFlight === 'GO' ? 'Departure Flight' : 'Return Flight'}
-                  </h4>
+                  <div className={styles.segmentHeader}>
+                    <h4 className={styles.segmentTitle}>
+                      {flight.typeOfFlight === 'GO' ? 'Departure Flight' : 'Return Flight'}
+                    </h4>
+                    <button onClick={() => handleShowMap(flight)} className={styles.mapButton}>
+                      {showMap && flightCoords?.flightId === flight.flightID ? 'Hide Map' : 'Show Map'}
+                    </button>
+                  </div>
+                  {showMap && flightCoords && flightCoords.flightId === flight.flightID && (
+                  <div className={styles.mapContainer}>
+                    <FlightMap origin={flightCoords.origin} destination={flightCoords.destination} />
+                  </div>
+                  )}
                   <div className={styles.airlineSection}>
                     <div className={styles.airlineIcon}>
                       <div className={styles.airlineLogo}>
