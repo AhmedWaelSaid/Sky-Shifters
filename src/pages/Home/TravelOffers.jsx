@@ -170,8 +170,7 @@ export default function TravelOffers() {
             // 2. Add the styled route to the map
             map.addSource('route', {
               'type': 'geojson',
-              'data': line,
-              'lineMetrics': true // Enable lineMetrics for gradient
+              'data': line
             });
             
             map.addLayer({
@@ -179,8 +178,8 @@ export default function TravelOffers() {
               'source': 'route',
               'type': 'line',
               'paint': {
-                'line-width': 2.5,
-                'line-color': '#FFA500'
+                'line-width': 4,
+                'line-color': '#FF4500'
               }
             });
 
