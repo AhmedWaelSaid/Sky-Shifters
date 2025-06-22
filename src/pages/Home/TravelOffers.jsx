@@ -54,100 +54,13 @@ export default function TravelOffers() {
   const [showingLeg, setShowingLeg] = useState('GO'); // 'GO' or 'RETURN'
   const [bookingToShow, setBookingToShow] = useState(null);
 
-  // Fetch booking only once or when selectedBookingId changes
   useEffect(() => {
     let isMounted = true;
-    const fetchAndSetBooking = async () => {
-      let booking = null;
-      try {
-        const userString = localStorage.getItem('user');
-        if (userString) {
-          const userData = JSON.parse(userString);
-          if (userData?.token) {
-            const bookings = await bookingService.getMyBookings();
-            const selectedBookingId = localStorage.getItem('selectedBookingId');
-            if (selectedBookingId) {
-              booking = bookings.find(b => b._id === selectedBookingId);
-              localStorage.removeItem('selectedBookingId');
-            } else if (bookings && bookings.length > 0) {
-              const futureConfirmedBookings = bookings
-                .filter(booking => {
-                  if (booking.status !== 'confirmed') return false;
-                  const hasFlightData = booking.flightData && booking.flightData.length > 0;
-                  const departureDateStr = hasFlightData ? booking.flightData[0].departureDate : booking.departureDate;
-                  if (!departureDateStr) return false;
-                  return new Date(departureDateStr) > new Date();
-                })
-                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-              if (futureConfirmedBookings.length > 0) {
-                booking = futureConfirmedBookings[0];
-              }
-            }
-            if (isMounted) setBookingToShow(booking);
-          }
-        }
-      } catch (error) { /* ignore */ }
-    };
-    fetchAndSetBooking();
-    return () => { isMounted = false; };
-  }, []);
-
-  // Derived variables for the selected leg (GO/RETURN)
-  let legIndex = 0;
-  if (bookingToShow && bookingToShow.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.length > 1) {
-    legIndex = showingLeg === 'RETURN' ? 1 : 0;
-  }
-  const segment = bookingToShow?.flightData?.[legIndex];
-  const originCode = segment?.originAirportCode || bookingToShow?.originAirportCode;
-  const destCode = segment?.destinationAirportCode || bookingToShow?.destinationAirportCode;
-
-  // Calculate duration
-  let duration = '--';
-  let flightDurationSeconds = 0;
-  let depDateStr = segment?.departureDate || bookingToShow?.departureDate;
-  let arrDateStr = segment?.arrivalDate || bookingToShow?.arrivalDate;
-  // Try to get precise timing from localStorage (flight.departure/return)
-  try {
-    const flightLS = JSON.parse(localStorage.getItem('flight'));
-    let depSeg, arrSeg;
-    if (showingLeg === 'RETURN' && flightLS?.return) {
-      depSeg = flightLS.return.data?.itineraries?.[0]?.segments?.[0];
-      arrSeg = flightLS.return.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
-    } else if (flightLS?.departure) {
-      depSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.[0];
-      arrSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
-    }
-    if (depSeg && arrSeg && depSeg.departure.iataCode === originCode && arrSeg.arrival.iataCode === destCode) {
-      depDateStr = depSeg.departure.at;
-      arrDateStr = arrSeg.arrival.at;
-    }
-  } catch (e) { /* ignore */ }
-  if (depDateStr && arrDateStr) {
-    const depDate = new Date(depDateStr);
-    const arrDate = new Date(arrDateStr);
-    const diffMs = arrDate - depDate;
-    if (!isNaN(diffMs) && diffMs > 0) {
-      const hours = Math.floor(diffMs / (1000 * 60 * 60));
-      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-      duration = `${hours}h ${minutes}m`;
-      flightDurationSeconds = Math.floor(diffMs / 1000);
-    }
-  }
-
-  // Update flightDuration state for display/animation
-  useEffect(() => {
-    setFlightDuration(duration);
-  }, [duration]);
-
-  // Map initialization and animation (useEffect)
-  useEffect(() => {
-    let isMounted = true;
-    if (!originCode || !destCode) return;
-    let originCoords = null;
-    let destinationCoords = null;
 
     const fetchAndInitializeMap = async () => {
       console.log('Step 1: Starting map initialization process...');
+      let originCoords = null;
+      let destinationCoords = null;
       let flightDurationSeconds = 0;
       let booking = null;
       let legIndex = 0;
@@ -160,7 +73,7 @@ export default function TravelOffers() {
             console.log('Step 2: User token found. Fetching bookings...');
             const bookings = await bookingService.getMyBookings();
             console.log('Step 3: Received response from bookings API.');
-            
+
             const selectedBookingId = localStorage.getItem('selectedBookingId');
 
             if (selectedBookingId) {
@@ -180,7 +93,7 @@ export default function TravelOffers() {
                   return new Date(departureDateStr) > new Date();
                 })
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
+              
               console.log(`Filter complete. Found ${futureConfirmedBookings.length} future confirmed bookings.`);
 
               if (futureConfirmedBookings.length > 0) {
@@ -317,7 +230,7 @@ export default function TravelOffers() {
 
       if (mapContainer.current) {
         if (mapRef.current) {
-          mapRef.current.remove();
+            mapRef.current.remove();
         }
 
         const center = destinationCoords || [31.257847, 30.143224];
@@ -442,7 +355,7 @@ export default function TravelOffers() {
              // Default marker if no booking found
              new mapboxgl.Marker({ color: '#808080' })
               .setLngLat([31.257847, 30.143224])
-              .addTo(map);
+            .addTo(map);
           }
         });
         map.on('error', (e) => console.error("Mapbox error:", e.error?.message || e));
