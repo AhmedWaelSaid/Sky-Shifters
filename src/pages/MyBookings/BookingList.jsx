@@ -131,8 +131,8 @@ const BookingList = () => {
     }
   };
 
-  const handleShowOnMap = (bookingId) => {
-    localStorage.setItem('selectedBookingId', bookingId);
+  const handleShowOnMap = (booking) => {
+    localStorage.setItem('selectedBookingForMap', JSON.stringify(booking));
     navigate('/');
   };
 
@@ -201,7 +201,7 @@ const BookingList = () => {
               booking={booking}
               onCancel={handleCancelBooking}
               onPrintTicket={handlePrintTicket}
-              onShowOnMap={handleShowOnMap}
+              onShowOnMap={() => handleShowOnMap(booking)}
               onCompletePayment={() => {
                 setShowPaymentToast(true);
                 setTimeout(() => setShowPaymentToast(false), 2500);
