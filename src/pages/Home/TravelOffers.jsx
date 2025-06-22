@@ -143,16 +143,10 @@ export default function TravelOffers() {
                 }
               } catch (e) { /* ignore */ }
 
-              if (!preciseDep || !preciseArr) {
-                // Try sharedData as fallback
-                try {
-                  const sharedData = JSON.parse(localStorage.getItem('sharedData'));
-                  const depIata = booking.flightData?.[legIndex]?.originAirportCode || booking.originAirportCode;
-                  const arrIata = booking.flightData?.[legIndex]?.destinationAirportCode || booking.destinationAirportCode;
-                  if (sharedData?.departure?.origin?.airport?.iata === depIata && sharedData?.departure?.dest?.airport?.iata === arrIata) {
-                    preciseDep = sharedData.departure?.date + 'T00:00:00'; // fallback if only date
-                  }
-                } catch (e) { /* ignore */ }
+              // Fallback: use bookingToShow.flightData[legIndex].departureDate/arrivalDate for both legs
+              if ((!preciseDep || !preciseArr) && booking && booking.flightData && booking.flightData[legIndex]) {
+                preciseDep = booking.flightData[legIndex].departureDate;
+                preciseArr = booking.flightData[legIndex].arrivalDate;
               }
 
               if (preciseDep && preciseArr) {
