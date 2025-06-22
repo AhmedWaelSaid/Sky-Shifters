@@ -21,17 +21,25 @@ const BookingList = () => {
       setError(null);
       try {
         const userString = localStorage.getItem('user');
-        const userData = userString ? JSON.parse(userString) : null;
-        const token = userData?.token;
-        if (!token) {
+        if (!userString) {
           navigate('/auth');
           return;
         }
         
         const bookingsFromApi = await bookingService.getMyBookings();
+        const now = new Date();
+
+        // Filter out expired pending bookings before setting the state
+        const validBookings = bookingsFromApi.filter(b => {
+          const isPending = b.status === 'pending';
+          if (!isPending) return true; // Keep all non-pending bookings
+
+          const isExpired = b.createdAt && (now - new Date(b.createdAt) > 5 * 60 * 1000);
+          return !isExpired; // Keep pending bookings that are not expired
+        });
         
-        if (bookingsFromApi && bookingsFromApi.length > 0) {
-          const augmentedBookings = bookingsFromApi.map(booking => {
+        if (validBookings && validBookings.length > 0) {
+          const augmentedBookings = validBookings.map(booking => {
             // Use bookingRef if available, otherwise fall back to _id
             const bookingKey = booking.bookingRef || booking._id;
             const storedDetailsRaw = localStorage.getItem(`flightDetails_${bookingKey}`);
@@ -74,32 +82,6 @@ const BookingList = () => {
     };
     fetchBookings();
   }, [navigate]);
-
-  // حذف الحجوزات pending المنتهية (أكثر من 5 دقائق)
-  useEffect(() => {
-    const now = new Date();
-    // Find all expired pending bookings
-    const expiredPending = bookings.filter(b => 
-      b.status === 'pending' && 
-      b.createdAt && 
-      (now - new Date(b.createdAt) > 5 * 60 * 1000)
-    );
-    
-    if (expiredPending.length > 0) {
-      const expiredIds = expiredPending.map(b => b._id);
-      
-      // 1. Immediately remove all expired bookings from the UI state.
-      // This prevents re-renders from trying to delete them again.
-      setBookings(prev => prev.filter(b => !expiredIds.includes(b._id)));
-      
-      // 2. Then, try to delete them from the server in the background.
-      // We don't need to wait for the result or handle errors here, 
-      // as the UI is already updated and it's okay if they were already deleted.
-      expiredPending.forEach(booking => {
-        bookingService.deleteBooking(booking._id);
-      });
-    }
-  }, [bookings]);
 
   const handleCancelBooking = async (bookingId) => {
     const booking = bookings.find(b => b._id === bookingId);
