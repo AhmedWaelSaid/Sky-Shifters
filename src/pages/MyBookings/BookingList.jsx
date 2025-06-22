@@ -133,7 +133,13 @@ const BookingList = () => {
         },
       });
       if (response.data?.success) {
-        setBookings(prevBookings => prevBookings.filter(b => b._id !== bookingId));
+        setBookings(prevBookings =>
+          prevBookings.map(b =>
+            b._id === bookingId
+              ? { ...b, status: 'cancelled', cancellationReason: 'Change of plans', cancelledAt: new Date().toISOString() }
+              : b
+          )
+        );
         setShowCancelToast(true);
         setTimeout(() => setShowCancelToast(false), 2500);
       } else {
@@ -199,10 +205,30 @@ const BookingList = () => {
     );
   }
 
-  // Filter out all cancelled bookings immediately
-  const activeBookings = bookings.filter(b => b.status !== 'cancelled');
+  // Filter out cancelled bookings older than 5 minutes
+  const now = new Date();
+  const filteredBookings = bookings.filter(b => {
+    if (b.status !== 'cancelled') {
+      return true;
+    }
+    // Use cancelledAt if available, otherwise fall back to updatedAt
+    const cancellationTimestamp = b.cancelledAt || b.updatedAt;
 
-  const sortedBookings = activeBookings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    // If there's no timestamp, hide it to be safe
+    if (!cancellationTimestamp) {
+      return false;
+    }
+    const cancelledDate = new Date(cancellationTimestamp);
+    const diffMs = now - cancelledDate;
+    
+    // Keep it visible for 5 minutes after cancellation
+    return diffMs < 5 * 60 * 1000;
+  });
+
+  const sortedBookings = [
+    ...filteredBookings.filter(b => b.status !== 'cancelled').sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+    ...filteredBookings.filter(b => b.status === 'cancelled').sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+  ];
 
   return (
     <div className={styles.container}>
