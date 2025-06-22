@@ -8,7 +8,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import axios from 'axios';
 import paymentStyles from '../FlightDetails/PaymentSection/paymentsection.module.css';
 import FlightMap from '../../components/Map/FlightMap';
-import { getAirportCoordinates } from '../../services/airportService';
+import { getAirportDetails } from '../../services/airportService';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -56,7 +56,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [flightCoords, setFlightCoords] = useState(null);
+  const [flightDetailsForMap, setFlightDetailsForMap] = useState(null);
   const [showMap, setShowMap] = useState(false);
 
   const getStatusText = (status) => {
@@ -93,10 +93,10 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
   };
 
   const handleShowMap = async (flight) => {
-    if (showMap && flightCoords?.flightId === flight.flightID) {
+    if (showMap && flightDetailsForMap?.flightId === flight.flightID) {
       // If map for the same flight is already shown, hide it
       setShowMap(false);
-      setFlightCoords(null);
+      setFlightDetailsForMap(null);
       return;
     }
 
@@ -104,14 +104,16 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
     const destCode = flight.destinationAirportCode;
 
     if (originCode && destCode) {
-      const origin = await getAirportCoordinates(originCode);
-      const destination = await getAirportCoordinates(destCode);
+      const [origin, destination] = await Promise.all([
+        getAirportDetails(originCode),
+        getAirportDetails(destCode)
+      ]);
 
       if (origin && destination) {
-        setFlightCoords({ origin, destination, flightId: flight.flightID });
+        setFlightDetailsForMap({ origin, destination, flightId: flight.flightID });
         setShowMap(true);
       } else {
-        console.error('Could not find coordinates for one or both airports');
+        console.error('Could not find details for one or both airports');
         // Maybe show a toast notification to the user
       }
     }
@@ -214,12 +216,12 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                       {flight.typeOfFlight === 'GO' ? 'Departure Flight' : 'Return Flight'}
                     </h4>
                     <button onClick={() => handleShowMap(flight)} className={styles.mapButton}>
-                      {showMap && flightCoords?.flightId === flight.flightID ? 'Hide Map' : 'Show Map'}
+                      {showMap && flightDetailsForMap?.flightId === flight.flightID ? 'Hide Map' : 'Show Map'}
                     </button>
                   </div>
-                  {showMap && flightCoords && flightCoords.flightId === flight.flightID && (
+                  {showMap && flightDetailsForMap && flightDetailsForMap.flightId === flight.flightID && (
                   <div className={styles.mapContainer}>
-                    <FlightMap origin={flightCoords.origin} destination={flightCoords.destination} />
+                    <FlightMap originAirport={flightDetailsForMap.origin} destinationAirport={flightDetailsForMap.destination} />
                   </div>
                   )}
                   <div className={styles.airlineSection}>

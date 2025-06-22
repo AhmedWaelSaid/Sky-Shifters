@@ -19,7 +19,12 @@ async function loadAirportData() {
         const lon = parseFloat(parts[7]);
 
         if (iataCode && iataCode !== '\\N' && !isNaN(lat) && !isNaN(lon)) {
-          data.set(iataCode, { lat, lon });
+          data.set(iataCode, {
+            name: parts[1],
+            lat,
+            lon,
+            elevation: parts[8] ? parseFloat(parts[8]) : null,
+          });
         }
       }
     }
@@ -31,8 +36,12 @@ async function loadAirportData() {
   }
 }
 
-export const getAirportCoordinates = async (iataCode) => {
+export const getAirportDetails = async (iataCode) => {
   const data = await loadAirportData();
-  const coords = data.get(iataCode);
-  return coords ? [coords.lon, coords.lat] : null;
+  return data.get(iataCode) || null;
+};
+
+export const getAirportCoordinates = async (iataCode) => {
+  const details = await getAirportDetails(iataCode);
+  return details ? [details.lon, details.lat] : null;
 }; 

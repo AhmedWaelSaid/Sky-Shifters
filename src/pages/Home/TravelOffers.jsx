@@ -8,9 +8,11 @@ import bangladesh5 from "../../assets/pexels-asadphoto-1266831.jpg";
 import bangladesh6 from "../../assets/pexels-pixabay-38238.jpg";
 import bangladesh7 from "../../assets/pexels-pixabay-237272.jpg";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import axios from "axios";
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { getAirportCoordinates } from "../../services/airportService";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN; 
 
@@ -44,24 +46,100 @@ const bangladeshImages = [losAngelesImg, newYorkImg, bangladesh5 , bangladesh4];
 
 export default function TravelOffers() {
   const mapContainer = useRef(null);
+  const [map, setMap] = useState(null);
+  const [destinations, setDestinations] = useState([]);
+  const markersRef = useRef([]);
 
+  // Fetch user's confirmed, future bookings to mark destinations
   useEffect(() => {
-    const map = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: "mapbox://styles/ahmedwael315/cm9sv08xa00js01sb9wd35jsx", 
-      center: [29.773725, 26.351252], 
-      zoom: 5.26,
-      pitch :  59.00 ,
-      bearing : 0.00 
+    const fetchDestinations = async () => {
+      try {
+        const userString = localStorage.getItem('user');
+        const userData = userString ? JSON.parse(userString) : null;
+        if (!userData?.token) return; // No user, no destinations
 
+        const response = await axios.get('https://sky-shifters.duckdns.org/booking/my-bookings', {
+          headers: { Authorization: `Bearer ${userData.token}` },
+        });
+
+        const bookings = response.data?.data?.bookings;
+        if (!bookings || bookings.length === 0) return;
+
+        const uniqueDestinations = new Map();
+        for (const booking of bookings) {
+          const isFuture = booking.flightData?.some(f => new Date(f.departureDate) > new Date());
+          if (booking.status === 'confirmed' && isFuture) {
+            for (const flight of booking.flightData) {
+              const destCoord = await getAirportCoordinates(flight.destinationAirportCode);
+              if (destCoord) {
+                uniqueDestinations.set(flight.destinationAirportCode, destCoord);
+              }
+            }
+          }
+        }
+        setDestinations(Array.from(uniqueDestinations.values()));
+      } catch (error) {
+        console.error("Failed to fetch user bookings for map:", error);
+      }
+    };
+    fetchDestinations();
+  }, []);
+
+  // Initialize map
+  useEffect(() => {
+    if (map) return; // a map has been already initialized
+    const newMap = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: "mapbox://styles/ahmedwael315/cm9sv08xa00js01sb9wd35jsx",
+      center: [29.773725, 26.351252],
+      zoom: 3.5,
+      pitch: 59.00,
+      projection: 'globe'
     });
 
-    new mapboxgl.Marker()
-      .setLngLat([31.257847, 30.143224])
-      .addTo(map);
+    newMap.on('style.load', () => {
+      newMap.setFog({});
+    });
 
-    return () => map.remove();
-  }, []);
+    setMap(newMap);
+
+    return () => newMap.remove();
+  }, [map]);
+
+  // Update markers when destinations or map instance change
+  useEffect(() => {
+    if (!map || !map.isStyleLoaded()) return;
+
+    // Clear existing markers
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current = [];
+
+    const newMarkers = [];
+    if (destinations.length > 0) {
+      destinations.forEach(coord => {
+        const marker = new mapboxgl.Marker({ color: '#FF6347' }) // Tomato color for destinations
+          .setLngLat(coord)
+          .addTo(map);
+        newMarkers.push(marker);
+      });
+      // Adjust map to show all destinations
+      if (destinations.length > 1) {
+        const bounds = new mapboxgl.LngLatBounds();
+        destinations.forEach(coord => bounds.extend(coord));
+        map.fitBounds(bounds, { padding: 100, maxZoom: 10, duration: 2000 });
+      } else {
+        map.flyTo({ center: destinations[0], zoom: 5, duration: 2000 });
+      }
+    } else {
+      // Add default marker if no destinations
+      const defaultMarker = new mapboxgl.Marker()
+        .setLngLat([31.257847, 30.143224])
+        .addTo(map);
+      newMarkers.push(defaultMarker);
+    }
+    markersRef.current = newMarkers;
+
+  }, [map, destinations]);
 
   return (
     <section className="travel-offers">
