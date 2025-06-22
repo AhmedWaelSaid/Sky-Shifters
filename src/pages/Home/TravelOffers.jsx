@@ -112,6 +112,7 @@ export default function TravelOffers() {
               }
               
               const durationISO = bookingToShow.flightData?.[0]?.duration || bookingToShow.duration;
+              console.log('Flight Duration ISO:', durationISO);
 
               if (durationISO && typeof durationISO === 'string') {
                   const match = durationISO.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
@@ -120,7 +121,11 @@ export default function TravelOffers() {
                       const minutes = match[2] ? parseInt(match[2], 10) : 0;
                       flightDurationSeconds = (hours * 3600) + (minutes * 60);
                       setFlightDuration(`${hours}h ${minutes}m`);
+                  } else {
+                      setFlightDuration('--');
                   }
+              } else {
+                  setFlightDuration('--');
               }
               
               if (originCode && destCode) {
