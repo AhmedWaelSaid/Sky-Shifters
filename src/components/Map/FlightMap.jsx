@@ -40,6 +40,18 @@ const msToISODuration = (ms) => {
   return `PT${hours}H${minutes}M`;
 };
 
+// Helper to convert ISO 8601 duration string to milliseconds
+const isoDurationToMs = (isoDuration) => {
+  if (!isoDuration || typeof isoDuration !== 'string') return 0;
+  const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+  if (!match) return 0;
+
+  const hours = match[1] ? parseInt(match[1], 10) : 0;
+  const minutes = match[2] ? parseInt(match[2], 10) : 0;
+  
+  return (hours * 3600 * 1000) + (minutes * 60 * 1000);
+};
+
 const FlightMap = ({ flight }) => {
   console.log('%c[FlightMap] Received flight prop:', 'color: #22c55e; font-weight: bold;', flight);
 
@@ -52,8 +64,9 @@ const FlightMap = ({ flight }) => {
   const {
     originAirport,
     destinationAirport,
+    duration, // Rely on this as the source of truth for duration
     departure,
-    arrival,
+    // No longer using arrival timestamp for calculations
   } = flight || {};
 
   useEffect(() => {
@@ -100,7 +113,7 @@ const FlightMap = ({ flight }) => {
   }, []);
 
   useEffect(() => {
-    if (!map.current || !map.current.isStyleLoaded() || !originAirport || !destinationAirport || !departure?.at || !arrival?.at) return;
+    if (!map.current || !map.current.isStyleLoaded() || !originAirport || !destinationAirport || !departure?.at || !duration) return;
 
     if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
     markersRef.current.forEach(marker => marker.remove());
@@ -146,17 +159,13 @@ const FlightMap = ({ flight }) => {
     map.current.fitBounds(bounds, { padding: 100, maxZoom: 10, duration: 2000 });
 
     const departureTimeMs = new Date(departure.at).getTime();
-    const arrivalTimeMs = new Date(arrival.at).getTime();
     
-    // Calculate the total duration from the authoritative timestamps
-    const totalFlightDurationMs = arrivalTimeMs > departureTimeMs ? arrivalTimeMs - departureTimeMs : 0;
-    // Convert it to an ISO string for our existing formatting function
-    const correctDurationISO = msToISODuration(totalFlightDurationMs);
+    // Calculate total duration and arrival time from the trusted 'duration' prop
+    const totalFlightDurationMs = isoDurationToMs(duration);
+    const arrivalTimeMs = departureTimeMs + totalFlightDurationMs;
 
     const animate = () => {
         const now = Date.now();
-        const timeElapsed = now - departureTimeMs;
-
         let currentCoords, htmlContent;
 
         if (now < departureTimeMs) {
@@ -165,10 +174,10 @@ const FlightMap = ({ flight }) => {
             htmlContent = `<div style="text-align:center;color:white;"><h4>Departs in</h4><p style="font-size:1.2rem; margin:0;">${formatRemainingTime(timeToDeparture)}</p></div>`;
         } else if (now >= arrivalTimeMs) {
             currentCoords = destinationCoords;
-            htmlContent = `<div style="text-align:center;color:white;"><h4>Flight Arrived</h4><p style="font-size:1.1rem; margin:0;">Total Duration: ${formatDuration(correctDurationISO)}</p></div>`;
+            htmlContent = `<div style="text-align:center;color:white;"><h4>Flight Arrived</h4><p style="font-size:1.1rem; margin:0;">Total Duration: ${formatDuration(duration)}</p></div>`;
             if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
         } else {
-            const progress = Math.min(timeElapsed / totalFlightDurationMs, 1);
+            const progress = totalFlightDurationMs > 0 ? Math.min((now - departureTimeMs) / totalFlightDurationMs, 1) : 1;
             const currentPoint = turf.along(route, routeDistance * progress);
             currentCoords = currentPoint.geometry.coordinates;
 
@@ -187,7 +196,7 @@ const FlightMap = ({ flight }) => {
               <div style="text-align:left;color:white;min-width:180px;">
                 <div style="font-weight:bold;font-size:1rem;">Remaining: ${formatRemainingTime(remainingTime)}</div>
                 <div style="font-size:0.9rem;"><strong>Over:</strong> ${country}</div>
-                <div style="font-size:0.9rem;"><strong>Duration:</strong> ${formatDuration(correctDurationISO)}</div>
+                <div style="font-size:0.9rem;"><strong>Duration:</strong> ${formatDuration(duration)}</div>
               </div>`;
         }
         
@@ -203,7 +212,7 @@ const FlightMap = ({ flight }) => {
     return () => {
       if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
     };
-  }, [flight, originAirport, destinationAirport, departure, arrival]);
+  }, [flight, originAirport, destinationAirport, departure, duration]);
 
   if (!flight) {
     return <div className={styles.mapContainer} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading map data...</div>;
