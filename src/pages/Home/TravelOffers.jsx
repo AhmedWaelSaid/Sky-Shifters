@@ -348,4 +348,13 @@ export default function TravelOffers() {
               <img
                 key={index}
                 src={img}
-                alt={`Backpacking Bangladesh ${index + 1}`
+                alt={`Backpacking Bangladesh ${index + 1}`}
+                className="bangladesh-image"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
