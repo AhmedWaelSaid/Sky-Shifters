@@ -298,7 +298,11 @@ export default function TravelOffers() {
 
             // 4. Animate the plane along the greatCircle path
             const routeDistance = turf.length(line);
-            const animationDuration = 15000; // 15 seconds
+            // Animation duration is proportional to real flight duration, but clamped between 10s and 3min
+            let animationDuration = 15000;
+            if (flightDurationSeconds > 0) {
+              animationDuration = Math.max(10000, Math.min(flightDurationSeconds * 1000, 180000));
+            }
             let startTime = 0;
 
             const animate = (timestamp) => {
