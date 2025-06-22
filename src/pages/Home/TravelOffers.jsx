@@ -12,7 +12,8 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { getAirportCoordinates } from "../../services/airportService";
+import FlightMap from "../../components/Map/FlightMap";
+import { getAirportDetails } from "../../services/airportService";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN; 
 
@@ -45,134 +46,89 @@ const londonOffers = Array.from({ length: 4 }, (_, index) => ({
 const bangladeshImages = [losAngelesImg, newYorkImg, bangladesh5 , bangladesh4];
 
 export default function TravelOffers() {
+  const [latestRoute, setLatestRoute] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const mapContainer = useRef(null);
-  const mapRef = useRef(null); // Use a ref to hold the map instance
 
   useEffect(() => {
-    let isMounted = true; // Flag to check if the component is still mounted
+    let isMounted = true;
 
-    const fetchAndInitializeMap = async () => {
-      console.log('Step 1: Starting map initialization process...');
-      let latestBookingDestination = null;
-      let destinationForDisplay = 'DEFAULT_CAIRO';
-
+    const fetchLatestRoute = async () => {
       try {
         const userString = localStorage.getItem('user');
-        if (!userString) {
-          console.log('Step 2: No user in localStorage. Will use default map view.');
-        } else {
-          const userData = JSON.parse(userString);
-          if (!userData?.token) {
-            console.log('Step 2: User data found, but no token. Will use default map view.');
-          } else {
-            console.log('Step 2: User token found. Fetching bookings...');
-            const response = await axios.get('https://sky-shifters.duckdns.org/booking/my-bookings', {
-              headers: { Authorization: `Bearer ${userData.token}` },
-            });
-            console.log('Step 3: Received response from bookings API.');
+        if (!userString) return;
 
-            const bookings = response.data?.data?.bookings;
-            if (bookings && bookings.length > 0) {
-              console.log(`Found ${bookings.length} bookings. Starting filter...`);
-              const futureConfirmedBookings = bookings
-                .filter(booking => {
-                  if (booking.status !== 'confirmed') {
-                    return false; // Silently filter non-confirmed
-                  }
-                  
-                  // For confirmed bookings, log why they are kept or discarded
-                  console.log(`--- Checking Confirmed Booking ID: ${booking._id} ---`);
-                  
-                  let departureDateStr = booking.departureDate;
-                  if (booking.flightData && booking.flightData.length > 0 && booking.flightData[0].departureDate) {
-                      departureDateStr = booking.flightData[0].departureDate;
-                  }
+        const userData = JSON.parse(userString);
+        if (!userData?.token) return;
+        
+        const response = await axios.get('https://sky-shifters.duckdns.org/booking/my-bookings', {
+          headers: { Authorization: `Bearer ${userData.token}` },
+        });
 
-                  if (!departureDateStr) {
-                    console.log(`[DISCARDED] No departure date found.`);
-                    return false;
-                  }
+        const bookings = response.data?.data?.bookings;
+        if (!bookings || bookings.length === 0) return;
 
-                  const departureDate = new Date(departureDateStr);
-                  const now = new Date();
-                  
-                  if (departureDate <= now) {
-                    console.log(`[DISCARDED] Departure date ${departureDate.toISOString()} is in the past.`);
-                    return false;
-                  }
-                  
-                  console.log(`[KEPT] Departure date ${departureDate.toISOString()} is in the future.`);
-                  return true;
-                })
-                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-              
-              console.log(`Filter complete. Found ${futureConfirmedBookings.length} future confirmed bookings.`);
+        const futureConfirmedBookings = bookings
+          .filter(booking => {
+            if (booking.status !== 'confirmed') return false;
+            const departureDateStr = booking.flightData?.[0]?.departureDate || booking.departureDate;
+            return departureDateStr && new Date(departureDateStr) > new Date();
+          })
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        if (futureConfirmedBookings.length > 0) {
+          const latestBooking = futureConfirmedBookings[0];
+          
+          const originCode = latestBooking.flightData?.[0]?.originAirportCode || latestBooking.originAirportCode;
+          const destinationCode = latestBooking.flightData?.[latestBooking.flightData.length - 1]?.destinationAirportCode || latestBooking.destinationAirportCode;
 
-              if (futureConfirmedBookings.length > 0) {
-                const latestBooking = futureConfirmedBookings[0];
-                console.log(`Latest booking for map:`, latestBooking);
-                const destinationCode = latestBooking.flightData?.[latestBooking.flightData.length - 1]?.destinationAirportCode || latestBooking.destinationAirportCode;
-                if (destinationCode) {
-                  console.log(`Fetching coordinates for destination: ${destinationCode}`);
-                  latestBookingDestination = await getAirportCoordinates(destinationCode);
-                  if(latestBookingDestination) console.log(`Coordinates found:`, latestBookingDestination);
-                }
-              }
+          if (originCode && destinationCode) {
+            const [originAirport, destinationAirport] = await Promise.all([
+              getAirportDetails(originCode),
+              getAirportDetails(destinationCode)
+            ]);
+            
+            if (originAirport && destinationAirport && isMounted) {
+              setLatestRoute({ origin: originAirport, destination: destinationAirport });
             }
           }
         }
       } catch (error) {
-        console.error("Failed to fetch user bookings for map:", error);
-      }
-      
-      if (!isMounted) {
-        console.log('Component unmounted before map initialization. Aborting.');
-        return;
-      }
-      
-      console.log(`Step 9: Proceeding to initialize map. Final destination: ${destinationForDisplay}`);
-
-      if (mapContainer.current) {
-        if (mapRef.current) {
-            mapRef.current.remove();
+        console.error("Failed to fetch latest flight route:", error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
         }
-
-        const map = new mapboxgl.Map({
-          container: mapContainer.current,
-          style: "mapbox://styles/ahmedwael315/cm9sv08xa00js01sb9wd35jsx",
-          center: latestBookingDestination || [31.257847, 30.143224],
-          zoom: latestBookingDestination ? 5 : 3.5,
-          pitch: 59.00,
-          projection: 'globe'
-        });
-
-        mapRef.current = map;
-
-        map.on('load', () => {
-          console.log('Step 10: Map loaded. Adding marker.');
-          map.setFog({});
-          new mapboxgl.Marker({ color: latestBookingDestination ? '#FF6347' : '#808080' })
-            .setLngLat(latestBookingDestination || [31.257847, 30.143224])
-            .addTo(map);
-        });
-
-        map.on('error', (e) => console.error("Mapbox error:", e.error?.message || e));
-      } else {
-        console.log('Map container not found, skipping map initialization.');
       }
     };
 
-    fetchAndInitializeMap();
+    fetchLatestRoute();
 
     return () => {
       isMounted = false;
-      if (mapRef.current) {
-        console.log('Component unmounting. Removing map instance.');
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
     };
-  }, []); // Run only once on mount
+  }, []);
+
+  useEffect(() => {
+    if (isLoading || latestRoute || !mapContainer.current) return;
+
+    const map = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: "mapbox://styles/ahmedwael315/cm9sv08xa00js01sb9wd35jsx",
+        center: [31.257847, 30.143224],
+        zoom: 3.5,
+        pitch: 59.00,
+        projection: 'globe'
+    });
+
+    map.on('load', () => {
+        map.setFog({});
+        new mapboxgl.Marker({ color: '#808080' }).setLngLat([31.257847, 30.143224]).addTo(map);
+    });
+    
+    return () => map.remove();
+
+  }, [isLoading, latestRoute]);
 
   return (
     <section className="travel-offers">
@@ -187,11 +143,15 @@ export default function TravelOffers() {
           </div>
           <button className="see-all-btn">See all</button>
         </div>
-        <div
-          ref={mapContainer}
-          className="map-container"
-          style={{ width: "90%", height: "450px", borderRadius: "20px" }}
-        />
+        <div className="map-container" style={{ width: "90%", height: "450px", borderRadius: "20px", display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f4f8' }}>
+          {isLoading ? (
+            <p>Loading your travel map...</p>
+          ) : latestRoute ? (
+            <FlightMap originAirport={latestRoute.origin} destinationAirport={latestRoute.destination} />
+          ) : (
+            <div ref={mapContainer} style={{ width: "100%", height: "100%", borderRadius: '20px' }} />
+          )}
+        </div>
         <div className="offers-flex home-flex">
           {offersData.map((offer) => (
             <div key={offer.id} className="offer-card">
