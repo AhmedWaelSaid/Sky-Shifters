@@ -93,29 +93,29 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
   };
 
   const handleShowMap = async (flight) => {
+    // If map for the same flight is already shown, hide it
     if (showMap && flightDetailsForMap?.flightId === flight.flightID) {
-      // If map for the same flight is already shown, hide it
       setShowMap(false);
       setFlightDetailsForMap(null);
       return;
     }
-
-    const originCode = flight.originAirportCode;
-    const destCode = flight.destinationAirportCode;
-
-    if (originCode && destCode) {
-      const [origin, destination] = await Promise.all([
-        getAirportDetails(originCode),
-        getAirportDetails(destCode)
-      ]);
-
-      if (origin && destination) {
-        setFlightDetailsForMap({ origin, destination, flightId: flight.flightID });
-        setShowMap(true);
-      } else {
-        console.error('Could not find details for one or both airports');
-        // Maybe show a toast notification to the user
-      }
+  
+    // Fetch airport details for origin and destination
+    const originAirport = await getAirportDetails(flight.originAirportCode);
+    const destinationAirport = await getAirportDetails(flight.destinationAirportCode);
+  
+    if (originAirport && destinationAirport) {
+      // Pass the entire flight object, augmented with full airport details
+      setFlightDetailsForMap({
+        ...flight,
+        originAirport,
+        destinationAirport,
+        flightId: flight.flightID // Ensure a unique ID for toggling
+      });
+      setShowMap(true);
+    } else {
+      console.error('Could not find details for one or both airports');
+      // Maybe show a toast notification to the user
     }
   };
 
@@ -221,7 +221,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                   </div>
                   {showMap && flightDetailsForMap && flightDetailsForMap.flightId === flight.flightID && (
                   <div className={styles.mapContainer}>
-                    <FlightMap originAirport={flightDetailsForMap.origin} destinationAirport={flightDetailsForMap.destination} />
+                    <FlightMap flight={flightDetailsForMap} />
                   </div>
                   )}
                   <div className={styles.airlineSection}>
