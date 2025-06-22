@@ -321,7 +321,12 @@ export default function TravelOffers() {
               const progress = runtime / animationDuration;
 
               if (progress > 1) {
-                startTime = timestamp; // loop
+                if (bookingToShow && bookingToShow.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.length > 1) {
+                  setShowingLeg(prev => prev === 'GO' ? 'RETURN' : 'GO');
+                  return; // stop this animation, will re-run useEffect
+                } else {
+                  startTime = timestamp; // loop for one-way
+                }
               }
 
               // Update time remaining
@@ -377,6 +382,27 @@ export default function TravelOffers() {
     };
   }, [showingLeg]); // Add showingLeg as a dependency
 
+  // Calculate flight duration for the selected leg (GO/RETURN)
+  let flightDurationDisplay = '--';
+  let dep = null, arr = null;
+  if (bookingToShow && bookingToShow.flightData && bookingToShow.flightData.length > 0) {
+    const legIndex = showingLeg === 'RETURN' ? 1 : 0;
+    const leg = bookingToShow.flightData[legIndex];
+    dep = leg?.departureDate;
+    arr = leg?.arrivalDate;
+    console.log('showingLeg:', showingLeg, 'leg:', leg);
+    if (dep && arr) {
+      const depDate = new Date(dep);
+      const arrDate = new Date(arr);
+      const diffMs = arrDate - depDate;
+      if (!isNaN(diffMs) && diffMs > 0) {
+        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        flightDurationDisplay = `${hours}h ${minutes}m`;
+      }
+    }
+  }
+
   return (
     <section className="travel-offers">
       <div className="offers-section">
@@ -395,29 +421,7 @@ export default function TravelOffers() {
           className="map-container"
           style={{ width: "90%", height: "450px", borderRadius: "20px", position: 'relative' }}
         >
-          {/* Toggle button for round-trip */}
-          {bookingToShow && bookingToShow.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.length > 1 && (
-            <button
-              style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                zIndex: 3,
-                background: '#222',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '7px',
-                padding: '8px 18px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                fontSize: '1em'
-              }}
-              onClick={() => setShowingLeg(showingLeg === 'GO' ? 'RETURN' : 'GO')}
-            >
-              {showingLeg === 'GO' ? 'عرض مسار العودة' : 'عرض مسار الذهاب'}
-            </button>
-          )}
-          {flightDuration && (
+          {flightDurationDisplay && (
             <div style={{
               position: 'absolute',
               top: '20px',
@@ -430,7 +434,7 @@ export default function TravelOffers() {
               fontSize: '1.1em',
               zIndex: 2
             }}>
-              Flight Duration: {flightDuration}
+              Flight Duration: {flightDurationDisplay}
             </div>
           )}
           {timeRemaining && (
