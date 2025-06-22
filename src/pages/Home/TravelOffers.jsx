@@ -160,28 +160,17 @@ export default function TravelOffers() {
               .setLngLat(destinationCoords)
               .addTo(map);
 
-            // 1. Create a more elevated and curved flight path
-            const routeLine = turf.lineString([originCoords, destinationCoords]);
-            const routeDistance = turf.length(routeLine, {units: 'kilometers'});
-            const midpoint = turf.midpoint(turf.point(originCoords), turf.point(destinationCoords));
-            
-            // Define how high the arc should be
-            const arcHeight = routeDistance / 4; 
-            
-            const bearing = turf.bearing(turf.point(originCoords), turf.point(destinationCoords));
-            // The control point is perpendicular to the flight path at its midpoint
-            const controlPoint = turf.destination(midpoint, arcHeight, bearing + 90, {units: 'kilometers'});
-
-            const curvedPath = turf.bezierSpline(turf.lineString([
-              originCoords,
-              controlPoint.geometry.coordinates,
-              destinationCoords
-            ]));
+            // 1. Create a curved flight path using the reliable greatCircle method
+            const line = turf.greatCircle(
+                turf.point(originCoords), 
+                turf.point(destinationCoords), 
+                { 'npoints': 500 }
+            );
 
             // 2. Add the styled route to the map
             map.addSource('route', {
               'type': 'geojson',
-              'data': curvedPath
+              'data': line
             });
             
             map.addLayer({
@@ -216,7 +205,8 @@ export default function TravelOffers() {
               'layout': { 'icon-image': 'airport-15', 'icon-rotate': ['get', 'bearing'], 'icon-rotation-alignment': 'map', 'icon-allow-overlap': true, 'icon-ignore-placement': true }
             });
 
-            // 4. Animate the plane along the NEW curved path
+            // 4. Animate the plane along the greatCircle path
+            const routeDistance = turf.length(line);
             const animationDuration = 15000; // 15 seconds
             let startTime = 0;
 
@@ -240,12 +230,12 @@ export default function TravelOffers() {
                   setTimeRemaining(`${hours}h ${minutes}m remaining`);
               }
 
-              // Use the new curvedPath for animation
-              const alongRoute = turf.along(curvedPath, turf.length(curvedPath) * progress).geometry.coordinates;
+              // Use the 'line' variable for the animation path
+              const alongRoute = turf.along(line, routeDistance * progress).geometry.coordinates;
               const airplaneData = map.getSource('airplane')._data;
               airplaneData.features[0].geometry.coordinates = alongRoute;
 
-              const nextPoint = turf.along(curvedPath, turf.length(curvedPath) * (progress + 0.001));
+              const nextPoint = turf.along(line, routeDistance * (progress + 0.001));
               const bearing = turf.bearing(turf.point(alongRoute), turf.point(nextPoint.geometry.coordinates));
               airplaneData.features[0].properties.bearing = bearing;
               
