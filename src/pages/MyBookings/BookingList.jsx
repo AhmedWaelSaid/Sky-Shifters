@@ -208,11 +208,21 @@ const BookingList = () => {
   // Filter out cancelled bookings older than 5 minutes
   const now = new Date();
   const filteredBookings = bookings.filter(b => {
-    if (b.status !== 'cancelled') return true;
-    if (!b.cancelledAt) return true;
-    const cancelledAt = new Date(b.cancelledAt);
-    const diffMs = now - cancelledAt;
-    return diffMs < 5 * 60 * 1000; // less than 5 minutes
+    if (b.status !== 'cancelled') {
+      return true;
+    }
+    // Use cancelledAt if available, otherwise fall back to updatedAt
+    const cancellationTimestamp = b.cancelledAt || b.updatedAt;
+
+    // If there's no timestamp, hide it to be safe
+    if (!cancellationTimestamp) {
+      return false;
+    }
+    const cancelledDate = new Date(cancellationTimestamp);
+    const diffMs = now - cancelledDate;
+    
+    // Keep it visible for 5 minutes after cancellation
+    return diffMs < 5 * 60 * 1000;
   });
 
   const sortedBookings = [
