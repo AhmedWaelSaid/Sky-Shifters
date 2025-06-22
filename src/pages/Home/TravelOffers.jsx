@@ -72,48 +72,44 @@ export default function TravelOffers() {
             console.log('Step 3: Received response from bookings API.');
 
             const bookings = response.data?.data?.bookings;
-            if (!bookings || bookings.length === 0) {
-              console.log('Step 4: No bookings found in API response.');
-            } else {
-              console.log(`Step 4: Found ${bookings.length} bookings. Filtering for future and confirmed...`);
+            if (bookings && bookings.length > 0) {
               const futureConfirmedBookings = bookings
-                .filter(booking => {
+                .filter((booking, index) => {
                   const isConfirmed = booking.status === 'confirmed';
-                  let isFuture = false;
-                  if (booking.flightData && booking.flightData.length > 0) {
-                    isFuture = booking.flightData.some(f => f.departureDate && new Date(f.departureDate) > new Date());
-                  } else if (booking.departureDate) {
-                    isFuture = new Date(booking.departureDate) > new Date();
+                  if (!isConfirmed) {
+                    if (index < 5) console.log(`Booking Filter: ID ${booking._id} discarded (status: ${booking.status})`);
+                    return false;
                   }
-                  return isConfirmed && isFuture;
+
+                  let departureDateStr = booking.flightData?.[0]?.departureDate || booking.departureDate;
+                  if (!departureDateStr) {
+                    if (index < 5) console.log(`Booking Filter: ID ${booking._id} discarded (no departure date)`);
+                    return false;
+                  }
+
+                  const isFuture = new Date(departureDateStr) > new Date();
+                  if (!isFuture) {
+                    if (index < 5) console.log(`Booking Filter: ID ${booking._id} discarded (date ${departureDateStr} is not future)`);
+                    return false;
+                  }
+                  
+                  console.log(`Booking Filter: ID ${booking._id} KEPT.`);
+                  return true;
                 })
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-              console.log(`Step 5: Found ${futureConfirmedBookings.length} future confirmed bookings.`);
-
               if (futureConfirmedBookings.length > 0) {
                 const latestBooking = futureConfirmedBookings[0];
-                console.log('Step 6: Latest booking to be displayed:', latestBooking);
-                
                 const destinationCode = latestBooking.flightData?.[latestBooking.flightData.length - 1]?.destinationAirportCode || latestBooking.destinationAirportCode;
-                console.log(`Step 7: Extracted destination code: ${destinationCode || 'Not found'}`);
-
                 if (destinationCode) {
-                  const coords = await getAirportCoordinates(destinationCode);
-                  if (coords) {
-                    console.log(`Step 8: Found coordinates for ${destinationCode}:`, coords);
-                    latestBookingDestination = coords;
-                    destinationForDisplay = destinationCode;
-                  } else {
-                    console.log(`Step 8: Could not find coordinates for ${destinationCode}.`);
-                  }
+                  latestBookingDestination = await getAirportCoordinates(destinationCode);
                 }
               }
             }
           }
         }
       } catch (error) {
-        console.error("Error during fetchAndInitializeMap:", error);
+        console.error("Failed to fetch user bookings for map:", error);
       }
       
       if (!isMounted) {
