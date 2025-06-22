@@ -73,36 +73,49 @@ export default function TravelOffers() {
 
             const bookings = response.data?.data?.bookings;
             if (bookings && bookings.length > 0) {
+              console.log(`Found ${bookings.length} bookings. Starting filter...`);
               const futureConfirmedBookings = bookings
-                .filter((booking, index) => {
-                  const isConfirmed = booking.status === 'confirmed';
-                  if (!isConfirmed) {
-                    if (index < 5) console.log(`Booking Filter: ID ${booking._id} discarded (status: ${booking.status})`);
-                    return false;
+                .filter(booking => {
+                  if (booking.status !== 'confirmed') {
+                    return false; // Silently filter non-confirmed
+                  }
+                  
+                  // For confirmed bookings, log why they are kept or discarded
+                  console.log(`--- Checking Confirmed Booking ID: ${booking._id} ---`);
+                  
+                  let departureDateStr = booking.departureDate;
+                  if (booking.flightData && booking.flightData.length > 0 && booking.flightData[0].departureDate) {
+                      departureDateStr = booking.flightData[0].departureDate;
                   }
 
-                  let departureDateStr = booking.flightData?.[0]?.departureDate || booking.departureDate;
                   if (!departureDateStr) {
-                    if (index < 5) console.log(`Booking Filter: ID ${booking._id} discarded (no departure date)`);
+                    console.log(`[DISCARDED] No departure date found.`);
                     return false;
                   }
 
-                  const isFuture = new Date(departureDateStr) > new Date();
-                  if (!isFuture) {
-                    if (index < 5) console.log(`Booking Filter: ID ${booking._id} discarded (date ${departureDateStr} is not future)`);
+                  const departureDate = new Date(departureDateStr);
+                  const now = new Date();
+                  
+                  if (departureDate <= now) {
+                    console.log(`[DISCARDED] Departure date ${departureDate.toISOString()} is in the past.`);
                     return false;
                   }
                   
-                  console.log(`Booking Filter: ID ${booking._id} KEPT.`);
+                  console.log(`[KEPT] Departure date ${departureDate.toISOString()} is in the future.`);
                   return true;
                 })
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+              
+              console.log(`Filter complete. Found ${futureConfirmedBookings.length} future confirmed bookings.`);
 
               if (futureConfirmedBookings.length > 0) {
                 const latestBooking = futureConfirmedBookings[0];
+                console.log(`Latest booking for map:`, latestBooking);
                 const destinationCode = latestBooking.flightData?.[latestBooking.flightData.length - 1]?.destinationAirportCode || latestBooking.destinationAirportCode;
                 if (destinationCode) {
+                  console.log(`Fetching coordinates for destination: ${destinationCode}`);
                   latestBookingDestination = await getAirportCoordinates(destinationCode);
+                  if(latestBookingDestination) console.log(`Coordinates found:`, latestBookingDestination);
                 }
               }
             }
