@@ -70,7 +70,13 @@ export default function TravelOffers() {
             const bookings = await bookingService.getMyBookings();
             console.log('Step 3: Received response from bookings API.');
             
-            if (bookings && bookings.length > 0) {
+            const selectedBookingId = localStorage.getItem('selectedBookingId');
+
+            if (selectedBookingId) {
+              bookingToShow = bookings.find(b => b._id === selectedBookingId);
+              console.log(`Found selected booking from BookingList:`, bookingToShow);
+              localStorage.removeItem('selectedBookingId'); // Clean up
+            } else if (bookings && bookings.length > 0) {
               const futureConfirmedBookings = bookings
                 .filter(booking => {
                   if (booking.status !== 'confirmed') return false;
