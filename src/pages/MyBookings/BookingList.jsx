@@ -222,9 +222,9 @@ const BookingList = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>My Bookings</h1>
-        <p className={styles.subtitle}>View and manage all your bookings</p>
+      <div className={styles.pageHeader}>
+        <h1>My Bookings</h1>
+        <p>View and manage all your bookings</p>
       </div>
 
       <div className={styles.bookingsList}>
