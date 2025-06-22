@@ -51,7 +51,6 @@ export default function TravelOffers() {
   const animationFrameRef = useRef(null);
   const [timeRemaining, setTimeRemaining] = useState('');
   const [flightDuration, setFlightDuration] = useState('');
-  const [showingLeg, setShowingLeg] = useState('GO'); // 'GO' or 'RETURN'
   const [bookingToShow, setBookingToShow] = useState(null);
 
   useEffect(() => {
@@ -63,7 +62,6 @@ export default function TravelOffers() {
       let destinationCoords = null;
       let flightDurationSeconds = 0;
       let booking = null;
-      let legIndex = 0;
 
       try {
         const userString = localStorage.getItem('user');
@@ -104,42 +102,27 @@ export default function TravelOffers() {
             
             if (booking) {
               setBookingToShow(booking);
-              if (booking.bookingType === 'ROUND_TRIP' && booking.flightData?.length > 1) {
-                legIndex = showingLeg === 'RETURN' ? 1 : 0;
-              }
-              console.log('--- TOGGLE DEBUG ---');
-              console.log('showingLeg:', showingLeg);
-              console.log('legIndex:', legIndex);
-              console.log('bookingToShow:', booking);
-              console.log('flightData[legIndex]:', booking.flightData ? booking.flightData[legIndex] : null);
-              const originCode = booking.flightData?.[legIndex]?.originAirportCode || booking.originAirportCode;
+              const legIndex = 0; // Always show the first leg (departure)
+              const originCode = booking.flightData?.[0]?.originAirportCode || booking.originAirportCode;
+
               let destCode;
-              if (booking.bookingType === 'ROUND_TRIP' && booking.flightData?.[legIndex]) {
-                destCode = booking.flightData[legIndex].destinationAirportCode;
+              if (booking.bookingType === 'ROUND_TRIP' && booking.flightData?.[0]) {
+                destCode = booking.flightData[0].destinationAirportCode;
               } else {
                 destCode = booking.flightData?.[booking.flightData.length - 1]?.destinationAirportCode || booking.destinationAirportCode;
               }
-              console.log('originCode:', originCode, 'destCode:', destCode);
-              const durationISO = booking.flightData?.[legIndex]?.duration || booking.duration;
-              console.log('Flight Duration ISO:', durationISO);
-
+              const durationISO = booking.flightData?.[0]?.duration || booking.duration;
               // Try to get more precise timing from localStorage (flight or sharedData)
               let preciseDep = null, preciseArr = null;
               try {
                 const flightLS = JSON.parse(localStorage.getItem('flight'));
                 if (flightLS && booking && booking.bookingRef) {
-                  let depSeg, arrSeg;
-                  if (showingLeg === 'RETURN' && flightLS.return) {
-                    depSeg = flightLS.return.data?.itineraries?.[0]?.segments?.[0];
-                    arrSeg = flightLS.return.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
-                  } else if (flightLS.departure) {
-                    depSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.[0];
-                    arrSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
-                  }
+                  const depSeg = flightLS.departure?.data?.itineraries?.[0]?.segments?.[0];
+                  const arrSeg = flightLS.departure?.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
                   if (depSeg && arrSeg) {
                     if (
-                      depSeg.departure.iataCode === (booking.flightData?.[legIndex]?.originAirportCode || booking.originAirportCode) &&
-                      arrSeg.arrival.iataCode === (booking.flightData?.[legIndex]?.destinationAirportCode || booking.destinationAirportCode)
+                      depSeg.departure.iataCode === (booking.flightData?.[0]?.originAirportCode || booking.originAirportCode) &&
+                      arrSeg.arrival.iataCode === (booking.flightData?.[0]?.destinationAirportCode || booking.destinationAirportCode)
                     ) {
                       preciseDep = depSeg.departure.at;
                       preciseArr = arrSeg.arrival.at;
@@ -147,13 +130,12 @@ export default function TravelOffers() {
                   }
                 }
               } catch (e) { /* ignore */ }
-              console.log('preciseDep:', preciseDep, 'preciseArr:', preciseArr);
-              // Fallback: use bookingToShow.flightData[legIndex].departureDate/arrivalDate for both legs
-              if ((!preciseDep || !preciseArr) && booking && booking.flightData && booking.flightData[legIndex]) {
-                preciseDep = booking.flightData[legIndex].departureDate;
-                preciseArr = booking.flightData[legIndex].arrivalDate;
+
+              // Fallback: use bookingToShow.flightData[0].departureDate/arrivalDate
+              if ((!preciseDep || !preciseArr) && booking && booking.flightData && booking.flightData[0]) {
+                preciseDep = booking.flightData[0].departureDate;
+                preciseArr = booking.flightData[0].arrivalDate;
               }
-              console.log('finalDep:', preciseDep, 'finalArr:', preciseArr);
 
               if (preciseDep && preciseArr) {
                 const depDate = new Date(preciseDep);
@@ -181,8 +163,8 @@ export default function TravelOffers() {
                   // Try to calculate from arrivalDate and departureDate
                   let dep, arr;
                   if (booking.flightData && booking.flightData.length > 0) {
-                    dep = booking.flightData[legIndex].departureDate;
-                    arr = booking.flightData[legIndex].arrivalDate;
+                    dep = booking.flightData[0].departureDate;
+                    arr = booking.flightData[0].arrivalDate;
                   } else {
                     dep = booking.departureDate;
                     arr = booking.arrivalDate;
@@ -375,7 +357,7 @@ export default function TravelOffers() {
         mapRef.current = null;
       }
     };
-  }, [showingLeg]); // Add showingLeg as a dependency
+  }, []); // Run only once on mount
 
   return (
     <section className="travel-offers">
@@ -395,28 +377,6 @@ export default function TravelOffers() {
           className="map-container"
           style={{ width: "90%", height: "450px", borderRadius: "20px", position: 'relative' }}
         >
-          {/* Toggle button for round-trip */}
-          {bookingToShow && bookingToShow.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.length > 1 && (
-            <button
-              style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                zIndex: 3,
-                background: '#222',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '7px',
-                padding: '8px 18px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                fontSize: '1em'
-              }}
-              onClick={() => setShowingLeg(showingLeg === 'GO' ? 'RETURN' : 'GO')}
-            >
-              {showingLeg === 'GO' ? 'عرض مسار العودة' : 'عرض مسار الذهاب'}
-            </button>
-          )}
           {flightDuration && (
             <div style={{
               position: 'absolute',
