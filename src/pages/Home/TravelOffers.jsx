@@ -63,20 +63,43 @@ export default function TravelOffers() {
         });
 
         const bookings = response.data?.data?.bookings;
-        if (!bookings || bookings.length === 0) return;
+        if (!bookings || bookings.length === 0) {
+          console.log("No bookings found for user.");
+          return;
+        }
 
+        console.log("Processing user bookings:", bookings);
         const uniqueDestinations = new Map();
         for (const booking of bookings) {
-          const isFuture = booking.flightData?.some(f => new Date(f.departureDate) > new Date());
-          if (booking.status === 'confirmed' && isFuture) {
-            for (const flight of booking.flightData) {
-              const destCoord = await getAirportCoordinates(flight.destinationAirportCode);
+          if (booking.status !== 'confirmed') continue;
+
+          // Handle cases where flight info is in flightData array
+          if (booking.flightData && booking.flightData.length > 0) {
+            const isFuture = booking.flightData.some(f => new Date(f.departureDate) > new Date());
+            if (isFuture) {
+              for (const flight of booking.flightData) {
+                if (flight.destinationAirportCode) {
+                  const destCoord = await getAirportCoordinates(flight.destinationAirportCode);
+                  if (destCoord) {
+                    uniqueDestinations.set(flight.destinationAirportCode, destCoord);
+                  }
+                }
+              }
+            }
+          }
+          // Handle cases where flight info is at the root of the booking object
+          else if (booking.destinationAirportCode) {
+            const isFuture = new Date(booking.departureDate) > new Date();
+            if (isFuture) {
+              const destCoord = await getAirportCoordinates(booking.destinationAirportCode);
               if (destCoord) {
-                uniqueDestinations.set(flight.destinationAirportCode, destCoord);
+                uniqueDestinations.set(booking.destinationAirportCode, destCoord);
               }
             }
           }
         }
+        
+        console.log("Found unique destinations:", Array.from(uniqueDestinations.keys()));
         setDestinations(Array.from(uniqueDestinations.values()));
       } catch (error) {
         console.error("Failed to fetch user bookings for map:", error);
