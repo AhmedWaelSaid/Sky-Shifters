@@ -52,6 +52,7 @@ export default function TravelOffers() {
   const [timeRemaining, setTimeRemaining] = useState('');
   const [flightDuration, setFlightDuration] = useState('');
   const [showingLeg, setShowingLeg] = useState('GO'); // 'GO' or 'RETURN'
+  const [bookingToShow, setBookingToShow] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -61,7 +62,7 @@ export default function TravelOffers() {
       let originCoords = null;
       let destinationCoords = null;
       let flightDurationSeconds = 0;
-      let bookingToShow = null;
+      let booking = null;
       let legIndex = 0;
 
       try {
@@ -76,8 +77,8 @@ export default function TravelOffers() {
             const selectedBookingId = localStorage.getItem('selectedBookingId');
 
             if (selectedBookingId) {
-              bookingToShow = bookings.find(b => b._id === selectedBookingId);
-              console.log(`Found selected booking from BookingList:`, bookingToShow);
+              booking = bookings.find(b => b._id === selectedBookingId);
+              console.log(`Found selected booking from BookingList:`, booking);
               localStorage.removeItem('selectedBookingId'); // Clean up
             } else if (bookings && bookings.length > 0) {
               const futureConfirmedBookings = bookings
@@ -96,38 +97,38 @@ export default function TravelOffers() {
               console.log(`Filter complete. Found ${futureConfirmedBookings.length} future confirmed bookings.`);
 
               if (futureConfirmedBookings.length > 0) {
-                bookingToShow = futureConfirmedBookings[0];
-                console.log(`Latest booking for map:`, bookingToShow);
+                booking = futureConfirmedBookings[0];
+                console.log(`Latest booking for map:`, booking);
               }
             }
             
-            if (bookingToShow) {
-              if (bookingToShow.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.length > 1) {
+            if (booking) {
+              if (booking.bookingType === 'ROUND_TRIP' && booking.flightData?.length > 1) {
                 legIndex = showingLeg === 'RETURN' ? 1 : 0;
               }
-              const originCode = bookingToShow.flightData?.[legIndex]?.originAirportCode || bookingToShow.originAirportCode;
+              const originCode = booking.flightData?.[legIndex]?.originAirportCode || booking.originAirportCode;
 
               let destCode;
-              if (bookingToShow.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.[legIndex]) {
-                destCode = bookingToShow.flightData[legIndex].destinationAirportCode;
+              if (booking.bookingType === 'ROUND_TRIP' && booking.flightData?.[legIndex]) {
+                destCode = booking.flightData[legIndex].destinationAirportCode;
               } else {
-                destCode = bookingToShow.flightData?.[bookingToShow.flightData.length - 1]?.destinationAirportCode || bookingToShow.destinationAirportCode;
+                destCode = booking.flightData?.[booking.flightData.length - 1]?.destinationAirportCode || booking.destinationAirportCode;
               }
               
-              const durationISO = bookingToShow.flightData?.[legIndex]?.duration || bookingToShow.duration;
+              const durationISO = booking.flightData?.[legIndex]?.duration || booking.duration;
               console.log('Flight Duration ISO:', durationISO);
 
               // Try to get more precise timing from localStorage (flight or sharedData)
               let preciseDep = null, preciseArr = null;
               try {
                 const flightLS = JSON.parse(localStorage.getItem('flight'));
-                if (flightLS && bookingToShow.bookingRef && flightLS.departure) {
+                if (flightLS && booking.bookingRef && flightLS.departure) {
                   const depSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.[0];
                   const arrSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
                   if (depSeg && arrSeg) {
                     if (
-                      depSeg.departure.iataCode === (bookingToShow.flightData?.[legIndex]?.originAirportCode || bookingToShow.originAirportCode) &&
-                      arrSeg.arrival.iataCode === (bookingToShow.flightData?.[legIndex]?.destinationAirportCode || bookingToShow.destinationAirportCode)
+                      depSeg.departure.iataCode === (booking.flightData?.[legIndex]?.originAirportCode || booking.originAirportCode) &&
+                      arrSeg.arrival.iataCode === (booking.flightData?.[legIndex]?.destinationAirportCode || booking.destinationAirportCode)
                     ) {
                       preciseDep = depSeg.departure.at;
                       preciseArr = arrSeg.arrival.at;
@@ -140,8 +141,8 @@ export default function TravelOffers() {
                 // Try sharedData as fallback
                 try {
                   const sharedData = JSON.parse(localStorage.getItem('sharedData'));
-                  const depIata = bookingToShow.flightData?.[legIndex]?.originAirportCode || bookingToShow.originAirportCode;
-                  const arrIata = bookingToShow.flightData?.[legIndex]?.destinationAirportCode || bookingToShow.destinationAirportCode;
+                  const depIata = booking.flightData?.[legIndex]?.originAirportCode || booking.originAirportCode;
+                  const arrIata = booking.flightData?.[legIndex]?.destinationAirportCode || booking.destinationAirportCode;
                   if (sharedData?.departure?.origin?.airport?.iata === depIata && sharedData?.departure?.dest?.airport?.iata === arrIata) {
                     preciseDep = sharedData.departure?.date + 'T00:00:00'; // fallback if only date
                   }
@@ -173,12 +174,12 @@ export default function TravelOffers() {
               } else {
                   // Try to calculate from arrivalDate and departureDate
                   let dep, arr;
-                  if (bookingToShow.flightData && bookingToShow.flightData.length > 0) {
-                    dep = bookingToShow.flightData[legIndex].departureDate;
-                    arr = bookingToShow.flightData[legIndex].arrivalDate;
+                  if (booking.flightData && booking.flightData.length > 0) {
+                    dep = booking.flightData[legIndex].departureDate;
+                    arr = booking.flightData[legIndex].arrivalDate;
                   } else {
-                    dep = bookingToShow.departureDate;
-                    arr = bookingToShow.arrivalDate;
+                    dep = booking.departureDate;
+                    arr = booking.arrivalDate;
                   }
                   if (dep && arr) {
                     const depDate = new Date(dep);
@@ -389,7 +390,7 @@ export default function TravelOffers() {
           style={{ width: "90%", height: "450px", borderRadius: "20px", position: 'relative' }}
         >
           {/* Toggle button for round-trip */}
-          {bookingToShow && bookingToShow.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.length > 1 && (
+          {booking && booking.bookingType === 'ROUND_TRIP' && booking.flightData?.length > 1 && (
             <button
               style={{
                 position: 'absolute',
