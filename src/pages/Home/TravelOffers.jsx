@@ -170,7 +170,8 @@ export default function TravelOffers() {
             // 2. Add the styled route to the map
             map.addSource('route', {
               'type': 'geojson',
-              'data': line
+              'data': line,
+              'lineMetrics': true // Enable lineMetrics for gradient
             });
             
             map.addLayer({
@@ -189,7 +190,7 @@ export default function TravelOffers() {
               }
             });
 
-            // 3. Add airplane icon
+            // 3. Add airplane icon source
             const airplaneSource = {
               'type': 'geojson',
               'data': {
@@ -198,11 +199,18 @@ export default function TravelOffers() {
               }
             };
             map.addSource('airplane', airplaneSource);
+
+            // Use a circle layer instead of a missing symbol
             map.addLayer({
               'id': 'airplane',
               'source': 'airplane',
-              'type': 'symbol',
-              'layout': { 'icon-image': 'airport-15', 'icon-rotate': ['get', 'bearing'], 'icon-rotation-alignment': 'map', 'icon-allow-overlap': true, 'icon-ignore-placement': true }
+              'type': 'circle',
+              'paint': {
+                'circle-radius': 6,
+                'circle-color': '#FFFFFF', // White circle
+                'circle-stroke-width': 2,
+                'circle-stroke-color': '#000000' // Black outline
+              }
             });
 
             // 4. Animate the plane along the greatCircle path
@@ -235,6 +243,7 @@ export default function TravelOffers() {
               const airplaneData = map.getSource('airplane')._data;
               airplaneData.features[0].geometry.coordinates = alongRoute;
 
+              // Bearing calculation is no longer needed for a circle, but doesn't hurt to keep
               const nextPoint = turf.along(line, routeDistance * (progress + 0.001));
               const bearing = turf.bearing(turf.point(alongRoute), turf.point(nextPoint.geometry.coordinates));
               airplaneData.features[0].properties.bearing = bearing;
