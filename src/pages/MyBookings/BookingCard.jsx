@@ -312,8 +312,8 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                   </div>
                 </div>
                 <div className={styles.totalPrice}>
-                  <span>Total amount required</span>
-                  <span>${(Number(booking.totalPrice) || Number(booking.price) || 0).toFixed(2)}</span>
+                  <span>Total amount required:</span>
+                  <span> ${(Number(booking.totalPrice) || Number(booking.price) || 0).toFixed(2)}</span>
                 </div>
               </div>
             </div>
