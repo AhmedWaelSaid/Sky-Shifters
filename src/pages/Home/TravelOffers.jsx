@@ -71,7 +71,17 @@ export default function TravelOffers() {
 
             if (bookings && bookings.length > 0) {
               const futureConfirmedBookings = bookings
-                .filter(booking => booking.status === 'confirmed' && (booking.flightData ? new Date(booking.flightData[0].departureDate) > new Date() : new Date(booking.departureDate) > new Date()))
+                .filter(booking => {
+                  if (booking.status !== 'confirmed') return false;
+                  
+                  // New, safer check for departure date
+                  const hasFlightData = booking.flightData && booking.flightData.length > 0;
+                  const departureDateStr = hasFlightData ? booking.flightData[0].departureDate : booking.departureDate;
+
+                  if (!departureDateStr) return false;
+
+                  return new Date(departureDateStr) > new Date();
+                })
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
               console.log(`Filter complete. Found ${futureConfirmedBookings.length} future confirmed bookings.`);
