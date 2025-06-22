@@ -100,7 +100,16 @@ export default function TravelOffers() {
             
             if (bookingToShow) {
               const originCode = bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode;
-              const destCode = bookingToShow.flightData?.[bookingToShow.flightData.length - 1]?.destinationAirportCode || bookingToShow.destinationAirportCode;
+
+              let destCode;
+              // For round trips, the main map should show the path to the destination of the first leg.
+              if (bookingToShow.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.[0]) {
+                destCode = bookingToShow.flightData[0].destinationAirportCode;
+              } else {
+                // For one-way trips, the destination is from the last leg, which handles layovers correctly.
+                destCode = bookingToShow.flightData?.[bookingToShow.flightData.length - 1]?.destinationAirportCode || bookingToShow.destinationAirportCode;
+              }
+              
               const durationISO = bookingToShow.flightData?.[0]?.duration || bookingToShow.duration;
 
               if (durationISO && typeof durationISO === 'string') {
