@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import * as turf from '@turf/turf';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -73,18 +74,17 @@ const FlightMap = ({ originAirport, destinationAirport }) => {
       
     markersRef.current = [originMarker, destinationMarker];
 
-    const route = {
-      type: 'Feature',
-      geometry: {
-        type: 'LineString',
-        coordinates: [originCoords, destinationCoords]
-      }
-    };
+    // Create a curved line using Turf.js
+    const greatCircle = turf.greatCircle(
+      turf.point(originCoords),
+      turf.point(destinationCoords),
+      { npoints: 200 } // More points for a smoother curve
+    );
 
     // Add new source and layer for the route
     map.current.addSource('route', {
       type: 'geojson',
-      data: route
+      data: greatCircle
     });
 
     map.current.addLayer({
@@ -93,8 +93,7 @@ const FlightMap = ({ originAirport, destinationAirport }) => {
       type: 'line',
       paint: {
         'line-width': 2.5,
-        'line-color': '#007cbf',
-        'line-dasharray': [2, 2] // Dashed line
+        'line-color': '#FF8C00' // Solid Orange line
       }
     });
 
