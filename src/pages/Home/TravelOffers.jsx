@@ -390,7 +390,7 @@ export default function TravelOffers() {
           style={{ width: "90%", height: "450px", borderRadius: "20px", position: 'relative' }}
         >
           {/* Toggle button for round-trip */}
-          {booking && booking.bookingType === 'ROUND_TRIP' && booking.flightData?.length > 1 && (
+          {bookingToShow && bookingToShow.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.length > 1 && (
             <button
               style={{
                 position: 'absolute',
