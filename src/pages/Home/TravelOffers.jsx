@@ -8,7 +8,7 @@ import bangladesh5 from "../../assets/pexels-asadphoto-1266831.jpg";
 import bangladesh6 from "../../assets/pexels-pixabay-38238.jpg";
 import bangladesh7 from "../../assets/pexels-pixabay-237272.jpg";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { getAirportCoordinates } from "../../services/airportService";
@@ -382,26 +382,27 @@ export default function TravelOffers() {
     };
   }, [showingLeg]); // Add showingLeg as a dependency
 
-  // Calculate flight duration for the selected leg (GO/RETURN)
-  let flightDurationDisplay = '--';
-  let dep = null, arr = null;
-  if (bookingToShow && bookingToShow.flightData && bookingToShow.flightData.length > 0) {
-    const legIndex = showingLeg === 'RETURN' ? 1 : 0;
-    const leg = bookingToShow.flightData[legIndex];
-    dep = leg?.departureDate;
-    arr = leg?.arrivalDate;
-    console.log('showingLeg:', showingLeg, 'leg:', leg);
-    if (dep && arr) {
-      const depDate = new Date(dep);
-      const arrDate = new Date(arr);
-      const diffMs = arrDate - depDate;
-      if (!isNaN(diffMs) && diffMs > 0) {
-        const hours = Math.floor(diffMs / (1000 * 60 * 60));
-        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-        flightDurationDisplay = `${hours}h ${minutes}m`;
+  // Calculate flight duration for the selected leg (GO/RETURN) using useMemo
+  const flightDurationDisplay = useMemo(() => {
+    if (bookingToShow && bookingToShow.flightData && bookingToShow.flightData.length > 0) {
+      const legIndex = showingLeg === 'RETURN' ? 1 : 0;
+      const leg = bookingToShow.flightData[legIndex];
+      const dep = leg?.departureDate;
+      const arr = leg?.arrivalDate;
+      console.log('useMemo - showingLeg:', showingLeg, 'leg:', leg);
+      if (dep && arr) {
+        const depDate = new Date(dep);
+        const arrDate = new Date(arr);
+        const diffMs = arrDate - depDate;
+        if (!isNaN(diffMs) && diffMs > 0) {
+          const hours = Math.floor(diffMs / (1000 * 60 * 60));
+          const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+          return `${hours}h ${minutes}m`;
+        }
       }
     }
-  }
+    return '--';
+  }, [bookingToShow, showingLeg]);
 
   return (
     <section className="travel-offers">
