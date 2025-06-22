@@ -46,145 +46,78 @@ const bangladeshImages = [losAngelesImg, newYorkImg, bangladesh5 , bangladesh4];
 
 export default function TravelOffers() {
   const mapContainer = useRef(null);
-  const [map, setMap] = useState(null);
-  const [destinations, setDestinations] = useState([]);
-  const markersRef = useRef([]);
+  const mapRef = useRef(null); // Use a ref to hold the map instance
 
-  // Fetch user's confirmed, future bookings to mark destinations
   useEffect(() => {
-    const fetchDestinations = async () => {
+    const fetchAndInitializeMap = async () => {
+      let latestBookingDestination = null;
+
       try {
         const userString = localStorage.getItem('user');
         const userData = userString ? JSON.parse(userString) : null;
-        if (!userData?.token) return; // No user, no destinations
+        if (userData?.token) {
+          const response = await axios.get('https://sky-shifters.duckdns.org/booking/my-bookings', {
+            headers: { Authorization: `Bearer ${userData.token}` },
+          });
 
-        const response = await axios.get('https://sky-shifters.duckdns.org/booking/my-bookings', {
-          headers: { Authorization: `Bearer ${userData.token}` },
-        });
+          const bookings = response.data?.data?.bookings;
+          if (bookings && bookings.length > 0) {
+            const futureConfirmedBookings = bookings
+              .filter(booking => {
+                if (booking.status !== 'confirmed') return false;
+                const departure = booking.flightData?.[0]?.departureDate || booking.departureDate;
+                return departure && new Date(departure) > new Date();
+              })
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-        const bookings = response.data?.data?.bookings;
-        if (!bookings || bookings.length === 0) {
-          setDestinations([]);
-          return;
-        }
-
-        const futureConfirmedBookings = bookings
-          .filter(booking => {
-            if (booking.status !== 'confirmed') return false;
-            
-            if (booking.flightData && booking.flightData.length > 0) {
-              return booking.flightData.some(f => new Date(f.departureDate) > new Date());
+            if (futureConfirmedBookings.length > 0) {
+              const latestBooking = futureConfirmedBookings[0];
+              const destinationCode = latestBooking.flightData?.[latestBooking.flightData.length - 1]?.destinationAirportCode || latestBooking.destinationAirportCode;
+              if (destinationCode) {
+                latestBookingDestination = await getAirportCoordinates(destinationCode);
+              }
             }
-            
-            if (booking.departureDate) {
-              return new Date(booking.departureDate) > new Date();
-            }
-
-            return false;
-          })
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-        if (futureConfirmedBookings.length === 0) {
-          setDestinations([]);
-          return;
-        }
-
-        const latestBooking = futureConfirmedBookings[0];
-        let destinationCode = null;
-
-        if (latestBooking.flightData && latestBooking.flightData.length > 0) {
-          // For round trips, the last flight in the array is the final destination.
-          destinationCode = latestBooking.flightData[latestBooking.flightData.length - 1].destinationAirportCode;
-        } else if (latestBooking.destinationAirportCode) {
-          destinationCode = latestBooking.destinationAirportCode;
-        }
-
-        if (destinationCode) {
-          const destCoord = await getAirportCoordinates(destinationCode);
-          if (destCoord) {
-            setDestinations([destCoord]);
-          } else {
-            setDestinations([]);
           }
-        } else {
-          setDestinations([]);
         }
       } catch (error) {
         console.error("Failed to fetch user bookings for map:", error);
-        setDestinations([]);
+      }
+
+      // Initialize map
+      if (mapContainer.current && !mapRef.current) {
+        const map = new mapboxgl.Map({
+          container: mapContainer.current,
+          style: "mapbox://styles/ahmedwael315/cm9sv08xa00js01sb9wd35jsx",
+          center: latestBookingDestination || [31.257847, 30.143224], // Center on destination or default
+          zoom: latestBookingDestination ? 5 : 3.5,
+          pitch: 59.00,
+          projection: 'globe'
+        });
+
+        mapRef.current = map;
+
+        map.on('load', () => {
+          map.setFog({});
+          // Add marker
+          new mapboxgl.Marker({ color: latestBookingDestination ? '#FF6347' : '#808080' })
+            .setLngLat(latestBookingDestination || [31.257847, 30.143224])
+            .addTo(map);
+        });
+
+        map.on('error', (e) => console.error("Mapbox error:", e.error?.message || e));
       }
     };
-    fetchDestinations();
-  }, []);
 
-  // Initialize map and update markers
-  useEffect(() => {
-    if (map) return; // Map is already initialized
+    fetchAndInitializeMap();
 
-    console.log("Initializing map...");
-    const newMap = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: "mapbox://styles/ahmedwael315/cm9sv08xa00js01sb9wd35jsx",
-      center: [29.773725, 26.351252],
-      zoom: 3.5,
-      pitch: 59.00,
-      projection: 'globe'
-    });
-
-    newMap.on('load', () => {
-      console.log("Map 'load' event fired.");
-      newMap.setFog({});
-      setMap(newMap);
-    });
-
-    newMap.on('error', (e) => console.error("Mapbox error:", e.error?.message || e));
-
+    // Cleanup
     return () => {
-      console.log("Removing map instance.");
-      newMap.remove();
-    };
-  }, []); // Run only once
-
-  // Update markers when the map is ready or destinations change
-  useEffect(() => {
-    if (!map) {
-      console.log("Marker effect skipped: map not ready.");
-      return;
-    };
-    
-    console.log("Updating markers for destinations:", destinations);
-
-    // Clear existing markers
-    markersRef.current.forEach(marker => marker.remove());
-    markersRef.current = [];
-
-    const newMarkers = [];
-    if (destinations.length > 0) {
-      destinations.forEach(coord => {
-        const marker = new mapboxgl.Marker({ color: '#FF6347' })
-          .setLngLat(coord)
-          .addTo(map);
-        newMarkers.push(marker);
-      });
-
-      if (destinations.length > 1) {
-        const bounds = new mapboxgl.LngLatBounds();
-        destinations.forEach(coord => bounds.extend(coord));
-        map.fitBounds(bounds, { padding: 100, maxZoom: 10, duration: 2000 });
-      } else {
-        map.flyTo({ center: destinations[0], zoom: 5, duration: 2000 });
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
       }
-    } else {
-      console.log("No destinations, adding default marker.");
-      const defaultMarker = new mapboxgl.Marker()
-        .setLngLat([31.257847, 30.143224])
-        .addTo(map);
-      newMarkers.push(defaultMarker);
-    }
-    markersRef.current = newMarkers;
-    console.log("Markers updated.");
-
-  }, [map, destinations]);
+    };
+  }, []); // Run only once on mount
 
   return (
     <section className="travel-offers">
