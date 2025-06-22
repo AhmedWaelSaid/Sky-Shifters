@@ -107,15 +107,19 @@ export default function TravelOffers() {
               if (booking.bookingType === 'ROUND_TRIP' && booking.flightData?.length > 1) {
                 legIndex = showingLeg === 'RETURN' ? 1 : 0;
               }
+              console.log('--- TOGGLE DEBUG ---');
+              console.log('showingLeg:', showingLeg);
+              console.log('legIndex:', legIndex);
+              console.log('bookingToShow:', booking);
+              console.log('flightData[legIndex]:', booking.flightData ? booking.flightData[legIndex] : null);
               const originCode = booking.flightData?.[legIndex]?.originAirportCode || booking.originAirportCode;
-
               let destCode;
               if (booking.bookingType === 'ROUND_TRIP' && booking.flightData?.[legIndex]) {
                 destCode = booking.flightData[legIndex].destinationAirportCode;
               } else {
                 destCode = booking.flightData?.[booking.flightData.length - 1]?.destinationAirportCode || booking.destinationAirportCode;
               }
-              
+              console.log('originCode:', originCode, 'destCode:', destCode);
               const durationISO = booking.flightData?.[legIndex]?.duration || booking.duration;
               console.log('Flight Duration ISO:', durationISO);
 
@@ -143,12 +147,13 @@ export default function TravelOffers() {
                   }
                 }
               } catch (e) { /* ignore */ }
-
+              console.log('preciseDep:', preciseDep, 'preciseArr:', preciseArr);
               // Fallback: use bookingToShow.flightData[legIndex].departureDate/arrivalDate for both legs
               if ((!preciseDep || !preciseArr) && booking && booking.flightData && booking.flightData[legIndex]) {
                 preciseDep = booking.flightData[legIndex].departureDate;
                 preciseArr = booking.flightData[legIndex].arrivalDate;
               }
+              console.log('finalDep:', preciseDep, 'finalArr:', preciseArr);
 
               if (preciseDep && preciseArr) {
                 const depDate = new Date(preciseDep);
