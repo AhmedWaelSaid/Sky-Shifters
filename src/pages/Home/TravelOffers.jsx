@@ -64,7 +64,6 @@ export default function TravelOffers() {
 
         const bookings = response.data?.data?.bookings;
         if (!bookings || bookings.length === 0) {
-          console.log("No bookings found for user.");
           setDestinations([]);
           return;
         }
@@ -72,29 +71,29 @@ export default function TravelOffers() {
         const futureConfirmedBookings = bookings
           .filter(booking => {
             if (booking.status !== 'confirmed') return false;
-            // Check for future date in flightData or at root
+            
             if (booking.flightData && booking.flightData.length > 0) {
               return booking.flightData.some(f => new Date(f.departureDate) > new Date());
             }
+            
             if (booking.departureDate) {
               return new Date(booking.departureDate) > new Date();
             }
+
             return false;
           })
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by most recently created
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         if (futureConfirmedBookings.length === 0) {
-          console.log("No future confirmed bookings found.");
           setDestinations([]);
           return;
         }
 
         const latestBooking = futureConfirmedBookings[0];
-        console.log("Latest confirmed future booking:", latestBooking);
-
         let destinationCode = null;
-        // Find destination code from flightData or root
+
         if (latestBooking.flightData && latestBooking.flightData.length > 0) {
+          // For round trips, the last flight in the array is the final destination.
           destinationCode = latestBooking.flightData[latestBooking.flightData.length - 1].destinationAirportCode;
         } else if (latestBooking.destinationAirportCode) {
           destinationCode = latestBooking.destinationAirportCode;
@@ -103,7 +102,6 @@ export default function TravelOffers() {
         if (destinationCode) {
           const destCoord = await getAirportCoordinates(destinationCode);
           if (destCoord) {
-            console.log("Setting map destination to:", destinationCode, destCoord);
             setDestinations([destCoord]);
           } else {
             setDestinations([]);
@@ -113,6 +111,7 @@ export default function TravelOffers() {
         }
       } catch (error) {
         console.error("Failed to fetch user bookings for map:", error);
+        setDestinations([]);
       }
     };
     fetchDestinations();
