@@ -192,14 +192,6 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
           <h3 className={styles.bookingReference}>{booking.bookingReference}</h3>
           <span className={`${styles.status} ${getStatusClass(booking.status)}`}>{getStatusText(booking.status)}</span>
         </div>
-        <div className={styles.bookingActions}>
-            <button
-                onClick={() => onShowOnMap(booking._id)}
-                className={`${styles.actionButton} ${styles.mapButton}`}
-            >
-                Show on Map
-            </button>
-        </div>
         <div className={styles.bookingDate}>
           Booking Date: {booking.createdAt ? new Date(booking.createdAt).toLocaleString() : '--'}
         </div>
@@ -374,6 +366,13 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
 
       <div className={styles.cardActions}>
         <button
+          className={styles.seatButton}
+          onClick={() => onShowOnMap(booking._id)}
+          disabled={booking.status !== 'confirmed'}
+        >
+          Show on Map
+        </button>
+        <button
           className={styles.printButton}
           onClick={() => onPrintTicket(booking)}
           disabled={booking.status !== 'confirmed'}
@@ -395,7 +394,6 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
         >
           Cancel Booking
         </button>
-        {/* زر حذف الحجز (Delete Booking) تمت إزالته بناءً على طلب المستخدم */}
         {booking.status === 'pending' && remainingTime > 0 && (
           <button
             className={styles.payButton}
