@@ -13,6 +13,7 @@ import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { getAirportCoordinates } from "../../services/airportService";
 import { bookingService } from "../../services/bookingService";
+import * as turf from '@turf/turf';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN; 
 
@@ -47,83 +48,51 @@ const bangladeshImages = [losAngelesImg, newYorkImg, bangladesh5 , bangladesh4];
 export default function TravelOffers() {
   const mapContainer = useRef(null);
   const mapRef = useRef(null); // Use a ref to hold the map instance
+  const animationFrameRef = useRef(null); // Ref to hold animation frame id
 
   useEffect(() => {
     let isMounted = true; // Flag to check if the component is still mounted
 
     const fetchAndInitializeMap = async () => {
       console.log('Step 1: Starting map initialization process...');
-      let latestBookingDestination = null;
-      let destinationForDisplay = 'DEFAULT_CAIRO';
+      let originCoords = null;
+      let destinationCoords = null;
 
       try {
         const userString = localStorage.getItem('user');
-        if (!userString) {
-          console.log('Step 2: No user in localStorage. Will use default map view.');
-        } else {
+        if (userString) {
           const userData = JSON.parse(userString);
-          if (!userData?.token) {
-            console.log('Step 2: User data found, but no token. Will use default map view.');
-          } else {
+          if (userData?.token) {
             console.log('Step 2: User token found. Fetching bookings...');
-            try {
-              const bookings = await bookingService.getMyBookings();
-              console.log('Step 3: Received response from bookings API.');
+            const bookings = await bookingService.getMyBookings();
+            console.log('Step 3: Received response from bookings API.');
 
-              if (bookings && bookings.length > 0) {
-                console.log(`Found ${bookings.length} bookings. Starting filter...`);
-                const futureConfirmedBookings = bookings
-                  .filter(booking => {
-                    if (booking.status !== 'confirmed') {
-                      return false; // Silently filter non-confirmed
-                    }
-                    
-                    // For confirmed bookings, log why they are kept or discarded
-                    console.log(`--- Checking Confirmed Booking ID: ${booking._id} ---`);
-                    
-                    let departureDateStr = booking.departureDate;
-                    if (booking.flightData && booking.flightData.length > 0 && booking.flightData[0].departureDate) {
-                        departureDateStr = booking.flightData[0].departureDate;
-                    }
+            if (bookings && bookings.length > 0) {
+              console.log(`Found ${bookings.length} bookings. Starting filter...`);
+              const futureConfirmedBookings = bookings
+                .filter(booking => booking.status === 'confirmed' && new Date(booking.flightData?.[0]?.departureDate) > new Date())
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-                    if (!departureDateStr) {
-                      console.log(`[DISCARDED] No departure date found.`);
-                      return false;
-                    }
+              console.log(`Filter complete. Found ${futureConfirmedBookings.length} future confirmed bookings.`);
 
-                    const departureDate = new Date(departureDateStr);
-                    const now = new Date();
-                    
-                    if (departureDate <= now) {
-                      console.log(`[DISCARDED] Departure date ${departureDate.toISOString()} is in the past.`);
-                      return false;
-                    }
-                    
-                    console.log(`[KEPT] Departure date ${departureDate.toISOString()} is in the future.`);
-                    return true;
-                  })
-                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+              if (futureConfirmedBookings.length > 0) {
+                const latestBooking = futureConfirmedBookings[0];
+                console.log(`Latest booking for map:`, latestBooking);
+
+                const originCode = latestBooking.flightData?.[0]?.originAirportCode;
+                const destCode = latestBooking.flightData?.[latestBooking.flightData.length - 1]?.destinationAirportCode;
                 
-                console.log(`Filter complete. Found ${futureConfirmedBookings.length} future confirmed bookings.`);
-
-                if (futureConfirmedBookings.length > 0) {
-                  const latestBooking = futureConfirmedBookings[0];
-                  console.log(`Latest booking for map:`, latestBooking);
-                  const destinationCode = latestBooking.flightData?.[latestBooking.flightData.length - 1]?.destinationAirportCode || latestBooking.destinationAirportCode;
-                  if (destinationCode) {
-                    console.log(`Fetching coordinates for destination: ${destinationCode}`);
-                    try {
-                      latestBookingDestination = await getAirportCoordinates(destinationCode);
-                      if(latestBookingDestination) console.log(`Coordinates found:`, latestBookingDestination);
-                    } catch (coordError) {
-                      console.warn('Failed to get airport coordinates:', coordError.message);
-                    }
-                  }
+                if (originCode && destCode) {
+                  console.log(`Fetching coordinates for origin: ${originCode} and destination: ${destCode}`);
+                  const [origin, dest] = await Promise.all([
+                    getAirportCoordinates(originCode),
+                    getAirportCoordinates(destCode)
+                  ]);
+                  originCoords = origin;
+                  destinationCoords = dest;
+                  if(originCoords && destinationCoords) console.log(`Coordinates found.`);
                 }
               }
-            } catch (apiError) {
-              console.warn('Failed to fetch bookings for map:', apiError.message);
-              // Continue with default map view
             }
           }
         }
@@ -131,23 +100,21 @@ export default function TravelOffers() {
         console.error("Failed to process user data for map:", error);
       }
       
-      if (!isMounted) {
-        console.log('Component unmounted before map initialization. Aborting.');
-        return;
-      }
+      if (!isMounted) return;
       
-      console.log(`Step 9: Proceeding to initialize map. Final destination: ${destinationForDisplay}`);
+      console.log(`Step 9: Proceeding to initialize map.`);
 
       if (mapContainer.current) {
         if (mapRef.current) {
-            mapRef.current.remove();
+          mapRef.current.remove();
         }
 
+        const center = destinationCoords || [31.257847, 30.143224];
         const map = new mapboxgl.Map({
           container: mapContainer.current,
           style: "mapbox://styles/ahmedwael315/cm9sv08xa00js01sb9wd35jsx",
-          center: latestBookingDestination || [31.257847, 30.143224],
-          zoom: latestBookingDestination ? 5 : 3.5,
+          center: center,
+          zoom: 3.5,
           pitch: 59.00,
           projection: 'globe'
         });
@@ -155,16 +122,108 @@ export default function TravelOffers() {
         mapRef.current = map;
 
         map.on('load', () => {
-          console.log('Step 10: Map loaded. Adding marker.');
+          console.log('Step 10: Map loaded.');
           map.setFog({});
-          new mapboxgl.Marker({ color: latestBookingDestination ? '#FF6347' : '#808080' })
-            .setLngLat(latestBookingDestination || [31.257847, 30.143224])
-            .addTo(map);
-        });
 
+          if (originCoords && destinationCoords) {
+            // 1. Create the route
+            const route = {
+              'type': 'FeatureCollection',
+              'features': [{
+                'type': 'Feature',
+                'geometry': {
+                  'type': 'LineString',
+                  'coordinates': [originCoords, destinationCoords]
+                }
+              }]
+            };
+
+            // 2. Create a curved line
+            const line = turf.greatCircle(turf.point(originCoords), turf.point(destinationCoords), { 'npoints': 500 });
+
+            map.addSource('route', {
+              'type': 'geojson',
+              'data': line
+            });
+            
+            map.addLayer({
+              'id': 'route',
+              'source': 'route',
+              'type': 'line',
+              'paint': {
+                'line-width': 2,
+                'line-color': '#007cbf'
+              }
+            });
+
+            // 3. Add airplane icon
+            const airplane = {
+              'type': 'geojson',
+              'data': {
+                'type': 'FeatureCollection',
+                'features': [{
+                    'type': 'Feature',
+                    'properties': {},
+                    'geometry': {
+                      'type': 'Point',
+                      'coordinates': originCoords
+                    }
+                  }]
+              }
+            };
+            map.addSource('airplane', airplane);
+            map.addLayer({
+              'id': 'airplane',
+              'source': 'airplane',
+              'type': 'symbol',
+              'layout': {
+                'icon-image': 'airport-15', // a default mapbox icon
+                'icon-rotate': ['get', 'bearing'],
+                'icon-rotation-alignment': 'map',
+                'icon-allow-overlap': true,
+                'icon-ignore-placement': true
+              }
+            });
+
+            // 4. Animate the plane
+            const routeDistance = turf.length(line);
+            const animationDuration = 15000; // 15 seconds for the animation
+            let startTime = 0;
+
+            const animate = (timestamp) => {
+              if (!isMounted) return;
+              if (!startTime) startTime = timestamp;
+              
+              const runtime = timestamp - startTime;
+              const progress = runtime / animationDuration;
+
+              if (progress > 1) {
+                // reset animation
+                startTime = timestamp;
+              }
+
+              const alongRoute = turf.along(line, routeDistance * progress).geometry.coordinates;
+              airplane.data.features[0].geometry.coordinates = alongRoute;
+
+              // Calculate bearing for icon rotation
+              const nextPoint = turf.along(line, routeDistance * (progress + 0.001)).geometry.coordinates;
+              const bearing = turf.bearing(turf.point(alongRoute), turf.point(nextPoint));
+              airplane.data.features[0].properties.bearing = bearing;
+              
+              map.getSource('airplane').setData(airplane.data);
+              map.panTo(alongRoute);
+
+              animationFrameRef.current = requestAnimationFrame(animate);
+            }
+            animate(0);
+          } else {
+             // Default marker if no booking found
+             new mapboxgl.Marker({ color: '#808080' })
+              .setLngLat([31.257847, 30.143224])
+              .addTo(map);
+          }
+        });
         map.on('error', (e) => console.error("Mapbox error:", e.error?.message || e));
-      } else {
-        console.log('Map container not found, skipping map initialization.');
       }
     };
 
@@ -172,6 +231,9 @@ export default function TravelOffers() {
 
     return () => {
       isMounted = false;
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
       if (mapRef.current) {
         console.log('Component unmounting. Removing map instance.');
         mapRef.current.remove();
@@ -286,13 +348,4 @@ export default function TravelOffers() {
               <img
                 key={index}
                 src={img}
-                alt={`Backpacking Bangladesh ${index + 1}`}
-                className="bangladesh-image"
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+                alt={`Backpacking Bangladesh ${index + 1}`
