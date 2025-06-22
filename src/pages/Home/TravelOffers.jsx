@@ -58,7 +58,8 @@ export default function TravelOffers() {
       console.log('Step 1: Starting map initialization process...');
       let originCoords = null;
       let destinationCoords = null;
-      let flightDurationSeconds = 0; // To store the flight duration
+      let flightDurationSeconds = 0;
+      let bookingToShow = null;
 
       try {
         const userString = localStorage.getItem('user');
@@ -68,13 +69,18 @@ export default function TravelOffers() {
             console.log('Step 2: User token found. Fetching bookings...');
             const bookings = await bookingService.getMyBookings();
             console.log('Step 3: Received response from bookings API.');
+            
+            const selectedBookingId = localStorage.getItem('selectedBookingId');
 
-            if (bookings && bookings.length > 0) {
+            if (selectedBookingId) {
+              bookingToShow = bookings.find(b => b._id === selectedBookingId);
+              console.log(`Found selected booking from BookingList:`, bookingToShow);
+              localStorage.removeItem('selectedBookingId'); // Clean up
+            } else if (bookings && bookings.length > 0) {
               const futureConfirmedBookings = bookings
                 .filter(booking => {
                   if (booking.status !== 'confirmed') return false;
                   
-                  // New, safer check for departure date
                   const hasFlightData = booking.flightData && booking.flightData.length > 0;
                   const departureDateStr = hasFlightData ? booking.flightData[0].departureDate : booking.departureDate;
 
@@ -87,37 +93,37 @@ export default function TravelOffers() {
               console.log(`Filter complete. Found ${futureConfirmedBookings.length} future confirmed bookings.`);
 
               if (futureConfirmedBookings.length > 0) {
-                const latestBooking = futureConfirmedBookings[0];
-                console.log(`Latest booking for map:`, latestBooking);
+                bookingToShow = futureConfirmedBookings[0];
+                console.log(`Latest booking for map:`, bookingToShow);
+              }
+            }
+            
+            if (bookingToShow) {
+              const originCode = bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode;
+              const destCode = bookingToShow.flightData?.[bookingToShow.flightData.length - 1]?.destinationAirportCode || bookingToShow.destinationAirportCode;
+              const durationISO = bookingToShow.flightData?.[0]?.duration || bookingToShow.duration;
 
-                // Handle both data structures (with and without flightData array)
-                const originCode = latestBooking.flightData?.[0]?.originAirportCode || latestBooking.originAirportCode;
-                const destCode = latestBooking.flightData?.[latestBooking.flightData.length - 1]?.destinationAirportCode || latestBooking.destinationAirportCode;
-
-                // Attempt to get flight duration (assuming it's in ISO 8601 format e.g., "PT10H30M")
-                const durationISO = latestBooking.flightData?.[0]?.duration || latestBooking.duration;
-                if (durationISO && typeof durationISO === 'string') {
-                    const match = durationISO.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
-                    if (match) {
-                        const hours = match[1] ? parseInt(match[1], 10) : 0;
-                        const minutes = match[2] ? parseInt(match[2], 10) : 0;
-                        flightDurationSeconds = (hours * 3600) + (minutes * 60);
-                    }
-                }
-                
-                if (originCode && destCode) {
-                  console.log(`Fetching coordinates for origin: ${originCode} and destination: ${destCode}`);
-                  const [origin, dest] = await Promise.all([
-                    getAirportCoordinates(originCode),
-                    getAirportCoordinates(destCode)
-                  ]).catch(err => {
-                    console.error("Error fetching coordinates:", err);
-                    return [null, null];
-                  });
-                  originCoords = origin;
-                  destinationCoords = dest;
-                  if(originCoords && destinationCoords) console.log(`Coordinates found.`);
-                }
+              if (durationISO && typeof durationISO === 'string') {
+                  const match = durationISO.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+                  if (match) {
+                      const hours = match[1] ? parseInt(match[1], 10) : 0;
+                      const minutes = match[2] ? parseInt(match[2], 10) : 0;
+                      flightDurationSeconds = (hours * 3600) + (minutes * 60);
+                  }
+              }
+              
+              if (originCode && destCode) {
+                console.log(`Fetching coordinates for origin: ${originCode} and destination: ${destCode}`);
+                const [origin, dest] = await Promise.all([
+                  getAirportCoordinates(originCode),
+                  getAirportCoordinates(destCode)
+                ]).catch(err => {
+                  console.error("Error fetching coordinates:", err);
+                  return [null, null];
+                });
+                originCoords = origin;
+                destinationCoords = dest;
+                if(originCoords && destinationCoords) console.log(`Coordinates found.`);
               }
             }
           }

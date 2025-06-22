@@ -47,7 +47,7 @@ const formatTime = (dateString) => {
   });
 };
 
-const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDelete }) => {
+const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDelete, onShowOnMap }) => {
   const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
   const [remainingTime, setRemainingTime] = useState(null);
@@ -191,6 +191,14 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
         <div className={styles.bookingInfo}>
           <h3 className={styles.bookingReference}>{booking.bookingReference}</h3>
           <span className={`${styles.status} ${getStatusClass(booking.status)}`}>{getStatusText(booking.status)}</span>
+        </div>
+        <div className={styles.bookingActions}>
+            <button
+                onClick={() => onShowOnMap(booking._id)}
+                className={`${styles.actionButton} ${styles.mapButton}`}
+            >
+                Show on Map
+            </button>
         </div>
         <div className={styles.bookingDate}>
           Booking Date: {booking.createdAt ? new Date(booking.createdAt).toLocaleString() : '--'}

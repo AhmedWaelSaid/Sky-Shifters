@@ -131,6 +131,11 @@ const BookingList = () => {
     }
   };
 
+  const handleShowOnMap = (bookingId) => {
+    localStorage.setItem('selectedBookingId', bookingId);
+    navigate('/');
+  };
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -196,6 +201,7 @@ const BookingList = () => {
               booking={booking}
               onCancel={handleCancelBooking}
               onPrintTicket={handlePrintTicket}
+              onShowOnMap={handleShowOnMap}
               onCompletePayment={() => {
                 setShowPaymentToast(true);
                 setTimeout(() => setShowPaymentToast(false), 2500);
