@@ -50,6 +50,7 @@ export default function TravelOffers() {
   const mapRef = useRef(null);
   const animationFrameRef = useRef(null);
   const [timeRemaining, setTimeRemaining] = useState('');
+  const [flightDuration, setFlightDuration] = useState('');
 
   useEffect(() => {
     let isMounted = true;
@@ -118,6 +119,7 @@ export default function TravelOffers() {
                       const hours = match[1] ? parseInt(match[1], 10) : 0;
                       const minutes = match[2] ? parseInt(match[2], 10) : 0;
                       flightDurationSeconds = (hours * 3600) + (minutes * 60);
+                      setFlightDuration(`${hours}h ${minutes}m`);
                   }
               }
               
@@ -306,6 +308,22 @@ export default function TravelOffers() {
           className="map-container"
           style={{ width: "90%", height: "450px", borderRadius: "20px", position: 'relative' }}
         >
+          {flightDuration && (
+            <div style={{
+              position: 'absolute',
+              top: '20px',
+              left: '20px',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              padding: '7px 16px',
+              borderRadius: '7px',
+              fontWeight: 600,
+              fontSize: '1.1em',
+              zIndex: 2
+            }}>
+              Flight Duration: {flightDuration}
+            </div>
+          )}
           {timeRemaining && (
             <div style={{
               position: 'absolute',
