@@ -395,10 +395,39 @@ export default function TravelOffers() {
       }
 
       if (foundBooking) {
-        // Augment flight data with full airport details for the map
-        if (foundBooking.flightData && foundBooking.flightData.length > 0) {
+        // --- START: Data Augmentation Logic ---
+        // Replicate the data enrichment logic from BookingList to ensure consistency.
+        const bookingKey = foundBooking.bookingRef || foundBooking._id;
+        const storedDetailsRaw = localStorage.getItem(`flightDetails_${bookingKey}`);
+        let bookingWithDetails = { ...foundBooking };
+
+        if (storedDetailsRaw) {
+          try {
+            const storedDetails = JSON.parse(storedDetailsRaw);
+            // Augment round-trip flights
+            if (bookingWithDetails.flightData && bookingWithDetails.flightData.length > 0) {
+              const newFlightData = bookingWithDetails.flightData.map(flightLeg => {
+                const legType = flightLeg.typeOfFlight === 'GO' ? 'departure' : 'return';
+                const details = storedDetails[legType];
+                // Merge the detailed data (like precise duration) into the flight leg
+                return details ? { ...flightLeg, ...details } : flightLeg;
+              });
+              bookingWithDetails.flightData = newFlightData;
+            } 
+            // Augment one-way flights
+            else if (storedDetails.departure) {
+              bookingWithDetails = { ...bookingWithDetails, ...storedDetails.departure };
+            }
+          } catch (e) {
+            console.error("Failed to parse stored flight details:", e);
+          }
+        }
+        // --- END: Data Augmentation Logic ---
+
+        // Proceed with the potentially augmented booking data
+        if (bookingWithDetails.flightData && bookingWithDetails.flightData.length > 0) {
           const augmentedFlightData = await Promise.all(
-            foundBooking.flightData.map(async (flightLeg) => {
+            bookingWithDetails.flightData.map(async (flightLeg) => {
               const [originAirport, destinationAirport] = await Promise.all([
                 getAirportDetails(flightLeg.originAirportCode),
                 getAirportDetails(flightLeg.destinationAirportCode)
@@ -406,17 +435,15 @@ export default function TravelOffers() {
               return { ...flightLeg, originAirport, destinationAirport };
             })
           );
-          // Set the entire booking with augmented data
-          setBookingToShow({ ...foundBooking, flightData: augmentedFlightData });
-          // Set the first leg as the default to display
+          setBookingToShow({ ...bookingWithDetails, flightData: augmentedFlightData });
           setFlightToDisplay(augmentedFlightData[0]);
         } else {
           // Handle one-way flights
           const [originAirport, destinationAirport] = await Promise.all([
-            getAirportDetails(foundBooking.originAirportCode),
-            getAirportDetails(foundBooking.destinationAirportCode)
+            getAirportDetails(bookingWithDetails.originAirportCode),
+            getAirportDetails(bookingWithDetails.destinationAirportCode)
           ]);
-          const augmentedBooking = { ...foundBooking, originAirport, destinationAirport };
+          const augmentedBooking = { ...bookingWithDetails, originAirport, destinationAirport };
           setBookingToShow(augmentedBooking);
           setFlightToDisplay(augmentedBooking);
         }
