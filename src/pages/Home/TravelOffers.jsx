@@ -229,7 +229,7 @@ export default function TravelOffers() {
 
             // Use a proper airplane icon instead of a circle
             map.loadImage(
-              'https://i.imgur.com/6D2d2nC.png', // A clearer, more realistic airplane icon
+              'https://cdn-icons-png.flaticon.com/512/5509/5509443.png', // A better, 3D-looking airplane icon
               (error, image) => {
                 if (error) {
                   console.error('An error occurred while loading the airplane icon:', error);
@@ -256,7 +256,7 @@ export default function TravelOffers() {
                   'type': 'symbol',
                   'layout': {
                     'icon-image': 'airplane-icon',
-                    'icon-size': 0.3,
+                    'icon-size': 0.15, 
                     'icon-rotate': ['get', 'bearing'], // Rotate the icon based on the direction of travel
                     'icon-rotation-alignment': 'map',
                     'icon-allow-overlap': true,
