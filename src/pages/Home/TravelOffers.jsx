@@ -256,7 +256,7 @@ export default function TravelOffers() {
                   'type': 'symbol',
                   'layout': {
                     'icon-image': 'airplane-icon',
-                    'icon-size': 0.1,
+                    'icon-size': 0.3,
                     'icon-rotate': ['get', 'bearing'], // Rotate the icon based on the direction of travel
                     'icon-rotation-alignment': 'map',
                     'icon-allow-overlap': true,
