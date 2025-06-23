@@ -16,7 +16,7 @@ import FlightDetails from '../pages/FlightDetails/FlightDetails';
 import ErrorPage from '../components/ErrorPage';
 import BookingList from '../pages/MyBookings/BookingList';
 import AirplaneSeatMap from '../pages/MyBookings/AirplaneSeatMap/AirplaneSeatMap';
-import Settings from '../pages/Settings/Settings';
+import Settings from '../components/UserProfile/profilepage/Settings';
 
 const router = createBrowserRouter([
   {

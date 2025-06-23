@@ -1,6 +1,6 @@
 import React from 'react';
 import { Settings } from 'lucide-react';
-import ProfileSection from '../profile/ProfileSection';
+import ProfileSection from './ProfileSection';
 import styles from './MainContent.module.css';
 
 const MainContent = () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '@/components/ui/button.jsx';
+import { Button } from '../../../pages/MyBookings/ui/button.jsx';
 import styles from './ProfileSection.module.css';
 
 const ProfileSection = () => {

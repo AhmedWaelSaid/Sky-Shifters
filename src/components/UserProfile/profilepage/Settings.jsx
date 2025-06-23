@@ -1,6 +1,6 @@
 import React from 'react';
-import Sidebar from '../components/UserProfile/profilepage/Sidebar';
-import MainContent from '../components/UserProfile/profilepage/MainContent';
+import Sidebar from './Sidebar';
+import MainContent from './MainContent';
 
 export default function Settings() {
   return (
