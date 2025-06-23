@@ -227,76 +227,100 @@ export default function TravelOffers() {
               }
             });
 
-            // 3. Add airplane icon source
-            const airplaneSource = {
-              'type': 'geojson',
-              'data': {
-                'type': 'FeatureCollection',
-                'features': [{ 'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'Point', 'coordinates': originCoords } }]
+            // Use a proper airplane icon instead of a circle
+            map.loadImage(
+              'https://cdn-icons-png.flaticon.com/512/3125/3125713.png', // Airplane icon
+              (error, image) => {
+                if (error) {
+                  console.error('An error occurred while loading the airplane icon:', error);
+                  return; // Fallback to no icon if loading fails
+                }
+                if (!map.hasImage('airplane-icon')) {
+                  // Add the image to the map style. SDF=true allows us to change the icon color.
+                  map.addImage('airplane-icon', image, { sdf: true });
+                }
+
+                // Add the airplane source
+                map.addSource('airplane', {
+                  'type': 'geojson',
+                  'data': {
+                    'type': 'FeatureCollection',
+                    'features': [{ 'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'Point', 'coordinates': originCoords } }]
+                  }
+                });
+
+                // Add the airplane layer
+                map.addLayer({
+                  'id': 'airplane',
+                  'source': 'airplane',
+                  'type': 'symbol',
+                  'layout': {
+                    'icon-image': 'airplane-icon',
+                    'icon-size': 0.08,
+                    'icon-rotate': ['get', 'bearing'], // Rotate the icon based on the direction of travel
+                    'icon-rotation-alignment': 'map',
+                    'icon-allow-overlap': true,
+                    'icon-ignore-placement': true
+                  },
+                  'paint': {
+                    'icon-color': '#FFFFFF' // Make the icon white
+                  }
+                });
+
+                // Animate the plane along the greatCircle path
+                const routeDistance = turf.length(line);
+                
+                // FASTER ANIMATION
+                // Animation duration is proportional to flight duration, but faster and clamped for better UX
+                let animationDuration = 12000; // Default: 12 seconds
+                if (flightDurationSeconds > 0) {
+                  // Clamped between 8s and 90s for a better experience
+                  animationDuration = Math.max(8000, Math.min(flightDurationSeconds * 25, 90000));
+                }
+                let startTime = 0;
+
+                const animate = (timestamp) => {
+                  if (!isMounted) return;
+                  if (!startTime) startTime = timestamp;
+                  
+                  const runtime = timestamp - startTime;
+                  const progress = runtime / animationDuration;
+
+                  if (progress > 1) {
+                    startTime = timestamp; // Loop the animation
+                  }
+
+                  // Update time remaining display
+                  if (flightDurationSeconds > 0) {
+                      const timeElapsed = flightDurationSeconds * progress;
+                      const remainingSeconds = flightDurationSeconds - timeElapsed;
+                      const hours = Math.floor(remainingSeconds / 3600);
+                      const minutes = Math.floor((remainingSeconds % 3600) / 60);
+                      setTimeRemaining(`${hours}h ${minutes}m remaining`);
+                  }
+
+                  // Calculate the plane's position and bearing
+                  const alongRoute = turf.along(line, routeDistance * progress).geometry.coordinates;
+                  const nextPoint = turf.along(line, routeDistance * Math.min(progress + 0.001, 1));
+                  const bearing = turf.bearing(turf.point(alongRoute), turf.point(nextPoint.geometry.coordinates));
+
+                  // Update the airplane source data
+                  const airplaneSource = map.getSource('airplane');
+                  if (airplaneSource?._data) {
+                    const airplaneData = airplaneSource._data;
+                    airplaneData.features[0].geometry.coordinates = alongRoute;
+                    airplaneData.features[0].properties.bearing = bearing;
+                    airplaneSource.setData(airplaneData);
+                  }
+                  
+                  // Pan the map to follow the plane
+                  map.panTo(alongRoute, { duration: 0 });
+
+                  animationFrameRef.current = requestAnimationFrame(animate);
+                }
+                animate(0);
               }
-            };
-            map.addSource('airplane', airplaneSource);
-
-            // Use a circle layer instead of a missing symbol
-            map.addLayer({
-              'id': 'airplane',
-              'source': 'airplane',
-              'type': 'circle',
-              'paint': {
-                'circle-radius': 6,
-                'circle-color': '#FFFFFF', // White circle
-                'circle-stroke-width': 2,
-                'circle-stroke-color': '#000000' // Black outline
-              }
-            });
-
-            // 4. Animate the plane along the greatCircle path
-            const routeDistance = turf.length(line);
-            // Animation duration is proportional to real flight duration, but clamped between 10s and 3min
-            let animationDuration = 15000;
-            if (flightDurationSeconds > 0) {
-              animationDuration = Math.max(10000, Math.min(flightDurationSeconds * 1000, 180000));
-            }
-            let startTime = 0;
-
-            const animate = (timestamp) => {
-              if (!isMounted) return;
-              if (!startTime) startTime = timestamp;
-              
-              const runtime = timestamp - startTime;
-              const progress = runtime / animationDuration;
-
-              if (progress > 1) {
-                startTime = timestamp; // loop
-              }
-
-              // Update time remaining
-              if (flightDurationSeconds > 0) {
-                  const timeElapsed = flightDurationSeconds * progress;
-                  const remainingSeconds = flightDurationSeconds - timeElapsed;
-                  const hours = Math.floor(remainingSeconds / 3600);
-                  const minutes = Math.floor((remainingSeconds % 3600) / 60);
-                  setTimeRemaining(`${hours}h ${minutes}m remaining`);
-              }
-
-              // Use the 'line' variable for the animation path
-              const alongRoute = turf.along(line, routeDistance * progress).geometry.coordinates;
-              const airplaneData = map.getSource('airplane')._data;
-              airplaneData.features[0].geometry.coordinates = alongRoute;
-
-              // Bearing calculation is no longer needed for a circle, but doesn't hurt to keep
-              const nextPoint = turf.along(line, routeDistance * (progress + 0.001));
-              const bearing = turf.bearing(turf.point(alongRoute), turf.point(nextPoint.geometry.coordinates));
-              airplaneData.features[0].properties.bearing = bearing;
-              
-              map.getSource('airplane').setData(airplaneData);
-
-              // Auto-follow logic: if enabled and plane is out of bounds, pan to it
-              map.panTo(alongRoute, { duration: 0 });
-
-              animationFrameRef.current = requestAnimationFrame(animate);
-            }
-            animate(0);
+            );
           } else {
              // Default marker if no booking found
              new mapboxgl.Marker({ color: '#808080' })
