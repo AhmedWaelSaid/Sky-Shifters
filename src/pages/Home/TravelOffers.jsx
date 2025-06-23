@@ -58,40 +58,24 @@ export default function TravelOffers() {
       }
 
       if (foundBooking) {
-        const bookingKey = foundBooking.bookingRef || foundBooking._id;
-        const storedDetailsRaw = localStorage.getItem(`flightDetails_${bookingKey}`);
-        let bookingWithDetails = { ...foundBooking };
-
-        if (storedDetailsRaw) {
-          try {
-            const storedDetails = JSON.parse(storedDetailsRaw);
-            if (bookingWithDetails.flightData && bookingWithDetails.flightData.length > 0) {
-              bookingWithDetails.flightData = bookingWithDetails.flightData.map(flightLeg => {
-                const legType = flightLeg.typeOfFlight === 'GO' ? 'departure' : 'return';
-                return storedDetails[legType] ? { ...flightLeg, ...storedDetails[legType] } : flightLeg;
-              });
-            } else if (storedDetails.departure) {
-              bookingWithDetails = { ...bookingWithDetails, ...storedDetails.departure };
-            }
-          } catch (e) { console.error("Failed to parse stored flight details:", e); }
-        }
-
-        if (bookingWithDetails.flightData && bookingWithDetails.flightData.length > 0) {
+        if (foundBooking.flightData && foundBooking.flightData.length > 0) {
           const augmentedFlightData = await Promise.all(
-            bookingWithDetails.flightData.map(async (leg) => ({
-              ...leg,
-              originAirport: await getAirportDetails(leg.originAirportCode),
-              destinationAirport: await getAirportDetails(leg.destinationAirportCode),
-            }))
+            foundBooking.flightData.map(async (flightLeg) => {
+              const [originAirport, destinationAirport] = await Promise.all([
+                getAirportDetails(flightLeg.originAirportCode),
+                getAirportDetails(flightLeg.destinationAirportCode)
+              ]);
+              return { ...flightLeg, originAirport, destinationAirport };
+            })
           );
-          setBookingToShow({ ...bookingWithDetails, flightData: augmentedFlightData });
+          setBookingToShow({ ...foundBooking, flightData: augmentedFlightData });
           setFlightToDisplay(augmentedFlightData[0]);
         } else {
-          const augmentedBooking = {
-            ...bookingWithDetails,
-            originAirport: await getAirportDetails(bookingWithDetails.originAirportCode),
-            destinationAirport: await getAirportDetails(bookingWithDetails.destinationAirportCode),
-          };
+          const [originAirport, destinationAirport] = await Promise.all([
+            getAirportDetails(foundBooking.originAirportCode),
+            getAirportDetails(foundBooking.destinationAirportCode)
+          ]);
+          const augmentedBooking = { ...foundBooking, originAirport, destinationAirport };
           setBookingToShow(augmentedBooking);
           setFlightToDisplay(augmentedBooking);
         }
@@ -116,10 +100,20 @@ export default function TravelOffers() {
           {flightToDisplay ? (
             <div className="map-wrapper">
               <FlightMap flight={flightToDisplay} />
-              {bookingToShow?.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.length > 1 && (
+              {bookingToShow && bookingToShow.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.length > 1 && (
                 <div className="flight-controls">
-                  <button onClick={() => setFlightToDisplay(bookingToShow.flightData[0])} className={flightToDisplay.typeOfFlight === 'GO' ? 'active' : ''}>Departure</button>
-                  <button onClick={() => setFlightToDisplay(bookingToShow.flightData[1])} className={flightToDisplay.typeOfFlight === 'RETURN' ? 'active' : ''}>Return</button>
+                  <button
+                    onClick={() => setFlightToDisplay(bookingToShow.flightData[0])}
+                    className={flightToDisplay.typeOfFlight === 'GO' ? 'active' : ''}
+                  >
+                    Departure
+                  </button>
+                  <button
+                    onClick={() => setFlightToDisplay(bookingToShow.flightData[1])}
+                    className={flightToDisplay.typeOfFlight === 'RETURN' ? 'active' : ''}
+                  >
+                    Return
+                  </button>
                 </div>
               )}
             </div>
@@ -177,7 +171,12 @@ export default function TravelOffers() {
           </div>
           <div className="offers-images">
             {bangladeshImages.map((img, index) => (
-              <img key={index} src={img} alt={`Backpacking Bangladesh ${index + 1}`} className="bangladesh-image" />
+              <img
+                key={index}
+                src={img}
+                alt={`Backpacking Bangladesh ${index + 1}`}
+                className="bangladesh-image"
+              />
             ))}
           </div>
         </div>
