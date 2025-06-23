@@ -723,10 +723,6 @@ body.dark .infoCard h2 {
 }
 
 /* Dark mode overrides for gradients and cards */
-body.dark .pageHeader {
-  background: linear-gradient(135deg, var(--profile-header-bg, #232326), var(--profile-sidebar-bg, #000));
-  color: var(--profile-header-title, #fff);
-}
 body.dark .infoCard {
   background-color: var(--profile-bg, #1a1a1a);
   color: var(--profile-text, #fff);
