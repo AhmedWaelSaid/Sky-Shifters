@@ -136,95 +136,139 @@ export default function TravelOffers() {
               const originCode = flightDataToUse?.[0]?.originAirportCode || bookingToShow.originAirportCode;
 
               let destCode;
+              // For round trips, the main map should show the path to the destination of the first leg.
               if (bookingToShow.bookingType === 'ROUND_TRIP' && flightDataToUse?.[0]) {
                 destCode = flightDataToUse[0].destinationAirportCode;
               } else {
+                // For one-way trips, the destination is from the last leg, which handles layovers correctly.
                 destCode = flightDataToUse?.[flightDataToUse.length - 1]?.destinationAirportCode || bookingToShow.destinationAirportCode;
               }
               
-              const durationISO = flightDataToUse?.[0]?.duration || bookingToShow.duration;
-              console.log('Flight Duration ISO:', durationISO);
-
-              // Try to get more precise timing from localStorage (flight or sharedData)
-              let preciseDep = null, preciseArr = null;
-              try {
-                const flightLS = JSON.parse(localStorage.getItem('flight'));
-                if (flightLS && bookingToShow.bookingRef && flightLS.departure) {
-                  // Try to match by bookingRef or by airport codes
-                  const depSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.[0];
-                  const arrSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
-                  if (depSeg && arrSeg) {
-                    // Check if airport codes match
-                    if (
-                      depSeg.departure.iataCode === (flightDataToUse?.[0]?.originAirportCode || originCode) &&
-                      arrSeg.arrival.iataCode === (flightDataToUse?.[0]?.destinationAirportCode || destCode)
-                    ) {
-                      preciseDep = depSeg.departure.at;
-                      preciseArr = arrSeg.arrival.at;
-                    }
-                  }
-                }
-              } catch (e) { /* ignore */ }
-
-              if (!preciseDep || !preciseArr) {
-                // Try sharedData as fallback
-                try {
-                  const sharedData = JSON.parse(localStorage.getItem('sharedData'));
-                  const depIata = flightDataToUse?.[0]?.originAirportCode || originCode;
-                  const arrIata = flightDataToUse?.[0]?.destinationAirportCode || destCode;
-                  if (sharedData?.departure?.origin?.airport?.iata === depIata && sharedData?.departure?.dest?.airport?.iata === arrIata) {
-                    preciseDep = sharedData.departure?.date + 'T00:00:00'; // fallback if only date
-                  }
-                } catch (e) { /* ignore */ }
-              }
-
-              if (preciseDep && preciseArr) {
-                const depDate = new Date(preciseDep);
-                const arrDate = new Date(preciseArr);
-                const diffMs = arrDate - depDate;
-                if (!isNaN(diffMs) && diffMs > 0) {
-                  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-                  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                  flightDurationSeconds = Math.floor(diffMs / 1000);
-                  setFlightDuration(`${hours}h ${minutes}m`);
-                } else {
-                  setFlightDuration('--');
-                }
-              } else if (durationISO && typeof durationISO === 'string') {
-                  const match = durationISO.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
-                  if (match) {
-                      const hours = match[1] ? parseInt(match[1], 10) : 0;
-                      const minutes = match[2] ? parseInt(match[2], 10) : 0;
-                      flightDurationSeconds = (hours * 3600) + (minutes * 60);
-                      setFlightDuration(`${hours}h ${minutes}m`);
-                  } else {
-                      setFlightDuration('--');
-                  }
-              } else {
-                  // Try to calculate from arrivalDate and departureDate
-                  let dep, arr;
-                  if (flightDataToUse && flightDataToUse.length > 0) {
+              if (overrideFlightData) {
+                // When a specific flight is selected from bookings, only use its data.
+                let dep, arr;
+                if (flightDataToUse && flightDataToUse.length > 0) {
                     dep = flightDataToUse[0].departureDate;
                     arr = flightDataToUse[0].arrivalDate;
-                  } else {
+                } else {
                     dep = bookingToShow.departureDate;
                     arr = bookingToShow.arrivalDate;
-                  }
-                  if (dep && arr) {
+                }
+        
+                if (dep && arr) {
                     const depDate = new Date(dep);
                     const arrDate = new Date(arr);
                     const diffMs = arrDate - depDate;
                     if (!isNaN(diffMs) && diffMs > 0) {
-                      const hours = Math.floor(diffMs / (1000 * 60 * 60));
-                      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                      flightDurationSeconds = Math.floor(diffMs / 1000);
-                      setFlightDuration(`${hours}h ${minutes}m`);
+                        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                        flightDurationSeconds = Math.floor(diffMs / 1000);
+                        setFlightDuration(`${hours}h ${minutes}m`);
                     } else {
-                      setFlightDuration('--');
+                        setFlightDuration('--');
                     }
+                } else {
+                    const durationISO = flightDataToUse?.[0]?.duration || bookingToShow.duration;
+                    if (durationISO && typeof durationISO === 'string') {
+                        const match = durationISO.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+                        if (match) {
+                            const hours = match[1] ? parseInt(match[1], 10) : 0;
+                            const minutes = match[2] ? parseInt(match[2], 10) : 0;
+                            flightDurationSeconds = (hours * 3600) + (minutes * 60);
+                            setFlightDuration(`${hours}h ${minutes}m`);
+                        } else {
+                            setFlightDuration('--');
+                        }
+                    } else {
+                        setFlightDuration('--');
+                    }
+                }
+              } else {
+                // Original logic for the default latest flight view
+                const durationISO = bookingToShow.flightData?.[0]?.duration || bookingToShow.duration;
+                console.log('Flight Duration ISO:', durationISO);
+
+                // Try to get more precise timing from localStorage (flight or sharedData)
+                let preciseDep = null, preciseArr = null;
+                try {
+                  const flightLS = JSON.parse(localStorage.getItem('flight'));
+                  if (flightLS && bookingToShow.bookingRef && flightLS.departure) {
+                    // Try to match by bookingRef or by airport codes
+                    const depSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.[0];
+                    const arrSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
+                    if (depSeg && arrSeg) {
+                      // Check if airport codes match
+                      if (
+                        depSeg.departure.iataCode === (bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode) &&
+                        arrSeg.arrival.iataCode === (bookingToShow.flightData?.[0]?.destinationAirportCode || bookingToShow.destinationAirportCode)
+                      ) {
+                        preciseDep = depSeg.departure.at;
+                        preciseArr = arrSeg.arrival.at;
+                      }
+                    }
+                  }
+                } catch (e) { /* ignore */ }
+
+                if (!preciseDep || !preciseArr) {
+                  // Try sharedData as fallback
+                  try {
+                    const sharedData = JSON.parse(localStorage.getItem('sharedData'));
+                    const depIata = bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode;
+                    const arrIata = bookingToShow.flightData?.[0]?.destinationAirportCode || bookingToShow.destinationAirportCode;
+                    if (sharedData?.departure?.origin?.airport?.iata === depIata && sharedData?.departure?.dest?.airport?.iata === arrIata) {
+                      preciseDep = sharedData.departure?.date + 'T00:00:00'; // fallback if only date
+                    }
+                  } catch (e) { /* ignore */ }
+                }
+
+                if (preciseDep && preciseArr) {
+                  const depDate = new Date(preciseDep);
+                  const arrDate = new Date(preciseArr);
+                  const diffMs = arrDate - depDate;
+                  if (!isNaN(diffMs) && diffMs > 0) {
+                    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    flightDurationSeconds = Math.floor(diffMs / 1000);
+                    setFlightDuration(`${hours}h ${minutes}m`);
                   } else {
                     setFlightDuration('--');
                   }
+                } else if (durationISO && typeof durationISO === 'string') {
+                    const match = durationISO.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+                    if (match) {
+                        const hours = match[1] ? parseInt(match[1], 10) : 0;
+                        const minutes = match[2] ? parseInt(match[2], 10) : 0;
+                        flightDurationSeconds = (hours * 3600) + (minutes * 60);
+                        setFlightDuration(`${hours}h ${minutes}m`);
+                    } else {
+                        setFlightDuration('--');
+                    }
+                } else {
+                    // Try to calculate from arrivalDate and departureDate
+                    let dep, arr;
+                    if (bookingToShow.flightData && bookingToShow.flightData.length > 0) {
+                      dep = bookingToShow.flightData[0].departureDate;
+                      arr = bookingToShow.flightData[0].arrivalDate;
+                    } else {
+                      dep = bookingToShow.departureDate;
+                      arr = bookingToShow.arrivalDate;
+                    }
+                    if (dep && arr) {
+                      const depDate = new Date(dep);
+                      const arrDate = new Date(arr);
+                      const diffMs = arrDate - depDate;
+                      if (!isNaN(diffMs) && diffMs > 0) {
+                        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                        flightDurationSeconds = Math.floor(diffMs / 1000);
+                        setFlightDuration(`${hours}h ${minutes}m`);
+                      } else {
+                        setFlightDuration('--');
+                      }
+                    } else {
+                      setFlightDuration('--');
+                    }
+                }
               }
               
               if (originCode && destCode) {
