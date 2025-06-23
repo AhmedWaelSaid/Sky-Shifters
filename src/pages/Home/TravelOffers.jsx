@@ -51,113 +51,6 @@ export default function TravelOffers() {
   const animationFrameRef = useRef(null);
   const [timeRemaining, setTimeRemaining] = useState('');
   const [flightDuration, setFlightDuration] = useState('');
-  const [roundTripData, setRoundTripData] = useState(null);
-  const [activeLeg, setActiveLeg] = useState('departure');
-  const originMarkerRef = useRef(null);
-  const destinationMarkerRef = useRef(null);
-
-  const calculateDuration = (flightData) => {
-    if (flightData.departureDate && flightData.arrivalDate) {
-      const depDate = new Date(flightData.departureDate);
-      const arrDate = new Date(flightData.arrivalDate);
-      const diffMs = arrDate - depDate;
-      if (!isNaN(diffMs) && diffMs > 0) {
-        const hours = Math.floor(diffMs / (1000 * 60 * 60));
-        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-        return {
-          durationString: `${hours}h ${minutes}m`,
-          durationSeconds: Math.floor(diffMs / 1000),
-        };
-      }
-    } else if (flightData.duration && typeof flightData.duration === 'string') {
-      const match = flightData.duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
-      if (match) {
-        const hours = match[1] ? parseInt(match[1], 10) : 0;
-        const minutes = match[2] ? parseInt(match[2], 10) : 0;
-        return {
-          durationString: `${hours}h ${minutes}m`,
-          durationSeconds: (hours * 3600) + (minutes * 60),
-        };
-      }
-    }
-    return { durationString: '--', durationSeconds: 0 };
-  };
-
-  const updateMapForFlight = async (flightData) => {
-    if (!mapRef.current || !flightData) return;
-    
-    const map = mapRef.current;
-    
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-    }
-    
-    const { durationString, durationSeconds } = calculateDuration(flightData);
-    setFlightDuration(durationString);
-
-    const [origin, dest] = await Promise.all([
-      getAirportCoordinates(flightData.originAirportCode),
-      getAirportCoordinates(flightData.destinationAirportCode)
-    ]);
-
-    if (!origin || !dest) return;
-    
-    // Update markers
-    if (originMarkerRef.current) originMarkerRef.current.setLngLat(origin);
-    else originMarkerRef.current = new mapboxgl.Marker({ color: '#32CD32' }).setLngLat(origin).addTo(map);
-    
-    if (destinationMarkerRef.current) destinationMarkerRef.current.setLngLat(dest);
-    else destinationMarkerRef.current = new mapboxgl.Marker({ color: '#FF4500' }).setLngLat(dest).addTo(map);
-
-    const line = turf.greatCircle(turf.point(origin), turf.point(dest), { 'npoints': 500 });
-    
-    if (map.getSource('route')) {
-      map.getSource('route').setData(line);
-    } else {
-      map.addSource('route', { 'type': 'geojson', 'data': line });
-      map.addLayer({ 'id': 'route', 'source': 'route', 'type': 'line', 'paint': { 'line-width': 4, 'line-color': '#FF4500' } });
-    }
-    
-    const airplaneData = { 'type': 'FeatureCollection', 'features': [{ 'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'Point', 'coordinates': origin } }] };
-    if (map.getSource('airplane')) {
-      map.getSource('airplane').setData(airplaneData);
-    } else {
-      map.addSource('airplane', { 'type': 'geojson', 'data': airplaneData });
-      map.addLayer({ 'id': 'airplane', 'type': 'circle', 'source': 'airplane', 'paint': { 'circle-radius': 6, 'circle-color': '#FFFFFF', 'circle-stroke-width': 2, 'circle-stroke-color': '#000000' } });
-    }
-
-    // Restart animation
-    const routeDistance = turf.length(line);
-    let animationDuration = durationSeconds > 0 ? Math.max(10000, Math.min(durationSeconds * 100, 180000)) : 15000;
-    let startTime = 0;
-
-    const animate = (timestamp) => {
-      if (!startTime) startTime = timestamp;
-      const runtime = timestamp - startTime;
-      const progress = runtime / animationDuration;
-      if (progress > 1) startTime = timestamp; // loop
-
-      if (durationSeconds > 0) {
-          const remainingSeconds = durationSeconds * (1 - progress);
-          const hours = Math.floor(remainingSeconds / 3600);
-          const minutes = Math.floor((remainingSeconds % 3600) / 60);
-          setTimeRemaining(`${hours}h ${minutes}m remaining`);
-      }
-      
-      const alongRoute = turf.along(line, routeDistance * progress).geometry.coordinates;
-      map.getSource('airplane').setData({ 'type': 'FeatureCollection', 'features': [{ 'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'Point', 'coordinates': alongRoute } }] });
-      map.panTo(alongRoute, { duration: 0 });
-      animationFrameRef.current = requestAnimationFrame(animate);
-    }
-    animate(0);
-  };
-  
-  const handleToggleLeg = () => {
-    if (!roundTripData) return;
-    const nextLeg = activeLeg === 'departure' ? 'return' : 'departure';
-    setActiveLeg(nextLeg);
-    updateMapForFlight(roundTripData[nextLeg]);
-  };
 
   useEffect(() => {
     let isMounted = true;
@@ -298,30 +191,117 @@ export default function TravelOffers() {
 
         mapRef.current = map;
 
-        map.on('load', async () => {
+        map.on('load', () => {
           console.log('Step 10: Map loaded.');
           map.setFog({});
-          let flightDataForMap = null;
-          
-          const selectedFlightPathStr = localStorage.getItem('selectedFlightPath');
-          if (selectedFlightPathStr) {
-            try {
-              const flightPath = JSON.parse(selectedFlightPathStr);
-              localStorage.removeItem('selectedFlightPath');
-              
-              if (flightPath.isRoundTrip) {
-                setRoundTripData(flightPath);
-                flightDataForMap = flightPath.departure;
-              } else {
-                flightDataForMap = flightPath.departure;
+
+          if (originCoords && destinationCoords) {
+            // Add markers for origin and destination
+            new mapboxgl.Marker({ color: '#32CD32' }) // Green for origin
+              .setLngLat(originCoords)
+              .addTo(map);
+            new mapboxgl.Marker({ color: '#FF4500' }) // OrangeRed for destination
+              .setLngLat(destinationCoords)
+              .addTo(map);
+
+            // 1. Create a curved flight path using the reliable greatCircle method
+            const line = turf.greatCircle(
+                turf.point(originCoords), 
+                turf.point(destinationCoords), 
+                { 'npoints': 500 }
+            );
+
+            // 2. Add the styled route to the map
+            map.addSource('route', {
+              'type': 'geojson',
+              'data': line
+            });
+            
+            map.addLayer({
+              'id': 'route',
+              'source': 'route',
+              'type': 'line',
+              'paint': {
+                'line-width': 4,
+                'line-color': '#FF4500'
               }
-            } catch (e) { console.error("Error parsing flight path", e); }
-          }
-          
-          if (flightDataForMap) {
-            await updateMapForFlight(flightDataForMap);
+            });
+
+            // 3. Add airplane icon source
+            const airplaneSource = {
+              'type': 'geojson',
+              'data': {
+                'type': 'FeatureCollection',
+                'features': [{ 'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'Point', 'coordinates': originCoords } }]
+              }
+            };
+            map.addSource('airplane', airplaneSource);
+
+            // Use a circle layer instead of a missing symbol
+            map.addLayer({
+              'id': 'airplane',
+              'source': 'airplane',
+              'type': 'circle',
+              'paint': {
+                'circle-radius': 6,
+                'circle-color': '#FFFFFF', // White circle
+                'circle-stroke-width': 2,
+                'circle-stroke-color': '#000000' // Black outline
+              }
+            });
+
+            // 4. Animate the plane along the greatCircle path
+            const routeDistance = turf.length(line);
+            // Animation duration is proportional to real flight duration, but clamped between 10s and 3min
+            let animationDuration = 15000;
+            if (flightDurationSeconds > 0) {
+              animationDuration = Math.max(10000, Math.min(flightDurationSeconds * 1000, 180000));
+            }
+            let startTime = 0;
+
+            const animate = (timestamp) => {
+              if (!isMounted) return;
+              if (!startTime) startTime = timestamp;
+              
+              const runtime = timestamp - startTime;
+              const progress = runtime / animationDuration;
+
+              if (progress > 1) {
+                startTime = timestamp; // loop
+              }
+
+              // Update time remaining
+              if (flightDurationSeconds > 0) {
+                  const timeElapsed = flightDurationSeconds * progress;
+                  const remainingSeconds = flightDurationSeconds - timeElapsed;
+                  const hours = Math.floor(remainingSeconds / 3600);
+                  const minutes = Math.floor((remainingSeconds % 3600) / 60);
+                  setTimeRemaining(`${hours}h ${minutes}m remaining`);
+              }
+
+              // Use the 'line' variable for the animation path
+              const alongRoute = turf.along(line, routeDistance * progress).geometry.coordinates;
+              const airplaneData = map.getSource('airplane')._data;
+              airplaneData.features[0].geometry.coordinates = alongRoute;
+
+              // Bearing calculation is no longer needed for a circle, but doesn't hurt to keep
+              const nextPoint = turf.along(line, routeDistance * (progress + 0.001));
+              const bearing = turf.bearing(turf.point(alongRoute), turf.point(nextPoint.geometry.coordinates));
+              airplaneData.features[0].properties.bearing = bearing;
+              
+              map.getSource('airplane').setData(airplaneData);
+
+              // Auto-follow logic: if enabled and plane is out of bounds, pan to it
+              map.panTo(alongRoute, { duration: 0 });
+
+              animationFrameRef.current = requestAnimationFrame(animate);
+            }
+            animate(0);
           } else {
-             new mapboxgl.Marker({ color: '#808080' }).setLngLat([31.257847, 30.143224]).addTo(map);
+             // Default marker if no booking found
+             new mapboxgl.Marker({ color: '#808080' })
+              .setLngLat([31.257847, 30.143224])
+            .addTo(map);
           }
         });
         map.on('error', (e) => console.error("Mapbox error:", e.error?.message || e));
@@ -376,26 +356,6 @@ export default function TravelOffers() {
             }}>
               Flight Duration: {flightDuration}
             </div>
-          )}
-          {roundTripData && (
-            <button 
-              onClick={handleToggleLeg}
-              style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                zIndex: 2,
-                padding: '7px 16px',
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '7px',
-                cursor: 'pointer',
-                fontWeight: 600,
-              }}
-            >
-              Show {activeLeg === 'departure' ? 'Return' : 'Departure'} Flight
-            </button>
           )}
           {timeRemaining && (
             <div style={{
