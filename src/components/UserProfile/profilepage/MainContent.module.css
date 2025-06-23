@@ -1,0 +1,46 @@
+.mainContent {
+  margin-left: 250px;
+  min-height: 100vh;
+  background-color: #1a1a1a;
+  color: white;
+  padding: 0;
+}
+
+.header {
+  padding: 30px 40px;
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.headerIcon {
+  color: #f4a261;
+}
+
+.headerTitle {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 400;
+  color: white;
+}
+
+.content {
+  padding: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mainContent {
+    margin-left: 0;
+  }
+  
+  .header {
+    padding: 20px;
+  }
+  
+  .headerTitle {
+    font-size: 20px;
+  }
+}
+
