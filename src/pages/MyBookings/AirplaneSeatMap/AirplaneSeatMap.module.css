@@ -363,12 +363,13 @@
 
 /* مفتاح الألوان */
 .legend {
-  background: white;
+  background: var(--profile-bg, white);
   border-radius: 15px;
   padding: 15px;
   margin-top: 15px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--profile-header-border, #e9ecef);
+  color: var(--profile-text, #222);
 }
 
 .legend h3 {
@@ -392,9 +393,10 @@
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  background: #f8f9fa;
+  background: var(--profile-header-bg, #f8f9fa);
   border-radius: 6px;
   transition: all 0.3s ease;
+  color: var(--profile-text, #222);
 }
 
 .legendItem:hover {
@@ -432,6 +434,15 @@
 .legendItem span {
   font-size: 0.9rem;
   color: #555;
+}
+
+body.dark .legend {
+  background: #232326;
+  color: #f3f3f3;
+}
+body.dark .legendItem {
+  background: #232326;
+  color: #f3f3f3;
 }
 
 /* تحسينات للشاشات الصغيرة */
@@ -681,7 +692,7 @@
 
 .seatMapPage {
   padding-top: 150px;
-  background-color: #f8f9fa;
+  background-color: var(--bg-color);
 }
 
 .toastContainer {

@@ -207,7 +207,7 @@
   padding: 20px;
   border: 1px solid var(--profile-header-border, #e9ecef);
   border-radius: 8px;
-  background: var(--profile-bg, #fff);
+  background: var(--profile-header-bg, #fff);
   color: var(--profile-text, #222);
 }
 
@@ -226,26 +226,26 @@
 .time {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #333;
+  color: var(--profile-header-title, #333);
   margin-bottom: 5px;
 }
 
 .city {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--profile-header-title, #333);
   margin-bottom: 2px;
 }
 
 .airport {
   font-size: 1rem;
-  color: #666;
+  color: var(--profile-sidebar-subtext, #666);
   margin-bottom: 5px;
 }
 
 .date {
   font-size: 0.875rem;
-  color: #999;
+  color: var(--profile-sidebar-subtext, #999);
 }
 
 .flightPath {
@@ -257,9 +257,9 @@
 
 .stopsInfo {
   font-size: 0.75rem;
-  color: #007bff;
+  color: var(--Btnbg-color, #007bff);
   font-weight: 500;
-  background-color: #e7f3ff;
+  background-color: var(--profile-header-bg, #e7f3ff);
   padding: 4px 8px;
   border-radius: 12px;
 }
@@ -273,25 +273,25 @@
 .pathDot {
   width: 8px;
   height: 8px;
-  background-color: #007bff;
+  background-color: var(--Btnbg-color, #007bff);
   border-radius: 50%;
 }
 
 .pathConnector {
   width: 40px;
   height: 2px;
-  background-color: #007bff;
+  background-color: var(--Btnbg-color, #007bff);
 }
 
 .pathArrow {
-  color: #007bff;
+  color: var(--Btnbg-color, #007bff);
   font-size: 1.2rem;
   font-weight: bold;
 }
 
 .duration {
   font-size: 0.875rem;
-  color: #666;
+  color: var(--profile-sidebar-subtext, #666);
 }
 
 .flightSegment {
@@ -658,4 +658,14 @@
   color: #eee;
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+body.dark .flightDetails {
+  background: #232326;
+  color: #f3f3f3;
+}
+body.dark .stopsInfo {
+  background-color: #232326;
+  color: var(--Btnbg-color, #4eaaff);
+  border: 1px solid var(--Btnbg-color, #4eaaff);
 } 
