@@ -46,13 +46,13 @@
 }
 
 .bookingCard {
-  background-color: #ffffff;
+  background-color: var(--profile-bg, #ffffff);
   border-radius: 16px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
   margin: 0 auto 30px;
   max-width: 1100px;
   overflow: hidden;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--profile-header-border, #e2e8f0);
   animation: fadeInUp 1s ease-out;
 }
 
@@ -62,11 +62,11 @@
 
 .cardHeader {
   padding: 20px;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--profile-header-border, #e9ecef);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #f8f9fa;
+  background-color: var(--profile-header-bg, #f8f9fa);
 }
 
 .bookingInfo {
@@ -78,7 +78,7 @@
 .bookingReference {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #333;
+  color: var(--profile-header-title, #333);
   margin: 0;
 }
 
@@ -106,7 +106,7 @@
 
 .bookingDate {
   font-size: 0.875rem;
-  color: #6c757d;
+  color: var(--profile-sidebar-subtext, #6c757d);
 }
 
 .cardContent {
@@ -114,6 +114,8 @@
   grid-template-columns: 2fr 1fr;
   gap: 30px;
   padding: 30px;
+  background: var(--profile-bg, #fff);
+  color: var(--profile-text, #222);
 }
 
 .leftSection {
@@ -127,16 +129,16 @@
   align-items: flex-start;
   gap: 12px;
   padding: 15px;
-  background-color: #e7f3ff;
+  background-color: var(--profile-header-bg, #e7f3ff);
   border-radius: 8px;
-  border-left: 4px solid #007bff;
+  border-left: 4px solid var(--Btnbg-color, #007bff);
 }
 
 .infoIcon {
   width: 24px;
   height: 24px;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--Btnbg-color, #007bff);
+  color: var(--LightText-color, white);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -150,13 +152,13 @@
   margin: 0 0 5px 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--profile-header-title, #333);
 }
 
 .infoContent p {
   margin: 0;
   font-size: 0.875rem;
-  color: #666;
+  color: var(--profile-sidebar-subtext, #666);
   line-height: 1.4;
 }
 
@@ -165,7 +167,7 @@
   align-items: center;
   gap: 15px;
   padding: 20px;
-  background-color: #f8f9fa;
+  background-color: var(--profile-header-bg, #f8f9fa);
   border-radius: 8px;
 }
 
@@ -178,8 +180,8 @@
 .airlineLogo {
   width: 50px;
   height: 50px;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--Btnbg-color, #007bff);
+  color: var(--LightText-color, white);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -192,19 +194,21 @@
   margin: 0 0 5px 0;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--profile-header-title, #333);
 }
 
 .airlineInfo p {
   margin: 0;
   font-size: 0.875rem;
-  color: #666;
+  color: var(--profile-sidebar-subtext, #666);
 }
 
 .flightDetails {
   padding: 20px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--profile-header-border, #e9ecef);
   border-radius: 8px;
+  background: var(--profile-header-bg, #fff);
+  color: var(--profile-text, #222);
 }
 
 .flightRoute {
@@ -222,26 +226,26 @@
 .time {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #333;
+  color: var(--profile-header-title, #333);
   margin-bottom: 5px;
 }
 
 .city {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--profile-header-title, #333);
   margin-bottom: 2px;
 }
 
 .airport {
   font-size: 1rem;
-  color: #666;
+  color: var(--profile-sidebar-subtext, #666);
   margin-bottom: 5px;
 }
 
 .date {
   font-size: 0.875rem;
-  color: #999;
+  color: var(--profile-sidebar-subtext, #999);
 }
 
 .flightPath {
@@ -253,9 +257,9 @@
 
 .stopsInfo {
   font-size: 0.75rem;
-  color: #007bff;
+  color: var(--Btnbg-color, #007bff);
   font-weight: 500;
-  background-color: #e7f3ff;
+  background-color: var(--profile-header-bg, #e7f3ff);
   padding: 4px 8px;
   border-radius: 12px;
 }
@@ -269,42 +273,43 @@
 .pathDot {
   width: 8px;
   height: 8px;
-  background-color: #007bff;
+  background-color: var(--Btnbg-color, #007bff);
   border-radius: 50%;
 }
 
 .pathConnector {
   width: 40px;
   height: 2px;
-  background-color: #007bff;
+  background-color: var(--Btnbg-color, #007bff);
 }
 
 .pathArrow {
-  color: #007bff;
+  color: var(--Btnbg-color, #007bff);
   font-size: 1.2rem;
   font-weight: bold;
 }
 
 .duration {
   font-size: 0.875rem;
-  color: #666;
+  color: var(--profile-sidebar-subtext, #666);
 }
 
 .flightSegment {
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--profile-header-border, #e9ecef);
   border-radius: 8px;
   padding: 15px;
   margin-bottom: 20px;
-  background-color: #fafbff;
+  background-color: var(--profile-header-bg, #fafbff);
+  color: var(--profile-text, #222);
 }
 
 .segmentTitle {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #0056b3;
+  color: var(--Btnbg-color, #0056b3);
   margin: 0 0 15px 0;
   padding-bottom: 10px;
-  border-bottom: 2px solid #e7f3ff;
+  border-bottom: 2px solid var(--profile-header-bg, #e7f3ff);
 }
 
 .segmentHeader {
@@ -315,8 +320,8 @@
 }
 
 .mapButton {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--Btnbg-color, #007bff);
+  color: var(--LightText-color, white);
   border: none;
   border-radius: 6px;
   padding: 8px 16px;
@@ -339,15 +344,16 @@
 
 .passengers {
   padding: 20px;
-  background-color: #f8f9fa;
+  background-color: var(--profile-header-bg, #f8f9fa);
   border-radius: 8px;
+  color: var(--profile-text, #222);
 }
 
 .passengers h4 {
   margin: 0 0 15px 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--profile-header-title, #333);
 }
 
 .passenger {
@@ -355,7 +361,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 0;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--profile-header-border, #e9ecef);
 }
 
 .passenger:last-child {
@@ -364,20 +370,21 @@
 
 .passengerType {
   font-size: 0.875rem;
-  color: #666;
+  color: var(--profile-sidebar-subtext, #666);
 }
 
 .rightSection {
-  background-color: #f8f9fa;
+  background-color: var(--profile-header-bg, #f8f9fa);
   padding: 25px;
   border-radius: 8px;
+  color: var(--profile-text, #222);
 }
 
 .flightSummary h4 {
   margin: 0 0 20px 0;
   font-size: 1.2rem;
   font-weight: 600;
-  color: #333;
+  color: var(--profile-header-title, #333);
 }
 
 .summaryDetails {
@@ -395,7 +402,7 @@
 .label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #333;
+  color: var(--profile-header-title, #333);
 }
 
 .summaryFlight {
@@ -403,14 +410,15 @@
   flex-direction: column;
   gap: 8px;
   padding: 15px;
-  background: white;
+  background: var(--profile-bg, white);
   border-radius: 8px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--profile-header-border, #e9ecef);
+  color: var(--profile-text, #222);
 }
 
 .flightNumber {
   font-size: 0.875rem;
-  color: #007bff;
+  color: var(--Btnbg-color, #007bff);
   font-weight: 500;
 }
 
@@ -423,20 +431,20 @@
 .flightTime .time {
   font-size: 1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--profile-header-title, #333);
   margin: 0;
 }
 
 .flightTime .airport {
   font-size: 0.875rem;
-  color: #666;
+  color: var(--profile-sidebar-subtext, #666);
   margin: 0;
 }
 
 .stops {
   font-size: 0.75rem;
-  color: #007bff;
-  background-color: #e7f3ff;
+  color: var(--Btnbg-color, #007bff);
+  background-color: var(--profile-header-bg, #e7f3ff);
   padding: 2px 6px;
   border-radius: 8px;
 }
@@ -449,7 +457,7 @@
 
 .policyItem {
   font-size: 0.875rem;
-  color: #666;
+  color: var(--profile-sidebar-subtext, #666);
 }
 
 .nonRefundable {
@@ -457,7 +465,7 @@
 }
 
 .changeable {
-  color: #007bff;
+  color: var(--Btnbg-color, #007bff);
 }
 
 .priceBreakdown {
@@ -471,7 +479,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.875rem;
-  color: #666;
+  color: var(--profile-sidebar-subtext, #666);
 }
 
 .totalPrice {
@@ -479,10 +487,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px 0;
-  border-top: 2px solid #dee2e6;
+  border-top: 2px solid var(--profile-header-border, #dee2e6);
   font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--profile-header-title, #333);
   margin-top: 10px;
 }
 
@@ -491,8 +499,8 @@
   display: flex;
   justify-content: flex-end;
   gap: 15px;
-  background-color: #f8f9fa;
-  border-top: 1px solid #e9ecef;
+  background-color: var(--profile-header-bg, #f8f9fa);
+  border-top: 1px solid var(--profile-header-border, #e9ecef);
 }
 
 .printButton,
@@ -537,10 +545,10 @@
 .printButton:disabled,
 .cancelButton:disabled,
 .seatButton:disabled {
-  background-color: #e9ecef;
-  color: #6c757d;
+  background-color: var(--profile-header-bg, #e9ecef);
+  color: var(--profile-sidebar-subtext, #6c757d);
   cursor: not-allowed;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--profile-header-border, #ced4da);
 }
 
 /* Responsive Design */
@@ -579,7 +587,7 @@
 }
 
 .baggageInfo, .contactInfo {
-  background: #f8f9fa;
+  background: var(--profile-header-bg, #f8f9fa);
   border-radius: 8px;
   padding: 12px 18px;
   margin: 10px 0 0 0;
@@ -588,6 +596,7 @@
   gap: 10px;
   font-size: 1rem;
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  color: var(--profile-text, #222);
 }
 .baggageInfo::before {
   content: '\1F4E6'; /* أيقونة شنطة */
@@ -600,7 +609,7 @@
   font-size: 1.1em;
 }
 .baggageInfo strong, .contactInfo strong {
-  color: #007bff;
+  color: var(--Btnbg-color, #007bff);
   font-weight: 600;
   margin-right: 4px;
 }
@@ -649,4 +658,14 @@
   color: #eee;
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+body.dark .flightDetails {
+  background: #232326;
+  color: #f3f3f3;
+}
+body.dark .stopsInfo {
+  background-color: #232326;
+  color: var(--Btnbg-color, #4eaaff);
+  border: 1px solid var(--Btnbg-color, #4eaaff);
 } 

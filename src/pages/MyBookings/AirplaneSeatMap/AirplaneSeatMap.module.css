@@ -5,7 +5,7 @@
   margin: 0 auto;
   margin-top: 2rem;
   padding: 20px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: var(--bg-color);
   border-radius: 20px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
   font-family: 'Arial', sans-serif;
@@ -15,8 +15,8 @@
 
 /* شكل الطائرة الكامل */
 .airplaneBody {
-  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%);
-  border: 3px solid #dee2e6;
+  background: var(--profile-bg, #fff);
+  border: 3px solid var(--profile-header-border, #dee2e6);
   position: relative;
   box-shadow: 
     0 20px 40px rgba(0, 0, 0, 0.1),
@@ -27,9 +27,9 @@
 .airplaneNose {
   width: 100%;
   height: 80px;
-  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+  background: var(--profile-header-bg, #f8f9fa);
   border-radius: 50% 50% 20px 20px / 100% 100% 20px 20px;
-  border: 3px solid #dee2e6;
+  border: 3px solid var(--profile-header-border, #dee2e6);
   border-bottom: none;
   position: relative;
   display: flex;
@@ -41,7 +41,7 @@
 }
 
 .cockpit h2 {
-  color: #495057;
+  color: var(--profile-header-title, #495057);
   margin: 0;
   font-size: 14px;
   font-weight: bold;
@@ -50,9 +50,9 @@
 
 /* جسم الطائرة الرئيسي */
 .seatMap {
-  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
-  border-left: 3px solid #dee2e6;
-  border-right: 3px solid #dee2e6;
+  background: var(--profile-bg, #fff);
+  border-left: 3px solid var(--profile-header-border, #dee2e6);
+  border-right: 3px solid var(--profile-header-border, #dee2e6);
   padding: 20px 15px;
   position: relative;
   box-shadow: 
@@ -69,8 +69,8 @@
   top: 30%;
   width: 150px;
   height: 100px;
-  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 50%, #ced4da 100%);
-  border: 3px solid #ced4da;
+  background: var(--profile-header-bg, #e9ecef);
+  border: 3px solid var(--profile-header-border, #ced4da);
   box-shadow: 
     0 15px 30px rgba(0, 0, 0, 0.2),
     inset 0 3px 8px rgba(255, 255, 255, 0.7);
@@ -95,9 +95,9 @@
 .airplaneTail {
   width: 100%;
   height: 120px;
-  background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+  background: var(--profile-header-bg, #f8f9fa);
   border-radius: 20px 20px 50% 50% / 20px 20px 100% 100%;
-  border: 3px solid #dee2e6;
+  border: 3px solid var(--profile-header-border, #dee2e6);
   border-top: none;
   position: relative;
   display: flex;
@@ -118,8 +118,8 @@
   transform: translateX(-50%);
   width: 60px;
   height: 100px;
-  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-  border: 3px solid #ced4da;
+  background: var(--profile-header-bg, #e9ecef);
+  border: 3px solid var(--profile-header-border, #ced4da);
   border-radius: 30px 30px 0 0;
   box-shadow: 
     0 10px 20px rgba(0, 0, 0, 0.15),
@@ -136,8 +136,8 @@
   transform: translateX(-50%);
   width: 120px;
   height: 40px;
-  background: linear-gradient(90deg, #e9ecef 0%, #dee2e6 50%, #e9ecef 100%);
-  border: 2px solid #ced4da;
+  background: var(--profile-header-bg, #e9ecef);
+  border: 2px solid var(--profile-header-border, #ced4da);
   border-radius: 20px;
   box-shadow: 
     0 5px 15px rgba(0, 0, 0, 0.1),
@@ -163,7 +163,7 @@
   align-items: center;
   margin-bottom: 10px;
   padding-bottom: 8px;
-  border-bottom: 2px solid #dee2e6;
+  border-bottom: 2px solid var(--profile-header-border, #dee2e6);
 }
 
 .columnHeader {
@@ -173,13 +173,13 @@
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  color: #495057;
-  background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+  color: var(--profile-header-title, #495057);
+  background: var(--profile-header-bg, #e9ecef);
   border-radius: 6px;
   margin: 0 1px;
   font-size: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--profile-header-border, #dee2e6);
 }
 
 /* الصفوف */
@@ -189,6 +189,7 @@
   margin-bottom: 6px;
   padding: 3px 0;
   transition: all 0.3s ease;
+  color: var(--profile-text, #222);
 }
 
 .row:hover {
@@ -201,7 +202,7 @@
   width: 30px;
   text-align: center;
   font-weight: bold;
-  color: #6c757d;
+  color: var(--profile-sidebar-subtext, #6c757d);
   font-size: 11px;
 }
 
@@ -362,12 +363,13 @@
 
 /* مفتاح الألوان */
 .legend {
-  background: white;
+  background: var(--profile-bg, white);
   border-radius: 15px;
   padding: 15px;
   margin-top: 15px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--profile-header-border, #e9ecef);
+  color: var(--profile-text, #222);
 }
 
 .legend h3 {
@@ -391,9 +393,10 @@
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  background: #f8f9fa;
+  background: var(--profile-header-bg, #f8f9fa);
   border-radius: 6px;
   transition: all 0.3s ease;
+  color: var(--profile-text, #222);
 }
 
 .legendItem:hover {
@@ -431,6 +434,15 @@
 .legendItem span {
   font-size: 0.9rem;
   color: #555;
+}
+
+body.dark .legend {
+  background: #232326;
+  color: #f3f3f3;
+}
+body.dark .legendItem {
+  background: #232326;
+  color: #f3f3f3;
 }
 
 /* تحسينات للشاشات الصغيرة */
@@ -489,18 +501,45 @@
   text-align: center;
   border-radius: 0 0 20px 20px;
   margin-bottom: 2rem;
+  animation: fadeInDown 0.8s ease-out;
 }
 
 .pageHeader h1 {
   margin: 0;
   font-size: 2.5rem;
   font-weight: 700;
+  animation: fadeInDown 0.8s ease-out;
+  color: white;
 }
 
 .pageHeader p {
   margin: 0.5rem 0 0;
   font-size: 1.2rem;
   opacity: 0.9;
+  animation: fadeInUp 0.8s ease-out;
+  color: #e2e8f0;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .mainContainer {
@@ -513,7 +552,8 @@
 }
 
 .infoCard {
-  background-color: white;
+  background-color: var(--profile-bg, white);
+  color: var(--profile-text, #222);
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -524,7 +564,11 @@
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0 0 1rem;
-  color: #333;
+  color: var(--profile-header-title, #333);
+}
+
+body.dark .infoCard h2 {
+  color: #f3f3f3;
 }
 
 .infoCard p {
@@ -608,8 +652,8 @@
 }
 
 .howToUse {
-  background-color: #eef2ff;
-  color: #312e81;
+  background-color: var(--profile-header-bg, #eef2ff);
+  color: var(--profile-header-title, #312e81);
   padding: 2rem;
   border-radius: 12px;
   max-width: 900px;
@@ -652,7 +696,7 @@
 
 .seatMapPage {
   padding-top: 150px;
-  background-color: #f8f9fa;
+  background-color: var(--bg-color);
 }
 
 .toastContainer {
@@ -676,5 +720,15 @@
 
 .customToast .Toastify__toast-icon svg {
   fill: white;
+}
+
+/* Dark mode overrides for gradients and cards */
+body.dark .infoCard {
+  background-color: var(--profile-bg, #1a1a1a);
+  color: var(--profile-text, #fff);
+}
+body.dark .howToUse {
+  background-color: var(--profile-header-bg, #232326);
+  color: var(--profile-header-title, #fff);
 }
 
