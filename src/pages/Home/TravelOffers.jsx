@@ -11,9 +11,10 @@ import bangladesh7 from "../../assets/pexels-pixabay-237272.jpg";
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { getAirportCoordinates } from "../../services/airportService";
+import { getAirportCoordinates, getAirportDetails } from "../../services/airportService";
 import { bookingService } from "../../services/bookingService";
 import * as turf from '@turf/turf';
+import FlightMap from "../../components/Map/FlightMap";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN; 
 
@@ -51,6 +52,8 @@ export default function TravelOffers() {
   const animationFrameRef = useRef(null);
   const [timeRemaining, setTimeRemaining] = useState('');
   const [flightDuration, setFlightDuration] = useState('');
+  const [bookingToShow, setBookingToShow] = useState(null);
+  const [flightToDisplay, setFlightToDisplay] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -65,150 +68,147 @@ export default function TravelOffers() {
       try {
         const userString = localStorage.getItem('user');
         if (userString) {
-          const userData = JSON.parse(userString);
-          if (userData?.token) {
-            console.log('Step 2: User token found. Fetching bookings...');
-            const bookings = await bookingService.getMyBookings();
-            console.log('Step 3: Received response from bookings API.');
+          console.log('Step 2: User token found. Fetching bookings...');
+          const bookings = await bookingService.getMyBookings();
+          console.log('Step 3: Received response from bookings API.');
 
-            const selectedBookingId = localStorage.getItem('selectedBookingId');
+          const selectedBookingId = localStorage.getItem('selectedBookingId');
 
-            if (selectedBookingId) {
-              bookingToShow = bookings.find(b => b._id === selectedBookingId);
-              console.log(`Found selected booking from BookingList:`, bookingToShow);
-              localStorage.removeItem('selectedBookingId'); // Clean up
-            } else if (bookings && bookings.length > 0) {
-              const futureConfirmedBookings = bookings
-                .filter(booking => {
-                  if (booking.status !== 'confirmed') return false;
-                  
-                  const hasFlightData = booking.flightData && booking.flightData.length > 0;
-                  const departureDateStr = hasFlightData ? booking.flightData[0].departureDate : booking.departureDate;
+          if (selectedBookingId) {
+            bookingToShow = bookings.find(b => b._id === selectedBookingId);
+            console.log(`Found selected booking from BookingList:`, bookingToShow);
+            localStorage.removeItem('selectedBookingId'); // Clean up
+          } else if (bookings && bookings.length > 0) {
+            const futureConfirmedBookings = bookings
+              .filter(booking => {
+                if (booking.status !== 'confirmed') return false;
+                
+                const hasFlightData = booking.flightData && booking.flightData.length > 0;
+                const departureDateStr = hasFlightData ? booking.flightData[0].departureDate : booking.departureDate;
 
-                  if (!departureDateStr) return false;
+                if (!departureDateStr) return false;
 
-                  return new Date(departureDateStr) > new Date();
-                })
-                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-              
-              console.log(`Filter complete. Found ${futureConfirmedBookings.length} future confirmed bookings.`);
+                return new Date(departureDateStr) > new Date();
+              })
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            console.log(`Filter complete. Found ${futureConfirmedBookings.length} future confirmed bookings.`);
 
-              if (futureConfirmedBookings.length > 0) {
-                bookingToShow = futureConfirmedBookings[0];
-                console.log(`Latest booking for map:`, bookingToShow);
-              }
+            if (futureConfirmedBookings.length > 0) {
+              bookingToShow = futureConfirmedBookings[0];
+              console.log(`Latest booking for map:`, bookingToShow);
+            }
+          }
+          
+          if (bookingToShow) {
+            const originCode = bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode;
+
+            let destCode;
+            // For round trips, the main map should show the path to the destination of the first leg.
+            if (bookingToShow.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.[0]) {
+              destCode = bookingToShow.flightData[0].destinationAirportCode;
+            } else {
+              // For one-way trips, the destination is from the last leg, which handles layovers correctly.
+              destCode = bookingToShow.flightData?.[bookingToShow.flightData.length - 1]?.destinationAirportCode || bookingToShow.destinationAirportCode;
             }
             
-            if (bookingToShow) {
-              const originCode = bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode;
+            const durationISO = bookingToShow.flightData?.[0]?.duration || bookingToShow.duration;
+            console.log('Flight Duration ISO:', durationISO);
 
-              let destCode;
-              // For round trips, the main map should show the path to the destination of the first leg.
-              if (bookingToShow.bookingType === 'ROUND_TRIP' && bookingToShow.flightData?.[0]) {
-                destCode = bookingToShow.flightData[0].destinationAirportCode;
-              } else {
-                // For one-way trips, the destination is from the last leg, which handles layovers correctly.
-                destCode = bookingToShow.flightData?.[bookingToShow.flightData.length - 1]?.destinationAirportCode || bookingToShow.destinationAirportCode;
-              }
-              
-              const durationISO = bookingToShow.flightData?.[0]?.duration || bookingToShow.duration;
-              console.log('Flight Duration ISO:', durationISO);
-
-              // Try to get more precise timing from localStorage (flight or sharedData)
-              let preciseDep = null, preciseArr = null;
-              try {
-                const flightLS = JSON.parse(localStorage.getItem('flight'));
-                if (flightLS && bookingToShow.bookingRef && flightLS.departure) {
-                  // Try to match by bookingRef or by airport codes
-                  const depSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.[0];
-                  const arrSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
-                  if (depSeg && arrSeg) {
-                    // Check if airport codes match
-                    if (
-                      depSeg.departure.iataCode === (bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode) &&
-                      arrSeg.arrival.iataCode === (bookingToShow.flightData?.[0]?.destinationAirportCode || bookingToShow.destinationAirportCode)
-                    ) {
-                      preciseDep = depSeg.departure.at;
-                      preciseArr = arrSeg.arrival.at;
-                    }
+            // Try to get more precise timing from localStorage (flight or sharedData)
+            let preciseDep = null, preciseArr = null;
+            try {
+              const flightLS = JSON.parse(localStorage.getItem('flight'));
+              if (flightLS && bookingToShow.bookingRef && flightLS.departure) {
+                // Try to match by bookingRef or by airport codes
+                const depSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.[0];
+                const arrSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
+                if (depSeg && arrSeg) {
+                  // Check if airport codes match
+                  if (
+                    depSeg.departure.iataCode === (bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode) &&
+                    arrSeg.arrival.iataCode === (bookingToShow.flightData?.[0]?.destinationAirportCode || bookingToShow.destinationAirportCode)
+                  ) {
+                    preciseDep = depSeg.departure.at;
+                    preciseArr = arrSeg.arrival.at;
                   }
+                }
+              }
+            } catch (e) { /* ignore */ }
+
+            if (!preciseDep || !preciseArr) {
+              // Try sharedData as fallback
+              try {
+                const sharedData = JSON.parse(localStorage.getItem('sharedData'));
+                const depIata = bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode;
+                const arrIata = bookingToShow.flightData?.[0]?.destinationAirportCode || bookingToShow.destinationAirportCode;
+                if (sharedData?.departure?.origin?.airport?.iata === depIata && sharedData?.departure?.dest?.airport?.iata === arrIata) {
+                  preciseDep = sharedData.departure?.date + 'T00:00:00'; // fallback if only date
                 }
               } catch (e) { /* ignore */ }
+            }
 
-              if (!preciseDep || !preciseArr) {
-                // Try sharedData as fallback
-                try {
-                  const sharedData = JSON.parse(localStorage.getItem('sharedData'));
-                  const depIata = bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode;
-                  const arrIata = bookingToShow.flightData?.[0]?.destinationAirportCode || bookingToShow.destinationAirportCode;
-                  if (sharedData?.departure?.origin?.airport?.iata === depIata && sharedData?.departure?.dest?.airport?.iata === arrIata) {
-                    preciseDep = sharedData.departure?.date + 'T00:00:00'; // fallback if only date
-                  }
-                } catch (e) { /* ignore */ }
-              }
-
-              if (preciseDep && preciseArr) {
-                const depDate = new Date(preciseDep);
-                const arrDate = new Date(preciseArr);
-                const diffMs = arrDate - depDate;
-                if (!isNaN(diffMs) && diffMs > 0) {
-                  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-                  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                  flightDurationSeconds = Math.floor(diffMs / 1000);
-                  setFlightDuration(`${hours}h ${minutes}m`);
-                } else {
-                  setFlightDuration('--');
-                }
-              } else if (durationISO && typeof durationISO === 'string') {
-                  const match = durationISO.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
-                  if (match) {
-                      const hours = match[1] ? parseInt(match[1], 10) : 0;
-                      const minutes = match[2] ? parseInt(match[2], 10) : 0;
-                      flightDurationSeconds = (hours * 3600) + (minutes * 60);
-                      setFlightDuration(`${hours}h ${minutes}m`);
-                  } else {
-                      setFlightDuration('--');
-                  }
+            if (preciseDep && preciseArr) {
+              const depDate = new Date(preciseDep);
+              const arrDate = new Date(preciseArr);
+              const diffMs = arrDate - depDate;
+              if (!isNaN(diffMs) && diffMs > 0) {
+                const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                flightDurationSeconds = Math.floor(diffMs / 1000);
+                setFlightDuration(`${hours}h ${minutes}m`);
               } else {
-                  // Try to calculate from arrivalDate and departureDate
-                  let dep, arr;
-                  if (bookingToShow.flightData && bookingToShow.flightData.length > 0) {
-                    dep = bookingToShow.flightData[0].departureDate;
-                    arr = bookingToShow.flightData[0].arrivalDate;
-                  } else {
-                    dep = bookingToShow.departureDate;
-                    arr = bookingToShow.arrivalDate;
-                  }
-                  if (dep && arr) {
-                    const depDate = new Date(dep);
-                    const arrDate = new Date(arr);
-                    const diffMs = arrDate - depDate;
-                    if (!isNaN(diffMs) && diffMs > 0) {
-                      const hours = Math.floor(diffMs / (1000 * 60 * 60));
-                      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                      flightDurationSeconds = Math.floor(diffMs / 1000);
-                      setFlightDuration(`${hours}h ${minutes}m`);
-                    } else {
-                      setFlightDuration('--');
-                    }
+                setFlightDuration('--');
+              }
+            } else if (durationISO && typeof durationISO === 'string') {
+                const match = durationISO.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+                if (match) {
+                    const hours = match[1] ? parseInt(match[1], 10) : 0;
+                    const minutes = match[2] ? parseInt(match[2], 10) : 0;
+                    flightDurationSeconds = (hours * 3600) + (minutes * 60);
+                    setFlightDuration(`${hours}h ${minutes}m`);
+                } else {
+                    setFlightDuration('--');
+                }
+            } else {
+                // Try to calculate from arrivalDate and departureDate
+                let dep, arr;
+                if (bookingToShow.flightData && bookingToShow.flightData.length > 0) {
+                  dep = bookingToShow.flightData[0].departureDate;
+                  arr = bookingToShow.flightData[0].arrivalDate;
+                } else {
+                  dep = bookingToShow.departureDate;
+                  arr = bookingToShow.arrivalDate;
+                }
+                if (dep && arr) {
+                  const depDate = new Date(dep);
+                  const arrDate = new Date(arr);
+                  const diffMs = arrDate - depDate;
+                  if (!isNaN(diffMs) && diffMs > 0) {
+                    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    flightDurationSeconds = Math.floor(diffMs / 1000);
+                    setFlightDuration(`${hours}h ${minutes}m`);
                   } else {
                     setFlightDuration('--');
                   }
-              }
-              
-              if (originCode && destCode) {
-                console.log(`Fetching coordinates for origin: ${originCode} and destination: ${destCode}`);
-                const [origin, dest] = await Promise.all([
-                  getAirportCoordinates(originCode),
-                  getAirportCoordinates(destCode)
-                ]).catch(err => {
-                  console.error("Error fetching coordinates:", err);
-                  return [null, null];
-                });
-                originCoords = origin;
-                destinationCoords = dest;
-                if(originCoords && destinationCoords) console.log(`Coordinates found.`);
-              }
+                } else {
+                  setFlightDuration('--');
+                }
+            }
+            
+            if (originCode && destCode) {
+              console.log(`Fetching coordinates for origin: ${originCode} and destination: ${destCode}`);
+              const [origin, dest] = await Promise.all([
+                getAirportCoordinates(originCode),
+                getAirportCoordinates(destCode)
+              ]).catch(err => {
+                console.error("Error fetching coordinates:", err);
+                return [null, null];
+              });
+              originCoords = origin;
+              destinationCoords = dest;
+              if(originCoords && destinationCoords) console.log(`Coordinates found.`);
             }
           }
         }
@@ -369,6 +369,63 @@ export default function TravelOffers() {
     };
   }, []); // Run only once on mount
 
+  useEffect(() => {
+    const fetchAndPrepareBooking = async () => {
+      const userString = localStorage.getItem('user');
+      if (!userString) return;
+
+      const bookings = await bookingService.getMyBookings();
+      if (!bookings || bookings.length === 0) return;
+
+      const selectedBookingId = localStorage.getItem('selectedBookingId');
+      let foundBooking = null;
+
+      if (selectedBookingId) {
+        foundBooking = bookings.find(b => b._id === selectedBookingId);
+        localStorage.removeItem('selectedBookingId'); // Clean up immediately
+      } else {
+        // Fallback to the latest future confirmed booking
+        const futureConfirmedBookings = bookings
+          .filter(b => b.status === 'confirmed' && new Date(b.flightData?.[0]?.departureDate || b.departureDate) > new Date())
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        if (futureConfirmedBookings.length > 0) {
+          foundBooking = futureConfirmedBookings[0];
+        }
+      }
+
+      if (foundBooking) {
+        // Augment flight data with full airport details for the map
+        if (foundBooking.flightData && foundBooking.flightData.length > 0) {
+          const augmentedFlightData = await Promise.all(
+            foundBooking.flightData.map(async (flightLeg) => {
+              const [originAirport, destinationAirport] = await Promise.all([
+                getAirportDetails(flightLeg.originAirportCode),
+                getAirportDetails(flightLeg.destinationAirportCode)
+              ]);
+              return { ...flightLeg, originAirport, destinationAirport };
+            })
+          );
+          // Set the entire booking with augmented data
+          setBookingToShow({ ...foundBooking, flightData: augmentedFlightData });
+          // Set the first leg as the default to display
+          setFlightToDisplay(augmentedFlightData[0]);
+        } else {
+          // Handle one-way flights
+          const [originAirport, destinationAirport] = await Promise.all([
+            getAirportDetails(foundBooking.originAirportCode),
+            getAirportDetails(foundBooking.destinationAirportCode)
+          ]);
+          const augmentedBooking = { ...foundBooking, originAirport, destinationAirport };
+          setBookingToShow(augmentedBooking);
+          setFlightToDisplay(augmentedBooking);
+        }
+      }
+    };
+
+    fetchAndPrepareBooking();
+  }, []);
+
   return (
     <section className="travel-offers">
       <div className="offers-section">
@@ -510,6 +567,47 @@ export default function TravelOffers() {
                 className="bangladesh-image"
               />
             ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="offers-section">
+        <div className="offers-header">
+          <h2>Travel Offers</h2>
+          <p>Explore our best travel deals</p>
+        </div>
+
+        <div className="offers-grid">
+          <div className="main-offer">
+            {flightToDisplay ? (
+              <div className="map-wrapper">
+                <FlightMap flight={flightToDisplay} />
+                {bookingToShow && bookingToShow.bookingType === 'ROUND_TRIP' && (
+                  <div className="flight-controls">
+                    <button
+                      onClick={() => setFlightToDisplay(bookingToShow.flightData[0])}
+                      className={flightToDisplay.typeOfFlight === 'GO' ? 'active' : ''}
+                    >
+                      Departure
+                    </button>
+                    <button
+                      onClick={() => setFlightToDisplay(bookingToShow.flightData[1])}
+                      className={flightToDisplay.typeOfFlight === 'RETURN' ? 'active' : ''}
+                    >
+                      Return
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <img src={bangladesh2} alt="Offer" />
+                <div className="offer-info">
+                  <h3>Fly to Coxs Bazar</h3>
+                  <span>$ 200</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
