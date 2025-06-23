@@ -109,7 +109,6 @@ export default function Container() {
   const [currentPage, setCurrentPage] = useState(1);
   const [priceAndDuration, setPriceAndDuration] = useState({});
   const [isReturn, setIsReturn] = useState(false);
-  const [isReloading, setIsReloading] = useState(false);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -177,7 +176,7 @@ export default function Container() {
   }
   return (
     <div className={styles.container}>
-      <MainHeader isReturn={isReturn} setAPISearch={setAPISearch} />
+      <MainHeader setIsReturn={setIsReturn} setAPISearch={setAPISearch} />
       {sharedData.return && !isReturn && (
         <div className={styles.flightTextContainer}>
           <h2>Choose your departure flight!</h2>

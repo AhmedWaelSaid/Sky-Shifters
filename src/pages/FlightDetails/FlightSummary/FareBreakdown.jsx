@@ -32,7 +32,7 @@ const FareBreakdown = ({
         baseFare.adults.push(price);
       } else if (passenger.type === "child") {
         if (!flight.return)
-          price = flight.departure.data.travelerPricings[index].price.total; // Adult full price
+          price = flight.departure.data.travelerPricings[index].price.total; // Child full price
         else
           price =
             Number(flight.departure.data.travelerPricings[index].price.total) +
@@ -40,7 +40,7 @@ const FareBreakdown = ({
         baseFare.children.push(price);
       } else {
         if (!flight.return)
-          price = flight.departure.data.travelerPricings[index].price.total; // Adult full price
+          price = flight.departure.data.travelerPricings[index].price.total; // Infant full price
         else
           price =
             Number(flight.departure.data.travelerPricings[index].price.total) +

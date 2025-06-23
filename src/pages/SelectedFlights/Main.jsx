@@ -16,11 +16,13 @@ export function FlightsUI({
   flight,
   btnHandler,
   btnHandler2,
-  carrier,
+  carriers,
   button,
   button2 = { exist: false },
 }) {
-  const [showPlusTime,setShowPlusTime]=useState(false)
+  const [showPlusTime,setShowPlusTime]=useState(false);
+  const carrierCode = flight?.itineraries?.[0]?.segments?.[0]?.carrierCode;
+  const carrier = carrierCode ? carriers?.[carrierCode] : "";
   return (
     <div className={styles.flight}>
       <div className={styles.airLineContainer}>
@@ -34,7 +36,7 @@ export function FlightsUI({
             console.warn("Logo failed to load:", e.target.src);
           }}
         />
-        <div className={styles.airLine}>{capitalizeWords(carrier)}</div>
+        <div className={styles.airLine}>{carrier && capitalizeWords(carrier)}</div>
       </div>
       <div className={styles.flightTime}>
         <div className={styles.plusDays} onMouseEnter={()=>{setShowPlusTime(true)}} onMouseLeave={()=>{setShowPlusTime(false)}}>
@@ -138,28 +140,21 @@ export function Main({
   const startIndex = (currentPage - 1) * flightsPerPage;
   const endIndex = startIndex + flightsPerPage;
   const currentFlights = flightsData.data.slice(startIndex, endIndex);
-
   function selectBtnHandler(data) {
+    const carriers = flightsData.dictionaries.carriers;
     const newFlight =
       !isReturn && !sharedData.return
         ? {
             return: null,
             departure: {
               data,
-              carrier:
-                flightsData.dictionaries.carriers[
-                  data.itineraries[0].segments[0].operating.carrierCode
-                ],
             },
+            carriers,
           }
         : {
             ...flight,
             return: {
               data,
-              carrier:
-                flightsData.dictionaries.carriers[
-                  data.itineraries[0].segments[0].operating.carrierCode
-                ],
             },
           };
     setFlight(newFlight);
@@ -167,15 +162,13 @@ export function Main({
   }
 
   function returnBtnHandler(data) {
+    const carriers = flightsData.dictionaries.carriers;
     setFlight(() => ({
       return: null,
       departure: {
         data,
-        carrier:
-          flightsData.dictionaries.carriers[
-            data.itineraries[0].segments[0].operating.carrierCode
-          ],
       },
+      carriers,
     }));
     setAPISearch({
       ...sharedData.return,
@@ -185,23 +178,23 @@ export function Main({
       setIsReturn(true);
     }, 200);
   }
-  const toggleDetails = (curFlight, carrier) => {
+  const toggleDetails = (curFlight, carriers) => {
     if (!isDetailsOpen && !sharedData.return) {
-      setTempFlight({ departure: { data: curFlight, carrier } });
+      setTempFlight({ departure: { data: curFlight },carriers });
     } else if (!isDetailsOpen && sharedData.return) {
-      if (!isReturn) setTempFlight({ departure: { data: curFlight, carrier } });
+      if (!isReturn) setTempFlight({ departure: { data: curFlight} , carriers});
       else
         setTempFlight({
-          return: { data: curFlight, carrier },
+          return: { data: curFlight },
           departure: {
             data: flight.departure.data,
-            carrier: flight.departure.carrier,
           },
+          carriers,
         });
     }
     setIsDetailsOpen(!isDetailsOpen);
   };
-  console.log(tempFlight);
+  console.log(tempFlight)
   return (
     <>
       {tempFlight && (
@@ -220,11 +213,8 @@ export function Main({
       )}
       <div className={styles.mainBody}>
         {currentFlights.map((flight) => {
-          const carrier =
-            flightsData.dictionaries.carriers[
-              flight.itineraries[0].segments[0].carrierCode
-            ];
-
+          const carriers =
+            flightsData.dictionaries.carriers;
           let btnHandler;
           let button;
           let button2 = { exist: false };
@@ -232,7 +222,7 @@ export function Main({
 
           if (sharedData.return) {
             if (isReturn) {
-              btnHandler = () => toggleDetails(flight, carrier);
+              btnHandler = () => toggleDetails(flight, carriers);
               button = { text: "View Details", className: "detailsBtn" };
               btnHandler2 = selectBtnHandler;
               button2 = {
@@ -247,11 +237,11 @@ export function Main({
                 className: "selectFlightBtn",
                 exist: true,
               };
-              btnHandler = () => toggleDetails(flight, carrier);
+              btnHandler = () => toggleDetails(flight, carriers);
               button = { text: "View Details", className: "detailsBtn" };
             }
           } else {
-            btnHandler = () => toggleDetails(flight, carrier);
+            btnHandler = () => toggleDetails(flight, carriers);
             btnHandler2 = selectBtnHandler;
             button = { text: "View Details", className: "detailsBtn" };
             button2 = {
@@ -268,7 +258,7 @@ export function Main({
                 flight={flight}
                 btnHandler={btnHandler}
                 btnHandler2={btnHandler2}
-                carrier={carrier}
+                carriers={carriers}
                 button={button}
                 button2={button2}
               />
@@ -303,7 +293,7 @@ Main.propTypes = {
   isReturn: PropTypes.bool,
 };
 FlightsUI.propTypes = {
-  carrier: PropTypes.string,
+  carriers: PropTypes.object,
   flight: PropTypes.object,
   btnHandler: PropTypes.func,
   btnHandler2: PropTypes.func,

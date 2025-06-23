@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState } from "react";
 import styles from "./DetailsOfTheFlight.module.css";
 import baggageCabin from "../../../assets/baggage-cabin.png";
 import baggageChecked from "../../../assets/baggage-checked.png";
@@ -328,10 +328,11 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
   const departureClass = sharedData?.passengerClass.class.text || "ECONOMY";
   const returnClass = sharedData?.passengerClass.class.text || departureClass;
   const segmentLength = flight.departure.data.itineraries[0].segments.length;
+  const returnSegmentLength =
+    flight?.return?.data?.itineraries[0].segments.length;
   const toggleStopsDropdown = () => {
     setExpandedStops(!expandedStops);
   };
-
   const toggleReturnStopsDropdown = () => {
     setExpandedReturnStops(!expandedReturnStops);
   };
@@ -353,30 +354,40 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
   let stopAirportDep = null;
   let stopAirportDep2 = null;
   let stopAirportDep3 = null;
-  if (
-    flight.departure &&
-    segmentLength > 0
-  ) {
+  if (flight.departure && segmentLength > 0) {
     stopAirportDep = getAirportByIATA(
       flight.departure.data.itineraries[0].segments[0].arrival.iataCode
     );
   }
-  if (
-    flight.departure &&
-    segmentLength > 1
-  ) {
+  if (flight.departure && segmentLength > 1) {
     stopAirportDep2 = getAirportByIATA(
       flight.departure.data.itineraries[0].segments[1].arrival.iataCode
     );
   }
-  if (
-    flight.departure &&
-    segmentLength > 2
-  ) {
+  if (flight.departure && segmentLength > 2) {
     stopAirportDep3 = getAirportByIATA(
       flight.departure.data.itineraries[0].segments[2].arrival.iataCode
     );
   }
+  let stopAirportRet = null;
+  let stopAirportRet2 = null;
+  let stopAirportRet3 = null;
+  if (flight.return && returnSegmentLength > 0) {
+    stopAirportRet = getAirportByIATA(
+      flight.return.data.itineraries[0].segments[0].arrival.iataCode
+    );
+  }
+  if (flight.return && returnSegmentLength > 1) {
+    stopAirportRet2 = getAirportByIATA(
+      flight.return.data.itineraries[0].segments[1].arrival.iataCode
+    );
+  }
+  if (flight.return && returnSegmentLength > 2) {
+    stopAirportRet3 = getAirportByIATA(
+      flight.return.data.itineraries[0].segments[2].arrival.iataCode
+    );
+  }
+  let returnDestination = null;
   let destination = null;
   if (segmentLength === 1 && stopAirportDep) {
     destination = stopAirportDep;
@@ -384,6 +395,13 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
     destination = stopAirportDep2;
   } else if (segmentLength === 3 && stopAirportDep3) {
     destination = stopAirportDep3;
+  }
+  if (returnSegmentLength === 1 && stopAirportRet) {
+    returnDestination = stopAirportRet;
+  } else if (returnSegmentLength === 2 && stopAirportRet2) {
+    returnDestination = stopAirportRet2;
+  } else if (returnSegmentLength === 3 && stopAirportRet3) {
+    returnDestination = stopAirportRet3;
   }
   return (
     <div className={styles.flightDetailsContainer}>
@@ -460,6 +478,48 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
           </div>
 
           {/* Flight */}
+          {segmentLength == 1 && (
+            <div className={styles.flightInfo}>
+              <div className={styles.stopFlight}>
+                <div className={styles.flightDuration}>
+                  <div className={styles.fixedTime}>
+                    {formatDuration(
+                      flight.departure.data.itineraries[0].segments[0].duration
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.airlineDetails}>
+                  <div className={styles.airlineLogoContainer}>
+                    <div className={styles.airlineLogo}>
+                      <img
+                        src={`https://pics.avs.io/40/40/${flight.departure.data.itineraries[0].segments[0].carrierCode}.png`}
+                        alt="Airline Logo"
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.airlineInfo}>
+                    <div className={styles.airlineName}>
+                      {dealWithAirline(
+                        flight.carriers[
+                          flight.departure.data.itineraries[0].segments[0]
+                            .carrierCode
+                        ]
+                      ) +
+                        " | " +
+                        flight.departure.data.itineraries[0].segments[0]
+                          .carrierCode +
+                        "-" +
+                        flight.departure.data.itineraries[0].segments[0].number}
+                    </div>
+                    <div className={styles.cabinClass}>
+                      {sharedData.passengerClass.class.text}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           {segmentLength > 1 && (
             <div className={styles.flightInfo}>
               <div className={styles.stopContainer}>
@@ -493,14 +553,19 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                   <div className={styles.airlineLogoContainer}>
                     <div className={styles.airlineLogo}>
                       <img
-                        src={`https://pics.avs.io/60/60/${flight.departure.data.itineraries[0].segments[0].carrierCode}.png`}
+                        src={`https://pics.avs.io/40/40/${flight.departure.data.itineraries[0].segments[0].carrierCode}.png`}
                         alt="Airline Logo"
                       />
                     </div>
                   </div>
                   <div className={styles.airlineInfo}>
                     <div className={styles.airlineName}>
-                      {dealWithAirline(flight.departure.carrier) +
+                      {dealWithAirline(
+                        flight.carriers[
+                          flight.departure.data.itineraries[0].segments[0]
+                            .carrierCode
+                        ]
+                      ) +
                         " | " +
                         flight.departure.data.itineraries[0].segments[0]
                           .carrierCode +
@@ -649,14 +714,19 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                       <div className={styles.airlineLogoContainer}>
                         <div className={styles.airlineLogo}>
                           <img
-                            src={`https://pics.avs.io/60/60/${flight.departure.data.itineraries[0].segments[1].carrierCode}.png`}
+                            src={`https://pics.avs.io/40/40/${flight.departure.data.itineraries[0].segments[1].carrierCode}.png`}
                             alt="Airline Logo"
                           />
                         </div>
                       </div>
                       <div className={styles.airlineInfo}>
                         <div className={styles.airlineName}>
-                          {dealWithAirline(flight.departure.carrier) +
+                          {dealWithAirline(
+                            flight.carriers[
+                              flight.departure.data.itineraries[0].segments[1]
+                                .carrierCode
+                            ]
+                          ) +
                             " | " +
                             flight.departure.data.itineraries[0].segments[1]
                               .carrierCode +
@@ -809,14 +879,19 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                           <div className={styles.airlineLogoContainer}>
                             <div className={styles.airlineLogo}>
                               <img
-                                src={`https://pics.avs.io/60/60/${flight.departure.data.itineraries[0].segments[2].carrierCode}.png`}
+                                src={`https://pics.avs.io/40/40/${flight.departure.data.itineraries[0].segments[2].carrierCode}.png`}
                                 alt="Airline Logo"
                               />
                             </div>
                           </div>
                           <div className={styles.airlineInfo}>
                             <div className={styles.airlineName}>
-                              {dealWithAirline(flight.departure.carrier) +
+                              {dealWithAirline(
+                                flight.carriers[
+                                  flight.departure.data.itineraries[0]
+                                    .segments[2].carrierCode
+                                ]
+                              ) +
                                 " | " +
                                 flight.departure.data.itineraries[0].segments[2]
                                   .carrierCode +
@@ -883,12 +958,12 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
               </div>
             </div>
             <div className={styles.locationInfo}>
-              {destination&&<div className={styles.airport}>
-                <span className={styles.dot}></span>
-                {
-                   destination.name
-                } ({destination.iata})
-              </div>}
+              {destination && (
+                <div className={styles.airport}>
+                  <span className={styles.dot}></span>
+                  {destination.name} ({destination.iata})
+                </div>
+              )}
               <div className={styles.terminal}>
                 {(segmentLength == 1 &&
                   (flight.departure.data.itineraries[0].segments[0].arrival
@@ -903,19 +978,20 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                       ? "Terminal " +
                         flight.departure.data.itineraries[0].segments[1].arrival
                           .terminal
-                      : ""))
-                      || (segmentLength == 3 &&
-                        (flight.departure.data.itineraries[0].segments[2].arrival
+                      : "")) ||
+                  (segmentLength == 3 &&
+                    (flight.departure.data.itineraries[0].segments[2].arrival
+                      .terminal
+                      ? "Terminal " +
+                        flight.departure.data.itineraries[0].segments[2].arrival
                           .terminal
-                          ? "Terminal " +
-                            flight.departure.data.itineraries[0].segments[2].arrival
-                              .terminal
-                          : ""))}
+                      : ""))}
               </div>
-              { destination && <div className={styles.city}>
-                {destination.city},{" "}
-                {destination.country}
-              </div>}
+              {destination && (
+                <div className={styles.city}>
+                  {destination.city}, {destination.country}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -988,9 +1064,9 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                 </div>
                 <div className={styles.day}>
                   {format(
-                    flight.return.data.itineraries[0].segments[0].departure.at.split(
-                      "T"
-                    )[0],
+                    new Date(
+                      flight.return.data.itineraries[0].segments[0].departure.at
+                    ),
                     "d	LLL"
                   )}
                 </div>
@@ -998,8 +1074,8 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
               <div className={styles.locationInfo}>
                 <div className={styles.airport}>
                   <span className={styles.dot}></span>
-                  {sharedData.return.origin.airport.name} (
-                  {sharedData.return.origin.airport.iata})
+                  {sharedData.departure.dest.airport.name} (
+                  {sharedData.departure.dest.airport.iata})
                 </div>
                 <div className={styles.terminal}>
                   {flight.return.data.itineraries[0].segments[0].departure
@@ -1010,25 +1086,74 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                     : ""}
                 </div>
                 <div className={styles.city}>
-                  {sharedData.return.origin.airport.city},{" "}
-                  {sharedData.return.origin.airport.country}
+                  {sharedData.departure.dest.airport.city},{" "}
+                  {sharedData.departure.dest.airport.country}
                 </div>
               </div>
             </div>
 
             {/* Flight */}
-            {flight.return.data.itineraries[0].segments.length > 1 && (
+            {returnSegmentLength == 1 && (
               <div className={styles.flightInfo}>
-                <div className={styles.stopContainer}>
+                <div className={styles.stopFlight}>
                   <div className={styles.flightDuration}>
                     <div className={styles.fixedTime}>
                       {formatDuration(
                         flight.return.data.itineraries[0].segments[0].duration
                       )}
                     </div>
+                  </div>
+
+                  <div className={styles.airlineDetails}>
+                    <div className={styles.airlineLogoContainer}>
+                      <div className={styles.airlineLogo}>
+                        <img
+                          src={`https://pics.avs.io/40/40/${flight.return.data.itineraries[0].segments[0].carrierCode}.png`}
+                          alt="Airline Logo"
+                        />
+                      </div>
+                    </div>
+                    <div className={styles.airlineInfo}>
+                      <div className={styles.airlineName}>
+                        {dealWithAirline(
+                          flight.carriers[
+                            flight.return.data.itineraries[0].segments[0]
+                              .carrierCode
+                          ]
+                        ) +
+                          " | " +
+                          flight.return.data.itineraries[0].segments[0]
+                            .carrierCode +
+                          "-" +
+                          flight.return.data.itineraries[0].segments[0].number}
+                      </div>
+                      <div className={styles.cabinClass}>
+                        {sharedData.passengerClass.class.text}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            {returnSegmentLength > 1 && (
+              <div className={styles.flightInfo}>
+                <div className={styles.stopContainer}>
+                  <div className={styles.flightDuration}>
+                    <div className={styles.fixedTime}>
+                      {!expandedReturnStops
+                        ? formatDuration(
+                            flight.return.data.itineraries[0].duration
+                          )
+                        : formatDuration(
+                            flight.return.data.itineraries[0].segments[0]
+                              .duration
+                          )}
+                    </div>
                     {!expandedReturnStops && (
                       <div className={styles.stops}>
-                        <span className={styles.stopsBadge}>1 Stop</span>
+                        <span className={styles.stopsBadge}>
+                          {returnSegmentLength - 1} Stop
+                        </span>
                       </div>
                     )}
                   </div>
@@ -1038,23 +1163,24 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                       className={styles.stopsDropdownButton}
                       onClick={toggleReturnStopsDropdown}
                     >
-                      {expandedReturnStops ? (
-                        <ChevronUpIcon />
-                      ) : (
-                        <ChevronDownIcon />
-                      )}
+                      {expandedReturnStops ? <ChevronUpIcon /> : <ChevronDownIcon />}
                     </button>
                     <div className={styles.airlineLogoContainer}>
                       <div className={styles.airlineLogo}>
                         <img
-                          src="https://i.pinimg.com/originals/db/63/b5/db63b5aa67202c6a027b477a1f93c0f3.png"
+                          src={`https://pics.avs.io/40/40/${flight.return.data.itineraries[0].segments[0].carrierCode}.png`}
                           alt="Airline Logo"
                         />
                       </div>
                     </div>
                     <div className={styles.airlineInfo}>
                       <div className={styles.airlineName}>
-                        {dealWithAirline(flight.return.carrier) +
+                        {dealWithAirline(
+                          flight.carriers[
+                            flight.return.data.itineraries[0].segments[0]
+                              .carrierCode
+                          ]
+                        ) +
                           " | " +
                           flight.return.data.itineraries[0].segments[0]
                             .carrierCode +
@@ -1082,9 +1208,9 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                         </div>
                         <div className={styles.day}>
                           {format(
-                            flight.return.data.itineraries[0].segments[0].arrival.at.split(
-                              "T"
-                            )[0],
+                            new Date(
+                              flight.return.data.itineraries[0].segments[0].arrival.at
+                            ),
                             "d	LLL"
                           )}
                         </div>
@@ -1094,7 +1220,7 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                           <span className={styles.stopDot}></span>
                           <div>
                             <div className={styles.stopAirport}>
-                              {stopAirportDep && stopAirportDep.name}
+                              {stopAirportRet && stopAirportRet.name}
                             </div>
                             <div className={styles.stopIATA}>
                               (
@@ -1104,23 +1230,38 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                               }
                               )
                             </div>
+                            <div className={styles.terminal2}>
+                              {flight.return.data.itineraries[0].segments[0]
+                                .arrival.terminal
+                                ? "Terminal " +
+                                  flight.return.data.itineraries[0]
+                                    .segments[0].arrival.terminal
+                                : ""}
+                            </div>
                             <div className={styles.stopCity}>
-                              {stopAirportDep &&
-                                stopAirportDep.city +
+                              {stopAirportRet &&
+                                stopAirportRet.city +
                                   ", " +
-                                  stopAirportDep.country}
+                                  stopAirportRet.country}
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div className={styles.waitingContainer}>
-                      <div className={styles.waitingStopTime}>{}</div>
+                      <div className={styles.waitingStopTime}>
+                        {getTimeOfWaiting(
+                          flight.return.data.itineraries[0].segments[0]
+                            .arrival.at,
+                          flight.return.data.itineraries[0].segments[1]
+                            .departure.at
+                        )}
+                      </div>
                       <div className={styles.stopDuration}>
                         <span className={styles.waitingLabel}>
                           Waiting time in{" "}
                           <strong>
-                            {stopAirportDep && stopAirportDep.city}
+                            {stopAirportRet && stopAirportRet.city}
                           </strong>
                         </span>
                       </div>
@@ -1136,9 +1277,9 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                         </div>
                         <div className={styles.day}>
                           {format(
-                            flight.return.data.itineraries[0].segments[1].departure.at.split(
-                              "T"
-                            )[0],
+                            new Date(
+                              flight.return.data.itineraries[0].segments[1].departure.at
+                            ),
                             "d	LLL"
                           )}
                         </div>
@@ -1148,7 +1289,7 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                           <span className={styles.dot1}></span>
                           <div>
                             <div className={styles.stopAirport}>
-                              {stopAirportDep && stopAirportDep.name}
+                              {stopAirportRet && stopAirportRet.name}
                             </div>
                             <div className={styles.stopIATA}>
                               (
@@ -1158,11 +1299,19 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                               }
                               )
                             </div>
+                            <div className={styles.terminal2}>
+                              {flight.return.data.itineraries[0].segments[1]
+                                .departure.terminal
+                                ? "Terminal " +
+                                  flight.return.data.itineraries[0]
+                                    .segments[1].departure.terminal
+                                : ""}
+                            </div>
                             <div className={styles.stopCity}>
-                              {stopAirportDep &&
-                                stopAirportDep.city +
+                              {stopAirportRet &&
+                                stopAirportRet.city +
                                   ", " +
-                                  stopAirportDep.country}
+                                  stopAirportRet.country}
                             </div>
                           </div>
                         </div>
@@ -1182,14 +1331,19 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                         <div className={styles.airlineLogoContainer}>
                           <div className={styles.airlineLogo}>
                             <img
-                              src="https://i.pinimg.com/originals/db/63/b5/db63b5aa67202c6a027b477a1f93c0f3.png"
+                              src={`https://pics.avs.io/40/40/${flight.return.data.itineraries[0].segments[1].carrierCode}.png`}
                               alt="Airline Logo"
                             />
                           </div>
                         </div>
                         <div className={styles.airlineInfo}>
                           <div className={styles.airlineName}>
-                            {dealWithAirline(flight.return.carrier) +
+                            {dealWithAirline(
+                              flight.carriers[
+                                flight.return.data.itineraries[0].segments[1]
+                                  .carrierCode
+                              ]
+                            ) +
                               " | " +
                               flight.return.data.itineraries[0].segments[1]
                                 .carrierCode +
@@ -1203,6 +1357,173 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                         </div>
                       </div>
                     </div>
+                    {returnSegmentLength >= 3 && (
+                      <div>
+                        <div
+                          className={`${styles.stopsDropdownContent} ${expandedReturnStops ? styles.expanded : ""}`}
+                        >
+                          <div className={styles.timeOfStop}>
+                            <div className={styles.time}>
+                              {formatted(
+                                flight.return.data.itineraries[0].segments[1].arrival.at.split(
+                                  "T"
+                                )[1]
+                              )}
+                            </div>
+                            <div className={styles.day}>
+                              {format(
+                                new Date(
+                                  flight.return.data.itineraries[0].segments[1].arrival.at
+                                ),
+                                "d	LLL"
+                              )}
+                            </div>
+                          </div>
+                          <div className={styles.stopDetail}>
+                            <div className={styles.stopLocation}>
+                              <span className={styles.stopDot}></span>
+                              <div>
+                                <div className={styles.stopAirport}>
+                                  {stopAirportRet2 && stopAirportRet2.name}
+                                </div>
+                                <div className={styles.stopIATA}>
+                                  (
+                                  {
+                                    flight.return.data.itineraries[0]
+                                      .segments[1].arrival.iataCode
+                                  }
+                                  )
+                                </div>
+                                <div className={styles.terminal2}>
+                                  {flight.return.data.itineraries[0]
+                                    .segments[1].arrival.terminal
+                                    ? "Terminal " +
+                                      flight.return.data.itineraries[0]
+                                        .segments[1].arrival.terminal
+                                    : ""}
+                                </div>
+                                <div className={styles.stopCity}>
+                                  {stopAirportRet2 &&
+                                    stopAirportRet2.city +
+                                      ", " +
+                                      stopAirportRet2.country}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className={styles.waitingContainer}>
+                          <div className={styles.waitingStopTime}>
+                            {getTimeOfWaiting(
+                              flight.return.data.itineraries[0].segments[1]
+                                .arrival.at,
+                              flight.return.data.itineraries[0].segments[2]
+                                .departure.at
+                            )}
+                          </div>
+                          <div className={styles.stopDuration}>
+                            <span className={styles.waitingLabel}>
+                              Waiting time in{" "}
+                              <strong>
+                                {stopAirportRet2 && stopAirportRet2.city}
+                              </strong>
+                            </span>
+                          </div>
+                        </div>
+                        <div className={styles.stopDeparture}>
+                          <div className={styles.timeOfStop}>
+                            <div className={styles.time}>
+                              {formatted(
+                                flight.return.data.itineraries[0].segments[2].departure.at.split(
+                                  "T"
+                                )[1]
+                              )}
+                            </div>
+                            <div className={styles.day}>
+                              {format(
+                                new Date(
+                                  flight.return.data.itineraries[0].segments[2].departure.at
+                                ),
+                                "d	LLL"
+                              )}
+                            </div>
+                          </div>
+                          <div className={styles.stopDetail}>
+                            <div className={styles.stopLocation}>
+                              <span className={styles.dot1}></span>
+                              <div>
+                                <div className={styles.stopAirport}>
+                                  {stopAirportRet2 && stopAirportRet2.name}
+                                </div>
+                                <div className={styles.stopIATA}>
+                                  (
+                                  {
+                                    flight.return.data.itineraries[0]
+                                      .segments[1].arrival.iataCode
+                                  }
+                                  )
+                                </div>
+                                <div className={styles.terminal2}>
+                                  {flight.return.data.itineraries[0]
+                                    .segments[2].departure.terminal
+                                    ? "Terminal " +
+                                      flight.return.data.itineraries[0]
+                                        .segments[2].departure.terminal
+                                    : ""}
+                                </div>
+                                <div className={styles.stopCity}>
+                                  {stopAirportRet2 &&
+                                    stopAirportRet2.city +
+                                      ", " +
+                                      stopAirportRet2.country}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className={styles.stopFlight}>
+                          <div className={styles.flightDuration}>
+                            <div className={styles.fixedTime}>
+                              {formatDuration(
+                                flight.return.data.itineraries[0].segments[2]
+                                  .duration
+                              )}
+                            </div>
+                          </div>
+
+                          <div className={styles.airlineDetails}>
+                            <div className={styles.airlineLogoContainer}>
+                              <div className={styles.airlineLogo}>
+                                <img
+                                  src={`https://pics.avs.io/40/40/${flight.return.data.itineraries[0].segments[2].carrierCode}.png`}
+                                  alt="Airline Logo"
+                                />
+                              </div>
+                            </div>
+                            <div className={styles.airlineInfo}>
+                              <div className={styles.airlineName}>
+                                {dealWithAirline(
+                                  flight.carriers[
+                                    flight.return.data.itineraries[0]
+                                      .segments[2].carrierCode
+                                  ]
+                                ) +
+                                  " | " +
+                                  flight.return.data.itineraries[0]
+                                    .segments[2].carrierCode +
+                                  "-" +
+                                  flight.return.data.itineraries[0]
+                                    .segments[2].number}
+                              </div>
+                              <div className={styles.cabinClass}>
+                                {sharedData.passengerClass.class.text}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1212,59 +1533,82 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
             <div className={styles.locationTimeInfo}>
               <div className={styles.timeInfo}>
                 <div className={styles.time}>
-                  {flight.return.data.itineraries[0].segments.length == 1
+                  {returnSegmentLength == 1
                     ? formatted(
                         flight.return.data.itineraries[0].segments[0].arrival.at.split(
                           "T"
                         )[1]
                       )
-                    : formatted(
-                        flight.return.data.itineraries[0].segments[1].arrival.at.split(
-                          "T"
-                        )[1]
-                      )}
+                    : returnSegmentLength == 2
+                      ? formatted(
+                          flight.return.data.itineraries[0].segments[1].arrival.at.split(
+                            "T"
+                          )[1]
+                        )
+                      : formatted(
+                          flight.return.data.itineraries[0].segments[2].arrival.at.split(
+                            "T"
+                          )[1]
+                        )}
                 </div>
                 <div className={styles.day}>
-                  {flight.return.data.itineraries[0].segments.length == 1
+                  {returnSegmentLength == 1
                     ? format(
-                        flight.return.data.itineraries[0].segments[0].arrival.at.split(
-                          "T"
-                        )[0],
+                        new Date(
+                          flight.return.data.itineraries[0].segments[0].arrival.at
+                        ),
                         "d	LLL"
                       )
-                    : format(
-                        flight.return.data.itineraries[0].segments[1].arrival.at.split(
-                          "T"
-                        )[0],
-                        "d	LLL"
-                      )}
+                    : returnSegmentLength == 2
+                      ? format(
+                          new Date(
+                            flight.return.data.itineraries[0].segments[1].arrival.at
+                          ),
+                          "d	LLL"
+                        )
+                      : format(
+                          new Date(
+                            flight.return.data.itineraries[0].segments[2].arrival.at
+                          ),
+                          "d	LLL"
+                        )}
                 </div>
               </div>
               <div className={styles.locationInfo}>
-                <div className={styles.airport}>
-                  <span className={styles.dot}></span>
-                  {sharedData.return.dest.airport.name} (
-                  {sharedData.return.dest.airport.iata})
-                </div>
+                {returnDestination && (
+                  <div className={styles.airport}>
+                    <span className={styles.dot}></span>
+                    {returnDestination.name} ({returnDestination.iata})
+                  </div>
+                )}
                 <div className={styles.terminal}>
-                  {flight.return.data.itineraries[0].segments.length == 1
-                    ? flight.return.data.itineraries[0].segments[0].arrival
-                        .terminal
+                  {(returnSegmentLength == 1 &&
+                    (flight.return.data.itineraries[0].segments[0].arrival
+                      .terminal
                       ? "Terminal " +
                         flight.return.data.itineraries[0].segments[0].arrival
                           .terminal
-                      : ""
-                    : flight.return.data.itineraries[0].segments[1].arrival
-                          .terminal
-                      ? "Terminal " +
-                        flight.return.data.itineraries[0].segments[1].arrival
-                          .terminal
-                      : ""}
+                      : "")) ||
+                    (returnSegmentLength == 2 &&
+                      (flight.return.data.itineraries[0].segments[1].arrival
+                        .terminal
+                        ? "Terminal " +
+                          flight.return.data.itineraries[0].segments[1]
+                            .arrival.terminal
+                        : "")) ||
+                    (returnSegmentLength == 3 &&
+                      (flight.return.data.itineraries[0].segments[2].arrival
+                        .terminal
+                        ? "Terminal " +
+                          flight.return.data.itineraries[0].segments[2]
+                            .arrival.terminal
+                        : ""))}
                 </div>
-                <div className={styles.city}>
-                  {sharedData.return.dest.airport.city},{" "}
-                  {sharedData.return.dest.airport.country}
-                </div>
+                {returnDestination && (
+                  <div className={styles.city}>
+                    {returnDestination.city}, {returnDestination.country}
+                  </div>
+                )}
               </div>
             </div>
           </div>

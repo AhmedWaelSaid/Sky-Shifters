@@ -58,7 +58,7 @@ const CancellationPolicy = ({ onDetailsClick }) => {
                     sharedData.departure.dest.airport.city +
                     " - " +
                     "(" +
-                    flight.departure.carrier.toLowerCase() +
+                    flight.carriers[flight.departure.data.itineraries[0].segments[0].carrierCode].toLowerCase() +
                     ")"}
                 </div>}
                 <div className={styles.infoItem}>
@@ -94,7 +94,7 @@ const CancellationPolicy = ({ onDetailsClick }) => {
                   sharedData.return.dest.airport.city +
                   " - " +
                   "(" +
-                  flight.return.carrier.toLowerCase() +
+                  flight.carriers[flight.return.data.itineraries[0].segments[0].carrierCode].toLowerCase() +
                   ")"}
               </div>
               <div className={styles.infoItem}>

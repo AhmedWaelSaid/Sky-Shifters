@@ -58,11 +58,18 @@ const FlightSummary = ({
     return <div className={styles.flightSummary}>Loading Summary...</div>;
   }
 
-    let airlineForDeparture = `${dealWithAirline(flight.departure.carrier)} ${flight.departure.data.itineraries[0].segments[0].carrierCode}-${flight.departure.data.itineraries[0].segments[0].number}`;
+    let airlineForDeparture = `${dealWithAirline(flight.carriers[flight.departure.data.itineraries[0].segments[0].carrierCode])} ${flight.departure.data.itineraries[0].segments[0].carrierCode}-${flight.departure.data.itineraries[0].segments[0].number}`;
   if (flight.departure.data.itineraries[0].segments.length >= 2)
-    airlineForDeparture += `, ${dealWithAirline(flight.departure.carrier)} ${flight.departure.data.itineraries[0].segments[1].carrierCode}-${flight.departure.data.itineraries[0].segments[1].number}`;
+    airlineForDeparture += `, ${dealWithAirline(flight.carriers[flight.departure.data.itineraries[0].segments[1].carrierCode])} ${flight.departure.data.itineraries[0].segments[1].carrierCode}-${flight.departure.data.itineraries[0].segments[1].number}`;
   if (flight.departure.data.itineraries[0].segments.length >= 3)
-    airlineForDeparture += `, ${dealWithAirline(flight.departure.carrier)} ${flight.departure.data.itineraries[0].segments[2].carrierCode}-${flight.departure.data.itineraries[0].segments[2].number}`;
+    airlineForDeparture += `, ${dealWithAirline(flight.carriers[flight.departure.data.itineraries[0].segments[2].carrierCode])} ${flight.departure.data.itineraries[0].segments[2].carrierCode}-${flight.departure.data.itineraries[0].segments[2].number}`;
+
+  let airlineForReturn = `${dealWithAirline(flight.carriers[flight.return.data.itineraries[0].segments[0].carrierCode])} ${flight.return.data.itineraries[0].segments[0].carrierCode}-${flight.return.data.itineraries[0].segments[0].number}`;
+  if (flight.return.data.itineraries[0].segments.length >= 2)
+    airlineForReturn += `, ${dealWithAirline(flight.carriers[flight.return.data.itineraries[0].segments[1].carrierCode])} ${flight.return.data.itineraries[0].segments[1].carrierCode}-${flight.return.data.itineraries[0].segments[1].number}`;
+  if (flight.return.data.itineraries[0].segments.length >= 3)
+    airlineForReturn += `, ${dealWithAirline(flight.carriers[flight.return.data.itineraries[0].segments[2].carrierCode])} ${flight.return.data.itineraries[0].segments[2].carrierCode}-${flight.return.data.itineraries[0].segments[2].number}`;
+
   return (
     <div className={styles.flightSummary}>
       <div className={styles.summaryHeader}>
@@ -145,7 +152,7 @@ const FlightSummary = ({
             ),
             "EEE, d LLL uuuu"
           )}
-          airline={`${dealWithAirline(flight.return.carrier)} ${flight.return.data.itineraries[0].segments[0].carrierCode}-${flight.return.data.itineraries[0].segments[0].number}`}
+          airline={airlineForReturn}
           departure={{
             time: formatted(
               flight.return.data.itineraries[0].segments[0].departure.at.split(

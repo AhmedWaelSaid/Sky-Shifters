@@ -43,7 +43,7 @@ AirportInput.propTypes = {
   value: PropTypes.object,
 };
 
-export default function MainHeader({isReturn,setAPISearch}) {
+export default function MainHeader({setAPISearch,setIsReturn}) {
   const { sharedData, setSharedData } = useData();
   const [dates, setDates] = useState(
     sharedData.departure.date
@@ -107,6 +107,7 @@ export default function MainHeader({isReturn,setAPISearch}) {
           return: null,
           passengerClass,
         });
+        setIsReturn(false);
         setAPISearch({date: dates.departure, dest, origin ,passengerClass});
       } else if (
         origin.airport &&
@@ -119,6 +120,7 @@ export default function MainHeader({isReturn,setAPISearch}) {
           return: { date: dates.return, dest: origin, origin: dest },
           passengerClass,
         });
+        setIsReturn(false);
         setAPISearch({date: dates.departure, dest, origin ,passengerClass});
       }
     }
@@ -220,5 +222,6 @@ export default function MainHeader({isReturn,setAPISearch}) {
   );
 }
 MainHeader.propTypes = {
-  isReturn: PropTypes.bool,
+  setAPISearch: PropTypes.func,
+  setIsReturn: PropTypes.func,
 }
