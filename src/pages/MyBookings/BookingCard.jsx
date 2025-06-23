@@ -245,7 +245,13 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                       </div>
                       <div className={styles.flightPath}>
                         <div className={styles.stopsInfo}>
-                          {flight.numberOfStops > 0 ? `${flight.numberOfStops} Stop(s)` : 'Direct'}
+                          {typeof flight.numberOfStops === 'number' 
+                            ? (flight.numberOfStops > 0 
+                                ? `${flight.numberOfStops} Stop${flight.numberOfStops > 1 ? 's' : ''}` 
+                                : 'Direct')
+                            : (flight.stops > 0 
+                                ? `${flight.stops} Stop${flight.stops > 1 ? 's' : ''}` 
+                                : 'Direct')}
                         </div>
                         <div className={styles.pathLine}>
                           <div className={styles.pathDot}></div>
@@ -288,7 +294,13 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                     </div>
                     <div className={styles.flightPath}>
                       <div className={styles.stopsInfo}>
-                        {booking.stops > 0 ? `${booking.stops} Stop` : 'Direct'}
+                        {typeof booking.numberOfStops === 'number' 
+                          ? (booking.numberOfStops > 0 
+                              ? `${booking.numberOfStops} Stop${booking.numberOfStops > 1 ? 's' : ''}` 
+                              : 'Direct')
+                          : (booking.stops > 0 
+                              ? `${booking.stops} Stop${booking.stops > 1 ? 's' : ''}` 
+                              : 'Direct')}
                       </div>
                       <div className={styles.pathLine}>
                         <div className={styles.pathDot}></div>
