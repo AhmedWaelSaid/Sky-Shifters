@@ -390,13 +390,29 @@ export default function TravelOffers() {
                 {originDetails && (
                   <span style={{display: 'flex', alignItems: 'center', gap: 6}}>
                     <span role="img" aria-label="depart">🛫</span>
-                    {originDetails.name} ({originDetails.city}, {originDetails.country})
+                    {originDetails.name}
+                    {((originDetails.city && originDetails.country) || originDetails.city || originDetails.country) && (
+                      <span style={{marginLeft: 3, color: '#ccc', fontWeight: 400}}>
+                        {[
+                          originDetails.city,
+                          originDetails.country
+                        ].filter(Boolean).join(', ')}
+                      </span>
+                    )}
                   </span>
                 )}
                 {destinationDetails && (
                   <span style={{display: 'flex', alignItems: 'center', gap: 6}}>
                     <span role="img" aria-label="arrive">🛬</span>
-                    {destinationDetails.name} ({destinationDetails.city}, {destinationDetails.country})
+                    {destinationDetails.name}
+                    {((destinationDetails.city && destinationDetails.country) || destinationDetails.city || destinationDetails.country) && (
+                      <span style={{marginLeft: 3, color: '#ccc', fontWeight: 400}}>
+                        {[
+                          destinationDetails.city,
+                          destinationDetails.country
+                        ].filter(Boolean).join(', ')}
+                      </span>
+                    )}
                   </span>
                 )}
                 {airline && (
