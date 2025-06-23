@@ -58,7 +58,6 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [flightDetailsForMap, setFlightDetailsForMap] = useState(null);
   const [showMap, setShowMap] = useState(false);
-  const [showRoundTripMap, setShowRoundTripMap] = useState(false);
 
   const getStatusText = (status) => {
     switch (status) {
@@ -118,28 +117,6 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
       console.error('Could not find details for one or both airports');
       // Maybe show a toast notification to the user
     }
-  };
-
-  // New handler for the main "View Flight Path" button
-  const handleViewFlightPath = async () => {
-    if (showRoundTripMap) {
-      setShowRoundTripMap(false);
-      return;
-    }
-
-    // This button should only work for round trips with flightData
-    if (booking.flightData && booking.flightData.length > 0) {
-      // Since handleShowMap already fetches airport details, we can reuse it
-      // to prepare the data for the first leg, which is enough to display the path.
-      // For simplicity, we'll show the map for the first leg when the main button is clicked.
-      // A more advanced implementation would show both paths.
-      handleShowMap(booking.flightData[0]);
-    } else if (booking.originAirportCode && booking.destinationAirportCode) {
-      // If it's a one-way flight, show its map
-      handleShowMap(booking);
-    }
-    // For round trips, we will show the map inside the first flight segment.
-    // So we don't need a separate state for the round trip map below the card actions.
   };
 
   // حذف الحجز نهائياً (pending فقط)
@@ -391,7 +368,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
         <button
           className={styles.seatButton}
           style={{ backgroundColor: '#FF8C00', borderColor: '#FF8C00' }}
-          onClick={handleViewFlightPath}
+          onClick={() => onShowOnMap(booking._id)}
           disabled={booking.status !== 'confirmed'}
         >
           View Flight Path
