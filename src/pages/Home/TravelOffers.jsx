@@ -229,15 +229,15 @@ export default function TravelOffers() {
 
             // Use a proper airplane icon instead of a circle
             map.loadImage(
-              'https://cdn-icons-png.flaticon.com/512/3125/3125713.png', // Airplane icon
+              'https://i.imgur.com/6D2d2nC.png', // A clearer, more realistic airplane icon
               (error, image) => {
                 if (error) {
                   console.error('An error occurred while loading the airplane icon:', error);
                   return; // Fallback to no icon if loading fails
                 }
                 if (!map.hasImage('airplane-icon')) {
-                  // Add the image to the map style. SDF=true allows us to change the icon color.
-                  map.addImage('airplane-icon', image, { sdf: true });
+                  // Add the image to the map style.
+                  map.addImage('airplane-icon', image);
                 }
 
                 // Add the airplane source
@@ -256,14 +256,14 @@ export default function TravelOffers() {
                   'type': 'symbol',
                   'layout': {
                     'icon-image': 'airplane-icon',
-                    'icon-size': 0.08,
+                    'icon-size': 0.1,
                     'icon-rotate': ['get', 'bearing'], // Rotate the icon based on the direction of travel
                     'icon-rotation-alignment': 'map',
                     'icon-allow-overlap': true,
                     'icon-ignore-placement': true
                   },
                   'paint': {
-                    'icon-color': '#FFFFFF' // Make the icon white
+                    // No paint properties needed for a colored PNG icon
                   }
                 });
 
