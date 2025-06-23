@@ -1,7 +1,7 @@
 /* BookingList.module.css */
 .container {
   padding: 20px 40px;
-  background-color: #f8f9fa;
+  background-color: var(--bg-color);
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   margin-top: 100px;
@@ -19,8 +19,8 @@
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #e3e3e3;
-  border-top: 4px solid #007bff;
+  border: 4px solid var(--profile-input-border, #e3e3e3);
+  border-top: 4px solid var(--Btnbg-color, #007bff);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -34,9 +34,9 @@
   text-align: center;
   margin-bottom: 40px;
   padding: 40px 20px;
-  background: linear-gradient(135deg, #4a5568 0%, #2c3e50 100%);
+  background: linear-gradient(135deg, var(--profile-header-bg, #4a5568) 0%, var(--profile-sidebar-bg, #2c3e50) 100%);
   border-radius: 12px;
-  color: white;
+  color: var(--profile-header-title, white);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
@@ -45,11 +45,12 @@
   font-weight: 700;
   margin-bottom: 10px;
   text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  color: var(--profile-header-title, white);
 }
 
 .pageHeader p {
   font-size: 1.1rem;
-  color: #e2e8f0;
+  color: var(--profile-sidebar-subtext, #e2e8f0);
   margin: 0;
   opacity: 0.9;
 }
@@ -63,14 +64,14 @@
 .emptyState {
   text-align: center;
   padding: 60px 20px;
-  background: white;
+  background: var(--profile-bg, white);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .emptyState p {
   font-size: 1.2rem;
-  color: #666;
+  color: var(--profile-sidebar-subtext, #666);
   margin: 0;
 }
 
@@ -87,5 +88,11 @@
   .pageHeader p {
     font-size: 1rem;
   }
+}
+
+/* Dark mode overrides for gradients if needed */
+body.dark .pageHeader {
+  background: linear-gradient(135deg, var(--profile-header-bg, #222) 0%, var(--profile-sidebar-bg, #232326) 100%);
+  color: var(--profile-header-title, #fff);
 }
 
