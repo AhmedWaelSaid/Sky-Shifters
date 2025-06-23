@@ -13,17 +13,30 @@
   margin: 0 0 30px 0;
 }
 
-.formGroup {
-  margin-bottom: 0;
+.card {
+  max-width: 900px;
+  margin: 0 auto 36px auto;
+  width: 100%;
   background: #23232b;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08);
-  padding: 32px 24px 20px 24px;
+  border-radius: 14px;
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.10);
+  padding: 0 40px;
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 0;
+}
+
+.formGroup {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  padding: 24px 0;
   border-bottom: 1px solid #292933;
+  margin-bottom: 0;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  gap: 0;
 }
 
 .formGroup:last-child {
@@ -31,18 +44,19 @@
 }
 
 .label {
-  display: block;
+  min-width: 120px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
-  margin-bottom: 8px;
+  margin-bottom: 0;
 }
 
 .inputContainer {
+  flex: 1;
+  margin: 0 24px;
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 0;
 }
 
 .input {
@@ -92,9 +106,10 @@
 }
 
 .helpText {
-  font-size: 13px;
+  flex: 2;
   color: #888;
-  margin: 8px 0 0 0;
+  font-size: 13px;
+  margin: 0;
   line-height: 1.4;
 }
 
@@ -158,12 +173,20 @@
 }
 
 /* Responsive */
+@media (max-width: 1000px) {
+  .card {
+    max-width: 100%;
+    padding: 0 10px;
+  }
+}
+
 @media (max-width: 768px) {
   .profileSection {
     padding: 20px;
   }
   .formGroup {
     flex-direction: column;
+    align-items: flex-start;
     gap: 12px;
     padding: 20px 10px 12px 10px;
   }
@@ -175,31 +198,12 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+    margin: 0;
   }
   .profilePictureContainer {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
-  }
-}
-
-.card {
-  background: #23232b;
-  border-radius: 14px;
-  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.10);
-  padding: 0 0 0 0;
-  max-width: 900px;
-  margin: 0 auto 36px auto;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-@media (max-width: 1000px) {
-  .card {
-    max-width: 100%;
-    padding: 0;
   }
 }
 

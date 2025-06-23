@@ -3,10 +3,10 @@
   min-height: 100vh;
   background-color: #1a1a1a;
   color: white;
-  padding: 0 40px;
+  padding: 64px 40px 0 40px;
   display: flex;
   flex-direction: column;
-  margin-top: 48px;
+  margin-top: 0;
 }
 
 .header {
