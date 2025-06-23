@@ -391,7 +391,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
         <button
           className={styles.seatButton}
           style={{ backgroundColor: '#FF8C00', borderColor: '#FF8C00' }}
-          onClick={() => onShowOnMap(booking._id)}
+          onClick={handleViewFlightPath}
           disabled={booking.status !== 'confirmed'}
         >
           View Flight Path

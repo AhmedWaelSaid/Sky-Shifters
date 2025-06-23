@@ -132,16 +132,8 @@ const BookingList = () => {
   };
 
   const handleShowOnMap = (bookingId) => {
-    // Find the specific, fully-augmented booking object from the state
-    const bookingToShow = bookings.find(b => b._id === bookingId);
-
-    if (bookingToShow) {
-      // Store the entire serialized object to ensure all data is passed
-      localStorage.setItem('bookingForMap', JSON.stringify(bookingToShow));
-      navigate('/');
-    } else {
-      console.error("Could not find the selected booking in the list.");
-    }
+    localStorage.setItem('selectedBookingId', bookingId);
+    navigate('/');
   };
 
   if (loading) {
