@@ -314,15 +314,18 @@ export default function TravelOffers() {
             animate(0);
 
             // Fetch airport details for display
-            getAirportDetails(originCode).then(setOriginDetails);
-            getAirportDetails(destCode).then(setDestinationDetails);
-            // Airline name
-            if (bookingToShow && bookingToShow.flightData && bookingToShow.flightData[0]?.airline) {
-              setAirline(bookingToShow.flightData[0].airline);
-            } else if (bookingToShow && bookingToShow.airline) {
-              setAirline(bookingToShow.airline);
-            } else {
-              setAirline('');
+            const originCode = originCoords[0].toString();
+            const destCode = destinationCoords[0].toString();
+            if (originCode && destCode) {
+              getAirportDetails(originCode).then(setOriginDetails);
+              getAirportDetails(destCode).then(setDestinationDetails);
+              if (bookingToShow && bookingToShow.flightData && bookingToShow.flightData[0]?.airline) {
+                setAirline(bookingToShow.flightData[0].airline);
+              } else if (bookingToShow && bookingToShow.airline) {
+                setAirline(bookingToShow.airline);
+              } else {
+                setAirline('');
+              }
             }
           } else {
              // Default marker if no booking found
