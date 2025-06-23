@@ -51,6 +51,8 @@ export default function TravelOffers() {
   const animationFrameRef = useRef(null);
   const [timeRemaining, setTimeRemaining] = useState('');
   const [flightDuration, setFlightDuration] = useState('');
+  const [animationSpeed, setAnimationSpeed] = useState(1);
+  const animationSpeedRef = useRef(1);
 
   useEffect(() => {
     let isMounted = true;
@@ -236,13 +238,13 @@ export default function TravelOffers() {
               }
             });
 
-            // Add the airplane layer as a bright orange circle
+            // Add the airplane layer as a bright circle
             map.addLayer({
               'id': 'airplane',
               'source': 'airplane',
               'type': 'circle',
               'paint': {
-                'circle-radius': 8, // A bit larger for better visibility
+                'circle-radius': 10, // Even larger for visibility
                 'circle-color': '#FFA500', // Bright Orange
                 'circle-stroke-width': 2,
                 'circle-stroke-color': '#FFFFFF' // White outline for contrast
@@ -252,24 +254,27 @@ export default function TravelOffers() {
             // Animate the circle along the greatCircle path
             const routeDistance = turf.length(line);
             
-            // FASTER ANIMATION
-            // Animation duration is proportional to flight duration, but faster and clamped for better UX
-            let animationDuration = 12000; // Default: 12 seconds
-            if (flightDurationSeconds > 0) {
-              // Clamped between 8s and 90s for a better experience
-              animationDuration = Math.max(8000, Math.min(flightDurationSeconds * 25, 90000));
-            }
-            let startTime = 0;
+            // Set a base duration for 1x speed. 
+            // We'll use the speed multiplier to adjust this.
+            const baseAnimationDuration = 40000; // 40 seconds at 1x speed
+
+            let lastTime = 0;
+            let progress = 0;
 
             const animate = (timestamp) => {
               if (!isMounted) return;
-              if (!startTime) startTime = timestamp;
-              
-              const runtime = timestamp - startTime;
-              const progress = runtime / animationDuration;
+              if (!lastTime) lastTime = timestamp;
+
+              // Calculate time elapsed since last frame
+              const deltaTime = timestamp - lastTime;
+              lastTime = timestamp;
+
+              // Adjust progress based on speed
+              const progressIncrement = (deltaTime / baseAnimationDuration) * animationSpeedRef.current;
+              progress += progressIncrement;
 
               if (progress > 1) {
-                startTime = timestamp; // Loop the animation
+                progress = 0; // Loop the animation
               }
 
               // Update time remaining display
@@ -281,10 +286,10 @@ export default function TravelOffers() {
                   setTimeRemaining(`${hours}h ${minutes}m remaining`);
               }
 
-              // Calculate the plane's position
+              // Calculate the circle's position
               const alongRoute = turf.along(line, routeDistance * progress).geometry.coordinates;
 
-              // Update the airplane source data
+              // Update the map source data
               const airplaneSource = map.getSource('airplane');
               if (airplaneSource?._data) {
                 const airplaneData = airplaneSource._data;
@@ -292,7 +297,7 @@ export default function TravelOffers() {
                 airplaneSource.setData(airplaneData);
               }
               
-              // Pan the map to follow the plane
+              // Pan the map to follow the circle
               map.panTo(alongRoute, { duration: 0 });
 
               animationFrameRef.current = requestAnimationFrame(animate);
@@ -372,6 +377,35 @@ export default function TravelOffers() {
               {timeRemaining}
             </div>
           )}
+          <div style={{
+            position: 'absolute',
+            bottom: '20px',
+            right: '20px',
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+            padding: '8px 15px',
+            borderRadius: '7px',
+            zIndex: 2,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px'
+          }}>
+            <label htmlFor="speed" style={{fontWeight: 500}}>Speed: {animationSpeed.toFixed(1)}x</label>
+            <input
+              type="range"
+              id="speed"
+              min="0.2"
+              max="5"
+              step="0.1"
+              value={animationSpeed}
+              onChange={(e) => {
+                const newSpeed = parseFloat(e.target.value);
+                setAnimationSpeed(newSpeed);
+                animationSpeedRef.current = newSpeed;
+              }}
+              style={{cursor: 'pointer'}}
+            />
+          </div>
         </div>
         <div className="offers-flex home-flex">
           {offersData.map((offer) => (
