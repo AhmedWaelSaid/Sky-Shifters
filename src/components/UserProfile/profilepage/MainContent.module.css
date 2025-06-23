@@ -1,20 +1,20 @@
 .mainContent {
-  flex: 1;
+  margin-left: 250px;
   min-height: 100vh;
   background-color: #1a1a1a;
   color: white;
-  padding: 64px 40px 0 40px;
-  display: flex;
-  flex-direction: column;
-  margin-top: 0;
+  padding: 0;
+  width: calc(100vw - 250px);
+  margin-top: 40px;
 }
 
 .header {
-  padding: 30px 0 30px 0;
+  padding: 30px 40px;
   border-bottom: 1px solid #333;
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-top: 20px;
 }
 
 .headerIcon {
@@ -29,18 +29,19 @@
 }
 
 .content {
-  flex: 1;
-  padding: 0;
+  padding: 0 40px 40px 40px;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .mainContent {
-    padding: 0 10px;
+    margin-left: 0;
   }
+  
   .header {
-    padding: 20px 0;
+    padding: 20px;
   }
+  
   .headerTitle {
     font-size: 20px;
   }
