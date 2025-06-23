@@ -165,7 +165,10 @@
   margin-left: 18px;
   margin-bottom: 2px;
 }
-
+.terminal2{
+  font-size: 14px;
+  color: #666;
+}
 /* Flight Info */
 .flightInfo {
   padding: 20px;
@@ -207,6 +210,9 @@ margin-top: 8px;
 .fixedTime,.waitingStopTime{
   font-size: 14px;
   color: #E91E63;
+}
+.fixedTime{
+  color: rgb(60, 171, 239);
 }
 .stopsBadge {
   display: inline-block;

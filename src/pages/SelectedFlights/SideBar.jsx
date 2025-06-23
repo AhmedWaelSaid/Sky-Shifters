@@ -132,6 +132,17 @@ export default function SideBar({
               />
               <label htmlFor="1-stop">1 Stop</label>
             </div>
+            <div>
+              <input
+                type="radio"
+                id="2-stop"
+                name="stop"
+                value="2 Stop"
+                checked={stop == "2 Stop"}
+                onChange={(e) => stopHandler(e)}
+              />
+              <label htmlFor="2-stop">2 Stop</label>
+            </div>
           </form>
         </div>
         <hr />

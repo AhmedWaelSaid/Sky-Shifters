@@ -8,19 +8,10 @@ import { useData } from "../../components/context/DataContext";
 import { formatDuration } from "./someFun";
 import DetailsOfTheFlight from "../FlightDetails/DetailsOfTheFlight/DetailsOfTheFlight";
 import { useState, useEffect } from "react";
+import { dayDifference } from "./someFun";
 const capitalizeWords = (str) =>
   str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
-function isDurationOneDayOrMore(isoDuration) {
-  const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
 
-  const hours = match[1] ? parseInt(match[1], 10) : 0;
-
-  const minutes = match[2] ? parseInt(match[2], 10) : 0;
-
-  const totalHours = hours + minutes / 60;
-
-  return totalHours >= 24;
-}
 export function FlightsUI({
   flight,
   btnHandler,
@@ -29,6 +20,7 @@ export function FlightsUI({
   button,
   button2 = { exist: false },
 }) {
+  const [showPlusTime,setShowPlusTime]=useState(false)
   return (
     <div className={styles.flight}>
       <div className={styles.airLineContainer}>
@@ -38,19 +30,32 @@ export function FlightsUI({
           alt={flight.itineraries[0].segments[0].carrierCode}
           onError={(e) => {
             e.target.onerror = null;
-            e.target.src = "src/assets/no-logo.jpg"; // local fallback
+            e.target.src = "src/assets/no-logo.jpg"; // fallback
             console.warn("Logo failed to load:", e.target.src);
           }}
         />
-        <div className={styles.container}>
-          <div className={styles.airLine}>{capitalizeWords(carrier)}</div>
-          <div className={styles.baggage}>zz</div>
-        </div>
+        <div className={styles.airLine}>{capitalizeWords(carrier)}</div>
       </div>
       <div className={styles.flightTime}>
-        {isDurationOneDayOrMore(flight.itineraries[0].duration) && (
-          <div className={styles.moreThanADay}>+1</div>
-        )}
+        <div className={styles.plusDays} onMouseEnter={()=>{setShowPlusTime(true)}} onMouseLeave={()=>{setShowPlusTime(false)}}>
+          <div className={styles.moreThanADay} >{dayDifference(flight)}</div>
+          {showPlusTime && <div className={styles.plusTime}>Arrives on{" "}
+          <strong>{flight.itineraries[0].segments.length == 1 //direct
+            ? format(
+                new Date(flight.itineraries[0].segments[0].arrival.at),
+                "ccc, d MMM"
+              )
+            : flight.itineraries[0].segments.length == 2 //1 stop
+              ? format(
+                  new Date(flight.itineraries[0].segments[1].arrival.at),
+                  "ccc, d MMM"
+                )
+              : format(
+                  new Date(flight.itineraries[0].segments[2].arrival.at), // 2 stop
+                  "ccc, d MMM"
+                )}</strong>
+            </div>}
+        </div>
         <div className={styles.arrivalDeparture}>
           {format(
             parseISO(flight.itineraries[0].segments[0].departure.at),

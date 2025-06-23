@@ -25,10 +25,13 @@
 .airLineContainer {
   display: flex;
   gap: 18px;
+  position: relative;
 }
 .airLineIcon {
   width: 60px;
   height: 60px;
+  position: relative;
+  top: -15px;
 }
 .baggage {
   font-size: 12px;
@@ -161,6 +164,18 @@ color: var(--LightText-color);
   right: 5px;
   top: -18px;
   font-size: 0.875em;
+}
+.moreThanADay:hover {
+  cursor: pointer;
+}
+.plusTime{
+  position: absolute;
+  top: -55px;
+  background-color: rgb(0,0,0,0.8);
+  color: white;
+  font-size: 0.8rem;
+  padding: 10px;
+  right: -60px;
 }
 .flightTime{
   position: relative;

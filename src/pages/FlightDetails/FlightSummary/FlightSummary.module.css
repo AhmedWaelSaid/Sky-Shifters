@@ -63,6 +63,11 @@
   margin-bottom: 15px;
   font-size: 14px;
 }
+.airline span{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .airlineLogo {
   width: 24px;
@@ -82,6 +87,7 @@
   flex-direction: column;
   align-items: center;
   min-width: 60px;
+  position: relative;
 }
 
 .time {
@@ -100,7 +106,26 @@
   font-size: 14px;
   color: var(--LightDarktext-color);
 }
-
+.dayDiff{
+  position: absolute;
+  top: -20px;
+  right: -5px;
+  font-size: 0.875em;
+  padding: 5px;
+}
+.dayDiff:hover{
+  cursor: pointer;
+}
+.plusTime{
+  position: absolute;
+  top: -55px;
+  font-size: 0.8rem;
+  width: 155px;
+  padding: 10px;
+  background-color: rgb(0,0,0,0.8);
+  color: white;
+  right: -80px;
+}
 .flightPath {
   flex: 1;
   margin: 0 15px;

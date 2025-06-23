@@ -2,25 +2,25 @@ import { useState } from "react";
 import styles from "./FlightSummary.module.css";
 import FlightLeg from "./FlightLeg";
 import CancellationPolicy from "./CancellationPolicy";
-import DetailsOfTheFlight from '../DetailsOfTheFlight/DetailsOfTheFlight';
+import DetailsOfTheFlight from "../DetailsOfTheFlight/DetailsOfTheFlight";
 import { useData } from "../../../components/context/DataContext";
 import { format } from "date-fns";
 import { formatDuration } from "../../SelectedFlights/someFun";
-import { ChevronRight, ChevronLeft } from "lucide-react";
 import PropTypes from "prop-types";
 import FareBreakdown from "./FareBreakdown";
+import { dayDifference } from "../../SelectedFlights/someFun";
 
 // Helper functions
 function formatted(time) {
-  if (!time) return '';
+  if (!time) return "";
   let [hours, minutes] = time.split(":");
-  let amOrPm = parseInt(hours, 10) >= 12 ? 'PM' : 'AM';
+  //let amOrPm = parseInt(hours, 10) >= 12 ? 'PM' : 'AM';
   hours = parseInt(hours, 10) % 12 || 12;
-  return `${hours}:${minutes} ${amOrPm}`;
+  return `${hours}:${minutes}`;
 }
 
 function checkPeriod(time) {
-  if (!time) return '';
+  if (!time) return "";
   let [hours] = time.split(":");
   return parseInt(hours, 10) < 12 ? "AM" : "PM";
 }
@@ -49,52 +49,144 @@ const FlightSummary = ({
 }) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const { flight } = useData();
-  
+
   const toggleDetails = () => {
     setIsDetailsOpen(!isDetailsOpen);
   };
-  
+
   if (!flight || !flight.departure) {
     return <div className={styles.flightSummary}>Loading Summary...</div>;
   }
 
+    let airlineForDeparture = `${dealWithAirline(flight.departure.carrier)} ${flight.departure.data.itineraries[0].segments[0].carrierCode}-${flight.departure.data.itineraries[0].segments[0].number}`;
+  if (flight.departure.data.itineraries[0].segments.length >= 2)
+    airlineForDeparture += `, ${dealWithAirline(flight.departure.carrier)} ${flight.departure.data.itineraries[0].segments[1].carrierCode}-${flight.departure.data.itineraries[0].segments[1].number}`;
+  if (flight.departure.data.itineraries[0].segments.length >= 3)
+    airlineForDeparture += `, ${dealWithAirline(flight.departure.carrier)} ${flight.departure.data.itineraries[0].segments[2].carrierCode}-${flight.departure.data.itineraries[0].segments[2].number}`;
   return (
     <div className={styles.flightSummary}>
       <div className={styles.summaryHeader}>
         <h3>Flight summary</h3>
-        <button className={styles.detailsButton} onClick={toggleDetails}>Details</button>
+        <button className={styles.detailsButton} onClick={toggleDetails}>
+          Details
+        </button>
       </div>
-      <div className={`${styles.detailsPanel} ${isDetailsOpen ? styles.open : ''}`}>
+      <div
+        className={`${styles.detailsPanel} ${isDetailsOpen ? styles.open : ""}`}
+      >
         <div className={styles.detailsPanelContent}>
-          <DetailsOfTheFlight onClose={toggleDetails} onUpdateForm={onUpdateForm} formData={formData} flight={flight}/>
+          <DetailsOfTheFlight
+            onClose={toggleDetails}
+            onUpdateForm={onUpdateForm}
+            formData={formData}
+            flight={flight}
+          />
         </div>
       </div>
       {isDetailsOpen && (
         <div className={styles.overlay} onClick={toggleDetails} />
       )}
-      
+
       <FlightLeg
         type="Departure"
-        date={format(new Date(flight.departure.data.itineraries[0].segments[0].departure.at), "EEE, d LLL uuuu")}
-        airline={`${dealWithAirline(flight.departure.carrier)} ${flight.departure.data.itineraries[0].segments[0].carrierCode}-${flight.departure.data.itineraries[0].segments[0].number}`}
-        departure={{ time: formatted(flight.departure.data.itineraries[0].segments[0].departure.at.split("T")[1]), period: checkPeriod(flight.departure.data.itineraries[0].segments[0].departure.at.split("T")[1]), code: flight.departure.data.itineraries[0].segments[0].departure.iataCode }}
-        arrival={{ time: formatted(flight.departure.data.itineraries[0].segments.slice(-1)[0].arrival.at.split("T")[1]), period: checkPeriod(flight.departure.data.itineraries[0].segments.slice(-1)[0].arrival.at.split("T")[1]), code: flight.departure.data.itineraries[0].segments.slice(-1)[0].arrival.iataCode }}
-        duration={flight.departure.data.itineraries[0].segments.length === 1 ? "Direct" : `${flight.departure.data.itineraries[0].segments.length - 1} Stop`}
-        flightTime={formatDuration(flight.departure.data.itineraries[0].duration)}
+        date={format(
+          new Date(
+            flight.departure.data.itineraries[0].segments[0].departure.at
+          ),
+          "EEE, d LLL uuuu"
+        )}
+        airline={airlineForDeparture}
+        departure={{
+          time: formatted(
+            flight.departure.data.itineraries[0].segments[0].departure.at.split(
+              "T"
+            )[1]
+          ),
+          period: checkPeriod(
+            flight.departure.data.itineraries[0].segments[0].departure.at.split(
+              "T"
+            )[1]
+          ),
+          code: flight.departure.data.itineraries[0].segments[0].departure
+            .iataCode,
+        }}
+        arrival={{
+          time: formatted(
+            flight.departure.data.itineraries[0].segments
+              .slice(-1)[0]
+              .arrival.at.split("T")[1]
+          ),
+          period: checkPeriod(
+            flight.departure.data.itineraries[0].segments
+              .slice(-1)[0]
+              .arrival.at.split("T")[1]
+          ),
+          code: flight.departure.data.itineraries[0].segments.slice(-1)[0]
+            .arrival.iataCode,
+        }}
+        duration={
+          flight.departure.data.itineraries[0].segments.length === 1
+            ? "Direct"
+            : `${flight.departure.data.itineraries[0].segments.length - 1} Stop`
+        }
+        flightTime={formatDuration(
+          flight.departure.data.itineraries[0].duration
+        )}
+        dayDiff={dayDifference(flight.departure.data)}
+        flight={flight.departure.data}
       />
 
       {flight.return && (
         <FlightLeg
           type="Return"
-          date={format(new Date(flight.return.data.itineraries[0].segments[0].departure.at), "EEE, d LLL uuuu")}
+          date={format(
+            new Date(
+              flight.return.data.itineraries[0].segments[0].departure.at
+            ),
+            "EEE, d LLL uuuu"
+          )}
           airline={`${dealWithAirline(flight.return.carrier)} ${flight.return.data.itineraries[0].segments[0].carrierCode}-${flight.return.data.itineraries[0].segments[0].number}`}
-          departure={{ time: formatted(flight.return.data.itineraries[0].segments[0].departure.at.split("T")[1]), period: checkPeriod(flight.return.data.itineraries[0].segments[0].departure.at.split("T")[1]), code: flight.return.data.itineraries[0].segments[0].departure.iataCode }}
-          arrival={{ time: formatted(flight.return.data.itineraries[0].segments.slice(-1)[0].arrival.at.split("T")[1]), period: checkPeriod(flight.return.data.itineraries[0].segments.slice(-1)[0].arrival.at.split("T")[1]), code: flight.return.data.itineraries[0].segments.slice(-1)[0].arrival.iataCode }}
-          duration={flight.return.data.itineraries[0].segments.length === 1 ? "Direct" : `${flight.return.data.itineraries[0].segments.length - 1} Stop`}
-          flightTime={formatDuration(flight.return.data.itineraries[0].duration)}
+          departure={{
+            time: formatted(
+              flight.return.data.itineraries[0].segments[0].departure.at.split(
+                "T"
+              )[1]
+            ),
+            period: checkPeriod(
+              flight.return.data.itineraries[0].segments[0].departure.at.split(
+                "T"
+              )[1]
+            ),
+            code: flight.return.data.itineraries[0].segments[0].departure
+              .iataCode,
+          }}
+          arrival={{
+            time: formatted(
+              flight.return.data.itineraries[0].segments
+                .slice(-1)[0]
+                .arrival.at.split("T")[1]
+            ),
+            period: checkPeriod(
+              flight.return.data.itineraries[0].segments
+                .slice(-1)[0]
+                .arrival.at.split("T")[1]
+            ),
+            code: flight.return.data.itineraries[0].segments.slice(-1)[0]
+              .arrival.iataCode,
+          }}
+          duration={
+            flight.return.data.itineraries[0].segments.length === 1
+              ? "Direct"
+              : `${flight.return.data.itineraries[0].segments.length - 1} Stop`
+          }
+          flightTime={formatDuration(
+            flight.return.data.itineraries[0].duration
+          )}
+          dayDiff={dayDifference(flight.return.data)}
+          flight={flight.return.data}
         />
       )}
-      
+
       <CancellationPolicy onDetailsClick={toggleDetails} />
       <FareBreakdown
         passengers={passengers}

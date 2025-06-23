@@ -140,7 +140,8 @@ export default function Container() {
       filteredFlights.data = flights.data.filter((flight) => {
         if (stop === "Direct")
           return flight.itineraries[0].segments.length === 1;
-        else return flight.itineraries[0].segments.length > 1;
+        else if (stop === "1 Stop") return flight.itineraries[0].segments.length === 2;
+        else return flight.itineraries[0].segments.length > 2;
       });
     }
     const activeAirlines = Object.keys(airLinesChecked).filter(

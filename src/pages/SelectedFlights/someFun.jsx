@@ -54,3 +54,30 @@ export const formatDuration = (iso) => {
 
   return [hours, minutes].filter(Boolean).join(" ");
 };
+export function dayDifference(flight) {
+  if (!flight) return"";
+  let arrival, departure;
+  if (flight.itineraries[0].segments.length == 1) {
+    //direct flight
+    arrival = new Date(flight.itineraries[0].segments[0].arrival.at);
+  }
+  if (flight.itineraries[0].segments.length == 2) {
+    //1 stop flight
+    arrival = new Date(flight.itineraries[0].segments[1].arrival.at);
+  }
+  if (flight.itineraries[0].segments.length == 3) {
+    //2 stop flight
+    arrival = new Date(flight.itineraries[0].segments[2].arrival.at);
+  }
+  departure = new Date(flight.itineraries[0].segments[0].departure.at);
+  const arrivalDay = arrival.toDateString();
+  const departureDay = departure.toDateString();
+  if (arrivalDay != departureDay) {
+    const diffInDays = Math.floor(
+      (arrival.setHours(0, 0, 0, 0) - departure.setHours(0, 0, 0, 0)) /
+        (1000 * 60 * 60 * 24)
+    );
+    return `+${diffInDays}`;
+  }
+  return "";
+}
