@@ -113,6 +113,7 @@ const FlightMap = ({ flight }) => {
   }, []);
 
   useEffect(() => {
+    // Ensure we have the necessary data, including the trusted duration string
     if (!map.current || !map.current.isStyleLoaded() || !originAirport || !destinationAirport || !departure?.at || !duration) return;
 
     if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
