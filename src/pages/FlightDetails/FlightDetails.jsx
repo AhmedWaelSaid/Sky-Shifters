@@ -169,19 +169,15 @@ const Index = () => {
       } else {
         finalBookingData = {
           bookingType: "ONE_WAY",
-          flightData: [
-            {
-              flightID: flight?.departure?.data?.id || "FL123456",
-              numberOfStops: flight?.departure?.data?.itineraries[0]?.segments.length - 1,
-              originAirportCode: sharedData?.departure?.origin?.airport?.iata,
-              destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
-              originCIty: sharedData?.departure?.origin?.airport?.city,
-              destinationCIty: sharedData?.departure?.dest?.airport?.city,
-              departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at?.split('T')[0],
-              arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at?.split('T')[0],
-              selectedBaggageOption: baggageObjectForApi
-            }
-          ],
+          flightID: flight?.departure?.data?.id || "FL123456",
+          numberOfStops: flight?.departure?.data?.itineraries[0]?.segments.length - 1,
+          originAirportCode: sharedData?.departure?.origin?.airport?.iata,
+          destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
+          originCIty: sharedData?.departure?.origin?.airport?.city,
+          destinationCIty: sharedData?.departure?.dest?.airport?.city,
+          departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at?.split('T')[0],
+          arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at?.split('T')[0],
+          selectedBaggageOption: baggageObjectForApi, 
           totalPrice: parseFloat(finalTotalPrice.toFixed(2)),
           currency: flight?.departure?.data?.price?.currency || "USD",
           travellersInfo: travellersInfoForApi,
@@ -311,19 +307,15 @@ const Index = () => {
       } else {
         finalBookingData = {
           bookingType: "ONE_WAY",
-          flightData: [
-            {
-              flightID: flight?.departure?.data?.id || "FL123456",
-              numberOfStops: flight?.departure?.data?.itineraries[0]?.segments.length - 1,
-              originAirportCode: sharedData?.departure?.origin?.airport?.iata,
-              destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
-              originCIty: sharedData?.departure?.origin?.airport?.city,
-              destinationCIty: sharedData?.departure?.dest?.airport?.city,
-              departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at?.split('T')[0],
-              arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at?.split('T')[0],
-              selectedBaggageOption: baggageObjectForApi
-            }
-          ],
+          flightID: flight?.departure?.data?.id || "FL123456",
+          numberOfStops: flight?.departure?.data?.itineraries[0]?.segments.length - 1,
+          originAirportCode: sharedData?.departure?.origin?.airport?.iata,
+          destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
+          originCIty: sharedData?.departure?.origin?.airport?.city,
+          destinationCIty: sharedData?.departure?.dest?.airport?.city,
+          departureDate: flight?.departure?.data?.itineraries[0]?.segments[0]?.departure?.at?.split('T')[0],
+          arrivalDate: flight?.departure?.data?.itineraries[0]?.segments?.slice(-1)[0]?.arrival?.at?.split('T')[0],
+          selectedBaggageOption: baggageObjectForApi, 
           totalPrice: parseFloat(finalTotalPrice.toFixed(2)),
           currency: flight?.departure?.data?.price?.currency || "USD",
           travellersInfo: travellersInfoForApi,
