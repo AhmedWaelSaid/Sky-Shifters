@@ -170,6 +170,7 @@ const Index = () => {
         finalBookingData = {
           bookingType: "ONE_WAY",
           flightID: flight?.departure?.data?.id || "FL123456",
+          numberOfStops: flight?.departure?.data?.itineraries[0]?.segments.length - 1,
           originAirportCode: sharedData?.departure?.origin?.airport?.iata,
           destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
           originCIty: sharedData?.departure?.origin?.airport?.city,
@@ -307,6 +308,7 @@ const Index = () => {
         finalBookingData = {
           bookingType: "ONE_WAY",
           flightID: flight?.departure?.data?.id || "FL123456",
+          numberOfStops: flight?.departure?.data?.itineraries[0]?.segments.length - 1,
           originAirportCode: sharedData?.departure?.origin?.airport?.iata,
           destinationAirportCode: sharedData?.departure?.dest?.airport?.iata,
           originCIty: sharedData?.departure?.origin?.airport?.city,
