@@ -11,7 +11,7 @@ import bangladesh7 from "../../assets/pexels-pixabay-237272.jpg";
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { getAirportCoordinates } from "../../services/airportService";
+import { getAirportCoordinates, getAirportDetails } from "../../services/airportService";
 import { bookingService } from "../../services/bookingService";
 import * as turf from '@turf/turf';
 
@@ -54,6 +54,9 @@ export default function TravelOffers() {
   const [animationSpeed, setAnimationSpeed] = useState(1);
   const animationSpeedRef = useRef(1);
   const [zoom, setZoom] = useState(3.5); // Initial zoom level
+  const [originDetails, setOriginDetails] = useState(null);
+  const [destinationDetails, setDestinationDetails] = useState(null);
+  const [airline, setAirline] = useState('');
 
   useEffect(() => {
     let isMounted = true;
@@ -309,6 +312,18 @@ export default function TravelOffers() {
               animationFrameRef.current = requestAnimationFrame(animate);
             }
             animate(0);
+
+            // Fetch airport details for display
+            getAirportDetails(originCode).then(setOriginDetails);
+            getAirportDetails(destCode).then(setDestinationDetails);
+            // Airline name
+            if (bookingToShow && bookingToShow.flightData && bookingToShow.flightData[0]?.airline) {
+              setAirline(bookingToShow.flightData[0].airline);
+            } else if (bookingToShow && bookingToShow.airline) {
+              setAirline(bookingToShow.airline);
+            } else {
+              setAirline('');
+            }
           } else {
              // Default marker if no booking found
              new mapboxgl.Marker({ color: '#808080' })
@@ -364,9 +379,37 @@ export default function TravelOffers() {
               borderRadius: '7px',
               fontWeight: 600,
               fontSize: '1.1em',
-              zIndex: 2
+              zIndex: 2,
+              minWidth: '260px'
             }}>
               Flight Duration: {flightDuration}
+              <div style={{
+                marginTop: 10,
+                fontWeight: 400,
+                fontSize: '0.98em',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 4
+              }}>
+                {originDetails && (
+                  <span style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                    <span role="img" aria-label="depart">🛫</span>
+                    {originDetails.name} ({originDetails.city}, {originDetails.country})
+                  </span>
+                )}
+                {destinationDetails && (
+                  <span style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                    <span role="img" aria-label="arrive">🛬</span>
+                    {destinationDetails.name} ({destinationDetails.city}, {destinationDetails.country})
+                  </span>
+                )}
+                {airline && (
+                  <span style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                    <span role="img" aria-label="airline">✈️</span>
+                    {airline}
+                  </span>
+                )}
+              </div>
             </div>
           )}
           {timeRemaining && (
