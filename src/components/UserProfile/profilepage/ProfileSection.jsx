@@ -188,156 +188,132 @@ const ProfileSection = () => {
       {/* Profile Information */}
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Profile</h2>
-        {/* Email */}
-        <div className={styles.formGroup}>
-          <label className={styles.label}><Mail size={16} style={{marginRight:8,verticalAlign:'middle'}} />Email:</label>
-          <div className={styles.inputContainer}>
-            <input 
-              type="email" 
-              value={user.email} 
-              className={styles.input}
-              readOnly
-            />
-          </div>
-          <p className={styles.helpText}>
-            This email is linked to your account. It is not visible to other users.
-          </p>
-        </div>
-        {/* Password */}
-        <div className={styles.formGroup}>
-          <label className={styles.label}><Lock size={16} style={{marginRight:8,verticalAlign:'middle'}} />Password:</label>
-          <div className={styles.inputContainer}>
-            {showPasswordForm ? (
-              <PasswordChangeForm onCancel={()=>setShowPasswordForm(false)} />
-            ) : (
-              <Button className={styles.changePasswordButton} onClick={()=>setShowPasswordForm(true)}>
-                Change password
-              </Button>
-            )}
-          </div>
-          <p className={styles.helpText}>
-            Password can only be changed if you are using the email/password login flow
-          </p>
-        </div>
-        {/* First Name */}
-        <div className={styles.formGroup}>
-          <label className={styles.label}><User size={16} style={{marginRight:8,verticalAlign:'middle'}} />First Name:</label>
-          <div className={styles.inputContainer}>
-            {showFirstNameForm ? (
-              <NameChangeForm label="First Name" value={user.firstName} onCancel={()=>setShowFirstNameForm(false)} onSave={()=>setShowFirstNameForm(false)} />
-            ) : (
-              <>
-                <input 
-                  type="text" 
-                  value={user.firstName} 
-                  className={styles.input}
-                  readOnly
-                />
-                <Button className={styles.changePasswordButton} onClick={()=>setShowFirstNameForm(true)}>
-                  Change first name
-                </Button>
-              </>
-            )}
-          </div>
-          <p className={styles.helpText}>
-            Your given name as it appears on your official documents.
-          </p>
-        </div>
-        {/* Last Name */}
-        <div className={styles.formGroup}>
-          <label className={styles.label}><User size={16} style={{marginRight:8,verticalAlign:'middle'}} />Last Name:</label>
-          <div className={styles.inputContainer}>
-            {showLastNameForm ? (
-              <NameChangeForm label="Last Name" value={user.lastName} onCancel={()=>setShowLastNameForm(false)} onSave={()=>setShowLastNameForm(false)} />
-            ) : (
-              <>
-                <input 
-                  type="text" 
-                  value={user.lastName} 
-                  className={styles.input}
-                  readOnly
-                />
-                <Button className={styles.changePasswordButton} onClick={()=>setShowLastNameForm(true)}>
-                  Change last name
-                </Button>
-              </>
-            )}
-          </div>
-          <p className={styles.helpText}>
-            Your family name as it appears on your official documents.
-          </p>
-        </div>
-        {/* Phone Number */}
-        <div className={styles.formGroup}>
-          <label className={styles.label}><Phone size={16} style={{marginRight:8,verticalAlign:'middle'}} />Phone Number:</label>
-          <div className={styles.inputContainer}>
-            {showPhoneForm ? (
-              <PhoneChangeForm value={user.phoneNumber} onCancel={()=>setShowPhoneForm(false)} onSave={()=>setShowPhoneForm(false)} />
-            ) : (
-              <>
-                <input 
-                  type="text" 
-                  value={user.phoneNumber} 
-                  className={styles.input}
-                  readOnly
-                />
-                <Button className={styles.changePasswordButton} onClick={()=>setShowPhoneForm(true)}>
-                  Change phone number
-                </Button>
-              </>
-            )}
-          </div>
-          <p className={styles.helpText}>
-            Your primary contact number.
-          </p>
-        </div>
-        {/* Country */}
-        <div className={styles.formGroup}>
-          <label className={styles.label}><Globe size={16} style={{marginRight:8,verticalAlign:'middle'}} />Country:</label>
-          <div className={styles.inputContainer}>
-            {showCountryForm ? (
-              <CountryChangeForm value={user.country} onCancel={()=>setShowCountryForm(false)} onSave={()=>setShowCountryForm(false)} />
-            ) : (
-              <>
-                <input 
-                  type="text" 
-                  value={user.country} 
-                  className={styles.input}
-                  readOnly
-                />
-                <Button className={styles.changePasswordButton} onClick={()=>setShowCountryForm(true)}>
-                  Change country
-                </Button>
-              </>
-            )}
-          </div>
-          <p className={styles.helpText}>
-            The country you currently reside in.
-          </p>
-        </div>
-      </div>
-
-      {/* Payments Section */}
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Payments</h2>
-      </div>
-
-      {/* Profile Picture Section */}
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Profile picture</h2>
-        
-        <div className={styles.profilePictureContainer}>
-          <div className={styles.avatarLarge}>
-            <div className={styles.avatarPlaceholder}>
-              <span className={styles.avatarIcon}>👤</span>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px 24px', maxWidth: 900 }}>
+          {/* Email */}
+          <div className={styles.formGroup}>
+            <label className={styles.label}><Mail size={16} style={{marginRight:8,verticalAlign:'middle'}} />Email:</label>
+            <div className={styles.inputContainer}>
+              <input 
+                type="email" 
+                value={user.email} 
+                className={styles.input}
+                readOnly
+              />
             </div>
+            <p className={styles.helpText}>
+              This email is linked to your account. It is not visible to other users.
+            </p>
           </div>
-          <div className={styles.uploadSection}>
-            <Button className={styles.uploadButton}>
-              Upload image
-            </Button>
-            <p className={styles.uploadText}>
-              Must be JPEG, PNG or HEIC and cannot exceed 10MB.
+          {/* Password */}
+          <div className={styles.formGroup}>
+            <label className={styles.label}><Lock size={16} style={{marginRight:8,verticalAlign:'middle'}} />Password:</label>
+            <div className={styles.inputContainer}>
+              {showPasswordForm ? (
+                <PasswordChangeForm onCancel={()=>setShowPasswordForm(false)} />
+              ) : (
+                <Button className={styles.changePasswordButton} onClick={()=>setShowPasswordForm(true)}>
+                  Change password
+                </Button>
+              )}
+            </div>
+            <p className={styles.helpText}>
+              Password can only be changed if you are using the email/password login flow
+            </p>
+          </div>
+          {/* First Name */}
+          <div className={styles.formGroup}>
+            <label className={styles.label}><User size={16} style={{marginRight:8,verticalAlign:'middle'}} />First Name:</label>
+            <div className={styles.inputContainer}>
+              {showFirstNameForm ? (
+                <NameChangeForm label="First Name" value={user.firstName} onCancel={()=>setShowFirstNameForm(false)} onSave={()=>setShowFirstNameForm(false)} />
+              ) : (
+                <>
+                  <input 
+                    type="text" 
+                    value={user.firstName} 
+                    className={styles.input}
+                    readOnly
+                  />
+                  <Button className={styles.changePasswordButton} onClick={()=>setShowFirstNameForm(true)}>
+                    Change first name
+                  </Button>
+                </>
+              )}
+            </div>
+            <p className={styles.helpText}>
+              Your given name as it appears on your official documents.
+            </p>
+          </div>
+          {/* Last Name */}
+          <div className={styles.formGroup}>
+            <label className={styles.label}><User size={16} style={{marginRight:8,verticalAlign:'middle'}} />Last Name:</label>
+            <div className={styles.inputContainer}>
+              {showLastNameForm ? (
+                <NameChangeForm label="Last Name" value={user.lastName} onCancel={()=>setShowLastNameForm(false)} onSave={()=>setShowLastNameForm(false)} />
+              ) : (
+                <>
+                  <input 
+                    type="text" 
+                    value={user.lastName} 
+                    className={styles.input}
+                    readOnly
+                  />
+                  <Button className={styles.changePasswordButton} onClick={()=>setShowLastNameForm(true)}>
+                    Change last name
+                  </Button>
+                </>
+              )}
+            </div>
+            <p className={styles.helpText}>
+              Your family name as it appears on your official documents.
+            </p>
+          </div>
+          {/* Phone Number */}
+          <div className={styles.formGroup}>
+            <label className={styles.label}><Phone size={16} style={{marginRight:8,verticalAlign:'middle'}} />Phone Number:</label>
+            <div className={styles.inputContainer}>
+              {showPhoneForm ? (
+                <PhoneChangeForm value={user.phoneNumber} onCancel={()=>setShowPhoneForm(false)} onSave={()=>setShowPhoneForm(false)} />
+              ) : (
+                <>
+                  <input 
+                    type="text" 
+                    value={user.phoneNumber} 
+                    className={styles.input}
+                    readOnly
+                  />
+                  <Button className={styles.changePasswordButton} onClick={()=>setShowPhoneForm(true)}>
+                    Change phone number
+                  </Button>
+                </>
+              )}
+            </div>
+            <p className={styles.helpText}>
+              Your primary contact number.
+            </p>
+          </div>
+          {/* Country */}
+          <div className={styles.formGroup}>
+            <label className={styles.label}><Globe size={16} style={{marginRight:8,verticalAlign:'middle'}} />Country:</label>
+            <div className={styles.inputContainer}>
+              {showCountryForm ? (
+                <CountryChangeForm value={user.country} onCancel={()=>setShowCountryForm(false)} onSave={()=>setShowCountryForm(false)} />
+              ) : (
+                <>
+                  <input 
+                    type="text" 
+                    value={user.country} 
+                    className={styles.input}
+                    readOnly
+                  />
+                  <Button className={styles.changePasswordButton} onClick={()=>setShowCountryForm(true)}>
+                    Change country
+                  </Button>
+                </>
+              )}
+            </div>
+            <p className={styles.helpText}>
+              The country you currently reside in.
             </p>
           </div>
         </div>

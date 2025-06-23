@@ -10,7 +10,7 @@ const MainContent = () => {
 
   return (
     <div style={{ display: 'flex' }}>
-      <Sidebar onSelectPage={setPage} />
+      <Sidebar onSelectPage={setPage} currentPage={page} />
       <div className={styles.mainContent}>
         <div className={styles.header}>
           <Settings className={styles.headerIcon} size={24} />

@@ -6,11 +6,12 @@ import {
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
-const Sidebar = ({ onSelectPage }) => {
+const Sidebar = ({ onSelectPage, currentPage }) => {
   const menuItems = [
-    { icon: Bell, label: 'Notifications', page: 'notifications' },
     { icon: Settings, label: 'Account settings', page: 'account' },
-    { icon: User, label: 'View Profile', page: 'profile' }
+    { icon: User, label: 'View Profile', page: 'profile' },
+    { divider: true },
+    { icon: Bell, label: 'Notifications', page: 'notifications' }
   ];
 
   return (
@@ -29,23 +30,30 @@ const Sidebar = ({ onSelectPage }) => {
       {/* Menu Items */}
       <nav className={styles.navigation}>
         {menuItems.map((item, index) => (
-          <div
-            key={index}
-            className={styles.menuItem}
-            onClick={() => onSelectPage && onSelectPage(item.page)}
-            style={{ cursor: 'pointer' }}
-          >
-            <div className={styles.menuContent}>
-              <item.icon className={styles.icon} size={20} />
-              <span className={styles.label}>{item.label}</span>
-              {item.badge && (
-                <span className={styles.badge}>{item.badge}</span>
-              )}
-              {item.hasDropdown && (
-                <span className={styles.dropdown}>▼</span>
-              )}
+          item.divider ? (
+            <div key={`divider-${index}`} style={{borderTop:'1.5px solid var(--profile-header-border)',margin:'10px 0'}}></div>
+          ) : (
+            <div
+              key={item.page}
+              className={
+                styles.menuItem +
+                (currentPage === item.page ? ' ' + styles.active : '')
+              }
+              onClick={() => onSelectPage && onSelectPage(item.page)}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className={styles.menuContent}>
+                {item.icon && <item.icon className={styles.icon} size={20} />}
+                <span className={styles.label}>{item.label}</span>
+                {item.badge && (
+                  <span className={styles.badge}>{item.badge}</span>
+                )}
+                {item.hasDropdown && (
+                  <span className={styles.dropdown}>▼</span>
+                )}
+              </div>
             </div>
-          </div>
+          )
         ))}
       </nav>
     </div>
