@@ -131,23 +131,52 @@ const BookingList = () => {
     }
   };
 
-  const handleShowOnMap = (bookingId, data) => {
-    // data can be a flight segment object or a full booking object
-    const flightSegment = data.flightID ? data : (data.flightData && data.flightData.length > 0 ? data.flightData[0] : data);
+  const handleShowOnMap = (bookingId, booking) => {
+    let flightPathData;
 
-    // Ensure we have the necessary data before navigating
-    if (!flightSegment.originAirportCode || !flightSegment.destinationAirportCode) {
-      console.error("Incomplete flight data, cannot show on map.", flightSegment);
-      return;
+    // Check for a round trip with full data in flightData
+    if (booking.bookingType === 'ROUND_TRIP' && booking.flightData && booking.flightData.length === 2) {
+      const departureFlight = booking.flightData[0];
+      const returnFlight = booking.flightData[1];
+
+      flightPathData = {
+        isRoundTrip: true,
+        departure: {
+          originAirportCode: departureFlight.originAirportCode,
+          destinationAirportCode: departureFlight.destinationAirportCode,
+          duration: departureFlight.duration,
+          departureDate: departureFlight.departureDate,
+          arrivalDate: departureFlight.arrivalDate,
+        },
+        return: {
+          originAirportCode: returnFlight.originAirportCode,
+          destinationAirportCode: returnFlight.destinationAirportCode,
+          duration: returnFlight.duration,
+          departureDate: returnFlight.departureDate,
+          arrivalDate: returnFlight.arrivalDate,
+        }
+      };
+    } else {
+      // Handle one-way flights or legacy booking structures
+      const flightSegment = (booking.flightData && booking.flightData.length > 0) ? booking.flightData[0] : booking;
+
+      if (!flightSegment.originAirportCode || !flightSegment.destinationAirportCode) {
+        console.error("Incomplete flight data, cannot show on map.", flightSegment);
+        return;
+      }
+
+      flightPathData = {
+        isRoundTrip: false,
+        // Nest it inside 'departure' for a consistent structure
+        departure: {
+          originAirportCode: flightSegment.originAirportCode,
+          destinationAirportCode: flightSegment.destinationAirportCode,
+          duration: flightSegment.duration,
+          departureDate: flightSegment.departureDate,
+          arrivalDate: flightSegment.arrivalDate,
+        }
+      };
     }
-
-    const flightPathData = {
-      originAirportCode: flightSegment.originAirportCode,
-      destinationAirportCode: flightSegment.destinationAirportCode,
-      duration: flightSegment.duration, // ISO duration string e.g., "PT6H25M"
-      departureDate: flightSegment.departureDate,
-      arrivalDate: flightSegment.arrivalDate,
-    };
     
     localStorage.setItem('selectedFlightPath', JSON.stringify(flightPathData));
     navigate('/');
