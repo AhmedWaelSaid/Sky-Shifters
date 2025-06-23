@@ -131,8 +131,25 @@ const BookingList = () => {
     }
   };
 
-  const handleShowOnMap = (bookingId) => {
-    localStorage.setItem('selectedBookingId', bookingId);
+  const handleShowOnMap = (bookingId, data) => {
+    // data can be a flight segment object or a full booking object
+    const flightSegment = data.flightID ? data : (data.flightData && data.flightData.length > 0 ? data.flightData[0] : data);
+
+    // Ensure we have the necessary data before navigating
+    if (!flightSegment.originAirportCode || !flightSegment.destinationAirportCode) {
+      console.error("Incomplete flight data, cannot show on map.", flightSegment);
+      return;
+    }
+
+    const flightPathData = {
+      originAirportCode: flightSegment.originAirportCode,
+      destinationAirportCode: flightSegment.destinationAirportCode,
+      duration: flightSegment.duration, // ISO duration string e.g., "PT6H25M"
+      departureDate: flightSegment.departureDate,
+      arrivalDate: flightSegment.arrivalDate,
+    };
+    
+    localStorage.setItem('selectedFlightPath', JSON.stringify(flightPathData));
     navigate('/');
   };
 

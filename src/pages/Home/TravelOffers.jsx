@@ -60,235 +60,114 @@ export default function TravelOffers() {
       let originCoords = null;
       let destinationCoords = null;
       let flightDurationSeconds = 0;
-      let bookingToShow = null;
-      let overrideFlightData = null;
-
-      // 1. Check if user selected a specific flight path from BookingList
+      
       const selectedFlightPathStr = localStorage.getItem('selectedFlightPath');
+
       if (selectedFlightPathStr) {
         try {
-          const selectedFlightPath = JSON.parse(selectedFlightPathStr);
-          if (selectedFlightPath && selectedFlightPath.bookingId && selectedFlightPath.flightData) {
-            // Fetch all bookings
-            const userString = localStorage.getItem('user');
-            let bookings = [];
-            if (userString) {
-              const userData = JSON.parse(userString);
-              if (userData?.token) {
-                bookings = await bookingService.getMyBookings();
-              }
-            }
-            // Find the booking by ID
-            bookingToShow = bookings.find(b => b._id === selectedFlightPath.bookingId);
-            if (bookingToShow) {
-              // Override flightData to only the selected segment
-              overrideFlightData = selectedFlightPath.flightData;
-              // Remove selectedFlightPath after use
-              localStorage.removeItem('selectedFlightPath');
-            }
-          }
-        } catch (e) {
-          // ignore parse errors
-        }
-      }
+          const flightPath = JSON.parse(selectedFlightPathStr);
+          localStorage.removeItem('selectedFlightPath'); // Clean up immediately
 
-      try {
-        const userString = localStorage.getItem('user');
-        if (userString) {
-          const userData = JSON.parse(userString);
-          if (userData?.token) {
-            console.log('Step 2: User token found. Fetching bookings...');
-            const bookings = await bookingService.getMyBookings();
-            console.log('Step 3: Received response from bookings API.');
+          if (flightPath.originAirportCode && flightPath.destinationAirportCode) {
+            console.log('Path 1: Displaying selected flight from bookings.', flightPath);
 
-            const selectedBookingId = localStorage.getItem('selectedBookingId');
-
-            if (selectedBookingId) {
-              bookingToShow = bookings.find(b => b._id === selectedBookingId);
-              console.log(`Found selected booking from BookingList:`, bookingToShow);
-              localStorage.removeItem('selectedBookingId'); // Clean up
-            } else if (bookings && bookings.length > 0) {
-              const futureConfirmedBookings = bookings
-                .filter(booking => {
-                  if (booking.status !== 'confirmed') return false;
-                  
-                  const hasFlightData = booking.flightData && booking.flightData.length > 0;
-                  const departureDateStr = hasFlightData ? booking.flightData[0].departureDate : booking.departureDate;
-
-                  if (!departureDateStr) return false;
-
-                  return new Date(departureDateStr) > new Date();
-                })
-                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-              
-              console.log(`Filter complete. Found ${futureConfirmedBookings.length} future confirmed bookings.`);
-
-              if (futureConfirmedBookings.length > 0) {
-                bookingToShow = futureConfirmedBookings[0];
-                console.log(`Latest booking for map:`, bookingToShow);
-              }
-            }
-            
-            if (bookingToShow) {
-              // If overrideFlightData is set, use it. This happens when 'View Flight Path' is clicked.
-              // In some cases, overrideFlightData is the whole booking object. We need flightData from it.
-              let flightDataToUse = overrideFlightData ? (overrideFlightData.flightData || [overrideFlightData]) : bookingToShow.flightData;
-              const originCode = flightDataToUse?.[0]?.originAirportCode || bookingToShow.originAirportCode;
-
-              let destCode;
-              // For round trips, the main map should show the path to the destination of the first leg.
-              if (bookingToShow.bookingType === 'ROUND_TRIP' && flightDataToUse?.[0]) {
-                destCode = flightDataToUse[0].destinationAirportCode;
-              } else {
-                // For one-way trips, the destination is from the last leg, which handles layovers correctly.
-                destCode = flightDataToUse?.[flightDataToUse.length - 1]?.destinationAirportCode || bookingToShow.destinationAirportCode;
-              }
-              
-              if (overrideFlightData) {
-                // When a specific flight is selected from bookings, only use its data.
-                let dep, arr;
-                if (flightDataToUse && flightDataToUse.length > 0) {
-                    dep = flightDataToUse[0].departureDate;
-                    arr = flightDataToUse[0].arrivalDate;
-                } else {
-                    dep = bookingToShow.departureDate;
-                    arr = bookingToShow.arrivalDate;
-                }
-        
-                if (dep && arr) {
-                    const depDate = new Date(dep);
-                    const arrDate = new Date(arr);
-                    const diffMs = arrDate - depDate;
-                    if (!isNaN(diffMs) && diffMs > 0) {
-                        const hours = Math.floor(diffMs / (1000 * 60 * 60));
-                        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                        flightDurationSeconds = Math.floor(diffMs / 1000);
-                        setFlightDuration(`${hours}h ${minutes}m`);
-                    } else {
-                        setFlightDuration('--');
-                    }
-                } else {
-                    const durationISO = flightDataToUse?.[0]?.duration || bookingToShow.duration;
-                    if (durationISO && typeof durationISO === 'string') {
-                        const match = durationISO.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
-                        if (match) {
-                            const hours = match[1] ? parseInt(match[1], 10) : 0;
-                            const minutes = match[2] ? parseInt(match[2], 10) : 0;
-                            flightDurationSeconds = (hours * 3600) + (minutes * 60);
-                            setFlightDuration(`${hours}h ${minutes}m`);
-                        } else {
-                            setFlightDuration('--');
-                        }
-                    } else {
-                        setFlightDuration('--');
-                    }
-                }
-              } else {
-                // Original logic for the default latest flight view
-                const durationISO = bookingToShow.flightData?.[0]?.duration || bookingToShow.duration;
-                console.log('Flight Duration ISO:', durationISO);
-
-                // Try to get more precise timing from localStorage (flight or sharedData)
-                let preciseDep = null, preciseArr = null;
-                try {
-                  const flightLS = JSON.parse(localStorage.getItem('flight'));
-                  if (flightLS && bookingToShow.bookingRef && flightLS.departure) {
-                    // Try to match by bookingRef or by airport codes
-                    const depSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.[0];
-                    const arrSeg = flightLS.departure.data?.itineraries?.[0]?.segments?.slice(-1)?.[0];
-                    if (depSeg && arrSeg) {
-                      // Check if airport codes match
-                      if (
-                        depSeg.departure.iataCode === (bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode) &&
-                        arrSeg.arrival.iataCode === (bookingToShow.flightData?.[0]?.destinationAirportCode || bookingToShow.destinationAirportCode)
-                      ) {
-                        preciseDep = depSeg.departure.at;
-                        preciseArr = arrSeg.arrival.at;
-                      }
-                    }
-                  }
-                } catch (e) { /* ignore */ }
-
-                if (!preciseDep || !preciseArr) {
-                  // Try sharedData as fallback
-                  try {
-                    const sharedData = JSON.parse(localStorage.getItem('sharedData'));
-                    const depIata = bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode;
-                    const arrIata = bookingToShow.flightData?.[0]?.destinationAirportCode || bookingToShow.destinationAirportCode;
-                    if (sharedData?.departure?.origin?.airport?.iata === depIata && sharedData?.departure?.dest?.airport?.iata === arrIata) {
-                      preciseDep = sharedData.departure?.date + 'T00:00:00'; // fallback if only date
-                    }
-                  } catch (e) { /* ignore */ }
-                }
-
-                if (preciseDep && preciseArr) {
-                  const depDate = new Date(preciseDep);
-                  const arrDate = new Date(preciseArr);
-                  const diffMs = arrDate - depDate;
-                  if (!isNaN(diffMs) && diffMs > 0) {
+            // Calculate flight duration string
+            if (flightPath.departureDate && flightPath.arrivalDate) {
+                const depDate = new Date(flightPath.departureDate);
+                const arrDate = new Date(flightPath.arrivalDate);
+                const diffMs = arrDate - depDate;
+                if (!isNaN(diffMs) && diffMs > 0) {
                     const hours = Math.floor(diffMs / (1000 * 60 * 60));
                     const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
                     flightDurationSeconds = Math.floor(diffMs / 1000);
                     setFlightDuration(`${hours}h ${minutes}m`);
-                  } else {
-                    setFlightDuration('--');
-                  }
-                } else if (durationISO && typeof durationISO === 'string') {
-                    const match = durationISO.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
-                    if (match) {
-                        const hours = match[1] ? parseInt(match[1], 10) : 0;
-                        const minutes = match[2] ? parseInt(match[2], 10) : 0;
-                        flightDurationSeconds = (hours * 3600) + (minutes * 60);
-                        setFlightDuration(`${hours}h ${minutes}m`);
-                    } else {
-                        setFlightDuration('--');
-                    }
-                } else {
-                    // Try to calculate from arrivalDate and departureDate
-                    let dep, arr;
-                    if (bookingToShow.flightData && bookingToShow.flightData.length > 0) {
-                      dep = bookingToShow.flightData[0].departureDate;
-                      arr = bookingToShow.flightData[0].arrivalDate;
-                    } else {
-                      dep = bookingToShow.departureDate;
-                      arr = bookingToShow.arrivalDate;
-                    }
-                    if (dep && arr) {
-                      const depDate = new Date(dep);
-                      const arrDate = new Date(arr);
-                      const diffMs = arrDate - depDate;
-                      if (!isNaN(diffMs) && diffMs > 0) {
-                        const hours = Math.floor(diffMs / (1000 * 60 * 60));
-                        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                        flightDurationSeconds = Math.floor(diffMs / 1000);
-                        setFlightDuration(`${hours}h ${minutes}m`);
-                      } else {
-                        setFlightDuration('--');
-                      }
-                    } else {
-                      setFlightDuration('--');
-                    }
-                }
+                } else { setFlightDuration('--'); }
+            } else if (flightPath.duration && typeof flightPath.duration === 'string') {
+                const match = flightPath.duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+                if (match) {
+                    const hours = match[1] ? parseInt(match[1], 10) : 0;
+                    const minutes = match[2] ? parseInt(match[2], 10) : 0;
+                    flightDurationSeconds = (hours * 3600) + (minutes * 60);
+                    setFlightDuration(`${hours}h ${minutes}m`);
+                } else { setFlightDuration('--'); }
+            } else {
+                setFlightDuration('--');
+            }
+            
+            // Fetch coordinates for the selected flight
+            const [origin, dest] = await Promise.all([
+                getAirportCoordinates(flightPath.originAirportCode),
+                getAirportCoordinates(flightPath.destinationAirportCode)
+            ]).catch(err => {
+                console.error("Error fetching coordinates for selected flight:", err);
+                return [null, null];
+            });
+            originCoords = origin;
+            destinationCoords = dest;
+          }
+        } catch (error) {
+          console.error("Failed to process selected flight path:", error);
+        }
+      }
+
+      // If no specific flight was selected (or it failed), fall back to showing the latest flight
+      if (!originCoords || !destinationCoords) {
+        console.log('Path 2: Showing latest confirmed flight.');
+        let bookingToShow = null;
+        try {
+          const userString = localStorage.getItem('user');
+          if (userString) {
+            const userData = JSON.parse(userString);
+            if (userData?.token) {
+              const bookings = await bookingService.getMyBookings();
+              
+              const futureConfirmedBookings = bookings
+                .filter(booking => {
+                  if (booking.status !== 'confirmed') return false;
+                  const hasFlightData = booking.flightData && booking.flightData.length > 0;
+                  const departureDateStr = hasFlightData ? booking.flightData[0].departureDate : booking.departureDate;
+                  if (!departureDateStr) return false;
+                  return new Date(departureDateStr) > new Date();
+                })
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+              
+              if (futureConfirmedBookings.length > 0) {
+                bookingToShow = futureConfirmedBookings[0];
               }
+            }
+            
+            if (bookingToShow) {
+              const originCode = bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode;
+              const destCode = bookingToShow.flightData?.[bookingToShow.flightData.length - 1]?.destinationAirportCode || bookingToShow.destinationAirportCode;
+              
+              const dep = bookingToShow.flightData?.[0]?.departureDate || bookingToShow.departureDate;
+              const arr = bookingToShow.flightData?.[0]?.arrivalDate || bookingToShow.arrivalDate;
+
+              if (dep && arr) {
+                const depDate = new Date(dep);
+                const arrDate = new Date(arr);
+                const diffMs = arrDate - depDate;
+                if (!isNaN(diffMs) && diffMs > 0) {
+                  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                  flightDurationSeconds = Math.floor(diffMs / 1000);
+                  setFlightDuration(`${hours}h ${minutes}m`);
+                } else { setFlightDuration('--'); }
+              } else { setFlightDuration('--'); }
               
               if (originCode && destCode) {
-                console.log(`Fetching coordinates for origin: ${originCode} and destination: ${destCode}`);
                 const [origin, dest] = await Promise.all([
                   getAirportCoordinates(originCode),
                   getAirportCoordinates(destCode)
-                ]).catch(err => {
-                  console.error("Error fetching coordinates:", err);
-                  return [null, null];
-                });
+                ]);
                 originCoords = origin;
                 destinationCoords = dest;
-                if(originCoords && destinationCoords) console.log(`Coordinates found.`);
               }
             }
           }
+        } catch (error) {
+          console.error("Failed to process user data for map:", error);
         }
-      } catch (error) {
-        console.error("Failed to process user data for map:", error);
       }
       
       if (!isMounted) return;
