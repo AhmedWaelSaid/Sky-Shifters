@@ -130,8 +130,9 @@ export default function TravelOffers() {
             }
             
             if (bookingToShow) {
-              // If overrideFlightData is set, use it instead of bookingToShow.flightData
-              let flightDataToUse = overrideFlightData ? [overrideFlightData] : bookingToShow.flightData;
+              // If overrideFlightData is set, use it. This happens when 'View Flight Path' is clicked.
+              // In some cases, overrideFlightData is the whole booking object. We need flightData from it.
+              let flightDataToUse = overrideFlightData ? (overrideFlightData.flightData || [overrideFlightData]) : bookingToShow.flightData;
               const originCode = flightDataToUse?.[0]?.originAirportCode || bookingToShow.originAirportCode;
 
               let destCode;
