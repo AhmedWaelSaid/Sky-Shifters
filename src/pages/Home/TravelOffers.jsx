@@ -66,18 +66,22 @@ export default function TravelOffers() {
       let originCoords = null;
       let destinationCoords = null;
       let flightDurationSeconds = 0;
-      
+      let originCode, destCode;
+
       const selectedFlightPathStr = localStorage.getItem('selectedFlightPath');
 
       if (selectedFlightPathStr) {
         try {
           const flightPath = JSON.parse(selectedFlightPathStr);
-          localStorage.removeItem('selectedFlightPath'); // Clean up immediately
+          localStorage.removeItem('selectedFlightPath'); 
 
           if (flightPath.originAirportCode && flightPath.destinationAirportCode) {
             console.log('Path 1: Displaying selected flight from bookings.', flightPath);
+            originCode = flightPath.originAirportCode;
+            destCode = flightPath.destinationAirportCode;
+            
+            setAirline(flightPath.airline || '');
 
-            // Calculate flight duration string
             if (flightPath.departureDate && flightPath.arrivalDate) {
                 const depDate = new Date(flightPath.departureDate);
                 const arrDate = new Date(flightPath.arrivalDate);
@@ -100,10 +104,9 @@ export default function TravelOffers() {
                 setFlightDuration('--');
             }
             
-            // Fetch coordinates for the selected flight
             const [origin, dest] = await Promise.all([
-                getAirportCoordinates(flightPath.originAirportCode),
-                getAirportCoordinates(flightPath.destinationAirportCode)
+                getAirportCoordinates(originCode),
+                getAirportCoordinates(destCode)
             ]).catch(err => {
                 console.error("Error fetching coordinates for selected flight:", err);
                 return [null, null];
@@ -116,7 +119,6 @@ export default function TravelOffers() {
         }
       }
 
-      // If no specific flight was selected (or it failed), fall back to showing the latest flight
       if (!originCoords || !destinationCoords) {
         console.log('Path 2: Showing latest confirmed flight.');
         let bookingToShow = null;
@@ -143,9 +145,10 @@ export default function TravelOffers() {
             }
             
             if (bookingToShow) {
-              const originCode = bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode;
-              const destCode = bookingToShow.flightData?.[bookingToShow.flightData.length - 1]?.destinationAirportCode || bookingToShow.destinationAirportCode;
-              
+              originCode = bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode;
+              destCode = bookingToShow.flightData?.[bookingToShow.flightData.length - 1]?.destinationAirportCode || bookingToShow.destinationAirportCode;
+              setAirline(bookingToShow.flightData?.[0]?.airline || bookingToShow.airline || '');
+
               const dep = bookingToShow.flightData?.[0]?.departureDate || bookingToShow.departureDate;
               const arr = bookingToShow.flightData?.[0]?.arrivalDate || bookingToShow.arrivalDate;
 
@@ -174,6 +177,11 @@ export default function TravelOffers() {
         } catch (error) {
           console.error("Failed to process user data for map:", error);
         }
+      }
+      
+      if (originCode && destCode) {
+        getAirportDetails(originCode).then(details => isMounted && setOriginDetails(details));
+        getAirportDetails(destCode).then(details => isMounted && setDestinationDetails(details));
       }
       
       if (!isMounted) return;
@@ -312,21 +320,6 @@ export default function TravelOffers() {
               animationFrameRef.current = requestAnimationFrame(animate);
             }
             animate(0);
-
-            // Fetch airport details for display
-            const originCode = originCoords[0].toString();
-            const destCode = destinationCoords[0].toString();
-            if (originCode && destCode) {
-              getAirportDetails(originCode).then(setOriginDetails);
-              getAirportDetails(destCode).then(setDestinationDetails);
-              if (bookingToShow && bookingToShow.flightData && bookingToShow.flightData[0]?.airline) {
-                setAirline(bookingToShow.flightData[0].airline);
-              } else if (bookingToShow && bookingToShow.airline) {
-                setAirline(bookingToShow.airline);
-              } else {
-                setAirline('');
-              }
-            }
           } else {
              // Default marker if no booking found
              new mapboxgl.Marker({ color: '#808080' })

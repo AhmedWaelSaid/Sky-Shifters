@@ -131,11 +131,10 @@ const BookingList = () => {
     }
   };
 
-  const handleShowOnMap = (bookingId, data) => {
-    // data can be a flight segment object or a full booking object
-    const flightSegment = data.flightID ? data : (data.flightData && data.flightData.length > 0 ? data.flightData[0] : data);
+  const handleShowOnMap = (bookingId, booking) => {
+    // booking is the full booking object
+    const flightSegment = booking.flightData && booking.flightData.length > 0 ? booking.flightData[0] : booking;
 
-    // Ensure we have the necessary data before navigating
     if (!flightSegment.originAirportCode || !flightSegment.destinationAirportCode) {
       console.error("Incomplete flight data, cannot show on map.", flightSegment);
       return;
@@ -144,9 +143,10 @@ const BookingList = () => {
     const flightPathData = {
       originAirportCode: flightSegment.originAirportCode,
       destinationAirportCode: flightSegment.destinationAirportCode,
-      duration: flightSegment.duration, // ISO duration string e.g., "PT6H25M"
+      duration: flightSegment.duration,
       departureDate: flightSegment.departureDate,
       arrivalDate: flightSegment.arrivalDate,
+      airline: flightSegment.airline || booking.airline || 'Unknown Airline'
     };
     
     localStorage.setItem('selectedFlightPath', JSON.stringify(flightPathData));
