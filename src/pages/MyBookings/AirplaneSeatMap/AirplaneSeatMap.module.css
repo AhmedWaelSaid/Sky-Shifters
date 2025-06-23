@@ -5,12 +5,16 @@
   margin: 0 auto;
   margin-top: 2rem;
   padding: 20px;
-  background: var(--bg-color);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border-radius: 20px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
   font-family: 'Arial', sans-serif;
   direction: rtl;
   position: relative;
+}
+
+body.dark .airplaneContainer {
+  background: linear-gradient(135deg, #232326 0%, #2c2c2c 100%);
 }
 
 /* شكل الطائرة الكامل */
@@ -21,6 +25,12 @@
   box-shadow: 
     0 20px 40px rgba(0, 0, 0, 0.1),
     inset 0 2px 10px rgba(255, 255, 255, 0.8);
+}
+
+body.dark .airplaneBody {
+  background: linear-gradient(180deg, #232326 0%, #232326 100%);
+  border: 3px solid #444;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3), inset 0 2px 10px rgba(255,255,255,0.05);
 }
 
 /* مقدمة الطائرة - شكل مدبب */
@@ -483,8 +493,8 @@
 }
 
 .pageHeader {
-  background: linear-gradient(135deg, var(--profile-header-bg, #6e8efb), var(--profile-sidebar-bg, #000000));
-  color: var(--profile-header-title, white);
+  background: linear-gradient(135deg, #6e8efb, #000000);
+  color: white;
   padding: 2rem 1rem;
   text-align: center;
   border-radius: 0 0 20px 20px;
@@ -497,7 +507,7 @@
   font-size: 2.5rem;
   font-weight: 700;
   animation: fadeInDown 0.8s ease-out;
-  color: var(--profile-header-title, white);
+  color: white;
 }
 
 .pageHeader p {
@@ -505,7 +515,7 @@
   font-size: 1.2rem;
   opacity: 0.9;
   animation: fadeInUp 0.8s ease-out;
-  color: var(--profile-sidebar-subtext, #e2e8f0);
+  color: #e2e8f0;
 }
 
 @keyframes fadeInDown {
@@ -681,6 +691,10 @@
 .seatMapPage {
   padding-top: 150px;
   background-color: #f8f9fa;
+}
+
+body.dark .seatMapPage {
+  background-color: #232326;
 }
 
 .toastContainer {
