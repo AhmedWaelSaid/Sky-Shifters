@@ -495,7 +495,7 @@ body.dark .legendItem {
 }
 
 .pageHeader {
-  background: linear-gradient(135deg, #6e8efb, #000000);
+  background: linear-gradient(135deg, #4a5568 0%, #2c3e50 100%);
   color: white;
   padding: 2rem 1rem;
   text-align: center;
@@ -564,7 +564,11 @@ body.dark .legendItem {
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0 0 1rem;
-  color: #333;
+  color: var(--profile-header-title, #333);
+}
+
+body.dark .infoCard h2 {
+  color: #f3f3f3;
 }
 
 .infoCard p {
