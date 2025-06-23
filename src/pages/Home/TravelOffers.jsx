@@ -53,6 +53,7 @@ export default function TravelOffers() {
   const [flightDuration, setFlightDuration] = useState('');
   const [animationSpeed, setAnimationSpeed] = useState(1);
   const animationSpeedRef = useRef(1);
+  const [zoom, setZoom] = useState(3.5); // Initial zoom level
 
   useEffect(() => {
     let isMounted = true;
@@ -196,6 +197,11 @@ export default function TravelOffers() {
         map.on('load', () => {
           console.log('Step 10: Map loaded.');
           map.setFog({});
+
+          // Keep the slider in sync with map zoom
+          map.on('zoom', () => {
+            setZoom(map.getZoom());
+          });
 
           if (originCoords && destinationCoords) {
             // Add markers for origin and destination
@@ -383,28 +389,46 @@ export default function TravelOffers() {
             right: '20px',
             backgroundColor: 'rgba(0, 0, 0, 0.7)',
             color: 'white',
-            padding: '8px 15px',
-            borderRadius: '7px',
+            padding: '10px 15px',
+            borderRadius: '10px',
             zIndex: 2,
             display: 'flex',
-            alignItems: 'center',
-            gap: '10px'
+            flexDirection: 'column',
+            gap: '8px'
           }}>
-            <label htmlFor="speed" style={{fontWeight: 500}}>Speed: {animationSpeed.toFixed(1)}x</label>
-            <input
-              type="range"
-              id="speed"
-              min="0.2"
-              max="5"
-              step="0.1"
-              value={animationSpeed}
-              onChange={(e) => {
-                const newSpeed = parseFloat(e.target.value);
-                setAnimationSpeed(newSpeed);
-                animationSpeedRef.current = newSpeed;
-              }}
-              style={{cursor: 'pointer'}}
-            />
+             <div style={{display: 'flex', alignItems: 'center', gap: '10px', width: '200px', justifyContent: 'space-between'}}>
+              <label htmlFor="zoom" style={{fontWeight: 500, flexShrink: 0}}>Zoom</label>
+              <input
+                type="range"
+                id="zoom"
+                min={mapRef.current ? mapRef.current.getMinZoom() : 0}
+                max={mapRef.current ? mapRef.current.getMaxZoom() : 22}
+                step="0.1"
+                value={zoom}
+                onChange={(e) => {
+                  const newZoom = parseFloat(e.target.value);
+                  mapRef.current.setZoom(newZoom);
+                }}
+                style={{cursor: 'pointer', width: '130px'}}
+              />
+            </div>
+            <div style={{display: 'flex', alignItems: 'center', gap: '10px', width: '200px', justifyContent: 'space-between'}}>
+              <label htmlFor="speed" style={{fontWeight: 500, flexShrink: 0}}>Speed: {animationSpeed.toFixed(1)}x</label>
+              <input
+                type="range"
+                id="speed"
+                min="0.2"
+                max="5"
+                step="0.1"
+                value={animationSpeed}
+                onChange={(e) => {
+                  const newSpeed = parseFloat(e.target.value);
+                  setAnimationSpeed(newSpeed);
+                  animationSpeedRef.current = newSpeed;
+                }}
+                style={{cursor: 'pointer', width: '130px'}}
+              />
+            </div>
           </div>
         </div>
         <div className="offers-flex home-flex">
