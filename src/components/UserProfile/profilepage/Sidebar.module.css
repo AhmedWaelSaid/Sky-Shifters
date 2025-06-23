@@ -1,20 +1,23 @@
 .sidebar {
   width: 250px;
-  height: 100vh;
-  background-color: #2a2a2a;
-  color: white;
+  /* min-height: 100vh; */
+  height: auto;
+  background-color: var(--profile-sidebar-bg, #2a2a2a);
+  color: var(--profile-sidebar-text, white);
   padding: 0;
   display: flex;
   flex-direction: column;
-  position: fixed;
+  /* position: fixed; */
   left: 0;
   top: 0;
-  overflow-y: auto;
+  /* overflow-y: auto; */
+  padding-top: 100px;
+  border-right: 1.5px solid var(--profile-header-border);
 }
 
 .userProfile {
   padding: 20px;
-  border-bottom: 1px solid #404040;
+  border-bottom: 1px solid var(--profile-sidebar-border, #404040);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -25,7 +28,7 @@
   height: 40px;
   border-radius: 50%;
   overflow: hidden;
-  background-color: #f4a261;
+  background-color: var(--profile-button-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -41,13 +44,13 @@
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-  color: white;
+  color: var(--profile-sidebar-text, white);
 }
 
 .userInfo p {
   margin: 4px 0 0 0;
   font-size: 12px;
-  color: #888;
+  color: var(--profile-sidebar-subtext, #888);
 }
 
 .navigation {
@@ -66,20 +69,20 @@
 }
 
 .menuItem:hover {
-  background-color: #404040;
+  background-color: var(--menuHover-color);
 }
 
 .menuItem.active {
-  background-color: #f4a261;
+  background-color: var(--profile-button-bg);
 }
 
 .menuItem.active .label {
-  color: #000;
+  color: var(--profile-button-text, #000);
   font-weight: 600;
 }
 
 .menuItem.active .icon {
-  color: #000;
+  color: var(--profile-button-text, #000);
 }
 
 .menuContent {
@@ -91,19 +94,19 @@
 }
 
 .icon {
-  color: #ccc;
+  color: var(--profile-sidebar-icon, #ccc);
   flex-shrink: 0;
 }
 
 .label {
-  color: #ccc;
+  color: var(--profile-sidebar-label, #ccc);
   font-size: 14px;
   flex: 1;
 }
 
 .badge {
-  background-color: #00d4aa;
-  color: white;
+  background-color: var(--profile-sidebar-badge-bg, #00d4aa);
+  color: var(--profile-sidebar-badge-text, white);
   font-size: 10px;
   padding: 2px 6px;
   border-radius: 4px;
@@ -112,7 +115,7 @@
 }
 
 .dropdown {
-  color: #888;
+  color: var(--profile-sidebar-subtext, #888);
   font-size: 12px;
   margin-left: auto;
 }

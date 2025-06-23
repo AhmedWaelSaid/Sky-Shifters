@@ -9,7 +9,7 @@
 .sectionTitle {
   font-size: 20px;
   font-weight: 600;
-  color: white;
+  color: var(--profile-title-color, #222);
   margin: 0 0 30px 0;
 }
 
@@ -21,7 +21,7 @@
   display: block;
   font-size: 14px;
   font-weight: 500;
-  color: white;
+  color: var(--profile-label-color, #222);
   margin-bottom: 8px;
 }
 
@@ -33,18 +33,18 @@
 }
 
 .input {
-  background-color: #333;
-  border: 1px solid #555;
+  background-color: var(--profile-input-bg, #f5f5f5);
+  border: 1px solid var(--profile-input-border, #ddd);
   border-radius: 6px;
   padding: 12px 16px;
-  color: #888;
+  color: var(--profile-input-text, #222);
   font-size: 14px;
   width: 300px;
   outline: none;
 }
 
 .input:focus {
-  border-color: #f4a261;
+  border-color: var(--profile-button-bg);
 }
 
 .editButton {
@@ -63,8 +63,8 @@
 }
 
 .changePasswordButton {
-  background-color: #f4a261;
-  color: #000;
+  background-color: var(--profile-button-bg);
+  color: var(--profile-button-text);
   border: none;
   padding: 10px 20px;
   border-radius: 6px;
@@ -75,7 +75,7 @@
 }
 
 .changePasswordButton:hover {
-  background-color: #e8956b;
+  filter: brightness(0.9);
 }
 
 .helpText {
@@ -123,8 +123,8 @@
 }
 
 .uploadButton {
-  background-color: #f4a261;
-  color: #000;
+  background-color: var(--profile-button-bg);
+  color: var(--profile-button-text);
   border: none;
   padding: 10px 20px;
   border-radius: 6px;
@@ -135,7 +135,7 @@
 }
 
 .uploadButton:hover {
-  background-color: #e8956b;
+  filter: brightness(0.9);
 }
 
 .uploadText {
@@ -166,5 +166,47 @@
     align-items: flex-start;
     gap: 16px;
   }
+}
+
+/* React Select dark mode styles */
+.react-select__control {
+  background-color: #232326;
+  border-color: #444;
+  color: #fff;
+}
+.react-select__control--is-focused {
+  border-color: var(--profile-button-bg);
+  box-shadow: 0 0 0 1px var(--profile-button-bg);
+}
+.react-select__menu {
+  background-color: #232326;
+  color: #fff;
+}
+.react-select__option {
+  background-color: #232326;
+  color: #fff;
+}
+.react-select__option--is-focused {
+  background-color: #333;
+  color: #fff;
+}
+.react-select__option--is-selected {
+  background-color: var(--profile-button-bg);
+  color: #000;
+}
+.react-select__single-value {
+  color: #fff;
+}
+.react-select__input-container {
+  color: #fff;
+}
+.react-select__indicator-separator {
+  background-color: #444;
+}
+.react-select__dropdown-indicator {
+  color: #fff;
+}
+.react-select__dropdown-indicator:hover {
+  color: var(--profile-button-bg);
 }
 

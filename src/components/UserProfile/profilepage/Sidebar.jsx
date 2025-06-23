@@ -1,30 +1,16 @@
 import React from 'react';
 import { 
-  ShoppingCart, 
-  Tag, 
-  TrendingUp, 
-  Crown, 
-  Wallet, 
-  MessageSquare, 
   Bell, 
-  Star, 
   Settings, 
   User 
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
-const Sidebar = () => {
+const Sidebar = ({ onSelectPage }) => {
   const menuItems = [
-    { icon: ShoppingCart, label: 'Orders', hasDropdown: true },
-    { icon: Tag, label: 'Offers', hasDropdown: true },
-    { icon: TrendingUp, label: 'Boosting', hasDropdown: true },
-    { icon: Crown, label: 'Loyalty', badge: 'BETA' },
-    { icon: Wallet, label: 'Wallet' },
-    { icon: MessageSquare, label: 'Messages' },
-    { icon: Bell, label: 'Notifications' },
-    { icon: Star, label: 'Feedback' },
-    { icon: Settings, label: 'Account settings', active: true },
-    { icon: User, label: 'View Profile' }
+    { icon: Bell, label: 'Notifications', page: 'notifications' },
+    { icon: Settings, label: 'Account settings', page: 'account' },
+    { icon: User, label: 'View Profile', page: 'profile' }
   ];
 
   return (
@@ -43,7 +29,12 @@ const Sidebar = () => {
       {/* Menu Items */}
       <nav className={styles.navigation}>
         {menuItems.map((item, index) => (
-          <div key={index} className={`${styles.menuItem} ${item.active ? styles.active : ''}`}>
+          <div
+            key={index}
+            className={styles.menuItem}
+            onClick={() => onSelectPage && onSelectPage(item.page)}
+            style={{ cursor: 'pointer' }}
+          >
             <div className={styles.menuContent}>
               <item.icon className={styles.icon} size={20} />
               <span className={styles.label}>{item.label}</span>

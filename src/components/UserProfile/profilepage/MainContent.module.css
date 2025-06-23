@@ -1,31 +1,32 @@
 .mainContent {
-  margin-left: 250px;
+  /* margin-left: 5px; */
   min-height: 100vh;
-  background-color: #1a1a1a;
-  color: white;
+  background-color: var(--profile-bg);
+  color: var(--profile-text);
   padding: 0;
-  width: calc(100vw - 250px);
-  margin-top: 40px;
+  width: 100vw;
+  margin-top: 75px
 }
 
 .header {
   padding: 30px 40px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--profile-header-border);
   display: flex;
   align-items: center;
   gap: 12px;
   margin-top: 20px;
+  background: var(--profile-header-bg);
 }
 
 .headerIcon {
-  color: #f4a261;
+  color: var(--profile-button-bg);
 }
 
 .headerTitle {
   margin: 0;
   font-size: 24px;
   font-weight: 400;
-  color: white;
+  color: var(--profile-header-title);
 }
 
 .content {
