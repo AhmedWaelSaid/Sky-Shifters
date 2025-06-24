@@ -130,7 +130,7 @@ export default function Container() {
   if (loading) return <Loading />;
   if (error && error.name !== "AbortError") return <Error />;
   if (!flightsData || flightsData.data.length === 0 || !flightsData.data)
-    return <EmptyData />;
+    return <EmptyData setIsReturn={setIsReturn} setAPISearch={setAPISearch}/>;
 
   function getStops(){
     const stops = {direct: false, stop1:false, stop2:false};

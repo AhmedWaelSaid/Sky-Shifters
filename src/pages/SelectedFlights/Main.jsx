@@ -9,9 +9,79 @@ import { formatDuration } from "./someFun";
 import DetailsOfTheFlight from "../FlightDetails/DetailsOfTheFlight/DetailsOfTheFlight";
 import { useState, useEffect } from "react";
 import { dayDifference } from "./someFun";
-const capitalizeWords = (str) =>
-  str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+function capitalizeWords(str) {
+  if (typeof str !== "string") return "";
+  return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+}
+function getAirlines(flight) {
+  if (!flight) return null;
+  const airlines = flight.itineraries[0].segments.map((seg) => seg.carrierCode);
+  const uniqueAirlines = [...new Set(airlines)];
+  return uniqueAirlines;
+}
+function Airline({ carrierCode, flight, carriers }) {
+  const [showPopup, setShowPopup] = useState(false);
+  const uniqueAirlines = getAirlines(flight);
+  const normalSize = 60;
+  return (
+    <div className={styles.airLineContainer}>
+      <div
+        className={styles.imgContainer}
+        onMouseEnter={() => {
+          setShowPopup(true);
+        }}
+        onMouseLeave={() => {
+          setShowPopup(false);
+        }}
+      >
+        {showPopup && uniqueAirlines.length > 1 && (
+          <div className={styles.airportPopup}>
+            This flight is partially operated by{" "}
+            {carriers
+              ? capitalizeWords(carriers[uniqueAirlines[1]])
+              : uniqueAirlines[1]}
+          </div>
+        )}
+        <img
+          className={
+            uniqueAirlines.length == 1
+              ? styles.airLineIcon
+              : styles.airLineIcon2
+          }
+          src={`https://pics.avs.io/${normalSize}/${normalSize}/${uniqueAirlines[0]}.png`}
+          alt={carrierCode}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "src/assets/no-logo.jpg"; // fallback
+            console.warn("Logo failed to load:", e.target.src);
+          }}
+        />
+        {uniqueAirlines.length > 1 && (
+          <img
+            className={styles.airLineIcon3}
+            src={`https://pics.avs.io/${normalSize}/${normalSize}/${uniqueAirlines[1]}.png`}
+            alt={carrierCode}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "src/assets/no-logo.jpg"; // fallback
+              console.warn("Logo failed to load:", e.target.src);
+            }}
+          />
+        )}
+      </div>
+      <div className={styles.airLine}>
+        {carriers
+          ? capitalizeWords(carriers[uniqueAirlines[0]])
+          : uniqueAirlines[0]}
 
+        {uniqueAirlines.length > 1 &&
+          (carriers
+            ? `, ${capitalizeWords(carriers[uniqueAirlines[1]])}`
+            : `, ${uniqueAirlines[1]}`)}
+      </div>
+    </div>
+  );
+}
 export function FlightsUI({
   flight,
   btnHandler,
@@ -22,24 +92,10 @@ export function FlightsUI({
 }) {
   const [showPlusTime, setShowPlusTime] = useState(false);
   const carrierCode = flight?.itineraries?.[0]?.segments?.[0]?.carrierCode;
-  const carrier = carrierCode ? carriers?.[carrierCode] : "";
+  console.log(carriers);
   return (
     <div className={styles.flight}>
-      <div className={styles.airLineContainer}>
-        <img
-          className={styles.airLineIcon}
-          src={`https://pics.avs.io/60/60/${flight.itineraries[0].segments[0].carrierCode}.png`}
-          alt={flight.itineraries[0].segments[0].carrierCode}
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = "src/assets/no-logo.jpg"; // fallback
-            console.warn("Logo failed to load:", e.target.src);
-          }}
-        />
-        <div className={styles.airLine}>
-          {carrier && capitalizeWords(carrier)}
-        </div>
-      </div>
+      <Airline carrierCode={carrierCode} flight={flight} carriers={carriers} />
       <div className={styles.flightTime}>
         <div
           className={styles.plusDays}
@@ -197,12 +253,12 @@ export function Main({
       setIsReturn(true);
     }, 200);
   }
-  const toggleDetails = (curFlight, carriers,aircraft) => {
+  const toggleDetails = (curFlight, carriers, aircraft) => {
     if (!isDetailsOpen && !sharedData.return) {
       setTempFlight({ departure: { data: curFlight }, carriers, aircraft });
     } else if (!isDetailsOpen && sharedData.return) {
       if (!isReturn)
-        setTempFlight({ departure: { data: curFlight }, carriers,aircraft });
+        setTempFlight({ departure: { data: curFlight }, carriers, aircraft });
       else
         setTempFlight({
           return: { data: curFlight },
@@ -243,7 +299,7 @@ export function Main({
 
           if (sharedData.return) {
             if (isReturn) {
-              btnHandler = () => toggleDetails(flight, carriers,aircraft);
+              btnHandler = () => toggleDetails(flight, carriers, aircraft);
               button = { text: "View Details", className: "detailsBtn" };
               btnHandler2 = selectBtnHandler;
               button2 = {
@@ -258,11 +314,11 @@ export function Main({
                 className: "selectFlightBtn",
                 exist: true,
               };
-              btnHandler = () => toggleDetails(flight, carriers,aircraft);
+              btnHandler = () => toggleDetails(flight, carriers, aircraft);
               button = { text: "View Details", className: "detailsBtn" };
             }
           } else {
-            btnHandler = () => toggleDetails(flight, carriers,aircraft);
+            btnHandler = () => toggleDetails(flight, carriers, aircraft);
             btnHandler2 = selectBtnHandler;
             button = { text: "View Details", className: "detailsBtn" };
             button2 = {

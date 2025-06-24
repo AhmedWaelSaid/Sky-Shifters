@@ -26,12 +26,47 @@
   display: flex;
   gap: 18px;
   position: relative;
+  max-width: 180px;
+}
+.airportPopup{
+  position: absolute;
+  z-index: 100;
+  background-color: rgb(0,0,0,0.8);
+  color: white;
+  padding: 10px;
+  width: 300px;
+  top: -80px;
 }
 .airLineIcon {
   width: 60px;
   height: 60px;
   position: relative;
+  border-radius: 50%;
+  border: 1px solid rgb(0,0,0,0.2);
+  background-color: white;
   top: -15px;
+}
+.airLineIcon2{
+  composes: airLineIcon;
+  z-index: 10;
+  margin-right: 35px;
+}
+.airLineIcon3{
+  composes: airLineIcon2;
+  position: absolute;
+  left: 40px;
+  z-index: 0;
+  top: -15px;
+}
+.airLine {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;     /* number of lines to show */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+  line-height: 1.2em;
+  max-height: 2.4em;         /* line-height × number of lines */
 }
 .baggage {
   font-size: 12px;
