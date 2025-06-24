@@ -7,8 +7,8 @@ import bangladesh4 from "../../assets/Image frame (5).png";
 import bangladesh5 from "../../assets/pexels-asadphoto-1266831.jpg";
 import bangladesh6 from "../../assets/pexels-pixabay-38238.jpg";
 import bangladesh7 from "../../assets/pexels-pixabay-237272.jpg";
-
-import { useEffect, useRef, useState } from "react";
+const images = import.meta.glob('../../assets/*-unsplash.jpg', { eager: true, as: 'url' });
+import { useEffect, useRef, useState, useCallback } from "react"; // Added useCallback
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { getAirportCoordinates, getAirportDetails } from "../../services/airportService";
@@ -21,144 +21,57 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN; 
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
-const offersData = [
-  {
-    id: 1,
-    title: "New York",
-    date: "9 - 10 Feb, 2023",
-    duration: "7 hr 15m",
-    price: "$294",
-    image: newYorkImg,
-  },
-  {
-    id: 2,
-    title: "Los Angeles",
-    date: "9 - 10 Feb, 2023",
-    duration: "6 hr 18m",
-    price: "$399",
-    image: losAngelesImg,
-  },
-  {
-    id: 3,
-    title: "Berlin",
-    date: "12 - 14 Mar, 2023",
-    duration: "5 hr 50m",
-    price: "$320",
-    image: bangladesh3,
-  },
-  {
-    id: 4,
-    title: "Dubai",
-    date: "20 - 22 Apr, 2023",
-    duration: "4 hr 30m",
-    price: "$410",
-    image: bangladesh4,
-  },
-  {
-    id: 5,
-    title: "Istanbul",
-    date: "1 - 3 May, 2023",
-    duration: "3 hr 45m",
-    price: "$280",
-    image: bangladesh5,
-  },
-  {
-    id: 6,
-    title: "Tokyo",
-    date: "15 - 17 Jun, 2023",
-    duration: "10 hr 20m",
-    price: "$670",
-    image: bangladesh6,
-  },
-  {
-    id: 7,
-    title: "Cape Town",
-    date: "5 - 7 Jul, 2023",
-    duration: "8 hr 10m",
-    price: "$540",
-    image: bangladesh7,
-  },
-  {
-    id: 8,
-    title: "Sydney",
-    date: "18 - 20 Aug, 2023",
-    duration: "13 hr 5m",
-    price: "$890",
-    image: bangladesh2,
-  },
-];
-const images = import.meta.glob('../../assets/*-unsplash.jpg', { eager: true, as: 'url' });
+// Consolidate image loading from the glob
 const allImages = Object.values(images);
-const londonOffers = Array.from({ length: 4 }, (_, index) => ({
-  id: index + 1,
-  title: "London Adventure",
-  price: "$ 200",
-  image: allImages[index]
+
+// Generate fake offers using the first 8 images from allImages
+const fakeDestinations = [
+  "Santorini", "Maldives", "Tokyo", "Paris", "Rio de Janeiro", "Cape Town", "Sydney", "New York"
+];
+
+// Get today's date and tomorrow's date
+const today = new Date();
+const tomorrow = new Date();
+tomorrow.setDate(today.getDate() + 1);
+
+function formatDate(date) {
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day} - ${month} - ${year}`;
+}
+
+const todayStr = formatDate(today);
+const tomorrowStr = formatDate(tomorrow);
+const fakeDates = Array(8).fill(todayStr);
+
+const fakeDurations = [
+  "4 hr 10m", "7 hr 15m", "13 hr 5m", "11 hr 40m", "9 hr 30m", "8 hr 20m", "6 hr 55m", "5 hr 50m"
+];
+const fakePrices = [
+  "$320", "$890", "$670", "$510", "$780", "$540", "$399", "$294"
+];
+
+const offersData = allImages.slice(0, 8).map((img, idx) => ({
+  id: idx + 1,
+  title: fakeDestinations[idx % fakeDestinations.length],
+  date: fakeDates[idx % fakeDates.length],
+  duration: fakeDurations[idx % fakeDurations.length],
+  price: fakePrices[idx % fakePrices.length],
+  image: img
 }));
 
-const bangladeshImages = [losAngelesImg, newYorkImg, bangladesh5 , bangladesh4];
-
-// Add more diverse offers for the slider
-const sliderOffers = [
-  {
-    id: 1,
-    title: "London Adventure",
-    price: "$200",
-    image: bangladesh7,
-    desc: "Explore the heart of the UK with iconic sights and vibrant culture."
-  },
-  {
-    id: 2,
-    title: "Maldives Paradise",
-    price: "$850",
-    image: bangladesh5,
-    desc: "Relax on white sandy beaches and crystal-clear waters."
-  },
-  {
-    id: 3,
-    title: "New York City",
-    price: "$420",
-    image: newYorkImg,
-    desc: "Experience the city that never sleeps with endless attractions."
-  },
-  {
-    id: 4,
-    title: "Los Angeles Dream",
-    price: "$399",
-    image: losAngelesImg,
-    desc: "Enjoy Hollywood, beaches, and sunny California vibes."
-  },
-  {
-    id: 5,
-    title: "Bangkok Explorer",
-    price: "$310",
-    image: bangladesh3,
-    desc: "Discover temples, street food, and vibrant nightlife."
-  },
-  {
-    id: 6,
-    title: "Paris Romance",
-    price: "$510",
-    image: bangladesh4,
-    desc: "Stroll by the Eiffel Tower and savor French cuisine."
-  },
-  {
-    id: 7,
-    title: "Tokyo Lights",
-    price: "$670",
-    image: bangladesh6,
-    desc: "Dive into futuristic cityscapes and ancient traditions."
-  },
-  {
-    id: 8,
-    title: "Cairo Mysteries",
-    price: "$350",
-    image: bangladesh2,
-    desc: "Marvel at the pyramids and the Nile's timeless beauty."
-  },
-];
+// Get first 4 unique images (no duplicates)
+const uniqueBangladeshImages = [];
+for (const img of allImages) {
+  if (!uniqueBangladeshImages.includes(img)) {
+    uniqueBangladeshImages.push(img);
+    if (uniqueBangladeshImages.length === 4) break;
+  }
+}
+const bangladeshImages = uniqueBangladeshImages;
 
 const placeNames = [
   "Dream Beach", "Mountain Escape", "City Lights", "Tropical Paradise", "Historic Town", "Desert Adventure", "Forest Retreat",
@@ -182,6 +95,7 @@ function getRandomDesc() {
   ];
   return descs[Math.floor(Math.random() * descs.length)];
 }
+
 const adOffers = allImages.map((img, idx) => ({
   title: placeNames[idx % placeNames.length],
   desc: getRandomDesc(),
@@ -197,300 +111,267 @@ export default function TravelOffers() {
   const [timeRemaining, setTimeRemaining] = useState('');
   const [flightDuration, setFlightDuration] = useState('');
   const [animationSpeed, setAnimationSpeed] = useState(1);
-  const animationSpeedRef = useRef(1);
+  const animationSpeedRef = useRef(1); // Use ref for animation loop to avoid re-renders
   const [zoom, setZoom] = useState(3.5); // Initial zoom level
   const [originDetails, setOriginDetails] = useState(null);
   const [destinationDetails, setDestinationDetails] = useState(null);
   const [airline, setAirline] = useState('');
-  const [offersAnimationKey, setOffersAnimationKey] = useState(0);
-  // Slider state for 2x2 cards
-  const CARDS_PER_ROW = 2;
-  const ROWS = 2;
-  const CARDS_VISIBLE = CARDS_PER_ROW * ROWS;
-  const [sliderIndex, setSliderIndex] = useState(0);
-  const initialIndexes = Array.from({length: bangladeshImages.length}, (_, i) => i % bangladeshImages.length);
-  const [imgIndexes, setImgIndexes] = useState(initialIndexes);
-  const [changingIndex, setChangingIndex] = useState(0);
-  const [fadeKey, setFadeKey] = useState(0);
-  // State للعروض المتغيرة في كارت AD-card
+
+  // AD-card state for auto-changing offers
   const [adIndex, setAdIndex] = useState(0);
-  const [adKey, setAdKey] = useState(0); // لتغيير الأنيميشن
-  const [adImageLoaded, setAdImageLoaded] = useState(true);
+  const [adKey, setAdKey] = useState(0); // Key to trigger AnimatePresence transitions
+  const [adImageLoaded, setAdImageLoaded] = useState(false); // Track if current AD image is loaded
 
-  useEffect(() => {
+  // Memoize map initialization to prevent unnecessary re-creation
+  const initializeMap = useCallback(async () => {
     let isMounted = true;
+    let originCoords = null;
+    let destinationCoords = null;
+    let flightDurationSeconds = 0;
+    let originCode, destCode;
 
-    const fetchAndInitializeMap = async () => {
-      console.log('Step 1: Starting map initialization process...');
-      let originCoords = null;
-      let destinationCoords = null;
-      let flightDurationSeconds = 0;
-      let originCode, destCode;
+    const selectedFlightPathStr = localStorage.getItem('selectedFlightPath');
 
-      const selectedFlightPathStr = localStorage.getItem('selectedFlightPath');
+    if (selectedFlightPathStr) {
+      try {
+        const flightPath = JSON.parse(selectedFlightPathStr);
+        localStorage.removeItem('selectedFlightPath'); // Clear after use
 
-      if (selectedFlightPathStr) {
-        try {
-          const flightPath = JSON.parse(selectedFlightPathStr);
-          localStorage.removeItem('selectedFlightPath'); 
+        if (flightPath.originAirportCode && flightPath.destinationAirportCode) {
+          originCode = flightPath.originAirportCode;
+          destCode = flightPath.destinationAirportCode;
+          setAirline(flightPath.airline || '');
 
-          if (flightPath.originAirportCode && flightPath.destinationAirportCode) {
-            console.log('Path 1: Displaying selected flight from bookings.', flightPath);
-            originCode = flightPath.originAirportCode;
-            destCode = flightPath.destinationAirportCode;
-            
-            setAirline(flightPath.airline || '');
+          if (flightPath.departureDate && flightPath.arrivalDate) {
+            const depDate = new Date(flightPath.departureDate);
+            const arrDate = new Date(flightPath.arrivalDate);
+            const diffMs = arrDate - depDate;
+            if (!isNaN(diffMs) && diffMs > 0) {
+              const hours = Math.floor(diffMs / (1000 * 60 * 60));
+              const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+              flightDurationSeconds = Math.floor(diffMs / 1000);
+              setFlightDuration(`${hours}h ${minutes}m`);
+            } else { setFlightDuration('--'); }
+          } else if (flightPath.duration && typeof flightPath.duration === 'string') {
+            const match = flightPath.duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+            if (match) {
+              const hours = match[1] ? parseInt(match[1], 10) : 0;
+              const minutes = match[2] ? parseInt(match[2], 10) : 0;
+              flightDurationSeconds = (hours * 3600) + (minutes * 60);
+              setFlightDuration(`${hours}h ${minutes}m`);
+            } else { setFlightDuration('--'); }
+          } else {
+            setFlightDuration('--'); }
 
-            if (flightPath.departureDate && flightPath.arrivalDate) {
-                const depDate = new Date(flightPath.departureDate);
-                const arrDate = new Date(flightPath.arrivalDate);
-                const diffMs = arrDate - depDate;
-                if (!isNaN(diffMs) && diffMs > 0) {
-                    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-                    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                    flightDurationSeconds = Math.floor(diffMs / 1000);
-                    setFlightDuration(`${hours}h ${minutes}m`);
-                } else { setFlightDuration('--'); }
-            } else if (flightPath.duration && typeof flightPath.duration === 'string') {
-                const match = flightPath.duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
-                if (match) {
-                    const hours = match[1] ? parseInt(match[1], 10) : 0;
-                    const minutes = match[2] ? parseInt(match[2], 10) : 0;
-                    flightDurationSeconds = (hours * 3600) + (minutes * 60);
-                    setFlightDuration(`${hours}h ${minutes}m`);
-                } else { setFlightDuration('--'); }
-            } else {
-                setFlightDuration('--');
+          const [origin, dest] = await Promise.all([
+            getAirportCoordinates(originCode),
+            getAirportCoordinates(destCode)
+          ]).catch(err => {
+            console.error("Error fetching coordinates for selected flight:", err);
+            return [null, null];
+          });
+          originCoords = origin;
+          destinationCoords = dest;
+        }
+      } catch (error) {
+        console.error("Failed to process selected flight path:", error);
+      }
+    }
+
+    if (!originCoords || !destinationCoords) {
+      let bookingToShow = null;
+      try {
+        const userString = localStorage.getItem('user');
+        if (userString) {
+          const userData = JSON.parse(userString);
+          if (userData?.token) {
+            const bookings = await bookingService.getMyBookings();
+
+            const futureConfirmedBookings = bookings
+              .filter(booking => {
+                if (booking.status !== 'confirmed') return false;
+                const hasFlightData = booking.flightData && booking.flightData.length > 0;
+                const departureDateStr = hasFlightData ? booking.flightData[0].departureDate : booking.departureDate;
+                if (!departureDateStr) return false;
+                return new Date(departureDateStr) > new Date();
+              })
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Latest booking
+
+            if (futureConfirmedBookings.length > 0) {
+              bookingToShow = futureConfirmedBookings[0];
             }
-            
-            const [origin, dest] = await Promise.all([
+          }
+
+          if (bookingToShow) {
+            originCode = bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode;
+            destCode = bookingToShow.flightData?.[bookingToShow.flightData.length - 1]?.destinationAirportCode || bookingToShow.destinationAirportCode;
+            setAirline(bookingToShow.flightData?.[0]?.airline || bookingToShow.airline || '');
+
+            const dep = bookingToShow.flightData?.[0]?.departureDate || bookingToShow.departureDate;
+            const arr = bookingToShow.flightData?.[0]?.arrivalDate || bookingToShow.arrivalDate;
+
+            if (dep && arr) {
+              const depDate = new Date(dep);
+              const arrDate = new Date(arr);
+              const diffMs = arrDate - depDate;
+              if (!isNaN(diffMs) && diffMs > 0) {
+                const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                flightDurationSeconds = Math.floor(diffMs / 1000);
+                setFlightDuration(`${hours}h ${minutes}m`);
+              } else { setFlightDuration('--'); }
+            } else { setFlightDuration('--'); }
+
+            if (originCode && destCode) {
+              const [origin, dest] = await Promise.all([
                 getAirportCoordinates(originCode),
                 getAirportCoordinates(destCode)
-            ]).catch(err => {
-                console.error("Error fetching coordinates for selected flight:", err);
-                return [null, null];
-            });
-            originCoords = origin;
-            destinationCoords = dest;
-          }
-        } catch (error) {
-          console.error("Failed to process selected flight path:", error);
-        }
-      }
-
-      if (!originCoords || !destinationCoords) {
-        console.log('Path 2: Showing latest confirmed flight.');
-        let bookingToShow = null;
-        try {
-          const userString = localStorage.getItem('user');
-          if (userString) {
-            const userData = JSON.parse(userString);
-            if (userData?.token) {
-              const bookings = await bookingService.getMyBookings();
-              
-              const futureConfirmedBookings = bookings
-                .filter(booking => {
-                  if (booking.status !== 'confirmed') return false;
-                  const hasFlightData = booking.flightData && booking.flightData.length > 0;
-                  const departureDateStr = hasFlightData ? booking.flightData[0].departureDate : booking.departureDate;
-                  if (!departureDateStr) return false;
-                  return new Date(departureDateStr) > new Date();
-                })
-                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-              
-              if (futureConfirmedBookings.length > 0) {
-                bookingToShow = futureConfirmedBookings[0];
-              }
-            }
-            
-            if (bookingToShow) {
-              originCode = bookingToShow.flightData?.[0]?.originAirportCode || bookingToShow.originAirportCode;
-              destCode = bookingToShow.flightData?.[bookingToShow.flightData.length - 1]?.destinationAirportCode || bookingToShow.destinationAirportCode;
-              setAirline(bookingToShow.flightData?.[0]?.airline || bookingToShow.airline || '');
-
-              const dep = bookingToShow.flightData?.[0]?.departureDate || bookingToShow.departureDate;
-              const arr = bookingToShow.flightData?.[0]?.arrivalDate || bookingToShow.arrivalDate;
-
-              if (dep && arr) {
-                const depDate = new Date(dep);
-                const arrDate = new Date(arr);
-                const diffMs = arrDate - depDate;
-                if (!isNaN(diffMs) && diffMs > 0) {
-                  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-                  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                  flightDurationSeconds = Math.floor(diffMs / 1000);
-                  setFlightDuration(`${hours}h ${minutes}m`);
-                } else { setFlightDuration('--'); }
-              } else { setFlightDuration('--'); }
-              
-              if (originCode && destCode) {
-                const [origin, dest] = await Promise.all([
-                  getAirportCoordinates(originCode),
-                  getAirportCoordinates(destCode)
-                ]);
-                originCoords = origin;
-                destinationCoords = dest;
-              }
+              ]);
+              originCoords = origin;
+              destinationCoords = dest;
             }
           }
-        } catch (error) {
-          console.error("Failed to process user data for map:", error);
         }
+      } catch (error) {
+        console.error("Failed to fetch latest confirmed booking:", error);
       }
-      
-      if (originCode && destCode) {
-        getAirportDetails(originCode).then(details => isMounted && setOriginDetails(details));
-        getAirportDetails(destCode).then(details => isMounted && setDestinationDetails(details));
-      }
-      
-      if (!isMounted) return;
-      
-      console.log(`Step 9: Proceeding to initialize map.`);
+    }
 
-      if (mapContainer.current) {
-        if (mapRef.current) {
-            mapRef.current.remove();
-        }
+    if (originCode && destCode) {
+      // Fetch airport details in parallel
+      Promise.all([
+        getAirportDetails(originCode).then(details => isMounted && setOriginDetails(details)),
+        getAirportDetails(destCode).then(details => isMounted && setDestinationDetails(details))
+      ]);
+    }
 
-        const center = destinationCoords || [31.257847, 30.143224];
-        const map = new mapboxgl.Map({
-          container: mapContainer.current,
-          style: "mapbox://styles/ahmedwael315/cm9sv08xa00js01sb9wd35jsx",
-          center: center,
-          zoom: 3.5,
-          pitch: 59.00,
-          projection: 'globe'
+    if (!isMounted || !mapContainer.current) return;
+
+    // Remove existing map instance if any to prevent memory leaks on re-renders
+    if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+    }
+
+    const center = destinationCoords || [31.257847, 30.143224]; // Default to Cairo if no coords
+    const map = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: "mapbox://styles/ahmedwael315/cm9sv08xa00js01sb9wd35jsx",
+      center: center,
+      zoom: 3.5,
+      pitch: 59.00,
+      projection: 'globe'
+    });
+
+    mapRef.current = map;
+
+    map.on('load', () => {
+      map.setFog({});
+
+      map.on('zoom', () => {
+        // Debounce setZoom if it causes performance issues due to re-renders elsewhere
+        setZoom(map.getZoom());
+      });
+
+      if (originCoords && destinationCoords) {
+        new mapboxgl.Marker({ color: '#32CD32' }) // Green for origin
+          .setLngLat(originCoords)
+          .addTo(map);
+        new mapboxgl.Marker({ color: '#FF4500' }) // OrangeRed for destination
+          .setLngLat(destinationCoords)
+          .addTo(map);
+
+        const line = turf.greatCircle(
+          turf.point(originCoords),
+          turf.point(destinationCoords),
+          { 'npoints': 500 }
+        );
+
+        map.addSource('route', {
+          'type': 'geojson',
+          'data': line
         });
 
-        mapRef.current = map;
-
-        map.on('load', () => {
-          console.log('Step 10: Map loaded.');
-          map.setFog({});
-
-          // Keep the slider in sync with map zoom
-          map.on('zoom', () => {
-            setZoom(map.getZoom());
-          });
-
-          if (originCoords && destinationCoords) {
-            // Add markers for origin and destination
-            new mapboxgl.Marker({ color: '#32CD32' }) // Green for origin
-              .setLngLat(originCoords)
-              .addTo(map);
-            new mapboxgl.Marker({ color: '#FF4500' }) // OrangeRed for destination
-              .setLngLat(destinationCoords)
-              .addTo(map);
-
-            // 1. Create a curved flight path using the reliable greatCircle method
-            const line = turf.greatCircle(
-                turf.point(originCoords), 
-                turf.point(destinationCoords), 
-                { 'npoints': 500 }
-            );
-
-            // 2. Add the styled route to the map
-            map.addSource('route', {
-              'type': 'geojson',
-              'data': line
-            });
-            
-            map.addLayer({
-              'id': 'route',
-              'source': 'route',
-              'type': 'line',
-              'paint': {
-                'line-width': 4,
-                'line-color': '#FF4500'
-              }
-            });
-
-            // Add the airplane source
-            map.addSource('airplane', {
-              'type': 'geojson',
-              'data': {
-                'type': 'FeatureCollection',
-                'features': [{ 'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'Point', 'coordinates': originCoords } }]
-              }
-            });
-
-            // Add the airplane layer as a bright circle
-            map.addLayer({
-              'id': 'airplane',
-              'source': 'airplane',
-              'type': 'circle',
-              'paint': {
-                'circle-radius': 10, // Even larger for visibility
-                'circle-color': '#FFA500', // Bright Orange
-                'circle-stroke-width': 2,
-                'circle-stroke-color': '#FFFFFF' // White outline for contrast
-              }
-            });
-
-            // Animate the circle along the greatCircle path
-            const routeDistance = turf.length(line);
-            
-            // Set a base duration for 1x speed. 
-            // We'll use the speed multiplier to adjust this.
-            const baseAnimationDuration = 40000; // 40 seconds at 1x speed
-
-            let lastTime = 0;
-            let progress = 0;
-
-            const animate = (timestamp) => {
-              if (!isMounted) return;
-              if (!lastTime) lastTime = timestamp;
-
-              // Calculate time elapsed since last frame
-              const deltaTime = timestamp - lastTime;
-              lastTime = timestamp;
-
-              // Adjust progress based on speed
-              const progressIncrement = (deltaTime / baseAnimationDuration) * animationSpeedRef.current;
-              progress += progressIncrement;
-
-              if (progress > 1) {
-                progress = 0; // Loop the animation
-              }
-
-              // Update time remaining display
-              if (flightDurationSeconds > 0) {
-                  const timeElapsed = flightDurationSeconds * progress;
-                  const remainingSeconds = flightDurationSeconds - timeElapsed;
-                  const hours = Math.floor(remainingSeconds / 3600);
-                  const minutes = Math.floor((remainingSeconds % 3600) / 60);
-                  setTimeRemaining(`${hours}h ${minutes}m remaining`);
-              }
-
-              // Calculate the circle's position
-              const alongRoute = turf.along(line, routeDistance * progress).geometry.coordinates;
-
-              // Update the map source data
-              const airplaneSource = map.getSource('airplane');
-              if (airplaneSource?._data) {
-                const airplaneData = airplaneSource._data;
-                airplaneData.features[0].geometry.coordinates = alongRoute;
-                airplaneSource.setData(airplaneData);
-              }
-              
-              // Pan the map to follow the circle
-              map.panTo(alongRoute, { duration: 0 });
-
-              animationFrameRef.current = requestAnimationFrame(animate);
-            }
-            animate(0);
-          } else {
-             // Default marker if no booking found
-             new mapboxgl.Marker({ color: '#808080' })
-              .setLngLat([31.257847, 30.143224])
-            .addTo(map);
+        map.addLayer({
+          'id': 'route',
+          'source': 'route',
+          'type': 'line',
+          'paint': {
+            'line-width': 4,
+            'line-color': '#FF4500'
           }
         });
-        map.on('error', (e) => console.error("Mapbox error:", e.error?.message || e));
-      }
-    };
 
-    fetchAndInitializeMap();
+        map.addSource('airplane', {
+          'type': 'geojson',
+          'data': {
+            'type': 'FeatureCollection',
+            'features': [{ 'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'Point', 'coordinates': originCoords } }]
+          }
+        });
+
+        map.addLayer({
+          'id': 'airplane',
+          'source': 'airplane',
+          'type': 'circle',
+          'paint': {
+            'circle-radius': 10,
+            'circle-color': '#FFA500',
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#FFFFFF'
+          }
+        });
+
+        const routeDistance = turf.length(line);
+        const baseAnimationDuration = 40000; // 40 seconds at 1x speed
+
+        let lastTime = 0;
+        let progress = 0;
+
+        const animate = (timestamp) => {
+          if (!isMounted) return;
+          if (!lastTime) lastTime = timestamp;
+
+          const deltaTime = timestamp - lastTime;
+          lastTime = timestamp;
+
+          const progressIncrement = (deltaTime / baseAnimationDuration) * animationSpeedRef.current;
+          progress += progressIncrement;
+
+          if (progress > 1) {
+            progress = 0; // Loop the animation
+          }
+
+          if (flightDurationSeconds > 0) {
+              const timeElapsed = flightDurationSeconds * progress;
+              const remainingSeconds = flightDurationSeconds - timeElapsed;
+              const hours = Math.floor(remainingSeconds / 3600);
+              const minutes = Math.floor((remainingSeconds % 3600) / 60);
+              setTimeRemaining(`${hours}h ${minutes}m remaining`);
+          }
+
+          const alongRoute = turf.along(line, routeDistance * progress).geometry.coordinates;
+
+          const airplaneSource = map.getSource('airplane');
+          if (airplaneSource?._data) { // Check if _data exists before accessing
+            const airplaneData = airplaneSource._data;
+            airplaneData.features[0].geometry.coordinates = alongRoute;
+            airplaneSource.setData(airplaneData);
+          }
+
+          map.panTo(alongRoute, { duration: 0 });
+
+          animationFrameRef.current = requestAnimationFrame(animate);
+        }
+        animationFrameRef.current = requestAnimationFrame(animate); // Start animation
+      } else {
+          // Default marker if no booking found
+          new mapboxgl.Marker({ color: '#808080' })
+           .setLngLat([31.257847, 30.143224])
+           .addTo(map);
+      }
+    });
+    map.on('error', (e) => console.error("Mapbox error:", e.error?.message || e));
 
     return () => {
       isMounted = false;
@@ -498,58 +379,37 @@ export default function TravelOffers() {
         cancelAnimationFrame(animationFrameRef.current);
       }
       if (mapRef.current) {
-        console.log('Component unmounting. Removing map instance.');
         mapRef.current.remove();
         mapRef.current = null;
       }
     };
-  }, []); // Run only once on mount
+  }, []); // Empty dependency array as this should only run once on mount
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setOffersAnimationKey((k) => k + 1);
-    }, 4000); // كل 4 ثواني تعيد الأنيميشن
-    return () => clearInterval(interval);
-  }, []);
+    initializeMap(); // Call the memoized map initialization
+  }, [initializeMap]);
 
-  // Auto-loop effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSliderIndex((prev) => (prev + CARDS_VISIBLE) % offersData.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setImgIndexes(prev => {
-        const newIndexes = [...prev];
-        newIndexes[changingIndex] = (newIndexes[changingIndex] + 1) % bangladeshImages.length;
-        return newIndexes;
-      });
-      setFadeKey(k => k + 1); // لإعادة الأنيميشن
-      setChangingIndex(idx => (idx + 1) % bangladeshImages.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [changingIndex]);
-
+  // Effect for the AD-card auto-changing offers
   useEffect(() => {
     const interval = setInterval(() => {
       setAdIndex((prev) => (prev + 1) % adOffers.length);
-      setAdKey((k) => k + 1);
-    }, 10000); // كل 10 ثواني
+      setAdKey((k) => k + 1); // Increment key to trigger AnimatePresence for text
+      setAdImageLoaded(false); // Reset load status for the new image
+    }, 10000); // Change every 10 seconds
     return () => clearInterval(interval);
   }, []);
 
+  // Preload the next image for the AD-card to prevent blank background
   useEffect(() => {
-    setAdImageLoaded(false);
-  }, [adIndex]);
-
-  // Get the current 4 cards (looping)
-  const visibleCards = [];
-  for (let i = 0; i < CARDS_VISIBLE; i++) {
-    visibleCards.push(offersData[(sliderIndex + i) % offersData.length]);
-  }
+    const currentAdImage = adOffers[adIndex].image;
+    const img = new Image();
+    img.src = currentAdImage;
+    img.onload = () => setAdImageLoaded(true);
+    img.onerror = () => {
+        console.warn(`Failed to load image: ${currentAdImage}`);
+        setAdImageLoaded(true); // Still set to true to show fallback if image fails
+    };
+  }, [adIndex]); // Run when adIndex changes
 
   // Animation variants
   const fadeUp = {
@@ -571,12 +431,6 @@ export default function TravelOffers() {
   const fadeRight = {
     hidden: { opacity: 0, x: 40 },
     visible: { opacity: 1, x: 0, transition: { duration: 0.7 } }
-  };
-  // Animation variants for sliding in/out
-  const slideVariant = {
-    initial: { x: 120, opacity: 0 },
-    animate: { x: 0, opacity: 1, transition: { type: "spring", duration: 0.7 } },
-    exit: { x: -120, opacity: 0, transition: { duration: 0.5 } },
   };
 
   return (
@@ -696,7 +550,7 @@ export default function TravelOffers() {
             flexDirection: 'column',
             gap: '8px'
           }}>
-             <div style={{display: 'flex', alignItems: 'center', gap: '10px', width: '200px', justifyContent: 'space-between'}}>
+            <div style={{display: 'flex', alignItems: 'center', gap: '10px', width: '200px', justifyContent: 'space-between'}}>
               <label htmlFor="zoom" style={{fontWeight: 500, flexShrink: 0}}>Zoom</label>
               <input
                 type="range"
@@ -707,7 +561,10 @@ export default function TravelOffers() {
                 value={zoom}
                 onChange={(e) => {
                   const newZoom = parseFloat(e.target.value);
-                  mapRef.current.setZoom(newZoom);
+                  setZoom(newZoom); // Update local state for slider position
+                  if (mapRef.current) {
+                      mapRef.current.setZoom(newZoom); // Directly update Mapbox zoom
+                  }
                 }}
                 style={{cursor: 'pointer', width: '130px'}}
               />
@@ -724,14 +581,14 @@ export default function TravelOffers() {
                 onChange={(e) => {
                   const newSpeed = parseFloat(e.target.value);
                   setAnimationSpeed(newSpeed);
-                  animationSpeedRef.current = newSpeed;
+                  animationSpeedRef.current = newSpeed; // Update ref for animation loop
                 }}
                 style={{cursor: 'pointer', width: '130px'}}
               />
             </div>
           </div>
         </div>
-        {/* Swiper سلايدر أفقي للكروت بنفس التصميم */}
+        {/* Swiper slider for horizontal cards */}
         <div style={{ width: '100%', maxWidth: '1200px', margin: '40px auto 0 auto' }}>
           <Swiper
             modules={[Autoplay]}
@@ -742,11 +599,11 @@ export default function TravelOffers() {
             style={{ width: '100%' }}
             breakpoints={{
               320: { slidesPerView: 1 },
-              640: { slidesPerView: 1 },
+              640: { slidesPerView: 1 }, // Changed to 1 for smaller tablets
               1024: { slidesPerView: 2 },
             }}
           >
-            {offersData.map((offer, idx) => (
+            {offersData.map((offer) => ( // No need for idx if not using it
               <SwiperSlide key={offer.id}>
                 <motion.div
                   className="offer-card"
@@ -761,7 +618,7 @@ export default function TravelOffers() {
                     borderRadius: 16,
                     boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
                     minHeight: 170,
-                    minWidth: 600,
+                    minWidth: 'auto', // Allow flexible width
                     maxWidth: 750,
                     width: '95%',
                     padding: '32px 44px',
@@ -773,11 +630,12 @@ export default function TravelOffers() {
                     src={offer.image}
                     alt={offer.title}
                     className="offer-image"
+                    loading="lazy"
                     style={{ width: 220, height: 150, objectFit: 'cover', borderRadius: '18px', flexShrink: 0 }}
                   />
                   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1, minWidth: 0, gap: 4 }}>
-                    <h3 style={{ fontWeight: 700, fontSize: '1.25em', margin: 0, color: 'var(--Darktext-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{offer.title}</h3>
-                    <p style={{ margin: '4px 0 0 0', color: 'var(--LightDarktext-color)', fontSize: '1.05em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{offer.date}</p>
+                    <h3 style={{ fontWeight: 700, fontSize: '1.25em', margin: 0, color: 'var(--Darktext-color)' }}>{offer.title}</h3>
+                    <p style={{ margin: '4px 0 0 0', color: 'var(--LightDarktext-color)', fontSize: '1.05em' }}>{offer.date}</p>
                     <span style={{ color: 'var(--Btnbg-color)', fontWeight: 600, fontSize: '1.05em', marginTop: 4, whiteSpace: 'nowrap' }}>{offer.duration}</span>
                   </div>
                   <div style={{ marginLeft: 28, minWidth: 70, textAlign: 'right', alignSelf: 'center' }}>
@@ -827,8 +685,8 @@ export default function TravelOffers() {
               1024: { slidesPerView: 4 },
             }}
           >
-            {sliderOffers.map((offer, idx) => (
-              <SwiperSlide key={offer.id}>
+            {adOffers.map((offer, idx) => (
+              <SwiperSlide key={idx}> {/* Using idx as key is fine if array content doesn't change order */}
                 <motion.div
                   className="more-offers-card"
                   variants={fadeUp}
@@ -843,6 +701,7 @@ export default function TravelOffers() {
                     src={offer.image}
                     alt={offer.title}
                     className="more-offers-image"
+                    loading="lazy"
                     whileHover={{ scale: 1.08 }}
                     transition={{ type: "spring", stiffness: 300 }}
                     style={{ objectFit: 'cover', width: '100%', height: '250px', borderRadius: '12px 12px 0 0' }}
@@ -850,7 +709,7 @@ export default function TravelOffers() {
                   <div className="moreoffers-details">
                     <div className="moreoffers-header">
                       <h3>{offer.title}</h3>
-                      <span className="offer-price">{offer.price}</span>
+                      <span className="offer-price">${offer.price}</span>
                     </div>
                     <p>{offer.desc}</p>
                     <motion.button
@@ -899,21 +758,17 @@ export default function TravelOffers() {
             variants={fadeRight}
             initial="hidden"
             animate="visible"
+            // Use adImageLoaded to smoothly transition background
             style={{
               background: adImageLoaded
                 ? `linear-gradient(120deg, rgba(0,0,0,0.45) 30%, rgba(0,0,0,0.25) 100%), url(${adOffers[adIndex].image}) center/cover no-repeat`
-                : 'repeating-linear-gradient(120deg, #bbb 0px, #e6e6e6 100px)',
+                : 'repeating-linear-gradient(120deg, #bbb 0px, #e6e6e6 100px)', // Placeholder/loading background
               position: 'relative',
-              transition: 'background 0.5s ease'
+              transition: 'background 0.5s ease',
+              minHeight: '350px', // Maintain height during loading for smoother layout
+              backgroundSize: 'cover', // Ensure image covers the area
             }}
           >
-            {/* صورة مخفية للتحميل المسبق */}
-            <img
-              src={adOffers[adIndex].image}
-              alt="preload"
-              style={{ display: 'none' }}
-              onLoad={() => setAdImageLoaded(true)}
-            />
             <div className="bangladesh-content">
               <AnimatePresence mode="wait">
                 <motion.h3
@@ -968,14 +823,12 @@ export default function TravelOffers() {
           <div className="offers-images">
             {bangladeshImages.map((img, index) => (
               <motion.img
-                key={index + '-' + imgIndexes[index] + '-' + fadeKey}
-                src={bangladeshImages[imgIndexes[index]]}
-                alt={`Backpacking Bangladesh ${index + 1}`}
+                key={index}
+                src={img}
+                alt={`Travel destination ${index + 1}`}
                 className="bangladesh-image"
-                initial={index === changingIndex ? { opacity: 0, scale: 0.85, rotate: -8 } : { opacity: 1, scale: 1, rotate: 0 }}
-                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                transition={{ duration: 0.7, ease: 'easeInOut' }}
-                style={{ willChange: 'transform', borderRadius: '20px' }}
+                loading="lazy"
+                style={{ borderRadius: '20px' }}
               />
             ))}
           </div>
