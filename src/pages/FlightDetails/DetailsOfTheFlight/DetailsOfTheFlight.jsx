@@ -512,6 +512,14 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                         "-" +
                         flight.departure.data.itineraries[0].segments[0].number}
                     </div>
+                    <div className={styles.aircraftType}>
+                      {
+                        flight.aircraft[
+                          flight.departure.data.itineraries[0].segments[0]
+                            .aircraft.code
+                        ]
+                      }
+                    </div>
                     <div className={styles.cabinClass}>
                       {sharedData.passengerClass.class.text}
                     </div>
@@ -571,6 +579,14 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                           .carrierCode +
                         "-" +
                         flight.departure.data.itineraries[0].segments[0].number}
+                    </div>
+                    <div className={styles.aircraftType}>
+                      {
+                        flight.aircraft[
+                          flight.departure.data.itineraries[0].segments[0]
+                            .aircraft.code
+                        ]
+                      }
                     </div>
                     <div className={styles.cabinClass}>
                       {sharedData.passengerClass.class.text}
@@ -733,6 +749,14 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                             "-" +
                             flight.departure.data.itineraries[0].segments[1]
                               .number}
+                        </div>
+                        <div className={styles.aircraftType}>
+                          {
+                            flight.aircraft[
+                              flight.departure.data.itineraries[0].segments[1]
+                                .aircraft.code
+                            ]
+                          }
                         </div>
                         <div className={styles.cabinClass}>
                           {sharedData.passengerClass.class.text}
@@ -898,6 +922,14 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                                 "-" +
                                 flight.departure.data.itineraries[0].segments[2]
                                   .number}
+                            </div>
+                            <div className={styles.aircraftType}>
+                              {
+                                flight.aircraft[
+                                  flight.departure.data.itineraries[0]
+                                    .segments[2].aircraft.code
+                                ]
+                              }
                             </div>
                             <div className={styles.cabinClass}>
                               {sharedData.passengerClass.class.text}
@@ -1127,6 +1159,14 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                           "-" +
                           flight.return.data.itineraries[0].segments[0].number}
                       </div>
+                      <div className={styles.aircraftType}>
+                        {
+                          flight.aircraft[
+                            flight.return.data.itineraries[0].segments[0]
+                              .aircraft.code
+                          ]
+                        }
+                      </div>
                       <div className={styles.cabinClass}>
                         {sharedData.passengerClass.class.text}
                       </div>
@@ -1163,7 +1203,11 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                       className={styles.stopsDropdownButton}
                       onClick={toggleReturnStopsDropdown}
                     >
-                      {expandedReturnStops ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                      {expandedReturnStops ? (
+                        <ChevronUpIcon />
+                      ) : (
+                        <ChevronDownIcon />
+                      )}
                     </button>
                     <div className={styles.airlineLogoContainer}>
                       <div className={styles.airlineLogo}>
@@ -1186,6 +1230,14 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                             .carrierCode +
                           "-" +
                           flight.return.data.itineraries[0].segments[0].number}
+                      </div>
+                      <div className={styles.aircraftType}>
+                        {
+                          flight.aircraft[
+                            flight.return.data.itineraries[0].segments[0]
+                              .aircraft.code
+                          ]
+                        }
                       </div>
                       <div className={styles.cabinClass}>
                         {sharedData.passengerClass.class.text}
@@ -1234,8 +1286,8 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                               {flight.return.data.itineraries[0].segments[0]
                                 .arrival.terminal
                                 ? "Terminal " +
-                                  flight.return.data.itineraries[0]
-                                    .segments[0].arrival.terminal
+                                  flight.return.data.itineraries[0].segments[0]
+                                    .arrival.terminal
                                 : ""}
                             </div>
                             <div className={styles.stopCity}>
@@ -1251,8 +1303,8 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                     <div className={styles.waitingContainer}>
                       <div className={styles.waitingStopTime}>
                         {getTimeOfWaiting(
-                          flight.return.data.itineraries[0].segments[0]
-                            .arrival.at,
+                          flight.return.data.itineraries[0].segments[0].arrival
+                            .at,
                           flight.return.data.itineraries[0].segments[1]
                             .departure.at
                         )}
@@ -1303,8 +1355,8 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                               {flight.return.data.itineraries[0].segments[1]
                                 .departure.terminal
                                 ? "Terminal " +
-                                  flight.return.data.itineraries[0]
-                                    .segments[1].departure.terminal
+                                  flight.return.data.itineraries[0].segments[1]
+                                    .departure.terminal
                                 : ""}
                             </div>
                             <div className={styles.stopCity}>
@@ -1351,6 +1403,14 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                               flight.return.data.itineraries[0].segments[1]
                                 .number}
                           </div>
+                          <div className={styles.aircraftType}>
+                            {
+                              flight.aircraft[
+                                flight.return.data.itineraries[0].segments[1]
+                                  .aircraft.code
+                              ]
+                            }
+                          </div>
                           <div className={styles.cabinClass}>
                             {sharedData.passengerClass.class.text}
                           </div>
@@ -1395,8 +1455,8 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                                   )
                                 </div>
                                 <div className={styles.terminal2}>
-                                  {flight.return.data.itineraries[0]
-                                    .segments[1].arrival.terminal
+                                  {flight.return.data.itineraries[0].segments[1]
+                                    .arrival.terminal
                                     ? "Terminal " +
                                       flight.return.data.itineraries[0]
                                         .segments[1].arrival.terminal
@@ -1464,8 +1524,8 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                                   )
                                 </div>
                                 <div className={styles.terminal2}>
-                                  {flight.return.data.itineraries[0]
-                                    .segments[2].departure.terminal
+                                  {flight.return.data.itineraries[0].segments[2]
+                                    .departure.terminal
                                     ? "Terminal " +
                                       flight.return.data.itineraries[0]
                                         .segments[2].departure.terminal
@@ -1510,11 +1570,19 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                                   ]
                                 ) +
                                   " | " +
-                                  flight.return.data.itineraries[0]
-                                    .segments[2].carrierCode +
+                                  flight.return.data.itineraries[0].segments[2]
+                                    .carrierCode +
                                   "-" +
-                                  flight.return.data.itineraries[0]
-                                    .segments[2].number}
+                                  flight.return.data.itineraries[0].segments[2]
+                                    .number}
+                              </div>
+                              <div className={styles.aircraftType}>
+                                {
+                                  flight.aircraft[
+                                    flight.return.data.itineraries[0]
+                                      .segments[2].aircraft.code
+                                  ]
+                                }
                               </div>
                               <div className={styles.cabinClass}>
                                 {sharedData.passengerClass.class.text}
@@ -1593,15 +1661,15 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
                       (flight.return.data.itineraries[0].segments[1].arrival
                         .terminal
                         ? "Terminal " +
-                          flight.return.data.itineraries[0].segments[1]
-                            .arrival.terminal
+                          flight.return.data.itineraries[0].segments[1].arrival
+                            .terminal
                         : "")) ||
                     (returnSegmentLength == 3 &&
                       (flight.return.data.itineraries[0].segments[2].arrival
                         .terminal
                         ? "Terminal " +
-                          flight.return.data.itineraries[0].segments[2]
-                            .arrival.terminal
+                          flight.return.data.itineraries[0].segments[2].arrival
+                            .terminal
                         : ""))}
                 </div>
                 {returnDestination && (

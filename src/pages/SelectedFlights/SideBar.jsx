@@ -34,6 +34,7 @@ export default function SideBar({
   priceAndDuration,
   airLines,
   flightsData,
+  getStops,
 }) {
   if (!flightsData) return null;
   let airLinesArr = [];
@@ -70,6 +71,7 @@ export default function SideBar({
     setAirLinesChecked({});
     setFlightDuration(priceAndDuration.highestFlightDuration);
   };
+  const stops = getStops();
   return (
     <div className={styles["side-bar"]}>
       <div className={styles.sort}>
@@ -117,9 +119,10 @@ export default function SideBar({
                 name="stop"
                 value="Direct"
                 checked={stop == "Direct"}
+                disabled={!stops.direct}
                 onChange={(e) => stopHandler(e)}
               />
-              <label htmlFor="direct">Direct</label>
+              <label htmlFor="direct" className={!stops.direct ? styles.disabled: ""}>Direct</label>
             </div>
             <div>
               <input
@@ -128,9 +131,10 @@ export default function SideBar({
                 name="stop"
                 value="1 Stop"
                 checked={stop == "1 Stop"}
+                disabled= {!stops.stop1}
                 onChange={(e) => stopHandler(e)}
               />
-              <label htmlFor="1-stop">1 Stop</label>
+              <label htmlFor="1-stop" className={!stops.stop1 ? styles.disabled: ""}>1 Stop</label>
             </div>
             <div>
               <input
@@ -139,9 +143,10 @@ export default function SideBar({
                 name="stop"
                 value="2 Stop"
                 checked={stop == "2 Stop"}
+                disabled= {!stops.stop2}
                 onChange={(e) => stopHandler(e)}
               />
-              <label htmlFor="2-stop">2 Stop</label>
+              <label htmlFor="2-stop" className={!stops.stop2 ? styles.disabled: ""}>2 Stop</label>
             </div>
           </form>
         </div>
@@ -207,5 +212,6 @@ SideBar.propTypes = {
   ]),
   priceAndDuration: PropTypes.object.isRequired,
   airLines: PropTypes.object.isRequired,
-  flightsData: PropTypes.object
+  flightsData: PropTypes.object,
+  getStops: PropTypes.func,
 };

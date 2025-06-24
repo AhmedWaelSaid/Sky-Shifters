@@ -127,6 +127,7 @@ export default function FlightSearchForm() {
           autoComplete="off"
           onSubmit={handleSubmit}
         >
+          <div className={styles.container}>
           <div className={styles.formGroup}>
             <label htmlFor="origin">From</label>
             <div className={styles.inputContainer}>
@@ -215,6 +216,7 @@ export default function FlightSearchForm() {
                 </div>
               )}
             </div>
+          </div>
           </div>
           <div className={styles.showFlights}>
             <button

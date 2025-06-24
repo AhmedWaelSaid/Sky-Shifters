@@ -11,7 +11,7 @@
   z-index: 2;
 }
 
-.flightSearchForm {
+.container {
   display: flex;
   align-items: center;
   justify-content: space-between;

@@ -132,6 +132,13 @@ export default function Container() {
   if (!flightsData || flightsData.data.length === 0 || !flightsData.data)
     return <EmptyData />;
 
+  function getStops(){
+    const stops = {direct: false, stop1:false, stop2:false};
+    stops.direct = flightsData.data.some(flight=> flight.itineraries[0].segments.length ==1);
+    stops.stop1 = flightsData.data.some(flight=> flight.itineraries[0].segments.length ==2);
+    stops.stop2 = flightsData.data.some(flight=> flight.itineraries[0].segments.length ==3);
+    return stops;
+  }
   function filteredData(flights) {
     if (!flights) return null;
     let filteredFlights = { ...flights };
@@ -210,6 +217,7 @@ export default function Container() {
         flightDuration={flightDuration}
         priceAndDuration={priceAndDuration}
         airLines={flightsData.dictionaries.carriers}
+        getStops={getStops}
       />
       <Main
         setCurrentPage={setCurrentPage}

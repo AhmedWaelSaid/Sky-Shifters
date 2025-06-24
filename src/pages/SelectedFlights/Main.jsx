@@ -20,7 +20,7 @@ export function FlightsUI({
   button,
   button2 = { exist: false },
 }) {
-  const [showPlusTime,setShowPlusTime]=useState(false);
+  const [showPlusTime, setShowPlusTime] = useState(false);
   const carrierCode = flight?.itineraries?.[0]?.segments?.[0]?.carrierCode;
   const carrier = carrierCode ? carriers?.[carrierCode] : "";
   return (
@@ -36,27 +36,42 @@ export function FlightsUI({
             console.warn("Logo failed to load:", e.target.src);
           }}
         />
-        <div className={styles.airLine}>{carrier && capitalizeWords(carrier)}</div>
+        <div className={styles.airLine}>
+          {carrier && capitalizeWords(carrier)}
+        </div>
       </div>
       <div className={styles.flightTime}>
-        <div className={styles.plusDays} onMouseEnter={()=>{setShowPlusTime(true)}} onMouseLeave={()=>{setShowPlusTime(false)}}>
-          <div className={styles.moreThanADay} >{dayDifference(flight)}</div>
-          {showPlusTime && <div className={styles.plusTime}>Arrives on{" "}
-          <strong>{flight.itineraries[0].segments.length == 1 //direct
-            ? format(
-                new Date(flight.itineraries[0].segments[0].arrival.at),
-                "ccc, d MMM"
-              )
-            : flight.itineraries[0].segments.length == 2 //1 stop
-              ? format(
-                  new Date(flight.itineraries[0].segments[1].arrival.at),
-                  "ccc, d MMM"
-                )
-              : format(
-                  new Date(flight.itineraries[0].segments[2].arrival.at), // 2 stop
-                  "ccc, d MMM"
-                )}</strong>
-            </div>}
+        <div
+          className={styles.plusDays}
+          onMouseEnter={() => {
+            setShowPlusTime(true);
+          }}
+          onMouseLeave={() => {
+            setShowPlusTime(false);
+          }}
+        >
+          <div className={styles.moreThanADay}>{dayDifference(flight)}</div>
+          {showPlusTime && (
+            <div className={styles.plusTime}>
+              Arrives on{" "}
+              <strong>
+                {flight.itineraries[0].segments.length == 1 //direct
+                  ? format(
+                      new Date(flight.itineraries[0].segments[0].arrival.at),
+                      "ccc, d MMM"
+                    )
+                  : flight.itineraries[0].segments.length == 2 //1 stop
+                    ? format(
+                        new Date(flight.itineraries[0].segments[1].arrival.at),
+                        "ccc, d MMM"
+                      )
+                    : format(
+                        new Date(flight.itineraries[0].segments[2].arrival.at), // 2 stop
+                        "ccc, d MMM"
+                      )}
+              </strong>
+            </div>
+          )}
         </div>
         <div className={styles.arrivalDeparture}>
           {format(
@@ -142,6 +157,7 @@ export function Main({
   const currentFlights = flightsData.data.slice(startIndex, endIndex);
   function selectBtnHandler(data) {
     const carriers = flightsData.dictionaries.carriers;
+    const aircraft = flightsData.dictionaries.aircraft;
     const newFlight =
       !isReturn && !sharedData.return
         ? {
@@ -150,6 +166,7 @@ export function Main({
               data,
             },
             carriers,
+            aircraft,
           }
         : {
             ...flight,
@@ -163,12 +180,14 @@ export function Main({
 
   function returnBtnHandler(data) {
     const carriers = flightsData.dictionaries.carriers;
+    const aircraft = flightsData.dictionaries.aircraft;
     setFlight(() => ({
       return: null,
       departure: {
         data,
       },
       carriers,
+      aircraft,
     }));
     setAPISearch({
       ...sharedData.return,
@@ -178,11 +197,12 @@ export function Main({
       setIsReturn(true);
     }, 200);
   }
-  const toggleDetails = (curFlight, carriers) => {
+  const toggleDetails = (curFlight, carriers,aircraft) => {
     if (!isDetailsOpen && !sharedData.return) {
-      setTempFlight({ departure: { data: curFlight },carriers });
+      setTempFlight({ departure: { data: curFlight }, carriers, aircraft });
     } else if (!isDetailsOpen && sharedData.return) {
-      if (!isReturn) setTempFlight({ departure: { data: curFlight} , carriers});
+      if (!isReturn)
+        setTempFlight({ departure: { data: curFlight }, carriers,aircraft });
       else
         setTempFlight({
           return: { data: curFlight },
@@ -190,11 +210,12 @@ export function Main({
             data: flight.departure.data,
           },
           carriers,
+          aircraft,
         });
     }
     setIsDetailsOpen(!isDetailsOpen);
   };
-  console.log(tempFlight)
+  console.log(tempFlight);
   return (
     <>
       {tempFlight && (
@@ -213,8 +234,8 @@ export function Main({
       )}
       <div className={styles.mainBody}>
         {currentFlights.map((flight) => {
-          const carriers =
-            flightsData.dictionaries.carriers;
+          const carriers = flightsData.dictionaries.carriers;
+          const aircraft = flightsData.dictionaries.aircraft;
           let btnHandler;
           let button;
           let button2 = { exist: false };
@@ -222,7 +243,7 @@ export function Main({
 
           if (sharedData.return) {
             if (isReturn) {
-              btnHandler = () => toggleDetails(flight, carriers);
+              btnHandler = () => toggleDetails(flight, carriers,aircraft);
               button = { text: "View Details", className: "detailsBtn" };
               btnHandler2 = selectBtnHandler;
               button2 = {
@@ -237,11 +258,11 @@ export function Main({
                 className: "selectFlightBtn",
                 exist: true,
               };
-              btnHandler = () => toggleDetails(flight, carriers);
+              btnHandler = () => toggleDetails(flight, carriers,aircraft);
               button = { text: "View Details", className: "detailsBtn" };
             }
           } else {
-            btnHandler = () => toggleDetails(flight, carriers);
+            btnHandler = () => toggleDetails(flight, carriers,aircraft);
             btnHandler2 = selectBtnHandler;
             button = { text: "View Details", className: "detailsBtn" };
             button2 = {

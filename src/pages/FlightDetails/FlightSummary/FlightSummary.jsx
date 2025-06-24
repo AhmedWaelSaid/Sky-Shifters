@@ -63,13 +63,14 @@ const FlightSummary = ({
     airlineForDeparture += `, ${dealWithAirline(flight.carriers[flight.departure.data.itineraries[0].segments[1].carrierCode])} ${flight.departure.data.itineraries[0].segments[1].carrierCode}-${flight.departure.data.itineraries[0].segments[1].number}`;
   if (flight.departure.data.itineraries[0].segments.length >= 3)
     airlineForDeparture += `, ${dealWithAirline(flight.carriers[flight.departure.data.itineraries[0].segments[2].carrierCode])} ${flight.departure.data.itineraries[0].segments[2].carrierCode}-${flight.departure.data.itineraries[0].segments[2].number}`;
-
-  let airlineForReturn = `${dealWithAirline(flight.carriers[flight.return.data.itineraries[0].segments[0].carrierCode])} ${flight.return.data.itineraries[0].segments[0].carrierCode}-${flight.return.data.itineraries[0].segments[0].number}`;
+  let airlineForReturn= "";
+  if (flight.return){
+   airlineForReturn = `${dealWithAirline(flight.carriers[flight.return.data.itineraries[0].segments[0].carrierCode])} ${flight.return.data.itineraries[0].segments[0].carrierCode}-${flight.return.data.itineraries[0].segments[0].number}`;
   if (flight.return.data.itineraries[0].segments.length >= 2)
     airlineForReturn += `, ${dealWithAirline(flight.carriers[flight.return.data.itineraries[0].segments[1].carrierCode])} ${flight.return.data.itineraries[0].segments[1].carrierCode}-${flight.return.data.itineraries[0].segments[1].number}`;
   if (flight.return.data.itineraries[0].segments.length >= 3)
     airlineForReturn += `, ${dealWithAirline(flight.carriers[flight.return.data.itineraries[0].segments[2].carrierCode])} ${flight.return.data.itineraries[0].segments[2].carrierCode}-${flight.return.data.itineraries[0].segments[2].number}`;
-
+  }
   return (
     <div className={styles.flightSummary}>
       <div className={styles.summaryHeader}>

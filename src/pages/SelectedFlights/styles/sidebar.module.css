@@ -110,6 +110,9 @@ hr {
   margin: var(--card-title-margin);
   color: var(--blackText-color);
 }
+.disabled{
+  opacity: 0.4;
+}
 .filter::after {
   content: "";
   background-image: url(../../../assets/Filter-1.png);
