@@ -7,14 +7,13 @@ import bangladesh4 from "../../assets/Image frame (5).png";
 import bangladesh5 from "../../assets/pexels-asadphoto-1266831.jpg";
 import bangladesh6 from "../../assets/pexels-pixabay-38238.jpg";
 import bangladesh7 from "../../assets/pexels-pixabay-237272.jpg";
-const images = import.meta.glob('../../assets/*-unsplash.jpg', { eager: true, as: 'url' });
+const images = import.meta.glob('../../assets/*-unsplash*.jpg', { eager: true, as: 'url' });
 import { useEffect, useRef, useState, useCallback } from "react"; // Added useCallback
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { getAirportCoordinates, getAirportDetails } from "../../services/airportService";
 import { bookingService } from "../../services/bookingService";
 import * as turf from '@turf/turf';
-import { motion, AnimatePresence } from "framer-motion";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -54,12 +53,13 @@ const fakePrices = [
   "$320", "$890", "$670", "$510", "$780", "$540", "$399", "$294"
 ];
 
-const offersData = allImages.slice(0, 8).map((img, idx) => ({
+const offersData = allImages.slice(0, 36).map((img, idx) => ({
   id: idx + 1,
   title: fakeDestinations[idx % fakeDestinations.length],
   date: fakeDates[idx % fakeDates.length],
   duration: fakeDurations[idx % fakeDurations.length],
   price: fakePrices[idx % fakePrices.length],
+  desc: fakeDestinations[idx % fakeDestinations.length],
   image: img
 }));
 
@@ -104,6 +104,46 @@ const adOffers = allImages.map((img, idx) => ({
   image: img
 }));
 
+// بيانات واقعية متنوعة للعروض
+const realCities = [
+  "Paris", "London", "New York", "Tokyo", "Dubai", "Rome", "Istanbul", "Bangkok", "Barcelona", "Sydney", "Cairo", "Moscow", "Rio de Janeiro", "Cape Town", "Toronto", "Singapore", "Los Angeles", "Berlin", "Amsterdam", "Prague", "Vienna", "Budapest", "Lisbon", "Seoul", "Kuala Lumpur", "Zurich", "Stockholm", "Dublin", "Venice", "Munich", "Brussels", "Warsaw", "Helsinki", "Oslo", "Athens", "Madrid"
+];
+const realDescriptions = [
+  "رحلة لا تُنسى في قلب المدينة.",
+  "استمتع بأفضل الأجواء السياحية.",
+  "تجربة تسوق رائعة ومطاعم عالمية.",
+  "مناظر طبيعية ساحرة بانتظارك.",
+  "استجمام واسترخاء في أفضل الفنادق.",
+  "مغامرة جديدة كل يوم.",
+  "ثقافة وفن في كل زاوية.",
+  "شواطئ ذهبية وأجواء مشمسة.",
+  "رحلة عائلية مليئة بالمرح.",
+  "استكشف معالم المدينة الشهيرة."
+];
+function getRandomDate() {
+  const start = new Date();
+  const end = new Date();
+  end.setFullYear(start.getFullYear() + 1);
+  const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+  return `${date.getDate().toString().padStart(2, '0')} - ${(date.getMonth()+1).toString().padStart(2, '0')} - ${date.getFullYear()}`;
+}
+function getRandomDuration() {
+  const hours = Math.floor(Math.random() * 12) + 2;
+  const minutes = Math.floor(Math.random() * 60);
+  return `${hours} hr ${minutes}m`;
+}
+function getRandomPrice2() {
+  return `$${(Math.floor(Math.random() * 900) + 100)}`;
+}
+const offersDataReal = allImages.slice(0, 36).map((img, idx) => ({
+  id: idx + 1,
+  title: realCities[idx % realCities.length],
+  date: getRandomDate(),
+  duration: getRandomDuration(),
+  price: getRandomPrice2(),
+  image: img
+}));
+
 export default function TravelOffers() {
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
@@ -119,8 +159,8 @@ export default function TravelOffers() {
 
   // AD-card state for auto-changing offers
   const [adIndex, setAdIndex] = useState(0);
-  const [adKey, setAdKey] = useState(0); // Key to trigger AnimatePresence transitions
   const [adImageLoaded, setAdImageLoaded] = useState(false); // Track if current AD image is loaded
+  const [adAnimKey, setAdAnimKey] = useState(0); // لتغيير الكلاس عند كل تبديل
 
   // Memoize map initialization to prevent unnecessary re-creation
   const initializeMap = useCallback(async () => {
@@ -393,8 +433,8 @@ export default function TravelOffers() {
   useEffect(() => {
     const interval = setInterval(() => {
       setAdIndex((prev) => (prev + 1) % adOffers.length);
-      setAdKey((k) => k + 1); // Increment key to trigger AnimatePresence for text
       setAdImageLoaded(false); // Reset load status for the new image
+      setAdAnimKey((k) => k + 1); // trigger animation
     }, 10000); // Change every 10 seconds
     return () => clearInterval(interval);
   }, []);
@@ -411,251 +451,217 @@ export default function TravelOffers() {
     };
   }, [adIndex]); // Run when adIndex changes
 
-  // Animation variants
-  const fadeUp = {
-    hidden: { opacity: 0, y: 40 },
-    visible: (i = 1) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.15,
-        duration: 0.7,
-        type: "spring"
-      }
-    })
-  };
-  const fadeLeft = {
-    hidden: { opacity: 0, x: -40 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.7 } }
-  };
-  const fadeRight = {
-    hidden: { opacity: 0, x: 40 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.7 } }
-  };
+  const adPriceRef = useRef(null);
+  const adTextRef = useRef(null);
+
+  useEffect(() => {
+    if (adPriceRef.current) {
+      adPriceRef.current.classList.remove('ad-price-animate');
+      // force reflow
+      void adPriceRef.current.offsetWidth;
+      adPriceRef.current.classList.add('ad-price-animate');
+    }
+    if (adTextRef.current) {
+      adTextRef.current.classList.remove('ad-text-animate');
+      void adTextRef.current.offsetWidth;
+      adTextRef.current.classList.add('ad-text-animate');
+    }
+  }, [adIndex]);
 
   return (
     <section className="travel-offers">
-      <motion.div
-        className="offers-section"
-        initial="hidden"
-        animate="visible"
-        variants={fadeUp}
-        custom={0}
+      <div
+        ref={mapContainer}
+        className="map-container"
+        style={{ width: "90%", height: "450px", borderRadius: "20px", position: 'relative' }}
       >
-        <motion.div className="offers-header" variants={fadeLeft}>
-          <div className="offers-header-text">
-            <h2>Let's go Places Together</h2>
-            <p>
-              Discover the latest offers and news and alerts and start planning
-              your trip
-            </p>
+        {flightDuration && (
+          <div style={{
+            position: 'absolute',
+            top: '20px',
+            left: '20px',
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+            padding: '7px 16px',
+            borderRadius: '7px',
+            fontWeight: 600,
+            fontSize: '1.1em',
+            zIndex: 2,
+            minWidth: '260px'
+          }}>
+            Flight Duration: {flightDuration}
+            <div style={{
+              marginTop: 10,
+              fontWeight: 400,
+              fontSize: '0.98em',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 4
+            }}>
+              {originDetails && (
+                <span style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                  <span role="img" aria-label="depart">🛫</span>
+                  {originDetails.name}
+                  {((originDetails.city && originDetails.country) || originDetails.city || originDetails.country) && (
+                    <span style={{marginLeft: 3, color: '#ccc', fontWeight: 400}}>
+                      {[
+                        originDetails.city,
+                        originDetails.country
+                      ].filter(Boolean).join(', ')}
+                    </span>
+                  )}
+                </span>
+              )}
+              {destinationDetails && (
+                <span style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                  <span role="img" aria-label="arrive">🛬</span>
+                  {destinationDetails.name}
+                  {((destinationDetails.city && destinationDetails.country) || destinationDetails.city || destinationDetails.country) && (
+                    <span style={{marginLeft: 3, color: '#ccc', fontWeight: 400}}>
+                      {[
+                        destinationDetails.city,
+                        destinationDetails.country
+                      ].filter(Boolean).join(', ')}
+                    </span>
+                  )}
+                </span>
+              )}
+              {airline && (
+                <span style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                  <span role="img" aria-label="airline">✈️</span>
+                  {airline}
+                </span>
+              )}
+            </div>
           </div>
-          <motion.button
-            className="see-all-btn"
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            See all
-          </motion.button>
-        </motion.div>
-        <div
-          ref={mapContainer}
-          className="map-container"
-          style={{ width: "90%", height: "450px", borderRadius: "20px", position: 'relative' }}
-        >
-          {flightDuration && (
-            <div style={{
-              position: 'absolute',
-              top: '20px',
-              left: '20px',
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-              color: 'white',
-              padding: '7px 16px',
-              borderRadius: '7px',
-              fontWeight: 600,
-              fontSize: '1.1em',
-              zIndex: 2,
-              minWidth: '260px'
-            }}>
-              Flight Duration: {flightDuration}
-              <div style={{
-                marginTop: 10,
-                fontWeight: 400,
-                fontSize: '0.98em',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 4
-              }}>
-                {originDetails && (
-                  <span style={{display: 'flex', alignItems: 'center', gap: 6}}>
-                    <span role="img" aria-label="depart">🛫</span>
-                    {originDetails.name}
-                    {((originDetails.city && originDetails.country) || originDetails.city || originDetails.country) && (
-                      <span style={{marginLeft: 3, color: '#ccc', fontWeight: 400}}>
-                        {[
-                          originDetails.city,
-                          originDetails.country
-                        ].filter(Boolean).join(', ')}
-                      </span>
-                    )}
-                  </span>
-                )}
-                {destinationDetails && (
-                  <span style={{display: 'flex', alignItems: 'center', gap: 6}}>
-                    <span role="img" aria-label="arrive">🛬</span>
-                    {destinationDetails.name}
-                    {((destinationDetails.city && destinationDetails.country) || destinationDetails.city || destinationDetails.country) && (
-                      <span style={{marginLeft: 3, color: '#ccc', fontWeight: 400}}>
-                        {[
-                          destinationDetails.city,
-                          destinationDetails.country
-                        ].filter(Boolean).join(', ')}
-                      </span>
-                    )}
-                  </span>
-                )}
-                {airline && (
-                  <span style={{display: 'flex', alignItems: 'center', gap: 6}}>
-                    <span role="img" aria-label="airline">✈️</span>
-                    {airline}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-          {timeRemaining && (
-            <div style={{
-              position: 'absolute',
-              bottom: '20px',
-              left: '20px',
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-              color: 'white',
-              padding: '5px 10px',
-              borderRadius: '5px',
-              zIndex: 1
-            }}>
-              {timeRemaining}
-            </div>
-          )}
+        )}
+        {timeRemaining && (
           <div style={{
             position: 'absolute',
             bottom: '20px',
-            right: '20px',
+            left: '20px',
             backgroundColor: 'rgba(0, 0, 0, 0.7)',
             color: 'white',
-            padding: '10px 15px',
-            borderRadius: '10px',
-            zIndex: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px'
+            padding: '5px 10px',
+            borderRadius: '5px',
+            zIndex: 1
           }}>
-            <div style={{display: 'flex', alignItems: 'center', gap: '10px', width: '200px', justifyContent: 'space-between'}}>
-              <label htmlFor="zoom" style={{fontWeight: 500, flexShrink: 0}}>Zoom</label>
-              <input
-                type="range"
-                id="zoom"
-                min={mapRef.current ? mapRef.current.getMinZoom() : 0}
-                max={mapRef.current ? mapRef.current.getMaxZoom() : 22}
-                step="0.1"
-                value={zoom}
-                onChange={(e) => {
-                  const newZoom = parseFloat(e.target.value);
-                  setZoom(newZoom); // Update local state for slider position
-                  if (mapRef.current) {
-                      mapRef.current.setZoom(newZoom); // Directly update Mapbox zoom
-                  }
-                }}
-                style={{cursor: 'pointer', width: '130px'}}
-              />
-            </div>
-            <div style={{display: 'flex', alignItems: 'center', gap: '10px', width: '200px', justifyContent: 'space-between'}}>
-              <label htmlFor="speed" style={{fontWeight: 500, flexShrink: 0}}>Speed: {animationSpeed.toFixed(1)}x</label>
-              <input
-                type="range"
-                id="speed"
-                min="0.2"
-                max="5"
-                step="0.1"
-                value={animationSpeed}
-                onChange={(e) => {
-                  const newSpeed = parseFloat(e.target.value);
-                  setAnimationSpeed(newSpeed);
-                  animationSpeedRef.current = newSpeed; // Update ref for animation loop
-                }}
-                style={{cursor: 'pointer', width: '130px'}}
-              />
-            </div>
+            {timeRemaining}
+          </div>
+        )}
+        <div style={{
+          position: 'absolute',
+          bottom: '20px',
+          right: '20px',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          color: 'white',
+          padding: '10px 15px',
+          borderRadius: '10px',
+          zIndex: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px'
+        }}>
+          <div style={{display: 'flex', alignItems: 'center', gap: '10px', width: '200px', justifyContent: 'space-between'}}>
+            <label htmlFor="zoom" style={{fontWeight: 500, flexShrink: 0}}>Zoom</label>
+            <input
+              type="range"
+              id="zoom"
+              min={mapRef.current ? mapRef.current.getMinZoom() : 0}
+              max={mapRef.current ? mapRef.current.getMaxZoom() : 22}
+              step="0.1"
+              value={zoom}
+              onChange={(e) => {
+                const newZoom = parseFloat(e.target.value);
+                setZoom(newZoom); // Update local state for slider position
+                if (mapRef.current) {
+                    mapRef.current.setZoom(newZoom); // Directly update Mapbox zoom
+                }
+              }}
+              style={{cursor: 'pointer', width: '130px'}}
+            />
+          </div>
+          <div style={{display: 'flex', alignItems: 'center', gap: '10px', width: '200px', justifyContent: 'space-between'}}>
+            <label htmlFor="speed" style={{fontWeight: 500, flexShrink: 0}}>Speed: {animationSpeed.toFixed(1)}x</label>
+            <input
+              type="range"
+              id="speed"
+              min="0.2"
+              max="5"
+              step="0.1"
+              value={animationSpeed}
+              onChange={(e) => {
+                const newSpeed = parseFloat(e.target.value);
+                setAnimationSpeed(newSpeed);
+                animationSpeedRef.current = newSpeed; // Update ref for animation loop
+              }}
+              style={{cursor: 'pointer', width: '130px'}}
+            />
           </div>
         </div>
-        {/* Swiper slider for horizontal cards */}
-        <div style={{ width: '100%', maxWidth: '1200px', margin: '40px auto 0 auto' }}>
-          <Swiper
-            modules={[Autoplay]}
-            spaceBetween={24}
-            slidesPerView={2}
-            loop={true}
-            autoplay={{ delay: 2200, disableOnInteraction: false }}
-            style={{ width: '100%' }}
-            breakpoints={{
-              320: { slidesPerView: 1 },
-              640: { slidesPerView: 1 }, // Changed to 1 for smaller tablets
-              1024: { slidesPerView: 2 },
-            }}
-          >
-            {offersData.map((offer) => ( // No need for idx if not using it
-              <SwiperSlide key={offer.id}>
-                <motion.div
-                  className="offer-card"
-                  whileHover={{ scale: 1.04, boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}
-                  whileTap={{ scale: 0.98 }}
-                  style={{
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    background: '#fff',
-                    borderRadius: 16,
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
-                    minHeight: 170,
-                    minWidth: 'auto', // Allow flexible width
-                    maxWidth: 750,
-                    width: '95%',
-                    padding: '32px 44px',
-                    gap: 36,
-                    margin: '0 auto',
-                  }}
-                >
-                  <img
-                    src={offer.image}
-                    alt={offer.title}
-                    className="offer-image"
-                    loading="lazy"
-                    style={{ width: 220, height: 150, objectFit: 'cover', borderRadius: '18px', flexShrink: 0 }}
-                  />
-                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1, minWidth: 0, gap: 4 }}>
-                    <h3 style={{ fontWeight: 700, fontSize: '1.25em', margin: 0, color: 'var(--Darktext-color)' }}>{offer.title}</h3>
-                    <p style={{ margin: '4px 0 0 0', color: 'var(--LightDarktext-color)', fontSize: '1.05em' }}>{offer.date}</p>
-                    <span style={{ color: 'var(--Btnbg-color)', fontWeight: 600, fontSize: '1.05em', marginTop: 4, whiteSpace: 'nowrap' }}>{offer.duration}</span>
-                  </div>
-                  <div style={{ marginLeft: 28, minWidth: 70, textAlign: 'right', alignSelf: 'center' }}>
-                    <span style={{ color: 'var(--Btnbg-color)', fontWeight: 700, fontSize: '1.22em', whiteSpace: 'nowrap' }}>{offer.price}</span>
-                  </div>
-                </motion.div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
-      </motion.div>
+      </div>
+      {/* Swiper slider for horizontal cards */}
+      <div style={{ width: '100%', maxWidth: '1200px', margin: '40px auto 0 auto' }}>
+        <Swiper
+          modules={[Autoplay]}
+          spaceBetween={24}
+          slidesPerView={2}
+          loop={true}
+          autoplay={{ delay: 2200, disableOnInteraction: false }}
+          style={{ width: '100%' }}
+          breakpoints={{
+            320: { slidesPerView: 1 },
+            640: { slidesPerView: 1 },
+            1024: { slidesPerView: 2 },
+          }}
+        >
+          {offersDataReal.map((offer) => (
+            <SwiperSlide key={offer.id}>
+              <div
+                className="offer-card"
+                style={{
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  background: '#fff',
+                  borderRadius: 16,
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
+                  minHeight: 170,
+                  minWidth: 'auto', // Allow flexible width
+                  maxWidth: 750,
+                  width: '95%',
+                  padding: '32px 44px',
+                  gap: 36,
+                  margin: '0 auto',
+                }}
+              >
+                <img
+                  src={offer.image}
+                  alt={offer.title}
+                  className="offer-image"
+                  loading="lazy"
+                  style={{ width: 220, height: 150, objectFit: 'cover', borderRadius: '18px', flexShrink: 0 }}
+                />
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1, minWidth: 0, gap: 4 }}>
+                  <h3 style={{ fontWeight: 700, fontSize: '1.25em', margin: 0, color: 'var(--Darktext-color)' }}>{offer.title}</h3>
+                  <p style={{ margin: '4px 0 0 0', color: 'var(--LightDarktext-color)', fontSize: '1.05em' }}>{offer.date}</p>
+                  <span style={{ color: 'var(--Btnbg-color)', fontWeight: 600, fontSize: '1.05em', marginTop: 4, whiteSpace: 'nowrap' }}>{offer.duration}</span>
+                </div>
+                <div style={{ marginLeft: 28, minWidth: 70, textAlign: 'right', alignSelf: 'center' }}>
+                  <span style={{ color: 'var(--Btnbg-color)', fontWeight: 700, fontSize: '1.22em', whiteSpace: 'nowrap' }}>{offer.price}</span>
+                </div>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
 
-      <motion.div
+      <div
         className="offers-section"
-        initial="hidden"
-        animate="visible"
-        variants={fadeUp}
-        custom={1}
+        style={{ position: 'relative', paddingBottom: 0 }}
       >
-        <motion.div className="offers-header" variants={fadeLeft}>
+        <div className="offers-header">
           <div className="offers-header-text">
             <h2>Fall into Travel</h2>
             <p>
@@ -663,15 +669,13 @@ export default function TravelOffers() {
               your trip
             </p>
           </div>
-          <motion.button
+          <button
             className="see-all-btn"
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
           >
             See all
-          </motion.button>
-        </motion.div>
-        <div className="more-offers" style={{ position: 'relative', paddingBottom: 0 }}>
+          </button>
+        </div>
+        <div className="more-offers">
           <Swiper
             modules={[Autoplay]}
             spaceBetween={15}
@@ -687,54 +691,40 @@ export default function TravelOffers() {
           >
             {adOffers.map((offer, idx) => (
               <SwiperSlide key={idx}> {/* Using idx as key is fine if array content doesn't change order */}
-                <motion.div
+                <div
                   className="more-offers-card"
-                  variants={fadeUp}
-                  initial="hidden"
-                  animate="visible"
-                  custom={idx + 1}
-                  whileHover={{ scale: 1.05, boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}
-                  whileTap={{ scale: 0.98 }}
                   style={{ cursor: 'pointer' }}
                 >
-                  <motion.img
+                  <img
                     src={offer.image}
                     alt={offer.title}
                     className="more-offers-image"
                     loading="lazy"
-                    whileHover={{ scale: 1.08 }}
-                    transition={{ type: "spring", stiffness: 300 }}
                     style={{ objectFit: 'cover', width: '100%', height: '250px', borderRadius: '12px 12px 0 0' }}
                   />
                   <div className="moreoffers-details">
                     <div className="moreoffers-header">
-                      <h3>{offer.title}</h3>
+                      <h3 ref={adTextRef} className={`ad-text-animate`}>{offer.title}</h3>
                       <span className="offer-price">${offer.price}</span>
                     </div>
-                    <p>{offer.desc}</p>
-                    <motion.button
+                    <p ref={adTextRef} className={`AD-disc ad-text-animate`}>{offer.desc}</p>
+                    <button
                       className="book-btn"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
                     >
                       Book Flights
-                    </motion.button>
+                    </button>
                   </div>
-                </motion.div>
+                </div>
               </SwiperSlide>
             ))}
           </Swiper>
         </div>
-      </motion.div>
+      </div>
 
-      <motion.div
+      <div
         className="offers-section"
-        initial="hidden"
-        animate="visible"
-        variants={fadeUp}
-        custom={2}
       >
-        <motion.div className="offers-header" variants={fadeLeft}>
+        <div className="offers-header">
           <div className="offers-header-text">
             <h2>Fall into Travel</h2>
             <p>
@@ -744,21 +734,15 @@ export default function TravelOffers() {
               we've got the travel tools to get you to your destination.
             </p>
           </div>
-          <motion.button
+          <button
             className="see-all-btn"
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
           >
             See all
-          </motion.button>
-        </motion.div>
+          </button>
+        </div>
         <div className="hot-offers">
-          <motion.div
+          <div
             className="AD-card"
-            variants={fadeRight}
-            initial="hidden"
-            animate="visible"
-            // Use adImageLoaded to smoothly transition background
             style={{
               background: adImageLoaded
                 ? `linear-gradient(120deg, rgba(0,0,0,0.45) 30%, rgba(0,0,0,0.25) 100%), url(${adOffers[adIndex].image}) center/cover no-repeat`
@@ -766,63 +750,54 @@ export default function TravelOffers() {
               position: 'relative',
               transition: 'background 0.5s ease',
               minHeight: '350px', // Maintain height during loading for smoother layout
-              backgroundSize: 'cover', // Ensure image covers the area
             }}
           >
             <div className="bangladesh-content">
-              <AnimatePresence mode="wait">
-                <motion.h3
-                  key={adKey + '-title'}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -30 }}
-                  transition={{ duration: 0.6 }}
-                  style={{ minHeight: 60, color: '#fff', fontWeight: 700, fontSize: '2em', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-                >
-                  {adOffers[adIndex].title}
-                </motion.h3>
-              </AnimatePresence>
-              <AnimatePresence mode="wait">
-                <motion.p
-                  className="AD-disc"
-                  key={adKey + '-desc'}
-                  initial={{ opacity: 0, x: 40 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -40 }}
-                  transition={{ duration: 0.7 }}
-                  style={{ minHeight: 90, color: '#fff', fontSize: '1.15em', margin: '10px 0 0 0', textShadow: '0 2px 8px rgba(0,0,0,0.18)' }}
-                >
-                  {adOffers[adIndex].desc}
-                </motion.p>
-              </AnimatePresence>
-              <AnimatePresence mode="wait">
-                <motion.p
-                  className="AD-price"
-                  key={adKey + '-price'}
-                  initial={{ opacity: 0, y: -60 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 60 }}
-                  transition={{ duration: 0.5 }}
-                  style={{ minWidth: 90, textAlign: 'center' }}
-                >
-                  From<br />
-                  {adOffers[adIndex].currency}{adOffers[adIndex].price}
-                </motion.p>
-              </AnimatePresence>
+              <h3
+                style={{
+                  minHeight: 60,
+                  color: '#fff',
+                  fontWeight: 700,
+                  fontSize: '2em',
+                  margin: 0,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}
+              >
+                {adOffers[adIndex].title}
+              </h3>
+              <p
+                className={`AD-disc ad-text-animate`}
+                style={{
+                  minHeight: 90,
+                  color: '#fff',
+                  fontSize: '1.15em',
+                  margin: '10px 0 0 0',
+                  textShadow: '0 2px 8px rgba(0,0,0,0.18)'
+                }}
+              >
+                {adOffers[adIndex].desc}
+              </p>
+              <p ref={adPriceRef} className={`AD-price ad-price-animate`} style={{
+                minWidth: 90,
+                textAlign: 'center'
+              }}>
+                From<br />
+                {adOffers[adIndex].currency}{adOffers[adIndex].price}
+              </p>
               <div className="AD-Dbtn">
-                <motion.button
+                <button
                   className="AD-btn"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
                 >
                   Book Flight
-                </motion.button>
+                </button>
               </div>
             </div>
-          </motion.div>
+          </div>
           <div className="offers-images">
             {bangladeshImages.map((img, index) => (
-              <motion.img
+              <img
                 key={index}
                 src={img}
                 alt={`Travel destination ${index + 1}`}
@@ -833,7 +808,7 @@ export default function TravelOffers() {
             ))}
           </div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }
