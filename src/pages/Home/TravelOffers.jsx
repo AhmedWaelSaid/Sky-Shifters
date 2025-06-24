@@ -14,6 +14,12 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { getAirportCoordinates, getAirportDetails } from "../../services/airportService";
 import { bookingService } from "../../services/bookingService";
 import * as turf from '@turf/turf';
+import { motion, AnimatePresence } from "framer-motion";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN; 
 
@@ -34,6 +40,54 @@ const offersData = [
     price: "$399",
     image: losAngelesImg,
   },
+  {
+    id: 3,
+    title: "Berlin",
+    date: "12 - 14 Mar, 2023",
+    duration: "5 hr 50m",
+    price: "$320",
+    image: bangladesh3,
+  },
+  {
+    id: 4,
+    title: "Dubai",
+    date: "20 - 22 Apr, 2023",
+    duration: "4 hr 30m",
+    price: "$410",
+    image: bangladesh4,
+  },
+  {
+    id: 5,
+    title: "Istanbul",
+    date: "1 - 3 May, 2023",
+    duration: "3 hr 45m",
+    price: "$280",
+    image: bangladesh5,
+  },
+  {
+    id: 6,
+    title: "Tokyo",
+    date: "15 - 17 Jun, 2023",
+    duration: "10 hr 20m",
+    price: "$670",
+    image: bangladesh6,
+  },
+  {
+    id: 7,
+    title: "Cape Town",
+    date: "5 - 7 Jul, 2023",
+    duration: "8 hr 10m",
+    price: "$540",
+    image: bangladesh7,
+  },
+  {
+    id: 8,
+    title: "Sydney",
+    date: "18 - 20 Aug, 2023",
+    duration: "13 hr 5m",
+    price: "$890",
+    image: bangladesh2,
+  },
 ];
 const images = [bangladesh7 ,bangladesh3 , bangladesh5 , bangladesh6 ]
 const londonOffers = Array.from({ length: 4 }, (_, index) => ({
@@ -44,6 +98,66 @@ const londonOffers = Array.from({ length: 4 }, (_, index) => ({
 }));
 
 const bangladeshImages = [losAngelesImg, newYorkImg, bangladesh5 , bangladesh4];
+
+// Add more diverse offers for the slider
+const sliderOffers = [
+  {
+    id: 1,
+    title: "London Adventure",
+    price: "$200",
+    image: bangladesh7,
+    desc: "Explore the heart of the UK with iconic sights and vibrant culture."
+  },
+  {
+    id: 2,
+    title: "Maldives Paradise",
+    price: "$850",
+    image: bangladesh5,
+    desc: "Relax on white sandy beaches and crystal-clear waters."
+  },
+  {
+    id: 3,
+    title: "New York City",
+    price: "$420",
+    image: newYorkImg,
+    desc: "Experience the city that never sleeps with endless attractions."
+  },
+  {
+    id: 4,
+    title: "Los Angeles Dream",
+    price: "$399",
+    image: losAngelesImg,
+    desc: "Enjoy Hollywood, beaches, and sunny California vibes."
+  },
+  {
+    id: 5,
+    title: "Bangkok Explorer",
+    price: "$310",
+    image: bangladesh3,
+    desc: "Discover temples, street food, and vibrant nightlife."
+  },
+  {
+    id: 6,
+    title: "Paris Romance",
+    price: "$510",
+    image: bangladesh4,
+    desc: "Stroll by the Eiffel Tower and savor French cuisine."
+  },
+  {
+    id: 7,
+    title: "Tokyo Lights",
+    price: "$670",
+    image: bangladesh6,
+    desc: "Dive into futuristic cityscapes and ancient traditions."
+  },
+  {
+    id: 8,
+    title: "Cairo Mysteries",
+    price: "$350",
+    image: bangladesh2,
+    desc: "Marvel at the pyramids and the Nile's timeless beauty."
+  },
+];
 
 export default function TravelOffers() {
   const mapContainer = useRef(null);
@@ -57,6 +171,16 @@ export default function TravelOffers() {
   const [originDetails, setOriginDetails] = useState(null);
   const [destinationDetails, setDestinationDetails] = useState(null);
   const [airline, setAirline] = useState('');
+  const [offersAnimationKey, setOffersAnimationKey] = useState(0);
+  // Slider state for 2x2 cards
+  const CARDS_PER_ROW = 2;
+  const ROWS = 2;
+  const CARDS_VISIBLE = CARDS_PER_ROW * ROWS;
+  const [sliderIndex, setSliderIndex] = useState(0);
+  const initialIndexes = Array.from({length: bangladeshImages.length}, (_, i) => i % bangladeshImages.length);
+  const [imgIndexes, setImgIndexes] = useState(initialIndexes);
+  const [changingIndex, setChangingIndex] = useState(0);
+  const [fadeKey, setFadeKey] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -346,10 +470,78 @@ export default function TravelOffers() {
     };
   }, []); // Run only once on mount
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setOffersAnimationKey((k) => k + 1);
+    }, 4000); // كل 4 ثواني تعيد الأنيميشن
+    return () => clearInterval(interval);
+  }, []);
+
+  // Auto-loop effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSliderIndex((prev) => (prev + CARDS_VISIBLE) % offersData.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setImgIndexes(prev => {
+        const newIndexes = [...prev];
+        newIndexes[changingIndex] = (newIndexes[changingIndex] + 1) % bangladeshImages.length;
+        return newIndexes;
+      });
+      setFadeKey(k => k + 1); // لإعادة الأنيميشن
+      setChangingIndex(idx => (idx + 1) % bangladeshImages.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [changingIndex]);
+
+  // Get the current 4 cards (looping)
+  const visibleCards = [];
+  for (let i = 0; i < CARDS_VISIBLE; i++) {
+    visibleCards.push(offersData[(sliderIndex + i) % offersData.length]);
+  }
+
+  // Animation variants
+  const fadeUp = {
+    hidden: { opacity: 0, y: 40 },
+    visible: (i = 1) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.15,
+        duration: 0.7,
+        type: "spring"
+      }
+    })
+  };
+  const fadeLeft = {
+    hidden: { opacity: 0, x: -40 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.7 } }
+  };
+  const fadeRight = {
+    hidden: { opacity: 0, x: 40 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.7 } }
+  };
+  // Animation variants for sliding in/out
+  const slideVariant = {
+    initial: { x: 120, opacity: 0 },
+    animate: { x: 0, opacity: 1, transition: { type: "spring", duration: 0.7 } },
+    exit: { x: -120, opacity: 0, transition: { duration: 0.5 } },
+  };
+
   return (
     <section className="travel-offers">
-      <div className="offers-section">
-        <div className="offers-header">
+      <motion.div
+        className="offers-section"
+        initial="hidden"
+        animate="visible"
+        variants={fadeUp}
+        custom={0}
+      >
+        <motion.div className="offers-header" variants={fadeLeft}>
           <div className="offers-header-text">
             <h2>Let's go Places Together</h2>
             <p>
@@ -357,8 +549,14 @@ export default function TravelOffers() {
               your trip
             </p>
           </div>
-          <button className="see-all-btn">See all</button>
-        </div>
+          <motion.button
+            className="see-all-btn"
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            See all
+          </motion.button>
+        </motion.div>
         <div
           ref={mapContainer}
           className="map-container"
@@ -486,27 +684,73 @@ export default function TravelOffers() {
             </div>
           </div>
         </div>
-        <div className="offers-flex home-flex">
-          {offersData.map((offer) => (
-            <div key={offer.id} className="offer-card">
-              <img
-                src={offer.image}
-                alt={offer.title}
-                className="offer-image"
-              />
-              <div className="offer-details">
-                <h3>{offer.title}</h3>
-                <p>{offer.date}</p>
-                <span className="offer-duration">{offer.duration}</span>
-                <p className="offer-price">{offer.price}</p>
-              </div>
-            </div>
-          ))}
+        {/* Swiper سلايدر أفقي للكروت بنفس التصميم */}
+        <div style={{ width: '100%', maxWidth: '1200px', margin: '40px auto 0 auto' }}>
+          <Swiper
+            modules={[Autoplay]}
+            spaceBetween={24}
+            slidesPerView={2}
+            loop={true}
+            autoplay={{ delay: 2200, disableOnInteraction: false }}
+            style={{ width: '100%' }}
+            breakpoints={{
+              320: { slidesPerView: 1 },
+              640: { slidesPerView: 1 },
+              1024: { slidesPerView: 2 },
+            }}
+          >
+            {offersData.map((offer, idx) => (
+              <SwiperSlide key={offer.id}>
+                <motion.div
+                  className="offer-card"
+                  whileHover={{ scale: 1.04, boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}
+                  whileTap={{ scale: 0.98 }}
+                  style={{
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    background: '#fff',
+                    borderRadius: 16,
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
+                    minHeight: 170,
+                    minWidth: 600,
+                    maxWidth: 750,
+                    width: '95%',
+                    padding: '32px 44px',
+                    gap: 36,
+                    margin: '0 auto',
+                  }}
+                >
+                  <img
+                    src={offer.image}
+                    alt={offer.title}
+                    className="offer-image"
+                    style={{ width: 220, height: 150, objectFit: 'cover', borderRadius: '18px', flexShrink: 0 }}
+                  />
+                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1, minWidth: 0, gap: 4 }}>
+                    <h3 style={{ fontWeight: 700, fontSize: '1.25em', margin: 0, color: '#222', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{offer.title}</h3>
+                    <p style={{ margin: '4px 0 0 0', color: '#444', fontSize: '1.05em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{offer.date}</p>
+                    <span style={{ color: '#1976d2', fontWeight: 600, fontSize: '1.05em', marginTop: 4, whiteSpace: 'nowrap' }}>{offer.duration}</span>
+                  </div>
+                  <div style={{ marginLeft: 28, minWidth: 70, textAlign: 'right', alignSelf: 'center' }}>
+                    <span style={{ color: '#1976d2', fontWeight: 700, fontSize: '1.22em', whiteSpace: 'nowrap' }}>{offer.price}</span>
+                  </div>
+                </motion.div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="offers-section">
-        <div className="offers-header">
+      <motion.div
+        className="offers-section"
+        initial="hidden"
+        animate="visible"
+        variants={fadeUp}
+        custom={1}
+      >
+        <motion.div className="offers-header" variants={fadeLeft}>
           <div className="offers-header-text">
             <h2>Fall into Travel</h2>
             <p>
@@ -514,29 +758,77 @@ export default function TravelOffers() {
               your trip
             </p>
           </div>
-          <button className="see-all-btn">See all</button>
+          <motion.button
+            className="see-all-btn"
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            See all
+          </motion.button>
+        </motion.div>
+        <div className="more-offers" style={{ position: 'relative', paddingBottom: 0 }}>
+          <Swiper
+            modules={[Autoplay]}
+            spaceBetween={15}
+            slidesPerView={4}
+            loop={true}
+            autoplay={{ delay: 2000, disableOnInteraction: false }}
+            style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '20px 0' }}
+            breakpoints={{
+              320: { slidesPerView: 1 },
+              640: { slidesPerView: 2 },
+              1024: { slidesPerView: 4 },
+            }}
+          >
+            {sliderOffers.map((offer, idx) => (
+              <SwiperSlide key={offer.id}>
+                <motion.div
+                  className="more-offers-card"
+                  variants={fadeUp}
+                  initial="hidden"
+                  animate="visible"
+                  custom={idx + 1}
+                  whileHover={{ scale: 1.05, boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}
+                  whileTap={{ scale: 0.98 }}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <motion.img
+                    src={offer.image}
+                    alt={offer.title}
+                    className="more-offers-image"
+                    whileHover={{ scale: 1.08 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                    style={{ objectFit: 'cover', width: '100%', height: '250px', borderRadius: '12px 12px 0 0' }}
+                  />
+                  <div className="moreoffers-details">
+                    <div className="moreoffers-header">
+                      <h3>{offer.title}</h3>
+                      <span className="offer-price">{offer.price}</span>
+                    </div>
+                    <p>{offer.desc}</p>
+                    <motion.button
+                      className="book-btn"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Book Flights
+                    </motion.button>
+                  </div>
+                </motion.div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
-        <div className="more-offers">
-          {londonOffers.map((offer) => (
-            <div key={offer.id} className="more-offers-card">
-              <img
-                src={offer.image}
-                alt={offer.title}
-                className="more-offers-image"
-              />
-              <div className="moreoffers-details">
-                <h3>{offer.title}</h3>
-                <p>{offer.title}</p>
-                <span className="offer-price">{offer.price}</span>
-                <button className="book-btn">Book Flights</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      </motion.div>
 
-      <div className="offers-section">
-        <div className="offers-header">
+      <motion.div
+        className="offers-section"
+        initial="hidden"
+        animate="visible"
+        variants={fadeUp}
+        custom={2}
+      >
+        <motion.div className="offers-header" variants={fadeLeft}>
           <div className="offers-header-text">
             <h2>Fall into Travel</h2>
             <p>
@@ -546,10 +838,21 @@ export default function TravelOffers() {
               we've got the travel tools to get you to your destination.
             </p>
           </div>
-          <button className="see-all-btn">See all</button>
-        </div>
+          <motion.button
+            className="see-all-btn"
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            See all
+          </motion.button>
+        </motion.div>
         <div className="hot-offers">
-          <div className="AD-card">
+          <motion.div
+            className="AD-card"
+            variants={fadeRight}
+            initial="hidden"
+            animate="visible"
+          >
             <div className="bangladesh-content">
               <h3>Backpacking Bangladesh</h3>
               <p className="AD-disc">
@@ -565,22 +868,32 @@ export default function TravelOffers() {
                 $700
               </p>
               <div className="AD-Dbtn">
-                <button className="AD-btn">Book Flight</button>
+                <motion.button
+                  className="AD-btn"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Book Flight
+                </motion.button>
               </div>
             </div>
-          </div>
+          </motion.div>
           <div className="offers-images">
             {bangladeshImages.map((img, index) => (
-              <img
-                key={index}
-                src={img}
+              <motion.img
+                key={index + '-' + imgIndexes[index] + '-' + fadeKey}
+                src={bangladeshImages[imgIndexes[index]]}
                 alt={`Backpacking Bangladesh ${index + 1}`}
                 className="bangladesh-image"
+                initial={index === changingIndex ? { opacity: 0, scale: 0.85, rotate: -8 } : { opacity: 1, scale: 1, rotate: 0 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                transition={{ duration: 0.7, ease: 'easeInOut' }}
+                style={{ willChange: 'transform', borderRadius: '20px' }}
               />
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
