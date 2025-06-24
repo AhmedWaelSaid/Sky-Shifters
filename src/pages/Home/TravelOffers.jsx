@@ -89,12 +89,13 @@ const offersData = [
     image: bangladesh2,
   },
 ];
-const images = [bangladesh7 ,bangladesh3 , bangladesh5 , bangladesh6 ]
+const images = import.meta.glob('../../assets/*-unsplash.jpg', { eager: true, as: 'url' });
+const allImages = Object.values(images);
 const londonOffers = Array.from({ length: 4 }, (_, index) => ({
   id: index + 1,
   title: "London Adventure",
   price: "$ 200",
-  image: images[index]
+  image: allImages[index]
 }));
 
 const bangladeshImages = [losAngelesImg, newYorkImg, bangladesh5 , bangladesh4];
@@ -159,6 +160,36 @@ const sliderOffers = [
   },
 ];
 
+const placeNames = [
+  "Dream Beach", "Mountain Escape", "City Lights", "Tropical Paradise", "Historic Town", "Desert Adventure", "Forest Retreat",
+  "Island Getaway", "Urban Vibes", "Hidden Gem", "Sunset Point", "Winter Wonderland", "Cultural Capital", "Seaside Escape",
+  "Skyline View", "Nature's Beauty", "Adventure Land", "Peaceful Lake", "Majestic Falls", "Golden Sands", "Wild Safari",
+  "Charming Village", "Modern Marvel", "Ancient Ruins", "Colorful Streets", "Lush Valley", "Crystal Waters", "Starry Night",
+  "Sunny Fields", "Snowy Peaks", "Royal Palace", "Vibrant Market", "Serene River", "Enchanted Forest", "Sunny Coast", "Epic Canyon"
+];
+function getRandomPrice() {
+  return Math.floor(Math.random() * 1000) + 200;
+}
+function getRandomDesc() {
+  const descs = [
+    "A breathtaking destination for your next adventure.",
+    "Enjoy unforgettable moments and stunning views.",
+    "Perfect for relaxation and exploration.",
+    "Discover the beauty and culture of this place.",
+    "A must-visit spot for every traveler.",
+    "Experience nature and luxury together.",
+    "Create memories that last a lifetime."
+  ];
+  return descs[Math.floor(Math.random() * descs.length)];
+}
+const adOffers = allImages.map((img, idx) => ({
+  title: placeNames[idx % placeNames.length],
+  desc: getRandomDesc(),
+  price: getRandomPrice(),
+  currency: "$",
+  image: img
+}));
+
 export default function TravelOffers() {
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
@@ -181,6 +212,10 @@ export default function TravelOffers() {
   const [imgIndexes, setImgIndexes] = useState(initialIndexes);
   const [changingIndex, setChangingIndex] = useState(0);
   const [fadeKey, setFadeKey] = useState(0);
+  // State للعروض المتغيرة في كارت AD-card
+  const [adIndex, setAdIndex] = useState(0);
+  const [adKey, setAdKey] = useState(0); // لتغيير الأنيميشن
+  const [adImageLoaded, setAdImageLoaded] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -498,6 +533,18 @@ export default function TravelOffers() {
     return () => clearInterval(interval);
   }, [changingIndex]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setAdIndex((prev) => (prev + 1) % adOffers.length);
+      setAdKey((k) => k + 1);
+    }, 10000); // كل 10 ثواني
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    setAdImageLoaded(false);
+  }, [adIndex]);
+
   // Get the current 4 cards (looping)
   const visibleCards = [];
   for (let i = 0; i < CARDS_VISIBLE; i++) {
@@ -729,12 +776,12 @@ export default function TravelOffers() {
                     style={{ width: 220, height: 150, objectFit: 'cover', borderRadius: '18px', flexShrink: 0 }}
                   />
                   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1, minWidth: 0, gap: 4 }}>
-                    <h3 style={{ fontWeight: 700, fontSize: '1.25em', margin: 0, color: '#222', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{offer.title}</h3>
-                    <p style={{ margin: '4px 0 0 0', color: '#444', fontSize: '1.05em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{offer.date}</p>
-                    <span style={{ color: '#1976d2', fontWeight: 600, fontSize: '1.05em', marginTop: 4, whiteSpace: 'nowrap' }}>{offer.duration}</span>
+                    <h3 style={{ fontWeight: 700, fontSize: '1.25em', margin: 0, color: 'var(--Darktext-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{offer.title}</h3>
+                    <p style={{ margin: '4px 0 0 0', color: 'var(--LightDarktext-color)', fontSize: '1.05em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{offer.date}</p>
+                    <span style={{ color: 'var(--Btnbg-color)', fontWeight: 600, fontSize: '1.05em', marginTop: 4, whiteSpace: 'nowrap' }}>{offer.duration}</span>
                   </div>
                   <div style={{ marginLeft: 28, minWidth: 70, textAlign: 'right', alignSelf: 'center' }}>
-                    <span style={{ color: '#1976d2', fontWeight: 700, fontSize: '1.22em', whiteSpace: 'nowrap' }}>{offer.price}</span>
+                    <span style={{ color: 'var(--Btnbg-color)', fontWeight: 700, fontSize: '1.22em', whiteSpace: 'nowrap' }}>{offer.price}</span>
                   </div>
                 </motion.div>
               </SwiperSlide>
@@ -852,21 +899,61 @@ export default function TravelOffers() {
             variants={fadeRight}
             initial="hidden"
             animate="visible"
+            style={{
+              background: adImageLoaded
+                ? `linear-gradient(120deg, rgba(0,0,0,0.45) 30%, rgba(0,0,0,0.25) 100%), url(${adOffers[adIndex].image}) center/cover no-repeat`
+                : 'repeating-linear-gradient(120deg, #bbb 0px, #e6e6e6 100px)',
+              position: 'relative',
+              transition: 'background 0.5s ease'
+            }}
           >
+            {/* صورة مخفية للتحميل المسبق */}
+            <img
+              src={adOffers[adIndex].image}
+              alt="preload"
+              style={{ display: 'none' }}
+              onLoad={() => setAdImageLoaded(true)}
+            />
             <div className="bangladesh-content">
-              <h3>Backpacking Bangladesh</h3>
-              <p className="AD-disc">
-                Traveling is a unique experience as it is the best way to unplug
-                from the pushes and pulls of daily life. It helps us to forget
-                about our problems, frustrations, and fears at home. During our
-                journey, we experience life in different ways. We explore new
-                places, cultures, cuisines, traditions, and ways of living.
-              </p>
-              <p className="AD-price">
-                From
-                <br />
-                $700
-              </p>
+              <AnimatePresence mode="wait">
+                <motion.h3
+                  key={adKey + '-title'}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -30 }}
+                  transition={{ duration: 0.6 }}
+                  style={{ minHeight: 60, color: '#fff', fontWeight: 700, fontSize: '2em', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                >
+                  {adOffers[adIndex].title}
+                </motion.h3>
+              </AnimatePresence>
+              <AnimatePresence mode="wait">
+                <motion.p
+                  className="AD-disc"
+                  key={adKey + '-desc'}
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -40 }}
+                  transition={{ duration: 0.7 }}
+                  style={{ minHeight: 90, color: '#fff', fontSize: '1.15em', margin: '10px 0 0 0', textShadow: '0 2px 8px rgba(0,0,0,0.18)' }}
+                >
+                  {adOffers[adIndex].desc}
+                </motion.p>
+              </AnimatePresence>
+              <AnimatePresence mode="wait">
+                <motion.p
+                  className="AD-price"
+                  key={adKey + '-price'}
+                  initial={{ opacity: 0, y: -60 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 60 }}
+                  transition={{ duration: 0.5 }}
+                  style={{ minWidth: 90, textAlign: 'center' }}
+                >
+                  From<br />
+                  {adOffers[adIndex].currency}{adOffers[adIndex].price}
+                </motion.p>
+              </AnimatePresence>
               <div className="AD-Dbtn">
                 <motion.button
                   className="AD-btn"

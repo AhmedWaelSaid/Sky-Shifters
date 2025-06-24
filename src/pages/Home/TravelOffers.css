@@ -1,3 +1,10 @@
+:root {
+  --AD-price-bg: #1da1f2;
+}
+body.dark {
+  --AD-price-bg: #ffe08a;
+}
+
 .travel-offers {
   background: var(--bg-color);
   padding: 2rem;
@@ -7,9 +14,17 @@
   
 }
 
+body.dark .travel-offers {
+  background: var(--bg-color) !important;
+}
+
 .offers-section {
   border-radius: 8px;
   overflow: hidden;
+}
+
+body.dark .offers-section {
+  background: var(--bg-color) !important;
 }
 
 .offers-header {
@@ -38,7 +53,7 @@
 .offers-header p {
   font-size: 20px;
   font-weight: 400;
-  color: #666;
+  color: var(--LightDarktext-color);
   margin-bottom: 0;
 }
 
@@ -95,6 +110,10 @@
  
 }
 
+body.dark .offer-card {
+  background: var(--bg-color) !important;
+}
+
 .offer-image {
   width: 298px;
   height: 179px;
@@ -104,6 +123,7 @@
 
 .offer-details {
   padding: 1rem;
+  color: var(--Darktext-color);
 }
 
 .offer-details h3 {
@@ -156,6 +176,10 @@
   background: var(--bg-color);
 }
 
+body.dark .more-offers-card {
+  background: var(--bg-color) !important;
+}
+
 .more-offers-image{
   width: 100%;
   height: 100%;
@@ -195,6 +219,7 @@
 .moreoffers-header .offer-price {
   flex-shrink: 0;
   margin-left: 10px;
+  color: var(--DarkyellowText-color);
 }
 .moreoffers-details p {
   font-size: 14px;
@@ -237,8 +262,8 @@
 
 .AD-card {
   position: relative;
-  background-color: #035a70;
-  color:var(--LightText-color);
+  background-color: var(--AD-bg, #e6f4fa);
+  color: var(--Darktext-color);
   padding: 1rem;
   display: flex;
   flex-direction: column;
@@ -246,30 +271,45 @@
   width: 700px;
   height: 425px;
   border-radius: 20px;
-  
 }
-.AD-Dbtn{
+body.dark .AD-card {
+  background-color: var(--AD-bg-dark, #06485a) !important;
+  color: var(--LightText-color) !important;
+}
+.AD-card h3,
+.AD-card .AD-disc {
+  color: var(--Darktext-color);
+}
+body.dark .AD-card h3,
+body.dark .AD-card .AD-disc {
+  color: var(--LightText-color);
+}
+.AD-Dbtn {
   position: absolute;
   margin-bottom: 10px;
   height: fit-content;
   margin-top: 20px;
-  width: fit-content;
+  width: 100%;
   top: 85%;
   left: 50%;
   transform: translate(-50% ,-50%);
-    
+  display: flex;
+  justify-content: center;
 }
-.AD-btn{
+.AD-btn {
   background-color: var(--Btnbg-color);
   padding: 8px;
   height: 50px;
-  color:var(--LightText-color);
+  color: var(--LightText-color);
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-size: 18px;
-  width: 500px;
+  width: 260px;
+  max-width: 90%;
   font-family: 'Inter', sans-serif;
+  display: block;
+  margin: 0 auto;
 }
 
 
@@ -286,14 +326,18 @@
 
 
 .AD-price {
-  background-color: #0A6D86; 
-  color:var(--LightText-color);
+  background-color: var(--AD-price-bg) !important;
+  color: var(--LightText-color) !important;
   padding: 15px;
   border-radius: 5px;
   font-size: 20px;
   position: absolute;
   top: 1px;
   right: 10px;
+}
+body.dark .AD-price {
+  background-color: var(--AD-price-bg-dark, #1a9ff1);
+  color: var(--Darktext-color);
 }
 
 .offers-images {
@@ -391,5 +435,38 @@
     padding: 10px 16px;
     margin-right: 0;
     margin-top: 1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .AD-card {
+    width: 95vw;
+    min-width: 0;
+    height: auto;
+    padding: 1rem 0.5rem;
+  }
+}
+@media (max-width: 600px) {
+  .AD-card {
+    width: 98vw;
+    min-width: 0;
+    height: auto;
+    padding: 0.5rem 0.2rem;
+    font-size: 0.95em;
+  }
+  .AD-card h3 {
+    font-size: 1.2em;
+    word-break: break-word;
+  }
+  .AD-price {
+    font-size: 1em;
+    padding: 8px;
+    right: 5px;
+    top: 5px;
+  }
+  .AD-btn {
+    width: 90vw;
+    max-width: 100%;
+    font-size: 1em;
   }
 }
