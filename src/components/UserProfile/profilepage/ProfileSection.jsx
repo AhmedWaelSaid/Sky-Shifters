@@ -5,7 +5,7 @@ import Select from 'react-select';
 import countries from 'i18n-iso-countries';
 import en from 'i18n-iso-countries/langs/en.json';
 import { Mail, Lock, User, Phone, Globe } from 'lucide-react';
-import { getUserProfile, updateUserProfile } from '../../../services/userProfileService';
+import { getUserProfile, updateUserProfile, changeUserPassword } from '../../../services/userProfileService';
 import { useAuth } from '../../context/AuthContext';
 
 countries.registerLocale(en);
@@ -21,6 +21,9 @@ function PasswordChangeForm({ onCancel }) {
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showRe, setShowRe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   // تحقق الشروط
   const hasLower = /[a-z]/.test(newPassword);
@@ -31,8 +34,30 @@ function PasswordChangeForm({ onCancel }) {
 
   const canSubmit = hasLower && hasUpper && hasNumber && hasLength && noSpaces && newPassword === rePassword && oldPassword;
 
+  const handleChangePassword = async () => {
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const userString = localStorage.getItem('user');
+      const userData = userString ? JSON.parse(userString) : null;
+      const token = userData?.token;
+      const res = await changeUserPassword(oldPassword, newPassword, token);
+      setSuccess(res?.data?.message || 'Password changed successfully');
+      setOldPassword("");
+      setNewPassword("");
+      setRePassword("");
+    } catch (err) {
+      setError('Failed to change password. Please check your old password and try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div style={{maxWidth: 500}}>
+      {error && <div style={{color:'red',marginBottom:8}}>{error}</div>}
+      {success && <div style={{color:'green',marginBottom:8}}>{success}</div>}
       <div className={styles.formGroup}>
         <label className={styles.label}><Lock size={16} style={{marginRight:8,verticalAlign:'middle'}} />Old password:</label>
         <div className={styles.inputContainer}>
@@ -86,8 +111,10 @@ function PasswordChangeForm({ onCancel }) {
         </div>
       </div>
       <div style={{display:'flex',gap:12,marginTop:16}}>
-        <Button className={styles.changePasswordButton} disabled={!canSubmit}>Change password</Button>
-        <Button className={styles.uploadButton} style={{background:'#222',color:'#fff'}} onClick={onCancel}>Cancel</Button>
+        <Button className={styles.changePasswordButton} disabled={!canSubmit || loading} onClick={handleChangePassword}>
+          {loading ? 'Changing...' : 'Change password'}
+        </Button>
+        <Button className={styles.uploadButton} style={{background:'#222',color:'#fff'}} onClick={onCancel} disabled={loading}>Cancel</Button>
       </div>
     </div>
   );
@@ -223,8 +250,13 @@ const ProfileSection = () => {
       console.log('PATCH response user:', res?.data?.user);
       // بعد التحديث، أعد جلب بيانات البروفايل من السيرفر لضمان مزامنة الواجهة
       const refreshed = await getUserProfile(token);
+      console.log('Refreshed profile after update:', refreshed.data.user);
       setProfile(refreshed.data.user);
-      setSuccess('Profile updated successfully');
+      if (field === 'country' && refreshed.data.user.country !== value) {
+        setError('Country did not update. This may be a backend issue.');
+      } else {
+        setSuccess('Profile updated successfully');
+      }
     } catch (err) {
       setError('Failed to update profile');
     } finally {

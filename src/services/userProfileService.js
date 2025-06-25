@@ -30,4 +30,21 @@ export async function updateUserProfile(data, token) {
     throw new Error('Failed to update profile');
   }
   return res.json();
+}
+
+export async function changeUserPassword(oldPassword, newPassword, token) {
+  const res = await fetch(`${BASE_URL}/users/change-password`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ oldPassword, newPassword })
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    console.error('API response (changeUserPassword):', text);
+    throw new Error('Failed to change password');
+  }
+  return res.json();
 } 
