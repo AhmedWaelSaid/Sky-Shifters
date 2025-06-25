@@ -834,6 +834,18 @@ margin-top: 8px;
   align-items: center;
   margin-bottom: 15px;
   position: relative;
+  background: var(--image-bg-color, #fff);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+body.dark .dimensionImageContainer {
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.dimensionImageContainer img {
+  background: transparent !important;
 }
 
 .baggageIcon {
