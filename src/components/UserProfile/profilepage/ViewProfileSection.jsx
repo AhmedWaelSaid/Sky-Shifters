@@ -27,7 +27,15 @@ export default function ViewProfileSection() {
     if (user) fetchProfile();
   }, [user]);
 
-  if (loading) return <div className={styles.profileSection}>Loading...</div>;
+  if (loading) return (
+    <div className={styles.profileSection} style={{display:'flex',justifyContent:'center',alignItems:'center',minHeight:300}}>
+      <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:12}}>
+        <div style={{width:48,height:48,border:'5px solid #e0e0e0',borderTop:'5px solid #1976d2',borderRadius:'50%',animation:'spin 1s linear infinite'}} />
+        <span style={{color:'#1976d2',fontWeight:500}}>Loading...</span>
+      </div>
+      <style>{`@keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }`}</style>
+    </div>
+  );
   if (error) return <div className={styles.profileSection} style={{color:'red'}}>{error}</div>;
   if (!profile) return null;
 

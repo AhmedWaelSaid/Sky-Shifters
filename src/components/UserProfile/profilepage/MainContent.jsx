@@ -9,7 +9,7 @@ const MainContent = () => {
   const [page, setPage] = useState('account');
 
   return (
-    <div style={{ display: 'flex' }}>
+    <div style={{ display: 'flex' }} className={styles.fadeIn}>
       <Sidebar onSelectPage={setPage} currentPage={page} />
       <div className={styles.mainContent}>
         <div className={styles.header}>
