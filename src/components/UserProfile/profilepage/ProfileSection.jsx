@@ -29,7 +29,7 @@ function PasswordChangeForm({ onCancel }) {
   const hasLower = /[a-z]/.test(newPassword);
   const hasUpper = /[A-Z]/.test(newPassword);
   const hasNumber = /[0-9]/.test(newPassword);
-  const hasLength = newPassword.length >= 8;
+  const hasLength = newPassword.length >= 10;
   const noSpaces = newPassword === newPassword.trim();
 
   const canSubmit = hasLower && hasUpper && hasNumber && hasLength && noSpaces && newPassword === rePassword && oldPassword;
@@ -75,6 +75,9 @@ function PasswordChangeForm({ onCancel }) {
     <div style={{maxWidth: 500}}>
       {error && <div style={{color:'red',marginBottom:8}}>{error}</div>}
       {success && <div style={{color:'green',marginBottom:8}}>{success}</div>}
+      <div style={{color:'#333',fontWeight:'bold',marginBottom:4}}>
+        Password must contain at least: 1 uppercase letter, 1 lowercase letter, 1 number, and must be at least 10 characters long.
+      </div>
       <div className={styles.formGroup}>
         <label className={styles.label}><Lock size={16} style={{marginRight:8,verticalAlign:'middle'}} />Old password:</label>
         <div className={styles.inputContainer}>
@@ -108,7 +111,7 @@ function PasswordChangeForm({ onCancel }) {
           <li style={{color: hasLower ? '#4caf50' : '#aaa'}}>{hasLower ? '✔' : '✖'} Password must contain a lowercase letter</li>
           <li style={{color: hasUpper ? '#4caf50' : '#aaa'}}>{hasUpper ? '✔' : '✖'} Password must contain an uppercase letter</li>
           <li style={{color: hasNumber ? '#4caf50' : '#aaa'}}>{hasNumber ? '✔' : '✖'} Password must contain a number</li>
-          <li style={{color: hasLength ? '#4caf50' : '#aaa'}}>{hasLength ? '✔' : '✖'} Password must be at least 8 characters long</li>
+          <li style={{color: hasLength ? '#4caf50' : '#aaa'}}>{hasLength ? '✔' : '✖'} Password must be at least 10 characters long</li>
           <li style={{color: noSpaces ? '#4caf50' : '#aaa'}}>{noSpaces ? '✔' : '✖'} Password must not contain leading or trailing spaces</li>
         </ul>
       </div>
