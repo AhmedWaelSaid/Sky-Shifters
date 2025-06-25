@@ -5,7 +5,7 @@ import { FaHeart, FaCreditCard, FaLock, FaCog, FaQuestionCircle, FaInfoCircle, F
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import HamburgerMenu from './HamburgerMenu';
-import planeIcon from '../../assets/Default_master_piece_anime_style_best_quality_2.jpg';
+import avatarLogo from '../../assets/Asset 18@2x.png';
 
 export default function SidebarMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,7 +21,9 @@ export default function SidebarMenu() {
       <nav className={`${styles.sidebar} ${isOpen ? styles.open : ''}`}>
         {/* الجزء العلوي: صورة المستخدم، الاسم، الرصيد */}
         <div className={styles.userProfile}>
-          <img src= {planeIcon}  alt="" className={styles.avatar} />
+          <div className={styles.avatar}>
+            <img src={avatarLogo} alt="User Avatar" />
+          </div>
           <div className={styles.userInfo}>
             <h3 className={styles.userName}>{user?.name || 'User'}</h3>
             <p className={styles.userBalance}>${user?.balance || '0.00'}</p>
