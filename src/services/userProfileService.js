@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5000"; // عدل هذا حسب سيرفرك
+const BASE_URL = "https://sky-shifters.duckdns.org";
 
 export async function getUserProfile(token) {
   const res = await fetch(`${BASE_URL}/users/profile`, {
