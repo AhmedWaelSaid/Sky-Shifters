@@ -217,7 +217,9 @@ const ProfileSection = () => {
       const userData = userString ? JSON.parse(userString) : null;
       const token = userData?.token;
       const updateData = { [field]: value };
+      console.log('PATCH updateData:', updateData);
       const res = await updateUserProfile(updateData, token);
+      console.log('PATCH response:', res);
       setProfile(prev => ({ ...prev, ...res.data.user }));
       setSuccess('Profile updated successfully');
     } catch (err) {
