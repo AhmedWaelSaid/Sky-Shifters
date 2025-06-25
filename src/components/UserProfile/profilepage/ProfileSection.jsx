@@ -220,7 +220,10 @@ const ProfileSection = () => {
       console.log('PATCH updateData:', updateData);
       const res = await updateUserProfile(updateData, token);
       console.log('PATCH response:', res);
-      setProfile(prev => ({ ...prev, ...res.data.user }));
+      console.log('PATCH response user:', res?.data?.user);
+      // بعد التحديث، أعد جلب بيانات البروفايل من السيرفر لضمان مزامنة الواجهة
+      const refreshed = await getUserProfile(token);
+      setProfile(refreshed.data.user);
       setSuccess('Profile updated successfully');
     } catch (err) {
       setError('Failed to update profile');
