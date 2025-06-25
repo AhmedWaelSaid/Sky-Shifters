@@ -3,6 +3,7 @@ import './PassengerDetailsForm.css';
 import FlightSummary from '../FlightSummary/FlightSummary';
 import { ChevronRight, Plus } from 'lucide-react';
 import PassengerDetails from '../PassengerDetails/PassengerDetails';
+import { getNames } from 'country-list';
 
 const PassengerDetailsForm = ({ 
   passengers, 
@@ -61,6 +62,8 @@ const PassengerDetailsForm = ({
       }
     }
   });
+
+  const countryOptions = getNames().map(name => ({ value: name, label: name }));
 
   return (
     <div className="passenger-details-container">

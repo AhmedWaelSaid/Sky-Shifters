@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from './PassengerDetails.module.css';
 import { X, User, Baby, ChevronDown, ChevronUp } from 'lucide-react';
+import { getNames } from 'country-list';
 
 const PassengerDetails = ({ 
   passengerId, 
@@ -80,10 +81,7 @@ const PassengerDetails = ({
   const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
 
   // Nationality options
-  const nationalities = [
-    'Saudi Arabia', 'United Arab Emirates', 'United States', 'United Kingdom', 
-    'Egypt', 'India', 'Pakistan'
-  ];
+  const nationalities = getNames();
 
   // Date fields for passport expiry
   const [expiryFields, setExpiryFields] = useState({
