@@ -373,7 +373,7 @@
   width: 70rem;
   height: auto;
   border-radius: 0.8rem;
-  background: #ffffff;
+  background: var(--bg-color) !important;
   display: grid;
   grid-template-columns: 24rem 1fr;
   padding: 3rem 4rem;
