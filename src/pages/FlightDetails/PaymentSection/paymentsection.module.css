@@ -390,10 +390,9 @@
   grid-template-rows: repeat(3, 1fr);
   padding: 0 1.5rem;
   align-items: center;
-  color: #ffffff;
-  background: linear-gradient(to bottom, var(--secondary) 0%, var(--primary) 50%);
+  color: #fff !important;
+  background: linear-gradient(135deg, var(--Btnbg-color) 0%, var(--AuthBtn-color) 100%) !important;
   box-shadow: -0.4rem 0.4rem 1.5rem #4f46f83d;
-  border: 1px solid #ffffff;
   z-index: 2;
   position:absolute;
 }
@@ -712,5 +711,40 @@
   align-items: center;
   justify-content: center;
   padding: 3rem 2rem;
+}
+  
+.formGroup input,
+.stripeCardElement {
+  background: var(--profile-input-bg) !important;
+  border: 1px solid var(--profile-input-border) !important;
+  color: var(--profile-input-text) !important;
+}
+
+.formGroup input:focus,
+.stripeCardElement:focus-within {
+  border-color: var(--Btnbg-color) !important;
+  box-shadow: 0 0 0 2px var(--Btnbg-color)33 !important;
+}
+
+.payButton {
+  background-color: var(--Btnbg-color) !important;
+  color: var(--LightText-color) !important;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-align: center;
+}
+
+.payButton:hover:not(:disabled) {
+  background-color: var(--AuthBtn-color) !important;
+}
+
+.payButton:disabled {
+  background-color: var(--menuHover-color) !important;
+  color: var(--LightDarktext-color) !important;
+  cursor: not-allowed;
 }
   

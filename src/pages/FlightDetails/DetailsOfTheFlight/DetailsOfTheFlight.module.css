@@ -1,8 +1,15 @@
+:root {
+  --baggage-section-bg: #1A936F;
+}
+body.dark {
+  --baggage-section-bg: #17624a;
+}
+
 .flightDetailsContainer {
   max-width: 600px;
   margin: 0 auto;
   
-  background-color: white;
+  background-color: var(--bg-color);
   border-radius: 10px;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -14,7 +21,7 @@
   display: flex;
   align-items: center;
   padding: 15px 20px;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid var(--profile-input-border);
 }
 
 .closeButton {
@@ -26,7 +33,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #0ea8d8;
+  color: var(--Btnbg-color);
   transition: transform 0.2s ease;
 }
 
@@ -40,13 +47,13 @@
   font-size: 16px;
   font-weight: 600;
   margin: 0;
-  color: #000000e6;
+  color: var(--profile-title-color);
 }
 
 /* Flight Segment */
 .flightSegment {
   padding: 20px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--menuHover-color);
   animation: fadeIn 0.5s ease-out;
 }
 
@@ -77,25 +84,25 @@
   font-size: 16px;
   font-weight: 600;
   margin: 0 0 5px;
-  color: #000000e6;
+  color: var(--profile-title-color);
 }
 
 .duration {
   font-size: 14px;
-  color: #666;
+  color: var(--LightDarktext-color);
   margin: 0;
 }
 
 .date {
   font-size: 14px;
-  color: #666;
+  color: var(--LightDarktext-color);
   text-align: right;
 }
 
 /* Flight Card */
 .flightCard {
-  background-color: white;
-  border: 1px solid #ebebeb;
+  background-color: var(--profile-bg);
+  border: 1px solid var(--profile-input-border);
   border-radius: 8px;
   margin: 0 20px;
   overflow: hidden;
@@ -125,7 +132,7 @@
 .time {
   font-size: 16px;
   font-weight: 600;
-  color: #000000e6;
+  color: var(--profile-title-color);
 }
 
 .day {
@@ -141,7 +148,7 @@
 .airport {
   font-size: 14px;
   font-weight: 500;
-  color: #000000e6;
+  color: var(--profile-title-color);
   display: flex;
   align-items: center;
   margin-bottom: 5px;
@@ -151,7 +158,7 @@
   display: inline-block;
   width: 8px;
   height: 8px;
-  background-color: #1EAEDB;
+  background-color: var(--Btnbg-color);
   border-radius: 50%;
   margin-right: 10px;
 }
@@ -161,13 +168,13 @@
 }
 .terminal, .city {
   font-size: 14px;
-  color: #666;
+  color: var(--LightDarktext-color);
   margin-left: 18px;
   margin-bottom: 2px;
 }
 .terminal2{
   font-size: 14px;
-  color: #666;
+  color: var(--LightDarktext-color);
 }
 /* Flight Info */
 .flightInfo {
@@ -279,31 +286,25 @@ margin-top: 8px;
 .stopAirport,.stopIATA {
   font-size: 14px;
   font-weight: 500;
-  color: #000000e6;
+  color: var(--profile-title-color);
 }
 
  .stopCity {
   font-size: 13px;
-  color: #666;
+  color: var(--LightDarktext-color);
 }
 
 .stopDuration {
   padding: 8px;
-  background-color: #e8f7f9;
+  background-color: var(--menuHover-color);
   border-radius: 4px;
   font-size: 10px;
   opacity: 0.8;
 }
 
-.waitingLabel {
+.waitingLabel, .waitingTime {
   font-size: 14px;
-  color: #333;
-}
-
-.waitingTime {
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
+  color: var(--profile-title-color);
 }
 
 .airlineDetails {
@@ -343,7 +344,7 @@ margin-top: 8px;
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: white;
+  background: var(--profile-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -369,13 +370,13 @@ margin-top: 8px;
 .airlineName {
   font-size: 14px;
   font-weight: 500;
-  color: #000000e6;
+  color: var(--profile-title-color);
   margin-bottom: 3px;
 }
 
 .aircraftType, .cabinClass {
   font-size: 14px;
-  color: #666;
+  color: var(--LightDarktext-color);
 }
 
 .amenities {
@@ -500,8 +501,9 @@ margin-top: 8px;
 
 .infoCard {
   flex: 1;
-  background: white;
-  border: 1px solid #ebebeb;
+  background: var(--profile-bg);
+  color: var(--profile-text);
+  border: 1px solid var(--profile-input-border);
   border-radius: 8px;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -524,7 +526,7 @@ margin-top: 8px;
   font-size: 14px;
   font-weight: 600;
   margin: 0 0 5px;
-  color: #000000e6;
+  color: var(--profile-title-color);
 }
 
 .route {
@@ -620,7 +622,8 @@ margin-top: 8px;
 .detailsDialog {
   max-width: 550px;
   width: 90%;
-  background-color: white;
+  background-color: var(--profile-bg);
+  color: var(--profile-text);
   border-radius: 12px;
   overflow: hidden;
   max-height: 90vh;
@@ -642,13 +645,13 @@ margin-top: 8px;
 
 .dialogHeader {
   padding: 15px 20px;
-  border-bottom: 1px solid #ebebeb;
+  border-bottom: 1px solid var(--profile-input-border);
 }
 
 .dialogTitle {
   font-size: 18px;
   font-weight: 600;
-  color: #000;
+  color: var(--profile-title-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -679,23 +682,24 @@ margin-top: 8px;
   flex: 1;
   padding: 10px;
   border-radius: 100px;
-  border: 1px solid #e0e0e0;
-  background: white;
+  border: 1px solid var(--profile-input-border);
+  background: var(--profile-bg);
   font-size: 14px;
   cursor: pointer;
   text-align: center;
   transition: all 0.3s;
+  color: var(--profile-title-color);
 }
 
 .tabButton:hover:not(.activeTab) {
-  background-color: #f5f5f5;
+  background-color: var(--menuHover-color);
   transform: translateY(-2px);
 }
 
 .activeTab {
-  background-color: #e8f7f9;
-  border-color: #1EAEDB;
-  color: #1EAEDB;
+  background-color: var(--Btnbg-color);
+  border-color: var(--Btnbg-color);
+  color: var(--LightText-color);
 }
 
 .dialogContent {
@@ -706,8 +710,8 @@ margin-top: 8px;
 /* Baggage Dialog Specific Styles */
 .baggageSection {
   margin-bottom: 20px;
-  background: white;
-  border: 1px solid #ebebeb;
+  background: var(--profile-bg);
+  border: 1px solid var(--profile-input-border);
   border-radius: 8px;
   padding: 15px;
   animation: fadeIn 0.5s ease-out;
@@ -750,13 +754,13 @@ margin-top: 8px;
 .baggageTitle {
   font-size: 15px;
   font-weight: 500;
-  color: #000;
+  color: var(--profile-title-color);
   margin-bottom: 3px;
 }
 
 .baggageDetail {
   font-size: 13px;
-  color: #666;
+  color: var(--LightDarktext-color);
 }
 
 .baggageNote {
@@ -795,7 +799,7 @@ margin-top: 8px;
 .dimensionsSection h4 {
   font-size: 16px;
   font-weight: 600;
-  color: #000;
+  color: var(--profile-title-color);
   margin: 0 0 15px;
 }
 
@@ -806,8 +810,8 @@ margin-top: 8px;
 
 .dimensionItem {
   flex: 1;
-  background: white;
-  border: 1px solid #ebebeb;
+  background: var(--profile-bg);
+  border: 1px solid var(--profile-input-border);
   border-radius: 8px;
   padding: 15px;
   transition: transform 0.3s ease;
@@ -820,7 +824,7 @@ margin-top: 8px;
 .dimensionItem h5 {
   font-size: 14px;
   font-weight: 500;
-  color: #000;
+  color: var(--profile-title-color);
   margin: 0 0 15px;
 }
 
@@ -854,12 +858,12 @@ margin-top: 8px;
 
 .dimensionMeasurements span {
   font-size: 12px;
-  color: #666;
+  color: var(--LightDarktext-color);
 }
 
 .dimensionNote {
   font-size: 13px;
-  color: #666;
+  color: var(--LightDarktext-color);
   margin: 0;
   text-align: center;
 }
@@ -883,7 +887,7 @@ margin-top: 8px;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background-color: #f0f0f0;
+  background-color: var(--menuHover-color);
   margin-right: 10px;
   flex-shrink: 0;
 }
@@ -891,12 +895,12 @@ margin-top: 8px;
 .policySection h4 {
   font-size: 16px;
   font-weight: 500;
-  color: #000;
+  color: var(--profile-title-color);
   margin: 0;
 }
 
 .policyTable {
-  border: 1px solid #ebebeb;
+  border: 1px solid var(--profile-input-border);
   border-radius: 8px;
   overflow: hidden;
   animation: slideInRight 0.5s ease-out;
@@ -904,7 +908,7 @@ margin-top: 8px;
 
 .policyRow {
   display: flex;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--menuHover-color);
 }
 
 .policyRow:last-child {
@@ -919,12 +923,12 @@ margin-top: 8px;
 .policyCellHeader {
   font-weight: 500;
   text-align: center;
-  background-color: #f9f9f9;
-  color: #333;
+  background-color: var(--menuHover-color);
+  color: var(--profile-title-color);
 }
 
 .policyCell {
-  border-right: 1px solid #f0f0f0;
+  border-right: 1px solid var(--menuHover-color);
 }
 
 .policyCellAmount {
@@ -934,7 +938,7 @@ margin-top: 8px;
   flex-wrap: wrap;
 }
 .policyCellAmount + .policyCellAmount{
-  border-left: 1px solid #f0f0f0;
+  border-left: 1px solid var(--menuHover-color);
 }
 
 .checkIconSmall {
@@ -1016,8 +1020,8 @@ margin-top: 8px;
 }
 
 .fareCard {
-  background: #fff;
-  color: #222;
+  background: var(--profile-bg);
+  color: var(--profile-text);
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.08);
   min-width: 260px;
@@ -1032,7 +1036,7 @@ margin-top: 8px;
 }
 
 .fareCard.selected, .fareCard:hover {
-  border: 2px solid #1a9ecb;
+  border: 2px solid var(--Btnbg-color);
 }
 
 .fareCardHeader {
@@ -1045,13 +1049,13 @@ margin-top: 8px;
 .fareType {
   font-weight: bold;
   font-size: 14px;
-  color: #1a9ecb;
+  color: var(--Btnbg-color);
 }
 
 .farePrice {
   font-weight: bold;
   font-size: 16px;
-  color: #222;
+  color: var(--profile-title-color);
 }
 
 .fareCardBody {
@@ -1065,7 +1069,7 @@ margin-top: 8px;
 .sectionTitle {
   font-size: 13px;
   font-weight: bold;
-  color: #1a9ecb;
+  color: var(--Btnbg-color);
   margin-bottom: 4px;
 }
 
@@ -1074,7 +1078,7 @@ margin-top: 8px;
   margin-bottom: 2px;
   display: flex;
   align-items: center;
-  color: #222;
+  color: var(--profile-text);
 }
 
 .checkIcon {
@@ -1096,20 +1100,20 @@ margin-top: 8px;
 }
 
 .selectedButton {
-  background: #fff;
-  color: #1a9ecb;
-  border: 2px solid #1a9ecb;
+  background: var(--profile-bg);
+  color: var(--Btnbg-color);
+  border: 2px solid var(--Btnbg-color);
 }
 
 .selectButton {
-  background: #1a9ecb;
-  color: #fff;
-  border: 2px solid #1a9ecb;
+  background: var(--Btnbg-color);
+  color: var(--LightText-color);
+  border: 2px solid var(--Btnbg-color);
 }
 
 .selectButton:hover {
-  background: #fff;
-  color: #1a9ecb;
+  background: var(--profile-bg);
+  color: var(--Btnbg-color);
 }
 
 /* Responsive design */
@@ -1193,7 +1197,7 @@ margin-top: 8px;
 .baggageSelectorContainer {
   margin: 24px 0;
   padding: 24px;
-  background: #fff;
+  background: var(--profile-bg);
   border-radius: 16px;
   box-shadow: 0 2px 16px rgba(0,0,0,0.07);
 }
@@ -1380,8 +1384,8 @@ margin-top: 8px;
 
 /* Fare Selection Styles */
 .fareSelectionWrapper {
-  background-color: #1A936F;
-  color: white;
+  background-color: var(--Btnbg-color) !important;
+  color: var(--LightText-color) !important;
   margin: 20px 20px;
   border-radius: 10px;
   overflow: hidden;
@@ -1395,12 +1399,14 @@ margin-top: 8px;
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 5px;
+  color: var(--LightText-color) !important;
 }
 
 .fareSelectionHeader p {
   font-size: 14px;
   margin: 0;
   opacity: 0.9;
+  color: var(--LightText-color) !important;
 }
 
 .fareNavigation {
@@ -1459,9 +1465,9 @@ margin-top: 8px;
   top: 0;
   left: 0;
   right: 0;
-  background-color: white;
+  background-color: var(--profile-bg);
   padding: 20px;
-  color: #333;
+  color: var(--profile-text);
   transition: transform 0.3s ease, opacity 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -1504,7 +1510,7 @@ margin-top: 8px;
 .totalLabel {
   display: block;
   font-size: 12px;
-  color: #666;
+  color: var(--LightDarktext-color);
 }
 
 .fareSection {
@@ -1593,4 +1599,34 @@ margin-top: 8px;
   box-shadow: none !important;
   padding: 0 !important;
   margin: 0 !important;
+}
+
+.airport, .stopAirport, .stopIATA, .aircraftType, .cabinClass, .terminal, .city, .terminal2, .baggageDetail, .dimensionNote, .dimensionMeasurements span {
+  color: var(--LightDarktext-color);
+}
+
+.badge, .stopsBadge, .waitingBadge, .waitingTimeBadge {
+  background: var(--menuHover-color) !important;
+  color: var(--profile-title-color) !important;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-weight: 500;
+  font-size: 13px;
+  display: inline-block;
+}
+
+.dot, .stopDot {
+  background-color: #fbd684; /* أصفر واضح في الوضع الداكن والفاتح */
+}
+
+/* إذا كان هناك نص داخل البادج بلون غامق، اجعله يستخدم var(--profile-title-color) */
+.badge span, .stopsBadge span, .waitingBadge span, .waitingTimeBadge span {
+  color: var(--profile-title-color) !important;
+}
+
+.fareSelectionHeader .detailsButton {
+  background: none;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
 }
