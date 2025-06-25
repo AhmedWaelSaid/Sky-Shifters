@@ -188,8 +188,11 @@ const ProfileSection = () => {
       try {
         setLoading(true);
         setError(null);
-        console.log('AuthContext user:', user);
-        const token = user?.token || user?.accessToken;
+        // جلب التوكن من localStorage مثل MyBookings
+        const userString = localStorage.getItem('user');
+        const userData = userString ? JSON.parse(userString) : null;
+        console.log('userData from localStorage:', userData);
+        const token = userData?.token;
         console.log('TOKEN USED:', token);
         const res = await getUserProfile(token);
         setProfile(res.data.user);
@@ -200,8 +203,8 @@ const ProfileSection = () => {
         setLoading(false);
       }
     }
-    if (user) fetchProfile();
-  }, [user]);
+    fetchProfile();
+  }, []);
 
   // دوال الحفظ
   const handleSave = async (field, value) => {
@@ -209,7 +212,10 @@ const ProfileSection = () => {
       setLoading(true);
       setError(null);
       setSuccess(null);
-      const token = user?.token || user?.accessToken;
+      // جلب التوكن من localStorage مثل MyBookings
+      const userString = localStorage.getItem('user');
+      const userData = userString ? JSON.parse(userString) : null;
+      const token = userData?.token;
       const updateData = { [field]: value };
       const res = await updateUserProfile(updateData, token);
       setProfile(prev => ({ ...prev, ...res.data.user }));

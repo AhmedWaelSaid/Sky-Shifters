@@ -1,16 +1,22 @@
+const BASE_URL = "http://localhost:5000"; // عدل هذا حسب سيرفرك
+
 export async function getUserProfile(token) {
-  const res = await fetch('/users/profile', {
+  const res = await fetch(`${BASE_URL}/users/profile`, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     }
   });
-  if (!res.ok) throw new Error('Failed to fetch profile');
+  if (!res.ok) {
+    const text = await res.text();
+    console.error('API response (getUserProfile):', text);
+    throw new Error('Failed to fetch profile');
+  }
   return res.json();
 }
 
 export async function updateUserProfile(data, token) {
-  const res = await fetch('/users/profile', {
+  const res = await fetch(`${BASE_URL}/users/profile`, {
     method: 'PATCH',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -18,6 +24,10 @@ export async function updateUserProfile(data, token) {
     },
     body: JSON.stringify(data)
   });
-  if (!res.ok) throw new Error('Failed to update profile');
+  if (!res.ok) {
+    const text = await res.text();
+    console.error('API response (updateUserProfile):', text);
+    throw new Error('Failed to update profile');
+  }
   return res.json();
 } 
