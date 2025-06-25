@@ -188,10 +188,13 @@ const ProfileSection = () => {
       try {
         setLoading(true);
         setError(null);
+        console.log('AuthContext user:', user);
         const token = user?.token || user?.accessToken;
+        console.log('TOKEN USED:', token);
         const res = await getUserProfile(token);
         setProfile(res.data.user);
       } catch (err) {
+        console.error('Error loading profile:', err);
         setError('Failed to load profile');
       } finally {
         setLoading(false);
