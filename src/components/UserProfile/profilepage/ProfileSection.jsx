@@ -73,8 +73,22 @@ function PasswordChangeForm({ onCancel }) {
 
   return (
     <div style={{maxWidth: 500}}>
-      {error && <div style={{color:'red',marginBottom:8}}>{error}</div>}
-      {success && <div style={{color:'green',marginBottom:8}}>{success}</div>}
+      {(error || success) && (
+        <div style={{
+          background: error ? '#ffeaea' : '#eaffea',
+          color: error ? '#d32f2f' : '#388e3c',
+          border: `1px solid ${error ? '#d32f2f' : '#388e3c'}`,
+          borderRadius: 6,
+          padding: '10px 14px',
+          marginBottom: 12,
+          display: 'flex',
+          alignItems: 'center',
+          fontWeight: 500
+        }}>
+          {error && <span style={{marginRight:8, fontSize:18}}>⚠️</span>}
+          {error || success}
+        </div>
+      )}
       <div style={{color:'#333',fontWeight:'bold',marginBottom:4}}>
         Password must contain at least: 1 uppercase letter, 1 lowercase letter, 1 number, and must be at least 10 characters long.
       </div>
