@@ -5,6 +5,7 @@ import {
   User 
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
+import avatarLogo from '../../../assets/Asset 18@2x.png';
 
 const Sidebar = ({ onSelectPage, currentPage }) => {
   const menuItems = [
@@ -19,7 +20,7 @@ const Sidebar = ({ onSelectPage, currentPage }) => {
       {/* User Profile Section */}
       <div className={styles.userProfile}>
         <div className={styles.avatar}>
-          <img src="/api/placeholder/40/40" alt="User Avatar" />
+          <img src={avatarLogo} alt="User Avatar" />
         </div>
         <div className={styles.userInfo}>
           <h3>GraceHermit15...</h3>

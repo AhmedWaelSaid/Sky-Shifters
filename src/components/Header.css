@@ -20,6 +20,13 @@
   margin-left: 60px;
 }
 
+.logo img {
+  width: 150px;
+  max-height: 70px;
+  object-fit: contain;
+  display: block;
+}
+
 .Finds, .signs {
   display: flex;
   gap: 20px; /* تباعد بين العناصر */

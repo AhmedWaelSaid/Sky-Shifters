@@ -1,8 +1,13 @@
 import styles from './Footer.module.css';
-import logo from '../assets/logo.png';
+import { useContext } from 'react';
+import { ThemeContext } from './context/ThemeContext';
+import logoLight from '../assets/Asset 22@2x.png';
+import logoDark from '../assets/Asset 24@2x.png';
 import { FaFacebookF, FaTwitter, FaInstagram } from 'react-icons/fa';
 
 export default function Footer() {
+  const { theme } = useContext(ThemeContext);
+  const logo = theme === 'dark' ? logoDark : logoLight;
   return (
     <footer className={styles.footer}>
       <div className={styles.footerTop}>
