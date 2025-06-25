@@ -48,7 +48,24 @@ function PasswordChangeForm({ onCancel }) {
       setNewPassword("");
       setRePassword("");
     } catch (err) {
-      setError('Failed to change password. Please check your old password and try again.');
+      // حاول استخراج رسالة الخطأ من الريسبونس
+      let msg = 'Failed to change password. Please check your old password and try again.';
+      if (err && err.message) {
+        try {
+          // إذا كانت الرسالة JSON من السيرفر
+          const parsed = JSON.parse(err.message);
+          if (parsed?.message) {
+            if (Array.isArray(parsed.message)) {
+              msg = parsed.message.join(' ');
+            } else {
+              msg = parsed.message;
+            }
+          }
+        } catch (e) {
+          // ليست JSON، تجاهل
+        }
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
