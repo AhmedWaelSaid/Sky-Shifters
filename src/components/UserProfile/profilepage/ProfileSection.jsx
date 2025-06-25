@@ -1,24 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "../../../pages/MyBookings/ui/button.jsx";
 import styles from './ProfileSection.module.css';
 import Select from 'react-select';
 import countries from 'i18n-iso-countries';
 import en from 'i18n-iso-countries/langs/en.json';
 import { Mail, Lock, User, Phone, Globe } from 'lucide-react';
+import { getUserProfile, updateUserProfile } from '../../../services/userProfileService';
+import { useAuth } from '../../context/AuthContext';
 
 countries.registerLocale(en);
 const countryOptions = Object.entries(countries.getNames('en', { select: 'official' })).map(([code, name]) => ({
   value: name,
   label: name,
 }));
-
-const user = {
-  email: "graceworld876@gmail.com",
-  firstName: "Ahmed",
-  lastName: "Mohamed",
-  phoneNumber: "+201234567890",
-  country: "Egypt"
-};
 
 function PasswordChangeForm({ onCancel }) {
   const [oldPassword, setOldPassword] = useState("");
@@ -176,15 +170,65 @@ function CountryChangeForm({ value, onCancel, onSave }) {
 }
 
 const ProfileSection = () => {
+  const { user } = useAuth();
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
+  // فورمات التعديل
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [showFirstNameForm, setShowFirstNameForm] = useState(false);
   const [showLastNameForm, setShowLastNameForm] = useState(false);
   const [showPhoneForm, setShowPhoneForm] = useState(false);
   const [showCountryForm, setShowCountryForm] = useState(false);
-  // يمكنك إضافة state لتخزين القيم الجديدة بعد الحفظ إذا أردت
+
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        setLoading(true);
+        setError(null);
+        const token = user?.token || user?.accessToken;
+        const res = await getUserProfile(token);
+        setProfile(res.data.user);
+      } catch (err) {
+        setError('Failed to load profile');
+      } finally {
+        setLoading(false);
+      }
+    }
+    if (user) fetchProfile();
+  }, [user]);
+
+  // دوال الحفظ
+  const handleSave = async (field, value) => {
+    try {
+      setLoading(true);
+      setError(null);
+      setSuccess(null);
+      const token = user?.token || user?.accessToken;
+      const updateData = { [field]: value };
+      const res = await updateUserProfile(updateData, token);
+      setProfile(prev => ({ ...prev, ...res.data.user }));
+      setSuccess('Profile updated successfully');
+    } catch (err) {
+      setError('Failed to update profile');
+    } finally {
+      setLoading(false);
+      setShowFirstNameForm(false);
+      setShowLastNameForm(false);
+      setShowPhoneForm(false);
+      setShowCountryForm(false);
+    }
+  };
+
+  if (loading) return <div className={styles.profileSection}>Loading...</div>;
+  if (error) return <div className={styles.profileSection} style={{color:'red'}}>{error}</div>;
+  if (!profile) return null;
 
   return (
     <div className={styles.profileSection}>
+      {success && <div style={{color:'green',marginBottom:8}}>{success}</div>}
       {/* Profile Information */}
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Profile</h2>
@@ -195,7 +239,7 @@ const ProfileSection = () => {
             <div className={styles.inputContainer}>
               <input 
                 type="email" 
-                value={user.email} 
+                value={profile.email || ''} 
                 className={styles.input}
                 readOnly
               />
@@ -225,12 +269,12 @@ const ProfileSection = () => {
             <label className={styles.label}><User size={16} style={{marginRight:8,verticalAlign:'middle'}} />First Name:</label>
             <div className={styles.inputContainer}>
               {showFirstNameForm ? (
-                <NameChangeForm label="First Name" value={user.firstName} onCancel={()=>setShowFirstNameForm(false)} onSave={()=>setShowFirstNameForm(false)} />
+                <NameChangeForm label="First Name" value={profile.firstName} onCancel={()=>setShowFirstNameForm(false)} onSave={val=>handleSave('firstName', val)} />
               ) : (
                 <>
                   <input 
                     type="text" 
-                    value={user.firstName} 
+                    value={profile.firstName || ''} 
                     className={styles.input}
                     readOnly
                   />
@@ -249,12 +293,12 @@ const ProfileSection = () => {
             <label className={styles.label}><User size={16} style={{marginRight:8,verticalAlign:'middle'}} />Last Name:</label>
             <div className={styles.inputContainer}>
               {showLastNameForm ? (
-                <NameChangeForm label="Last Name" value={user.lastName} onCancel={()=>setShowLastNameForm(false)} onSave={()=>setShowLastNameForm(false)} />
+                <NameChangeForm label="Last Name" value={profile.lastName} onCancel={()=>setShowLastNameForm(false)} onSave={val=>handleSave('lastName', val)} />
               ) : (
                 <>
                   <input 
                     type="text" 
-                    value={user.lastName} 
+                    value={profile.lastName || ''} 
                     className={styles.input}
                     readOnly
                   />
@@ -273,12 +317,12 @@ const ProfileSection = () => {
             <label className={styles.label}><Phone size={16} style={{marginRight:8,verticalAlign:'middle'}} />Phone Number:</label>
             <div className={styles.inputContainer}>
               {showPhoneForm ? (
-                <PhoneChangeForm value={user.phoneNumber} onCancel={()=>setShowPhoneForm(false)} onSave={()=>setShowPhoneForm(false)} />
+                <PhoneChangeForm value={profile.phoneNumber} onCancel={()=>setShowPhoneForm(false)} onSave={val=>handleSave('phoneNumber', val)} />
               ) : (
                 <>
                   <input 
                     type="text" 
-                    value={user.phoneNumber} 
+                    value={profile.phoneNumber || ''} 
                     className={styles.input}
                     readOnly
                   />
@@ -297,12 +341,12 @@ const ProfileSection = () => {
             <label className={styles.label}><Globe size={16} style={{marginRight:8,verticalAlign:'middle'}} />Country:</label>
             <div className={styles.inputContainer}>
               {showCountryForm ? (
-                <CountryChangeForm value={user.country} onCancel={()=>setShowCountryForm(false)} onSave={()=>setShowCountryForm(false)} />
+                <CountryChangeForm value={profile.country} onCancel={()=>setShowCountryForm(false)} onSave={val=>handleSave('country', val)} />
               ) : (
                 <>
                   <input 
                     type="text" 
-                    value={user.country} 
+                    value={profile.country || ''} 
                     className={styles.input}
                     readOnly
                   />
