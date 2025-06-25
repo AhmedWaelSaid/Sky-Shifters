@@ -13,9 +13,9 @@
     padding: 0px 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    background: white;
+    background: var(--bg-color);
     cursor: pointer;
-    height: 100%;
+    box-sizing: border-box;
   }
   
   .dateDisplay {
@@ -23,23 +23,26 @@
     padding: 8px 12px;
     border-radius: 6px;
     transition: all 0.2s;
+    background: none;
+    border: none;
+    min-width: 0;
   }
   
   .dateDisplay.active {
     background-color: #f0f7ff;
-    border: 1px solid #007bff;
+    border: 1px solid var(--Btnbg-color);
   }
   
   .dateLabel {
     font-size: 12px;
-    color: #666;
+    color: var(--LightDarktext-color);
     margin-bottom: 4px;
   }
   
   .dateValue {
     font-size: 14px;
     font-weight: 500;
-    color: #333;
+    color: var(--Darktext-color);
   }
   
   .dateSeparator {
@@ -52,16 +55,16 @@
     border: 1px dashed #ccc;
     padding: 8px 12px;
     border-radius: 6px;
-    color: #007bff;
+    color: var(--Btnbg-color);
     cursor: pointer;
     font-size: 14px;
     transition: all 0.2s;
     height: 60px;
-    width: 180px;
+    
   }
   
   .addReturnButton:hover {
-    border-color: #007bff;
+    border-color: var(--Btnbg-color);
   }
   
   .removeReturnButton {
@@ -78,8 +81,8 @@
     top: 100%;
     left: 0;
     width: 300px;
-    background: white;
-    border: 1px solid #ddd;
+    background: var(--profile-bg);
+    border: 1px solid var(--profile-header-border);
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     z-index: 1000;

@@ -16,7 +16,9 @@ export default function HamburgerMenu({ onToggle }) {
 
   return (
     <div className={styles.userTrigger} onClick={handleToggle}>
-      <img src={avatarLogo} alt="User Avatar" className={styles.avatar} />
+      <div className={styles.avatar}>
+        <img src={avatarLogo} alt="User Avatar" />
+      </div>
     </div>
   );
 }

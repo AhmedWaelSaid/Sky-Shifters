@@ -70,7 +70,7 @@
 
   .notifications-dropdown {
   position: absolute;
-  top: 94px;
+  top: 82px;
   right: 20px;
   width: 300px;
   background-color: var( --bg-color);

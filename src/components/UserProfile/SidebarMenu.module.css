@@ -39,12 +39,16 @@
     height: 60px;
     border-radius: 50%;
     overflow: hidden;
-    background-color: #fff;
+    background-color: var(--profile-avatar-bg, #fff);
     display: flex;
     align-items: center;
     justify-content: center;
     border: 2.5px solid var(--profile-button-bg, #0085FF);
     aspect-ratio: 1 / 1;
+  }
+  
+  body.dark .avatar {
+    background-color: #18181b;
   }
   
   .avatar img {

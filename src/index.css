@@ -66,6 +66,7 @@ html {
   --profile-input-text: #222;
   --profile-label-color: #222;
   --profile-title-color: #222;
+  --profile-avatar-bg: #fff;
 
     font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -105,6 +106,7 @@ body.dark {
   --profile-input-text: #fff;
   --profile-label-color: #fff;
   --profile-title-color: #fff;
+  --profile-avatar-bg: #18181b;
 }
 
 .react-select__menu {
