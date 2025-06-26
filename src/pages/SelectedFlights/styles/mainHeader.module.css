@@ -93,9 +93,12 @@
   top: 32px;
 }
 .calender {
-  max-width: 400px;
+  width: 260px;
   height: 75px;
   margin-bottom: 5px;
+}
+.calender > div>div {
+  height: 75px;
 }
 .flightText{
   margin: 0 auto;

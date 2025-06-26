@@ -3,7 +3,6 @@
 }
 
 
-
 .side-bar {
   width: 328px;
   min-width: 214px;
@@ -41,16 +40,21 @@ hr {
 .side-bar input[type="checkbox"],.side-bar input[type="radio"]{
   margin-right: 5px;
 }
-.side-bar .price::after, .side-bar .filter > div::after { /*up icon*/
+.side-bar .collapsingElement { /*up icon*/
   content: "";
-  background-image: url(../../../assets/up.png);
   display: inline-block;
-  width: 20px;
-  height: 20px;
+  width: 25px;
+  height: 25px;
+  font-size: 1.5rem;
+  color: #2196f3;
   position: absolute;
-  top: 2px;
+  top: -5px;
   right: 0;
-  
+  border: none;
+  background-color: inherit;
+}
+.side-bar .collapsingElement:hover {
+  cursor: pointer;
 }
 /*---------Sort--------*/
 .side-bar .sort {
@@ -86,10 +90,9 @@ hr {
   margin-bottom: 10px;
   color: var(--DarkyellowText-color);
 }
-.price-range-indicator-high {
-  position: absolute;
-  bottom: 0;
-  right: 0;
+.indicatorContainer{
+  display: flex;
+  justify-content: space-between;
 }
 
 .priceValue {
@@ -143,12 +146,6 @@ hr {
   right: 0;
   
 }
-.flight-range-indicator-high {
-  position: absolute;
-  right: 0;
-  bottom: 10px;
-  
-}
 .flightRangeValue {
   position: absolute;
   right: 110px;
@@ -191,4 +188,9 @@ hr {
   width: 25px; 
   height: 25px;
   border-radius: 50%;
+}
+/*applicable for all */
+.priceContainer,.stopsContainer,.airlinesContainer,.flightDurationContainer {
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
 }

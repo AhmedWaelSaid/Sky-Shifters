@@ -1,5 +1,6 @@
 import styles from "./styles/sidebar.module.css";
 import PropTypes from "prop-types";
+import { useEffect, useRef, useState } from "react";
 
 function InputCheckBox({ value, name, airLinesChecked, airLinesHandler }) {
   return (
@@ -21,7 +22,7 @@ InputCheckBox.propTypes = {
   name: PropTypes.string,
   airLinesChecked: PropTypes.object,
   airLinesHandler: PropTypes.func,
-}
+};
 export default function SideBar({
   stop,
   setStop,
@@ -36,6 +37,19 @@ export default function SideBar({
   flightsData,
   getStops,
 }) {
+  const [isExpandable, setIsExpandable] = useState({
+    price: true,
+    stops: true,
+    airlines: true,
+    flightDuration: true,
+  });
+  const [airlinesHeight, setAirlinesHeight] = useState(0);
+  const airlinesRef = useRef(null);
+  useEffect(() => {
+    if (airlinesRef.current) {
+      setAirlinesHeight(airlinesRef.current.scrollHeight);
+    }
+  }, [airLinesChecked]);
   if (!flightsData) return null;
   let airLinesArr = [];
   for (const key in airLines) {
@@ -81,26 +95,40 @@ export default function SideBar({
         </button>
         <hr />
         <div className={styles.price}>
-          <h3>Price</h3>
-          <input
-            type="range"
-            min={priceAndDuration.lowestPrice}
-            max={priceAndDuration.highestPrice}
-            step={0.01}
-            value={price}
-            onChange={(e) => priceHandler(e)}
-            style={{
-              "--fill-percent": `${((price - priceAndDuration.lowestPrice) / (priceAndDuration.highestPrice - priceAndDuration.lowestPrice)) * 100}%`,
+          <button
+            className={styles.collapsingElement}
+            onClick={() => {
+              setIsExpandable({ ...isExpandable, price: !isExpandable.price });
             }}
-            className={styles["price-slider"]}
-          />
-          <div className={styles["price-range-indicator-low"]}>
-            {priceAndDuration.lowestPrice} USD
+          >
+            {isExpandable.price ? "⯅" : "⯆"}
+          </button>
+          <h3>Price</h3>
+          <div
+            className={styles.priceContainer}
+            style={{ maxHeight: isExpandable.price ? "200px" : "0px" }}
+          >
+            <input
+              type="range"
+              min={priceAndDuration.lowestPrice}
+              max={priceAndDuration.highestPrice}
+              step={0.01}
+              value={price}
+              onChange={(e) => priceHandler(e)}
+              style={{
+                "--fill-percent": `${((price - priceAndDuration.lowestPrice) / (priceAndDuration.highestPrice - priceAndDuration.lowestPrice)) * 100}%`,
+              }}
+              className={styles["price-slider"]}
+            />
+            <div className={styles.indicatorContainer}>
+              <div className={styles["price-range-indicator-low"]}>
+                {priceAndDuration.lowestPrice} USD
+              </div>
+              <div className={styles["price-range-indicator-high"]}>
+                {price} USD
+              </div>
+            </div>
           </div>
-          <div className={styles["price-range-indicator-high"]}>
-            {priceAndDuration.highestPrice} USD
-          </div>
-          <div className={styles.priceValue}>{price} USD</div>
         </div>
       </div>
       <div className={styles.filter}>
@@ -111,84 +139,146 @@ export default function SideBar({
         <hr />
         <div className={styles.stops}>
           <h3>Stops</h3>
-          <form>
-            <div>
-              <input
-                type="radio"
-                id="direct"
-                name="stop"
-                value="Direct"
-                checked={stop == "Direct"}
-                disabled={!stops.direct}
-                onChange={(e) => stopHandler(e)}
-              />
-              <label htmlFor="direct" className={!stops.direct ? styles.disabled: ""}>Direct</label>
-            </div>
-            <div>
-              <input
-                type="radio"
-                id="1-stop"
-                name="stop"
-                value="1 Stop"
-                checked={stop == "1 Stop"}
-                disabled= {!stops.stop1}
-                onChange={(e) => stopHandler(e)}
-              />
-              <label htmlFor="1-stop" className={!stops.stop1 ? styles.disabled: ""}>1 Stop</label>
-            </div>
-            <div>
-              <input
-                type="radio"
-                id="2-stop"
-                name="stop"
-                value="2 Stop"
-                checked={stop == "2 Stop"}
-                disabled= {!stops.stop2}
-                onChange={(e) => stopHandler(e)}
-              />
-              <label htmlFor="2-stop" className={!stops.stop2 ? styles.disabled: ""}>2 Stop</label>
-            </div>
-          </form>
+          <button
+            className={styles.collapsingElement}
+            onClick={() => {
+              setIsExpandable({ ...isExpandable, stops: !isExpandable.stops });
+            }}
+          >
+            {isExpandable.stops ? "⯅" : "⯆"}
+          </button>
+          <div
+            className={styles.stopsContainer}
+            style={{ maxHeight: isExpandable.stops ? "200px" : "0px" }}
+          >
+            <form>
+              <div>
+                <input
+                  type="radio"
+                  id="direct"
+                  name="stop"
+                  value="Direct"
+                  checked={stop == "Direct"}
+                  disabled={!stops.direct}
+                  onChange={(e) => stopHandler(e)}
+                />
+                <label
+                  htmlFor="direct"
+                  className={!stops.direct ? styles.disabled : ""}
+                >
+                  Direct
+                </label>
+              </div>
+              <div>
+                <input
+                  type="radio"
+                  id="1-stop"
+                  name="stop"
+                  value="1 Stop"
+                  checked={stop == "1 Stop"}
+                  disabled={!stops.stop1}
+                  onChange={(e) => stopHandler(e)}
+                />
+                <label
+                  htmlFor="1-stop"
+                  className={!stops.stop1 ? styles.disabled : ""}
+                >
+                  1 Stop
+                </label>
+              </div>
+              <div>
+                <input
+                  type="radio"
+                  id="2-stop"
+                  name="stop"
+                  value="2 Stop"
+                  checked={stop == "2 Stop"}
+                  disabled={!stops.stop2}
+                  onChange={(e) => stopHandler(e)}
+                />
+                <label
+                  htmlFor="2-stop"
+                  className={!stops.stop2 ? styles.disabled : ""}
+                >
+                  2 Stop
+                </label>
+              </div>
+            </form>
+          </div>
         </div>
         <hr />
         <div className={styles["air-lines"]}>
           <h3>Air Lines</h3>
-          <form>
-            {airLinesArr.length > 0 &&
-              airLinesArr.map((airline) => (
-                <InputCheckBox
-                  key={airline.code}
-                  value={airline.code}
-                  name={airline.name}
-                  airLinesChecked={airLinesChecked}
-                  airLinesHandler={airLinesHandler}
-                />
-              ))}
-          </form>
+          <button
+            className={styles.collapsingElement}
+            onClick={() => {
+              setIsExpandable({
+                ...isExpandable,
+                airlines: !isExpandable.airlines,
+              });
+            }}
+          >
+            {isExpandable.airlines ? "⯅" : "⯆"}
+          </button>
+          <div
+            className={styles.airlinesContainer}
+            ref={airlinesRef}
+            style={{
+              maxHeight: isExpandable.airlines ? airlinesHeight : "0px",
+            }}
+          >
+            <form>
+              {airLinesArr.length > 0 &&
+                airLinesArr.map((airline) => (
+                  <InputCheckBox
+                    key={airline.code}
+                    value={airline.code}
+                    name={airline.name}
+                    airLinesChecked={airLinesChecked}
+                    airLinesHandler={airLinesHandler}
+                  />
+                ))}
+            </form>
+          </div>
         </div>
         <hr />
         <div className={styles["flight-duration"]}>
           <h3>Flight duration</h3>
-          <input
-            type="range"
-            min={priceAndDuration.lowestFlightDuration}
-            step={5}
-            max={priceAndDuration.highestFlightDuration}
-            value={flightDuration}
-            onChange={(e) => flightHandler(e)}
-            style={{
-              "--fill-percent": `${((flightDuration - priceAndDuration.lowestFlightDuration) / (priceAndDuration.highestFlightDuration - priceAndDuration.lowestFlightDuration)) * 100}%`,
+          <button
+            className={styles.collapsingElement}
+            onClick={() => {
+              setIsExpandable({
+                ...isExpandable,
+                flightDuration: !isExpandable.flightDuration,
+              });
             }}
-            className={styles["flight-slider"]}
-          />
-          <div className={styles["flight-range-indicator-low"]}>
-            {readableNum(priceAndDuration.lowestFlightDuration / 60)}
-          </div>
-          <div className={styles["flight-range-indicator-high"]}>
-            {readableNum(priceAndDuration.highestFlightDuration / 60)}
-          </div>
-          <div className={styles.flightRangeValue}>
-            {readableNum(flightDuration / 60)}
+          >
+            {isExpandable.flightDuration ? "⯅" : "⯆"}
+          </button>
+          <div
+            className={styles.flightDurationContainer}
+            style={{ maxHeight: isExpandable.flightDuration ? "100px" : "0px" }}
+          >
+            <input
+              type="range"
+              min={priceAndDuration.lowestFlightDuration}
+              step={5}
+              max={priceAndDuration.highestFlightDuration}
+              value={flightDuration}
+              onChange={(e) => flightHandler(e)}
+              style={{
+                "--fill-percent": `${((flightDuration - priceAndDuration.lowestFlightDuration) / (priceAndDuration.highestFlightDuration - priceAndDuration.lowestFlightDuration)) * 100}%`,
+              }}
+              className={styles["flight-slider"]}
+            />
+            <div className={styles.indicatorContainer}>
+              <div className={styles["flight-range-indicator-low"]}>
+                {readableNum(priceAndDuration.lowestFlightDuration / 60)}
+              </div>
+              <div className={styles["flight-range-indicator-high"]}>
+                {readableNum(flightDuration / 60)}
+              </div>
+            </div>
           </div>
         </div>
       </div>
