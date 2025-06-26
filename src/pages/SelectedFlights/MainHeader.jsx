@@ -22,13 +22,19 @@ export function AirportInput({
       type="text"
       name={name}
       id={name}
-      className={styles[className]}
+      className={`${styles[className]} ${value.isTextCorrect ? "" : styles.invalid}`}
       onFocus={() => setFocus(true)}
       onBlur={() => {
         setFocus(false);
       }}
       value={value.text}
-      onChange={(e) => setValue((prev) => ({ ...prev, text: e.target.value }))}
+      onChange={(e) => setValue((prev) => ({
+        ...prev,
+        text: e.target.value,
+        isTextCorrect: false,
+        error:""
+      }))
+    }
       placeholder={placeholder}
     />
   );
@@ -56,8 +62,8 @@ export default function MainHeader({setAPISearch,setIsReturn}) {
   const { airports } = useAirports();
   const [originFocus, setOriginFocus] = useState(false);
   const [destFocus, setDestFocus] = useState(false);
-  const [origin, setOrigin] = useState({ text: "" });
-  const [dest, setDest] = useState({ text: "" });
+  const [origin, setOrigin] = useState({ text: "", isTextCorrect: false });
+  const [dest, setDest] = useState({ text: "", isTextCorrect: false });
   const [passengerClass, setPassengerClass] = useState(
     sharedData.passengerClass
       ? sharedData.passengerClass
@@ -97,10 +103,52 @@ export default function MainHeader({setAPISearch,setIsReturn}) {
       return `${totalNum} Passenger - ${passengerClass.class.text}`;
     else return `${totalNum} Passengers - ${passengerClass.class.text}`;
   }
+  function getValues(airport) {
+    return {
+      airport,
+      text:
+        (airport.city && airport.city + `, `) +
+        airport.country +
+        ` - ` +
+        airport.name,
+      error: "",
+      isTextCorrect: true,
+    };
+  }
 
   function handleSubmit(event) {
     event.preventDefault();
     if (event.nativeEvent.submitter?.name === "flightSubmit") {
+      if (
+        origin.text.trim() == "" ||
+        dest.text.trim() == "" ||
+        !origin.airport ||
+        !dest.airport || !origin.isTextCorrect ||!dest.isTextCorrect
+      ) {
+        if (origin.text.trim() == "")
+          {
+            setOrigin({
+            ...origin,
+            error: "Empty field! Please select an airport from the list.",
+          });}
+        if (dest.text.trim() == "")
+          setDest({
+            ...dest,
+            error: "Empty field! Please select an airport from the list.",
+          });
+        if ((!origin.airport || !origin.isTextCorrect) && origin.text.trim() != "")
+          setOrigin({
+            ...origin,
+            error: "Incorrect Airport! Please select a valid airport from the list.",
+          });
+        if ((!dest.airport|| !dest.isTextCorrect) && dest.text.trim() != "")
+        {
+          setDest({
+          ...dest,
+          error: "Incorrect Airport! Please select a valid airport from the list.",
+        });}
+        return;
+      }
       if (origin.airport && dest.airport && dates.departure && !dates.return) {
         setSharedData({
           departure: { date: dates.departure, dest, origin },
@@ -147,8 +195,10 @@ export default function MainHeader({setAPISearch,setIsReturn}) {
               set={setOrigin}
               keyWord={origin.text}
               airports={airports}
+              getValues={getValues}
             />
           )}
+          <span className={styles.error}>{origin.error}</span>
         </div>
         <div className={styles.to}>
           <FaPlaneArrival className={styles.iconForm} />
@@ -169,8 +219,10 @@ export default function MainHeader({setAPISearch,setIsReturn}) {
               set={setDest}
               keyWord={dest.text}
               airports={airports}
+              getValues={getValues}
             />
           )}
+          <span className={styles.error}>{dest.error}</span>
         </div>
         <div className={styles.calender}>
           <CustomDatePicker

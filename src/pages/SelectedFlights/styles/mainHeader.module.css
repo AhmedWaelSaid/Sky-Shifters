@@ -58,7 +58,13 @@
  {
   composes: baseInput;
 }
-
+.baseInput:focus:invalid{
+  border-color: red;
+}
+.invalid:focus{
+  border-color: red;
+  box-shadow: 0 0 5px rgb(255 87 34 / 38%)
+}
 .form-submit button {
   background-color: var(--Btnbg-color);
   width: 36px;
@@ -102,4 +108,11 @@
 }
 .flightText{
   margin: 0 auto;
+}
+.error {
+  color: red;
+  position: absolute;
+  width: 265px;
+  bottom: -35px;
+  font-size: 0.8rem;
 }
