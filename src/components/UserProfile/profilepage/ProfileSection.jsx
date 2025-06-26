@@ -277,8 +277,9 @@ const ProfileSection = () => {
       const userString = localStorage.getItem('user');
       const userData = userString ? JSON.parse(userString) : null;
       const token = userData?.token;
-      // أرسل كل البيانات الحالية مع التعديل الجديد
-      const updateData = { ...profile, [field]: value };
+      // انسخ بيانات البروفايل بدون الحقول الممنوعة
+      const { id, isVerified, createdAt, updatedAt, ...safeProfile } = profile || {};
+      const updateData = { ...safeProfile, [field]: value };
       console.log('PATCH updateData:', updateData);
       const res = await updateUserProfile(updateData, token);
       console.log('PATCH response:', res);
