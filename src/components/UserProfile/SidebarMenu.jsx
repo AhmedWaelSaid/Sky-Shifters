@@ -18,7 +18,7 @@ export default function SidebarMenu() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/auth');
   };
 
   return (
