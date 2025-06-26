@@ -66,4 +66,25 @@
 }
 .cancelBtn:hover {
   background: #ddd;
+}
+body.dark .modal {
+  background: var(--bg-color);
+  color: var(--profile-text);
+}
+body.dark .modalTitle {
+  color: var(--profile-title-color);
+}
+body.dark .confirmBtn {
+  background: #e53e3e;
+  color: #fff;
+}
+body.dark .confirmBtn:hover {
+  background: #c53030;
+}
+body.dark .cancelBtn {
+  background: #333;
+  color: #fff;
+}
+body.dark .cancelBtn:hover {
+  background: #444;
 } 
