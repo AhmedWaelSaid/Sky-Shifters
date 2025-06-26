@@ -92,3 +92,56 @@
   outline: none;
   border-color: #0c857b;
 }
+
+.react-select-container .react-select__control {
+  background-color: var(--profile-input-bg) !important;
+  border: 1px solid var(--profile-input-border) !important;
+  color: var(--profile-input-text) !important;
+  box-shadow: none !important;
+}
+body.dark .react-select-container .react-select__control {
+  background-color: var(--profile-input-bg) !important;
+  border: 1px solid var(--profile-input-border) !important;
+  color: var(--profile-input-text) !important;
+}
+
+.react-select-container .react-select__single-value,
+.react-select-container .react-select__input-container,
+.react-select-container .react-select__placeholder {
+  color: var(--profile-input-text) !important;
+}
+
+.react-select-container .react-select__menu {
+  background-color: var(--profile-bg) !important;
+  color: var(--profile-text) !important;
+}
+body.dark .react-select-container .react-select__menu {
+  background-color: var(--profile-bg) !important;
+  color: var(--profile-text) !important;
+}
+
+.react-select-container .react-select__option {
+  background-color: var(--profile-bg) !important;
+  color: var(--profile-text) !important;
+}
+body.dark .react-select-container .react-select__option {
+  background-color: var(--profile-bg) !important;
+  color: var(--profile-text) !important;
+}
+
+.react-select-container .react-select__option--is-focused {
+  background-color: var(--menuHover-color) !important;
+  color: var(--profile-text) !important;
+}
+
+.react-select-container .react-select__option--is-selected {
+  background-color: var(--profile-button-bg) !important;
+  color: var(--profile-button-text) !important;
+}
+
+.react-select-container .react-select__dropdown-indicator {
+  color: var(--profile-button-bg) !important;
+}
+body.dark .react-select-container .react-select__dropdown-indicator {
+  color: var(--profile-button-bg) !important;
+}

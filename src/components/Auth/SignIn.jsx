@@ -81,7 +81,7 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
       if (error.message.includes('verify your email')) {
         setResendMessage('Your email is not verified. Redirecting to verify...');
         setTimeout(() => {
-          navigate('/verify-email', { state: { email } });
+          navigate('/auth/verify-email', { state: { email } });
         }, 2000);
       }
     },
@@ -164,7 +164,7 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
           </p>
           <p className="auth-link">
             Haven't verified your email?{' '}
-            <a href="#" onClick={(e) => { e.preventDefault(); if(email) navigate('/verify-email', { state: { email } }); else alert('Please enter your email above first.'); }}>
+            <a href="#" onClick={(e) => { e.preventDefault(); if(email) navigate('/auth/verify-email', { state: { email } }); else alert('Please enter your email above first.'); }}>
               Verify Email
             </a>
           </p>
