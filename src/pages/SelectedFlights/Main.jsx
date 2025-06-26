@@ -19,7 +19,7 @@ function getAirlines(flight) {
   const uniqueAirlines = [...new Set(airlines)];
   return uniqueAirlines;
 }
-function Airline({ carrierCode, flight, carriers }) {
+function Airline({ flight, carriers }) {
   const [showPopup, setShowPopup] = useState(false);
   const uniqueAirlines = getAirlines(flight);
   const normalSize = 60;
@@ -49,7 +49,7 @@ function Airline({ carrierCode, flight, carriers }) {
               : styles.airLineIcon2
           }
           src={`https://pics.avs.io/${normalSize}/${normalSize}/${uniqueAirlines[0]}.png`}
-          alt={carrierCode}
+          alt={uniqueAirlines[0]}
           onError={(e) => {
             e.target.onerror = null;
             e.target.src = "src/assets/no-logo.jpg"; // fallback
@@ -60,7 +60,7 @@ function Airline({ carrierCode, flight, carriers }) {
           <img
             className={styles.airLineIcon3}
             src={`https://pics.avs.io/${normalSize}/${normalSize}/${uniqueAirlines[1]}.png`}
-            alt={carrierCode}
+            alt={uniqueAirlines[0]}
             onError={(e) => {
               e.target.onerror = null;
               e.target.src = "src/assets/no-logo.jpg"; // fallback
@@ -91,11 +91,9 @@ export function FlightsUI({
   button2 = { exist: false },
 }) {
   const [showPlusTime, setShowPlusTime] = useState(false);
-  const carrierCode = flight?.itineraries?.[0]?.segments?.[0]?.carrierCode;
-  console.log(carriers);
   return (
     <div className={styles.flight}>
-      <Airline carrierCode={carrierCode} flight={flight} carriers={carriers} />
+      <Airline  flight={flight} carriers={carriers} />
       <div className={styles.flightTime}>
         <div
           className={styles.plusDays}
@@ -377,3 +375,7 @@ FlightsUI.propTypes = {
   button: PropTypes.object,
   button2: PropTypes.object,
 };
+Airline.propTypes= {
+  carriers: PropTypes.object,
+  flight:PropTypes.object,
+}

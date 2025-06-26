@@ -130,15 +130,38 @@ export default function Container() {
   if (loading) return <Loading />;
   if (error && error.name !== "AbortError") return <Error />;
   if (!flightsData || flightsData.data.length === 0 || !flightsData.data)
-    return <EmptyData setIsReturn={setIsReturn} setAPISearch={setAPISearch}/>;
+    return <EmptyData setIsReturn={setIsReturn} setAPISearch={setAPISearch} />;
 
-  function getStops(){
-    const stops = {direct: false, stop1:false, stop2:false};
-    stops.direct = flightsData.data.some(flight=> flight.itineraries[0].segments.length ==1);
-    stops.stop1 = flightsData.data.some(flight=> flight.itineraries[0].segments.length ==2);
-    stops.stop2 = flightsData.data.some(flight=> flight.itineraries[0].segments.length ==3);
+  function getStops() {
+    const stops = { direct: false, stop1: false, stop2: false };
+    stops.direct = flightsData.data.some(
+      (flight) => flight.itineraries[0].segments.length == 1
+    );
+    stops.stop1 = flightsData.data.some(
+      (flight) => flight.itineraries[0].segments.length == 2
+    );
+    stops.stop2 = flightsData.data.some(
+      (flight) => flight.itineraries[0].segments.length == 3
+    );
     return stops;
   }
+  function getAirlines() {
+    const airlinesCode = [];
+    flightsData.data.map((flight) => {
+      flight.itineraries[0].segments.map((segment) => {
+        airlinesCode.push(segment.carrierCode);
+      });
+    });
+    const uniqueCodes = [...new Set(airlinesCode)];
+    const newCarriers = {};
+    const carriers = flightsData.dictionaries.carriers;
+    for (let code in carriers){
+      if (uniqueCodes.includes(code))
+        newCarriers[code]= carriers[code];
+    }
+    return newCarriers;
+  }
+  const airlines = getAirlines();
   function filteredData(flights) {
     if (!flights) return null;
     let filteredFlights = { ...flights };
@@ -146,7 +169,8 @@ export default function Container() {
       filteredFlights.data = flights.data.filter((flight) => {
         if (stop === "Direct")
           return flight.itineraries[0].segments.length === 1;
-        else if (stop === "1 Stop") return flight.itineraries[0].segments.length === 2;
+        else if (stop === "1 Stop")
+          return flight.itineraries[0].segments.length === 2;
         else return flight.itineraries[0].segments.length > 2;
       });
     }
@@ -154,9 +178,11 @@ export default function Container() {
       (code) => airLinesChecked[code]
     );
     if (activeAirlines.length > 0)
-      filteredFlights.data = filteredFlights.data.filter((flight) =>
-        activeAirlines.includes(flight.validatingAirlineCodes[0])
-      );
+      filteredFlights.data = filteredFlights.data.filter((flight) => {
+        return flight.itineraries[0].segments.some((seg) =>
+          activeAirlines.includes(seg.carrierCode)
+        );
+      });
     if (price != null) {
       filteredFlights.data = filteredFlights.data.filter(
         (flight) => price >= Number(flight.price.total)
@@ -216,7 +242,7 @@ export default function Container() {
         setFlightDuration={setFlightDuration}
         flightDuration={flightDuration}
         priceAndDuration={priceAndDuration}
-        airLines={flightsData.dictionaries.carriers}
+        airLines={airlines}
         getStops={getStops}
       />
       <Main
