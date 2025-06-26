@@ -24,6 +24,7 @@ function PasswordChangeForm({ onCancel }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [customError, setCustomError] = useState(null);
 
   // تحقق الشروط
   const hasLower = /[a-z]/.test(newPassword);
@@ -39,6 +40,13 @@ function PasswordChangeForm({ onCancel }) {
     setLoading(true);
     setError(null);
     setSuccess(null);
+    setCustomError(null);
+    // تحقق إذا كانت كلمة المرور الجديدة مطابقة للقديمة
+    if (oldPassword === newPassword) {
+      setLoading(false);
+      setCustomError('لا يمكن استخدام نفس كلمة المرور القديمة.');
+      return;
+    }
     try {
       const userString = localStorage.getItem('user');
       const userData = userString ? JSON.parse(userString) : null;
@@ -74,11 +82,11 @@ function PasswordChangeForm({ onCancel }) {
 
   return (
     <div style={{maxWidth: 500}}>
-      {(error || success) && (
+      {(customError || error || success) && (
         <div style={{
-          background: error ? '#ffeaea' : '#eaffea',
-          color: error ? '#d32f2f' : '#388e3c',
-          border: `1px solid ${error ? '#d32f2f' : '#388e3c'}`,
+          background: (customError || error) ? '#ffeaea' : '#eaffea',
+          color: (customError || error) ? '#d32f2f' : '#388e3c',
+          border: `1px solid ${(customError || error) ? '#d32f2f' : '#388e3c'}`,
           borderRadius: 6,
           padding: '10px 14px',
           marginBottom: 12,
@@ -86,8 +94,8 @@ function PasswordChangeForm({ onCancel }) {
           alignItems: 'center',
           fontWeight: 500
         }}>
-          {error && <span style={{marginRight:8, fontSize:18}}>⚠️</span>}
-          {error || success}
+          {(customError || error) && <span style={{marginRight:8, fontSize:18}}>⚠️</span>}
+          {customError || error || success}
         </div>
       )}
       <div className={styles.formGroup}>
