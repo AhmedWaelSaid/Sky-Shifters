@@ -44,7 +44,7 @@ function PasswordChangeForm({ onCancel }) {
     // تحقق إذا كانت كلمة المرور الجديدة مطابقة للقديمة
     if (oldPassword === newPassword) {
       setLoading(false);
-      setCustomError('لا يمكن استخدام نفس كلمة المرور القديمة.');
+      setCustomError('You cannot use the same password as your old password.');
       return;
     }
     try {
