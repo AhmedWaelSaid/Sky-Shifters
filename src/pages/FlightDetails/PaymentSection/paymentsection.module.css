@@ -72,7 +72,12 @@
     border-radius: 4px;
     font-size: 14px;
     background-color: var(--bg-color);
-    color: var(--Darktext-color);
+    color: var(--blackText-color);
+  }
+  
+  body.dark .formGroup input {
+    color: var(--profile-input-text);
+    background-color: var(--profile-input-bg);
   }
   
   .formRow {
@@ -550,6 +555,11 @@
   color: var(--greyDark-2);
   font-family: inherit;
   font-size: 1.2rem;
+}
+
+body.dark .stripeCardElement input {
+  color: var(--profile-input-text);
+  background-color: var(--profile-input-bg);
 }
 
 .icon {
