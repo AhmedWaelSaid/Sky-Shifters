@@ -7,7 +7,7 @@ import {
 import styles from './Sidebar.module.css';
 import avatarLogo from '../../../assets/Asset 18@2x.png';
 
-const Sidebar = ({ onSelectPage, currentPage }) => {
+const Sidebar = ({ onSelectPage, currentPage, firstName, lastName, birthdate }) => {
   const menuItems = [
     { icon: Settings, label: 'Account settings', page: 'account' },
     { icon: User, label: 'View Profile', page: 'profile' },
@@ -23,8 +23,8 @@ const Sidebar = ({ onSelectPage, currentPage }) => {
           <img src={avatarLogo} alt="User Avatar" />
         </div>
         <div className={styles.userInfo}>
-          <h3>GraceHermit15...</h3>
-          <p>Registered: 4/11/24</p>
+          <h3>{(firstName || lastName) ? `${firstName || ''} ${lastName || ''}`.trim() : 'User Name'}</h3>
+          <p>{birthdate ? `Birthdate: ${birthdate}` : 'Birthdate: --'}</p>
         </div>
       </div>
 
