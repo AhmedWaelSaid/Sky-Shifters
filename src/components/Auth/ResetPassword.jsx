@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 
-const resetPassword = async ({ token, newPassword }) => {
-  const response = await fetch('http://13.81.120.153/users/reset-password', {
+const resetPassword = async ({ code, newPassword }) => {
+  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/reset-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token, newPassword }),
+    body: JSON.stringify({ code, newPassword }),
   });
 
   if (!response.ok) {
@@ -20,17 +20,22 @@ const resetPassword = async ({ token, newPassword }) => {
 };
 
 const ResetPassword = () => {
+  const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [message, setMessage] = useState('');
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token'); // استخراج الـ Token من الرابط
+  const codeFromUrl = searchParams.get('code');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (codeFromUrl) setCode(codeFromUrl);
+  }, [codeFromUrl]);
 
   const { mutate, isPending, error } = useMutation({
     mutationFn: resetPassword,
     onSuccess: (data) => {
       setMessage('Password reset successfully! You can now sign in with your new password.');
-      setTimeout(() => navigate('/signin'), 3000); // إعادة توجيه بعد 3 ثواني
+      setTimeout(() => navigate('/auth'), 3000);
     },
     onError: (error) => {
       setMessage(`Error: ${error.message}`);
@@ -40,24 +45,27 @@ const ResetPassword = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setMessage('');
-    if (!token) {
-      setMessage('No reset token provided.');
+    if (!code) {
+      setMessage('No reset code provided.');
       return;
     }
-    mutate({ token, newPassword });
+    mutate({ code, newPassword });
   };
-
-  useEffect(() => {
-    if (!token) {
-      setMessage('No reset token provided.');
-    }
-  }, [token]);
 
   return (
     <div className="container__form container--reset-password">
       <form className="form" onSubmit={handleSubmit}>
         <h2 className="form__title">Reset Password</h2>
-        <p>Enter your new password below.</p>
+        <p>Enter the code sent to your email and your new password below.</p>
+        <input
+          type="text"
+          id="resetCode"
+          placeholder="Reset Code"
+          className="input"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          required
+        />
         <input
           type="password"
           id="resetPassword"
@@ -72,7 +80,7 @@ const ResetPassword = () => {
           {isPending ? 'Resetting...' : 'Reset Password'}
         </button>
         <p className="auth-link">
-          <a href="/signin">Back to Sign In</a>
+          <a href="/auth">Back to Sign In</a>
         </p>
       </form>
     </div>

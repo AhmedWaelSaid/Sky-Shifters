@@ -157,9 +157,15 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
             {isLoginPending ? 'Loading...' : 'Sign In'}
           </button>
           <p className="auth-link">
-            Don’t have an account?{' '}
+            Don't have an account?{' '}
             <a href="#" onClick={(e) => { e.preventDefault(); onToggle(); }}>
               Sign Up
+            </a>
+          </p>
+          <p className="auth-link">
+            Haven't verified your email?{' '}
+            <a href="#" onClick={(e) => { e.preventDefault(); if(email) navigate('/verify-email', { state: { email } }); else alert('Please enter your email above first.'); }}>
+              Verify Email
             </a>
           </p>
         </form>

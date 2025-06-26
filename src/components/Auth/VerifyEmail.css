@@ -199,3 +199,24 @@ body.dark .verify-input {
     color: #fff;
     border: none;
 }
+
+.verify-success {
+  color: #2ecc71;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+}
+body.dark .verify-success {
+  color: #55ff55;
+}
+
+.resend-btn {
+  margin-top: 10px;
+  background-color: var(--blue);
+  background-image: linear-gradient(90deg, var(--blue) 0%, var(--lightblue) 74%);
+  color: var(--white);
+}
+body.dark .resend-btn {
+  background-color: #fbd684;
+  background-image: linear-gradient(90deg, var(--AuthBtn-color) 0%, var(--AuthBtn-color) 74%);
+  color: #000000;
+}

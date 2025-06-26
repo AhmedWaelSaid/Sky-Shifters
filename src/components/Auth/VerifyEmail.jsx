@@ -25,9 +25,23 @@ const verifyEmail = async ({ email, code }) => {
   return data;
 };
 
+const resendVerification = async ({ email }) => {
+  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/resend-verification`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to resend verification email');
+  }
+  return await response.json();
+};
+
 const VerifyEmail = () => {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
+  const [resendMessage, setResendMessage] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email || '';
@@ -43,6 +57,16 @@ const VerifyEmail = () => {
       } else {
         setError(`Failed to verify email: ${error.message}`);
       }
+    },
+  });
+
+  const { mutate: resendMutate, isPending: isResendPending } = useMutation({
+    mutationFn: resendVerification,
+    onSuccess: (data) => {
+      setResendMessage(data.data?.message || 'Verification email sent successfully');
+    },
+    onError: (error) => {
+      setResendMessage(error.message || 'Failed to resend verification email');
     },
   });
 
@@ -82,8 +106,12 @@ const VerifyEmail = () => {
               required
             />
             {error && <p className="verify-error">{error}</p>}
+            {resendMessage && <p className={resendMessage.includes('success') ? 'verify-success' : 'verify-error'}>{resendMessage}</p>}
             <button type="submit" className="verify-btn" disabled={isPending}>
               {isPending ? 'Verifying...' : 'Verify Email'}
+            </button>
+            <button type="button" className="verify-btn resend-btn" onClick={() => resendMutate({ email })} disabled={isResendPending}>
+              {isResendPending ? 'Resending...' : 'Resend Verification Code'}
             </button>
             <p className="verify-auth-link">
               Already verified?{' '}
