@@ -8,7 +8,8 @@
   z-index: 1000;
 }
 .modal {
-  background: #fff;
+  background: var(--bg-color);
+  color: var(--profile-text);
   border-radius: 10px;
   padding: 32px 24px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.18);
@@ -34,6 +35,7 @@
   font-size: 1.2rem;
   font-weight: bold;
   margin-bottom: 12px;
+  color: var(--profile-title-color);
 }
 .modalActions {
   margin-top: 24px;
@@ -42,8 +44,8 @@
   justify-content: center;
 }
 .confirmBtn {
-  background: #e53e3e;
-  color: #fff;
+  background: var(--Btnbg-color);
+  color: var(--profile-button-text);
   border: none;
   border-radius: 6px;
   padding: 8px 20px;
@@ -52,11 +54,11 @@
   transition: background 0.2s;
 }
 .confirmBtn:hover {
-  background: #c53030;
+  background: var(--AuthBtn-color);
 }
 .cancelBtn {
-  background: #eee;
-  color: #222;
+  background: var(--profile-input-bg);
+  color: var(--profile-text);
   border: none;
   border-radius: 6px;
   padding: 8px 20px;
@@ -65,7 +67,7 @@
   transition: background 0.2s;
 }
 .cancelBtn:hover {
-  background: #ddd;
+  background: var(--menuHover-color);
 }
 body.dark .modal {
   background: var(--bg-color);

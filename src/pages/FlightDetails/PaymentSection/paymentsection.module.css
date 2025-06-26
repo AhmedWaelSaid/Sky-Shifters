@@ -68,11 +68,11 @@
   .formGroup input {
     width: 100%;
     padding: 12px;
-    border: 1px solid var(--menuHover-color);
+    border: 1px solid var(--profile-input-border);
     border-radius: 4px;
     font-size: 14px;
-    background-color: var(--bg-color);
-    color: var(--blackText-color);
+    background-color: var(--profile-input-bg);
+    color: var(--profile-input-text);
   }
   
   body.dark .formGroup input {
@@ -143,7 +143,7 @@
     flex-grow: 1;
     padding: 12px 24px;
     background-color: var(--Btnbg-color);
-    color: var(--LightText-color);
+    color: var(--profile-button-text);
     border: none;
     border-radius: 4px;
     font-size: 16px;
@@ -158,8 +158,8 @@
   }
   
   .payButton:disabled {
-    background-color: #d1d5db;
-    color: var(--Darktext-color);
+    background-color: var(--menuHover-color);
+    color: var(--profile-text);
     cursor: not-allowed;
   }
   
@@ -738,7 +738,7 @@ body.dark .stripeCardElement input {
 
 .payButton {
   background-color: var(--Btnbg-color) !important;
-  color: var(--LightText-color) !important;
+  color: var(--profile-button-text) !important;
   border: none;
   border-radius: 4px;
   font-size: 16px;
@@ -754,7 +754,7 @@ body.dark .stripeCardElement input {
 
 .payButton:disabled {
   background-color: var(--menuHover-color) !important;
-  color: var(--LightDarktext-color) !important;
+  color: var(--profile-text) !important;
   cursor: not-allowed;
 }
   
