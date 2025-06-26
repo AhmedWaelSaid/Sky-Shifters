@@ -395,11 +395,15 @@
   grid-template-rows: repeat(3, 1fr);
   padding: 0 1.5rem;
   align-items: center;
-  color: #fff !important;
+  color: var(--profile-text) !important;
   background: linear-gradient(135deg, var(--Btnbg-color) 0%, var(--AuthBtn-color) 100%) !important;
   box-shadow: -0.4rem 0.4rem 1.5rem #4f46f83d;
   z-index: 2;
-  position:absolute;
+  position: absolute;
+}
+body.dark .card {
+  color: var(--profile-text) !important;
+  background: linear-gradient(135deg, var(--Btnbg-color) 0%, var(--AuthBtn-color) 100%) !important;
 }
 .card__visa {
   justify-self: flex-end;
