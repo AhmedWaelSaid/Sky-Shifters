@@ -2,7 +2,7 @@
 import styles from './SidebarMenu.module.css';
 import { useState } from 'react';
 import { FaHeart, FaCreditCard, FaLock, FaCog, FaQuestionCircle, FaInfoCircle, FaSignOutAlt, FaCalendarCheck } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import HamburgerMenu from './HamburgerMenu';
 import avatarLogo from '../../assets/Asset 18@2x.png';
@@ -10,9 +10,15 @@ import avatarLogo from '../../assets/Asset 18@2x.png';
 export default function SidebarMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const { logout, user } = useAuth();
+  const navigate = useNavigate();
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   return (
@@ -69,7 +75,7 @@ export default function SidebarMenu() {
           </li>
           <li className={styles.menuItem}>
             <FaSignOutAlt className={styles.icon} />
-            <button className={styles.link} onClick={logout}>Log Out</button>
+            <button className={styles.link} onClick={handleLogout}>Log Out</button>
           </li>
         </ul>
       </nav>
