@@ -114,31 +114,41 @@ const data = [
 ];
 import styles from "./ShowTopSearch.module.css";
 import PropTypes from "prop-types";
-function getValues(airport) {
-  return {
-    airport,
-    text: airport.city + `, ` + airport.country + ` - ` + airport.name,
-  };
+function matchesAirport(airport, kw) {
+  const fields = [
+    airport.country.toLowerCase(),
+    airport.city.toLowerCase(),
+    airport.name.toLowerCase(),
+    airport.iata?.toLowerCase(),
+  ];
+  return fields.some((field) => field.includes(kw) || kw.includes(field));
 }
-export function ShowTopSearch({ set, keyWord, airports }) {
+
+export function ShowTopSearch({ set, keyWord, airports,getValues }) {
   const filteredAirports =
     keyWord.length >= 3
-      ? airports.filter(
-          (airport) =>
-            airport.country.toLowerCase().includes(keyWord.toLowerCase()) ||
-            airport.city.toLowerCase().includes(keyWord.toLowerCase()) ||
-            airport.name.toLowerCase().includes(keyWord.toLowerCase()) || 
-            airport.iata?.toLowerCase().includes(keyWord.toLowerCase())
-        ).sort((a,b)=> {
-          const kw = keyWord.toLowerCase();
-          const getPriority = (airport) => {
-            if (airport.iata?.toLowerCase() == kw) return 0;
-            if (airport.iata?.toLowerCase().includes(kw)) return 1;
-            if (airport.name.toLowerCase().includes(kw)) return 2;
-            return 3;
-          }
-          return getPriority(a)- getPriority(b);
-        })
+      ? airports
+          .filter((airport) => {
+            const kw = keyWord.toLowerCase();
+            return matchesAirport(airport, kw);
+          })
+          .sort((a, b) => {
+            const kw = keyWord.toLowerCase();
+            const getPriority = (airport) => {
+              const iata = airport.iata?.toLowerCase();
+              const name = airport.name.toLowerCase();
+              const city = airport.city.toLowerCase();
+              const country = airport.country.toLowerCase();
+            
+              if (iata === kw) return 0;
+              if (iata?.includes(kw)) return 1;
+              if (name === kw || city === kw || country === kw) return 2;
+              if (name.includes(kw) || city.includes(kw) || country.includes(kw)) return 3;
+              if (kw.includes(name) || kw.includes(city) || kw.includes(country)) return 4; // looser
+              return 5;
+            };
+            return getPriority(a) - getPriority(b);
+          })
       : data;
 
   return (
@@ -155,10 +165,11 @@ export function ShowTopSearch({ set, keyWord, airports }) {
         >
           <div>
             <div>
-              {airport.city}, {airport.country}
+              {airport.city && airport.city + ", "}
+              {airport.country}
             </div>
             {airport.iata != null && <div>{airport.iata}</div>}
-            {airport.iata == null && <div style={{display : "none"}}></div>}
+            {airport.iata == null && <div style={{ display: "none" }}></div>}
           </div>
           <div>{airport.name}</div>
         </div>
@@ -170,4 +181,5 @@ ShowTopSearch.propTypes = {
   set: PropTypes.func.isRequired,
   keyWord: PropTypes.string.isRequired,
   airports: PropTypes.arrayOf(PropTypes.object),
-}
+  getValues: PropTypes.func.isRequired,
+};
