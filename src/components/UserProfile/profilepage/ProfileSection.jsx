@@ -29,10 +29,11 @@ function PasswordChangeForm({ onCancel }) {
   const hasLower = /[a-z]/.test(newPassword);
   const hasUpper = /[A-Z]/.test(newPassword);
   const hasNumber = /[0-9]/.test(newPassword);
+  const hasSymbol = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(newPassword);
   const hasLength = newPassword.length >= 10;
   const noSpaces = newPassword === newPassword.trim();
 
-  const canSubmit = hasLower && hasUpper && hasNumber && hasLength && noSpaces && newPassword === rePassword && oldPassword;
+  const canSubmit = hasLower && hasUpper && hasNumber && hasSymbol && hasLength && noSpaces && newPassword === rePassword && oldPassword;
 
   const handleChangePassword = async () => {
     setLoading(true);
@@ -89,9 +90,6 @@ function PasswordChangeForm({ onCancel }) {
           {error || success}
         </div>
       )}
-      <div style={{color:'#333',fontWeight:'bold',marginBottom:4}}>
-        Password must contain at least: 1 uppercase letter, 1 lowercase letter, 1 number, and must be at least 10 characters long.
-      </div>
       <div className={styles.formGroup}>
         <label className={styles.label}><Lock size={16} style={{marginRight:8,verticalAlign:'middle'}} />Old password:</label>
         <div className={styles.inputContainer}>
@@ -121,13 +119,6 @@ function PasswordChangeForm({ onCancel }) {
             <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#aaa" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#aaa" strokeWidth="2"/></svg>
           </span>
         </div>
-        <ul style={{margin: '8px 0 0 0', padding: 0, listStyle: 'none', color: '#aaa', fontSize: 14}}>
-          <li style={{color: hasLower ? '#4caf50' : '#aaa'}}>{hasLower ? '✔' : '✖'} Password must contain a lowercase letter</li>
-          <li style={{color: hasUpper ? '#4caf50' : '#aaa'}}>{hasUpper ? '✔' : '✖'} Password must contain an uppercase letter</li>
-          <li style={{color: hasNumber ? '#4caf50' : '#aaa'}}>{hasNumber ? '✔' : '✖'} Password must contain a number</li>
-          <li style={{color: hasLength ? '#4caf50' : '#aaa'}}>{hasLength ? '✔' : '✖'} Password must be at least 10 characters long</li>
-          <li style={{color: noSpaces ? '#4caf50' : '#aaa'}}>{noSpaces ? '✔' : '✖'} Password must not contain leading or trailing spaces</li>
-        </ul>
       </div>
       <div className={styles.formGroup}>
         <label className={styles.label}><Lock size={16} style={{marginRight:8,verticalAlign:'middle'}} />Re-enter new password:</label>
@@ -150,6 +141,14 @@ function PasswordChangeForm({ onCancel }) {
         </Button>
         <Button className={styles.uploadButton} style={{background:'#222',color:'#fff'}} onClick={onCancel} disabled={loading}>Cancel</Button>
       </div>
+      <ul style={{margin: '8px 0 0 0', padding: 0, listStyle: 'none', color: '#aaa', fontSize: 14}}>
+        <li style={{color: (!newPassword || !hasLower) ? '#d32f2f' : '#4caf50'}}>{(!newPassword || !hasLower) ? '✖' : '✔'} Password must contain a lowercase letter</li>
+        <li style={{color: (!newPassword || !hasUpper) ? '#d32f2f' : '#4caf50'}}>{(!newPassword || !hasUpper) ? '✖' : '✔'} Password must contain an uppercase letter</li>
+        <li style={{color: (!newPassword || !hasNumber) ? '#d32f2f' : '#4caf50'}}>{(!newPassword || !hasNumber) ? '✖' : '✔'} Password must contain a number</li>
+        <li style={{color: (!newPassword || !hasSymbol) ? '#d32f2f' : '#4caf50'}}>{(!newPassword || !hasSymbol) ? '✖' : '✔'} Password must contain at least 1 symbol (e.g. @, #, $, !, ...)</li>
+        <li style={{color: (!newPassword || !hasLength) ? '#d32f2f' : '#4caf50'}}>{(!newPassword || !hasLength) ? '✖' : '✔'} Password must be at least 10 characters long</li>
+        <li style={{color: (!newPassword || !noSpaces) ? '#d32f2f' : '#4caf50'}}>{(!newPassword || !noSpaces) ? '✖' : '✔'} Password must not contain leading or trailing spaces</li>
+      </ul>
     </div>
   );
 }
