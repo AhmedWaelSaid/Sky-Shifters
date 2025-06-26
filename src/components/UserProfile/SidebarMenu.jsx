@@ -25,7 +25,7 @@ export default function SidebarMenu() {
             <img src={avatarLogo} alt="User Avatar" />
           </div>
           <div className={styles.userInfo}>
-            <h3 className={styles.userName}>{(user?.firstName || user?.lastName) ? `${user?.firstName || ''} ${user?.lastName || ''}`.trim() : 'User'}</h3>
+            <h3 className={styles.userName}>{user?.name || 'User'}</h3>
             <p className={styles.userBalance}>${user?.balance || '0.00'}</p>
           </div>
         </div>
