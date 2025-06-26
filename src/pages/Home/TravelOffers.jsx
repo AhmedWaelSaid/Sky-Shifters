@@ -8,71 +8,61 @@ import bangladesh5 from "../../assets/pexels-asadphoto-1266831.jpg";
 import bangladesh6 from "../../assets/pexels-pixabay-38238.jpg";
 import bangladesh7 from "../../assets/pexels-pixabay-237272.jpg";
 const images = import.meta.glob('../../assets/*-unsplash*.jpg', { eager: true, as: 'url' });
-import { useEffect, useRef, useState, useCallback } from "react"; // Added useCallback
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { getAirportCoordinates, getAirportDetails } from "../../services/airportService";
 import { bookingService } from "../../services/bookingService";
 import * as turf from '@turf/turf';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
-// Consolidate image loading from the glob
-const allImages = Object.values(images);
-
-// Generate fake offers using the first 8 images from allImages
-const fakeDestinations = [
-  "Santorini", "Maldives", "Tokyo", "Paris", "Rio de Janeiro", "Cape Town", "Sydney", "New York"
-];
-
-// Get today's date and tomorrow's date
-const today = new Date();
-const tomorrow = new Date();
-tomorrow.setDate(today.getDate() + 1);
-
-function formatDate(date) {
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear();
-  return `${day} - ${month} - ${year}`;
+// قلل عدد الصور المستخدمة في العروض لتحسين الأداء
+const MAX_IMAGES = 10; // يمكن تعديل العدد حسب الحاجة
+// استخدم فقط الصور الفريدة حتى لو قل العدد
+let allImages = Array.from(new Set(Object.values(images)));
+if (allImages.length > MAX_IMAGES) allImages = allImages.slice(0, MAX_IMAGES);
+const allImagesFull = Object.values(images); // كل الصور المتاحة
+// إذا كانت أول صورتين متشابهتين، بدّل الثانية بصورة مختلفة من الصور الكاملة
+if (allImages.length > 1 && allImages[0] === allImages[1]) {
+  const replacement = allImagesFull.find(img => img !== allImages[0]);
+  if (replacement) allImages[1] = replacement;
 }
 
-const todayStr = formatDate(today);
-const tomorrowStr = formatDate(tomorrow);
-const fakeDates = Array(8).fill(todayStr);
-
-const fakeDurations = [
-  "4 hr 10m", "7 hr 15m", "13 hr 5m", "11 hr 40m", "9 hr 30m", "8 hr 20m", "6 hr 55m", "5 hr 50m"
+// بيانات واقعية متنوعة للعروض
+const realCities = [
+  "Paris", "London", "New York", "Tokyo", "Dubai", "Rome", "Istanbul", "Bangkok", "Barcelona", "Sydney", "Cairo", "Moscow", "Rio de Janeiro", "Cape Town", "Toronto", "Singapore", "Los Angeles", "Berlin", "Amsterdam", "Prague", "Vienna", "Budapest", "Lisbon", "Seoul", "Kuala Lumpur", "Zurich", "Stockholm", "Dublin", "Venice", "Munich", "Brussels", "Warsaw", "Helsinki", "Oslo", "Athens", "Madrid"
 ];
-const fakePrices = [
-  "$320", "$890", "$670", "$510", "$780", "$540", "$399", "$294"
-];
-
-const offersData = allImages.slice(0, 36).map((img, idx) => ({
+function getRandomDate() {
+  const start = new Date();
+  const end = new Date();
+  end.setFullYear(start.getFullYear() + 1);
+  const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+  return `${date.getDate().toString().padStart(2, '0')} - ${(date.getMonth()+1).toString().padStart(2, '0')} - ${date.getFullYear()}`;
+}
+function getRandomDuration() {
+  const hours = Math.floor(Math.random() * 12) + 2;
+  const minutes = Math.floor(Math.random() * 60);
+  return `${hours} hr ${minutes}m`;
+}
+function getRandomPrice2() {
+  return `$${(Math.floor(Math.random() * 900) + 100)}`;
+}
+const offersDataReal = allImages.map((img, idx) => ({
   id: idx + 1,
-  title: fakeDestinations[idx % fakeDestinations.length],
-  date: fakeDates[idx % fakeDates.length],
-  duration: fakeDurations[idx % fakeDurations.length],
-  price: fakePrices[idx % fakePrices.length],
-  desc: fakeDestinations[idx % fakeDestinations.length],
+  title: realCities[idx % realCities.length],
+  date: getRandomDate(),
+  duration: getRandomDuration(),
+  price: getRandomPrice2(),
   image: img
 }));
 
-// Get first 4 unique images (no duplicates)
-const uniqueBangladeshImages = [];
-for (const img of allImages) {
-  if (!uniqueBangladeshImages.includes(img)) {
-    uniqueBangladeshImages.push(img);
-    if (uniqueBangladeshImages.length === 4) break;
-  }
-}
-const bangladeshImages = uniqueBangladeshImages;
-
+// بيانات العروض الإعلانية
 const placeNames = [
   "Dream Beach", "Mountain Escape", "City Lights", "Tropical Paradise", "Historic Town", "Desert Adventure", "Forest Retreat",
   "Island Getaway", "Urban Vibes", "Hidden Gem", "Sunset Point", "Winter Wonderland", "Cultural Capital", "Seaside Escape",
@@ -95,7 +85,6 @@ function getRandomDesc() {
   ];
   return descs[Math.floor(Math.random() * descs.length)];
 }
-
 const adOffers = allImages.map((img, idx) => ({
   title: placeNames[idx % placeNames.length],
   desc: getRandomDesc(),
@@ -104,45 +93,17 @@ const adOffers = allImages.map((img, idx) => ({
   image: img
 }));
 
-// بيانات واقعية متنوعة للعروض
-const realCities = [
-  "Paris", "London", "New York", "Tokyo", "Dubai", "Rome", "Istanbul", "Bangkok", "Barcelona", "Sydney", "Cairo", "Moscow", "Rio de Janeiro", "Cape Town", "Toronto", "Singapore", "Los Angeles", "Berlin", "Amsterdam", "Prague", "Vienna", "Budapest", "Lisbon", "Seoul", "Kuala Lumpur", "Zurich", "Stockholm", "Dublin", "Venice", "Munich", "Brussels", "Warsaw", "Helsinki", "Oslo", "Athens", "Madrid"
-];
-const realDescriptions = [
-  "رحلة لا تُنسى في قلب المدينة.",
-  "استمتع بأفضل الأجواء السياحية.",
-  "تجربة تسوق رائعة ومطاعم عالمية.",
-  "مناظر طبيعية ساحرة بانتظارك.",
-  "استجمام واسترخاء في أفضل الفنادق.",
-  "مغامرة جديدة كل يوم.",
-  "ثقافة وفن في كل زاوية.",
-  "شواطئ ذهبية وأجواء مشمسة.",
-  "رحلة عائلية مليئة بالمرح.",
-  "استكشف معالم المدينة الشهيرة."
-];
-function getRandomDate() {
-  const start = new Date();
-  const end = new Date();
-  end.setFullYear(start.getFullYear() + 1);
-  const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-  return `${date.getDate().toString().padStart(2, '0')} - ${(date.getMonth()+1).toString().padStart(2, '0')} - ${date.getFullYear()}`;
-}
-function getRandomDuration() {
-  const hours = Math.floor(Math.random() * 12) + 2;
-  const minutes = Math.floor(Math.random() * 60);
-  return `${hours} hr ${minutes}m`;
-}
-function getRandomPrice2() {
-  return `$${(Math.floor(Math.random() * 900) + 100)}`;
-}
-const offersDataReal = allImages.slice(0, 36).map((img, idx) => ({
-  id: idx + 1,
-  title: realCities[idx % realCities.length],
-  date: getRandomDate(),
-  duration: getRandomDuration(),
-  price: getRandomPrice2(),
-  image: img
-}));
+// Get first 4 unique images (no duplicates)
+const getBangladeshImages = (allImages) => {
+  const unique = [];
+  for (const img of allImages) {
+    if (!unique.includes(img)) {
+      unique.push(img);
+      if (unique.length === 4) break;
+    }
+  }
+  return unique;
+};
 
 export default function TravelOffers() {
   const mapContainer = useRef(null);
@@ -151,16 +112,18 @@ export default function TravelOffers() {
   const [timeRemaining, setTimeRemaining] = useState('');
   const [flightDuration, setFlightDuration] = useState('');
   const [animationSpeed, setAnimationSpeed] = useState(1);
-  const animationSpeedRef = useRef(1); // Use ref for animation loop to avoid re-renders
-  const [zoom, setZoom] = useState(3.5); // Initial zoom level
+  const animationSpeedRef = useRef(1);
+  const [zoom, setZoom] = useState(3.5);
   const [originDetails, setOriginDetails] = useState(null);
   const [destinationDetails, setDestinationDetails] = useState(null);
   const [airline, setAirline] = useState('');
-
-  // AD-card state for auto-changing offers
   const [adIndex, setAdIndex] = useState(0);
-  const [adImageLoaded, setAdImageLoaded] = useState(false); // Track if current AD image is loaded
-  const [adAnimKey, setAdAnimKey] = useState(0); // لتغيير الكلاس عند كل تبديل
+  const [adImageLoaded, setAdImageLoaded] = useState(false);
+  const [adAnimKey, setAdAnimKey] = useState(0);
+
+  // ثابتة بعد التحميل الأول
+  const bangladeshImages = useMemo(() => getBangladeshImages(allImages), []);
+  const memoizedAdOffers = useMemo(() => adOffers, []);
 
   // Memoize map initialization to prevent unnecessary re-creation
   const initializeMap = useCallback(async () => {
@@ -432,16 +395,16 @@ export default function TravelOffers() {
   // Effect for the AD-card auto-changing offers
   useEffect(() => {
     const interval = setInterval(() => {
-      setAdIndex((prev) => (prev + 1) % adOffers.length);
+      setAdIndex((prev) => (prev + 1) % memoizedAdOffers.length);
       setAdImageLoaded(false); // Reset load status for the new image
       setAdAnimKey((k) => k + 1); // trigger animation
     }, 10000); // Change every 10 seconds
     return () => clearInterval(interval);
-  }, []);
+  }, [memoizedAdOffers.length]);
 
   // Preload the next image for the AD-card to prevent blank background
   useEffect(() => {
-    const currentAdImage = adOffers[adIndex].image;
+    const currentAdImage = memoizedAdOffers[adIndex].image;
     const img = new Image();
     img.src = currentAdImage;
     img.onload = () => setAdImageLoaded(true);
@@ -449,7 +412,7 @@ export default function TravelOffers() {
         console.warn(`Failed to load image: ${currentAdImage}`);
         setAdImageLoaded(true); // Still set to true to show fallback if image fails
     };
-  }, [adIndex]); // Run when adIndex changes
+  }, [adIndex, memoizedAdOffers]);
 
   const adPriceRef = useRef(null);
   const adTextRef = useRef(null);
@@ -689,7 +652,7 @@ export default function TravelOffers() {
               1024: { slidesPerView: 4 },
             }}
           >
-            {adOffers.map((offer, idx) => (
+            {memoizedAdOffers.map((offer, idx) => (
               <SwiperSlide key={idx}> {/* Using idx as key is fine if array content doesn't change order */}
                 <div
                   className="more-offers-card"
@@ -745,7 +708,7 @@ export default function TravelOffers() {
             className="AD-card"
             style={{
               background: adImageLoaded
-                ? `linear-gradient(120deg, rgba(0,0,0,0.45) 30%, rgba(0,0,0,0.25) 100%), url(${adOffers[adIndex].image}) center/cover no-repeat`
+                ? `linear-gradient(120deg, rgba(0,0,0,0.45) 30%, rgba(0,0,0,0.25) 100%), url(${memoizedAdOffers[adIndex].image}) center/cover no-repeat`
                 : 'repeating-linear-gradient(120deg, #bbb 0px, #e6e6e6 100px)', // Placeholder/loading background
               position: 'relative',
               transition: 'background 0.5s ease',
@@ -765,7 +728,7 @@ export default function TravelOffers() {
                   textOverflow: 'ellipsis'
                 }}
               >
-                {adOffers[adIndex].title}
+                {memoizedAdOffers[adIndex].title}
               </h3>
               <p
                 className={`AD-disc ad-text-animate`}
@@ -777,14 +740,14 @@ export default function TravelOffers() {
                   textShadow: '0 2px 8px rgba(0,0,0,0.18)'
                 }}
               >
-                {adOffers[adIndex].desc}
+                {memoizedAdOffers[adIndex].desc}
               </p>
               <p ref={adPriceRef} className={`AD-price ad-price-animate`} style={{
                 minWidth: 90,
                 textAlign: 'center'
               }}>
                 From<br />
-                {adOffers[adIndex].currency}{adOffers[adIndex].price}
+                {memoizedAdOffers[adIndex].currency}{memoizedAdOffers[adIndex].price}
               </p>
               <div className="AD-Dbtn">
                 <button
