@@ -100,7 +100,6 @@ export default function FlightSearchForm() {
         !origin.airport ||
         !dest.airport || !origin.isTextCorrect ||!dest.isTextCorrect
       ) {
-        console.log("hi")
         if (origin.text.trim() == "")
           {
             setOrigin({

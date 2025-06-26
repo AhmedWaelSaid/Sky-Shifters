@@ -92,7 +92,7 @@
 }
 .invalid:focus{
   border-color: red;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  box-shadow: 0 0 5px rgb(255 87 34 / 38%)
 }
 input[type="date"]::-webkit-calendar-picker-indicator {
   display: block;
