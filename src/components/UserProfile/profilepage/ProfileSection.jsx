@@ -277,7 +277,8 @@ const ProfileSection = () => {
       const userString = localStorage.getItem('user');
       const userData = userString ? JSON.parse(userString) : null;
       const token = userData?.token;
-      const updateData = { [field]: value };
+      // أرسل كل البيانات الحالية مع التعديل الجديد
+      const updateData = { ...profile, [field]: value };
       console.log('PATCH updateData:', updateData);
       const res = await updateUserProfile(updateData, token);
       console.log('PATCH response:', res);
