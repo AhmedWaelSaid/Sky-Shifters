@@ -40,20 +40,24 @@ hr {
 .side-bar input[type="checkbox"],.side-bar input[type="radio"]{
   margin-right: 5px;
 }
-.side-bar .collapsingElement { /*up icon*/
+.side-bar .collapsingElement button { /*up icon*/
   content: "";
   display: inline-block;
-  width: 25px;
-  height: 25px;
-  font-size: 1.5rem;
+  width: 15px;
+  height: 20px;
+  font-size: 1.3rem;
   color: #2196f3;
-  position: absolute;
-  top: -5px;
-  right: 0;
   border: none;
   background-color: inherit;
 }
+.side-bar .collapsingElement{
+  display: flex;
+  justify-content: space-between;
+}
 .side-bar .collapsingElement:hover {
+  cursor: pointer;
+}
+.side-bar .collapsingElement button:hover {
   cursor: pointer;
 }
 /*---------Sort--------*/

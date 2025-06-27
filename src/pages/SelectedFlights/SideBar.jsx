@@ -95,15 +95,15 @@ export default function SideBar({
         </button>
         <hr />
         <div className={styles.price}>
-          <button
+          <div
             className={styles.collapsingElement}
             onClick={() => {
               setIsExpandable({ ...isExpandable, price: !isExpandable.price });
             }}
           >
-            {isExpandable.price ? "⯅" : "⯆"}
-          </button>
-          <h3>Price</h3>
+            <h3>Price</h3>
+            <button>{isExpandable.price ? "⯅" : "⯆"}</button>
+          </div>
           <div
             className={styles.priceContainer}
             style={{ maxHeight: isExpandable.price ? "200px" : "0px" }}
@@ -138,15 +138,18 @@ export default function SideBar({
         </button>
         <hr />
         <div className={styles.stops}>
-          <h3>Stops</h3>
-          <button
+          <div
             className={styles.collapsingElement}
             onClick={() => {
-              setIsExpandable({ ...isExpandable, stops: !isExpandable.stops });
+              setIsExpandable({
+                ...isExpandable,
+                stops: !isExpandable.stops,
+              });
             }}
           >
-            {isExpandable.stops ? "⯅" : "⯆"}
-          </button>
+            <h3>Stops</h3>
+            <button>{isExpandable.stops ? "⯅" : "⯆"}</button>
+          </div>
           <div
             className={styles.stopsContainer}
             style={{ maxHeight: isExpandable.stops ? "200px" : "0px" }}
@@ -208,8 +211,7 @@ export default function SideBar({
         </div>
         <hr />
         <div className={styles["air-lines"]}>
-          <h3>Air Lines</h3>
-          <button
+          <div
             className={styles.collapsingElement}
             onClick={() => {
               setIsExpandable({
@@ -218,8 +220,9 @@ export default function SideBar({
               });
             }}
           >
-            {isExpandable.airlines ? "⯅" : "⯆"}
-          </button>
+            <h3>Air Lines</h3>
+            <button>{isExpandable.airlines ? "⯅" : "⯆"}</button>
+          </div>
           <div
             className={styles.airlinesContainer}
             ref={airlinesRef}
@@ -243,8 +246,7 @@ export default function SideBar({
         </div>
         <hr />
         <div className={styles["flight-duration"]}>
-          <h3>Flight duration</h3>
-          <button
+          <div
             className={styles.collapsingElement}
             onClick={() => {
               setIsExpandable({
@@ -253,8 +255,9 @@ export default function SideBar({
               });
             }}
           >
-            {isExpandable.flightDuration ? "⯅" : "⯆"}
-          </button>
+            <h3>Flight duration</h3>
+            <button>{isExpandable.flightDuration ? "⯅" : "⯆"}</button>
+          </div>
           <div
             className={styles.flightDurationContainer}
             style={{ maxHeight: isExpandable.flightDuration ? "100px" : "0px" }}
