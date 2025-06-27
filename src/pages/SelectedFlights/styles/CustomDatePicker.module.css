@@ -16,6 +16,8 @@
     background: var(--bg-color);
     cursor: pointer;
     box-sizing: border-box;
+    height: 100%;
+    width: 100%;
   }
   
   .dateDisplay {

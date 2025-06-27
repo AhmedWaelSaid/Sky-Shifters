@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { useState, useRef, useEffect } from "react";
-import { format, addDays, addMonths, isAfter, isBefore, isSameMonth, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
+import { format,subDays, addDays, addMonths, isAfter, isBefore, isSameMonth, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
 import styles from "./styles/CustomDatePicker.module.css";
 
 export default function CustomDatePicker({ 
@@ -90,6 +90,10 @@ export default function CustomDatePicker({
   };
 
   const isDateDisabled = (date) => {
+    const yesterday = subDays(new Date(),1);
+    if (activeInput === "departure") {
+      return isBefore(date, yesterday);
+    }
     if (activeInput === "return") {
       return isBefore(date, dates.departure);
     }
