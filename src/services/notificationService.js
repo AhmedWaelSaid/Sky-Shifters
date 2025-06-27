@@ -4,7 +4,30 @@ const API_BASE = process.env.REACT_APP_API_BASE || '';
 
 // Helper to get token from localStorage (أو حسب مكان تخزينك)
 function getToken() {
-  return localStorage.getItem('access_token');
+  let token = localStorage.getItem('access_token');
+  if (token) {
+    console.log('[notificationService] getToken: found access_token', token);
+    return token;
+  }
+  // جرب user
+  const userStr = localStorage.getItem('user');
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      if (user.accessToken) {
+        console.log('[notificationService] getToken: found user.accessToken', user.accessToken);
+        return user.accessToken;
+      }
+      if (user.token) {
+        console.log('[notificationService] getToken: found user.token', user.token);
+        return user.token;
+      }
+    } catch (e) {
+      console.error('[notificationService] getToken: error parsing user', e);
+    }
+  }
+  console.warn('[notificationService] getToken: No token found!');
+  return null;
 }
 
 export async function getNotifications() {
