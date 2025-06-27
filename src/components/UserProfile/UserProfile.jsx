@@ -25,8 +25,10 @@ export default function UserProfile() {
     async function fetchCount() {
       try {
         const res = await getNotificationCount();
+        console.log('[UserProfile] getNotificationCount result:', res);
         setNewCount(res.data?.count || 0);
       } catch (e) {
+        console.error('[UserProfile] getNotificationCount error:', e);
         setNewCount(0);
       }
     }
@@ -36,14 +38,16 @@ export default function UserProfile() {
   // جلب الإشعارات عند فتح القائمة
   const toggleNotifications = async () => {
     setIsNotificationsOpen(!isNotificationsOpen);
+    console.log('[UserProfile] toggleNotifications: open', !isNotificationsOpen);
     if (!isNotificationsOpen) {
       setLoading(true);
       try {
         const res = await getNotifications();
+        console.log('[UserProfile] getNotifications result:', res);
         setNotifications(res.data || []);
-        // عند الفتح: اعتبر كل الإشعارات الجديدة أصبحت قديمة (محلي فقط)
         setNewCount(0);
       } catch (e) {
+        console.error('[UserProfile] getNotifications error:', e);
         setNotifications([]);
       }
       setLoading(false);
@@ -55,6 +59,7 @@ export default function UserProfile() {
 
   // عند الضغط على إشعار
   const handleNotificationClick = (notif) => {
+    console.log('[UserProfile] handleNotificationClick:', notif);
     if (notif.bookingId) {
       navigate(`/my-bookings/${notif.bookingId}`);
     }
@@ -63,7 +68,8 @@ export default function UserProfile() {
 
   // عند الضغط على View all
   const handleViewAll = () => {
-    navigate('/profile?tab=notifications'); // أو المسار المناسب حسب الراوتر
+    console.log('[UserProfile] handleViewAll: navigate to /profile?tab=notifications');
+    navigate('/profile?tab=notifications');
     setIsNotificationsOpen(false);
   };
 
