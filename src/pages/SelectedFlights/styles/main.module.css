@@ -7,7 +7,7 @@
   margin-top: 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 40px;
   margin-bottom: 200px;
   position: relative;
   padding-bottom: 50px;
@@ -17,10 +17,12 @@
 .flight {
   display: grid;
   grid-template-columns: repeat(4,1fr);
-  padding: 10px;
+  padding: 30px;
   position: relative;
   min-height: 104px;
   max-width: 100%;
+  border: 1px solid #9E9E9E;
+  border-radius: 20px;
 }
 .airLineContainer {
   display: flex;
@@ -119,7 +121,7 @@
 }
 .arrivalName {
   position: absolute;
-  right: 55px;
+  right: 45px;
   top: 3px;
 }
 .stops .stop {

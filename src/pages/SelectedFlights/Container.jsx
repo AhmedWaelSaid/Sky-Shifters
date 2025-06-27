@@ -221,7 +221,7 @@ export default function Container() {
           <div className={styles.flight}>
             <FlightsUI
               flight={flight.departure.data}
-              carrier={flight.departure.carrier}
+              carriers={flight.carriers}
               btnHandler={ChangeDepHandler}
               button={{
                 text: "Change departure",
