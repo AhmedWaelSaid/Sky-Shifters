@@ -72,6 +72,11 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
         birthdate: data.user?.birthdate || '',
         token: data.data.accessToken ,
       };
+      // حفظ التوكن في localStorage
+      if (data.data?.accessToken) {
+        localStorage.setItem('access_token', data.data.accessToken);
+      }
+      localStorage.setItem('user', JSON.stringify(data.data));
       // ----------------------------------------------------
       onLogin(userData);
       navigate('/');

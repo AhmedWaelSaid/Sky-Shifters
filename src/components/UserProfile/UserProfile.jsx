@@ -1,28 +1,78 @@
 // src/components/UserProfile.jsx
 import "./UserProfile.css";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { ThemeContext } from "../context/ThemeContext";
+import { getNotifications, getNotificationCount } from '../../services/notificationService';
+import { useNavigate } from 'react-router-dom';
 
 export default function UserProfile() {
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [isChecked, setIsChecked] = useState(theme === "light");
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false); 
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false); 
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [newCount, setNewCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleToggle = () => {
     setIsChecked(!isChecked);
     toggleTheme();
   };
 
-  // فتح/إغلاق قائمة الإشعارات
-  const toggleNotifications = () => {
+  // جلب عدد الإشعارات الجديدة
+  useEffect(() => {
+    async function fetchCount() {
+      try {
+        const res = await getNotificationCount();
+        console.log('[UserProfile] getNotificationCount result:', res);
+        setNewCount(res.data?.count || 0);
+      } catch (e) {
+        console.error('[UserProfile] getNotificationCount error:', e);
+        setNewCount(0);
+      }
+    }
+    fetchCount();
+  }, []);
+
+  // جلب الإشعارات عند فتح القائمة
+  const toggleNotifications = async () => {
     setIsNotificationsOpen(!isNotificationsOpen);
+    console.log('[UserProfile] toggleNotifications: open', !isNotificationsOpen);
+    if (!isNotificationsOpen) {
+      setLoading(true);
+      try {
+        const res = await getNotifications();
+        console.log('[UserProfile] getNotifications result:', res);
+        setNotifications(res.data || []);
+        setNewCount(0);
+      } catch (e) {
+        console.error('[UserProfile] getNotifications error:', e);
+        setNotifications([]);
+      }
+      setLoading(false);
+    }
     if (isUserMenuOpen) {
-      setIsUserMenuOpen(false); // إغلاق قائمة الـ User لو مفتوحة
+      setIsUserMenuOpen(false);
     }
   };
 
- 
+  // عند الضغط على إشعار
+  const handleNotificationClick = (notif) => {
+    console.log('[UserProfile] handleNotificationClick:', notif);
+    if (notif.bookingId) {
+      navigate(`/my-bookings/${notif.bookingId}`);
+    }
+    setIsNotificationsOpen(false);
+  };
+
+  // عند الضغط على View all
+  const handleViewAll = () => {
+    console.log('[UserProfile] handleViewAll: navigate to /UserProfile?tab=notifications');
+    navigate('/UserProfile?tab=notifications');
+    setIsNotificationsOpen(false);
+  };
+
   return (
     <div className="navigation-card">
       {/* Tab 1: Plane Switch (for Dark Mode/Light Mode) */}
@@ -45,18 +95,35 @@ export default function UserProfile() {
 
       {/* Tab 2: Notification Bell Icon with Dropdown */}
       <div className="tab notification-tab">
-        <svg
-          className="svgIcon bell"
-          viewBox="0 0 448 512"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          onClick={toggleNotifications}
-        >
-          <path
-            d="M224 0c-17.7 0-32 14.3-32 32V49.9C119.5 61.4 64 124.2 64 200v33.4c0 45.4-15.5 89.5-43.8 124.9L5.3 377c-5.8 7.2-6.9 17.1-2.9 25.4S14.8 416 24 416H424c9.2 0 17.6-5.3 21.6-13.6s2.9-18.2-2.9-25.4l-14.9-18.6C399.5 322.9 384 278.8 384 233.4V200c0-75.8-55.5-138.6-128-150.1V32c0-17.7-14.3-32-32-32zm0 96h8c57.4 0 104 46.6 104 104v33.4c0 47.9 13.9 94.6 39.7 134.6H72.3C98.1 328 112 281.3 112 233.4V200c0-57.4 46.6-104 104-104h8zm64 352H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7s18.7-28.3 18.7-45.3z"
-            fill="black"
-          />
-        </svg>
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+          <svg
+            className="svgIcon bell"
+            viewBox="0 0 448 512"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            onClick={toggleNotifications}
+            style={{ cursor: 'pointer' }}
+          >
+            <path
+              d="M224 0c-17.7 0-32 14.3-32 32V49.9C119.5 61.4 64 124.2 64 200v33.4c0 45.4-15.5 89.5-43.8 124.9L5.3 377c-5.8 7.2-6.9 17.1-2.9 25.4S14.8 416 24 416H424c9.2 0 17.6-5.3 21.6-13.6s2.9-18.2-2.9-25.4l-14.9-18.6C399.5 322.9 384 278.8 384 233.4V200c0-75.8-55.5-138.6-128-150.1V32c0-17.7-14.3-32-32-32zm0 96h8c57.4 0 104 46.6 104 104v33.4c0 47.9 13.9 94.6 39.7 134.6H72.3C98.1 328 112 281.3 112 233.4V200c0-57.4 46.6-104 104-104h8zm64 352H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7s18.7-28.3 18.7-45.3z"
+              fill="black"
+            />
+          </svg>
+          {newCount > 0 && (
+            <span style={{
+              position: 'absolute',
+              top: -5,
+              right: -5,
+              background: 'red',
+              color: 'white',
+              borderRadius: '50%',
+              padding: '2px 6px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              zIndex: 2
+            }}>{newCount}</span>
+          )}
+        </div>
         {isNotificationsOpen && (
           <div className="notifications-dropdown">
             <div className="dropdown-header">
@@ -68,12 +135,34 @@ export default function UserProfile() {
               </button>
             </div>
             <div className="dropdown-content">
-              <h3>You are all caught up!</h3>
-              <p>
-                You have no new notifications. Notifications are deleted after
-                30 days
-              </p>
-              <button className="view-all-btn">View all</button>
+              {loading ? (
+                <p>Loading notifications...</p>
+              ) : notifications.length === 0 ? (
+                <>
+                  <h3>You are all caught up!</h3>
+                  <p>You have no new notifications. Notifications are deleted after 30 days</p>
+                  <button className="view-all-btn" onClick={handleViewAll}>View all</button>
+                </>
+              ) : (
+                <>
+                  <h3>Notifications</h3>
+                  <ul className="notifications-list">
+                    {notifications.map((notif, idx) => (
+                      <li
+                        key={idx}
+                        className={notif.state === 0 ? 'notification-item new' : 'notification-item'}
+                        style={notif.state === 0 ? { background: '#e6f0ff', cursor: 'pointer' } : { cursor: 'pointer' }}
+                        onClick={() => handleNotificationClick(notif)}
+                      >
+                        <strong>{notif.title}</strong>
+                        <div>{notif.body}</div>
+                        {notif.state === 0 && <span className="new-badge">New</span>}
+                      </li>
+                    ))}
+                  </ul>
+                  <button className="view-all-btn" onClick={handleViewAll}>View all</button>
+                </>
+              )}
             </div>
           </div>
         )}
