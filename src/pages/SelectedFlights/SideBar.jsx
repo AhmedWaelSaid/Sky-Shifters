@@ -41,6 +41,7 @@ InputCheckBox.propTypes = {
   name: PropTypes.string,
   airLinesChecked: PropTypes.object,
   airLinesHandler: PropTypes.func,
+  onImageLoad:PropTypes.func,
 };
 export default function SideBar({
   stop,

@@ -4,6 +4,10 @@
     color:var(--DarkyellowText-color); 
     position: relative;
 }
+.disabled{
+    opacity: 0.5;
+    pointer-events: none;
+}
 .currency svg {
     width: 25px;
     height: 25px;

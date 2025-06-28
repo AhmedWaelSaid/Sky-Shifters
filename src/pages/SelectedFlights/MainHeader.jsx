@@ -23,18 +23,22 @@ export function AirportInput({
       name={name}
       id={name}
       className={`${styles[className]} ${value.isTextCorrect ? "" : styles.invalid}`}
-      onFocus={() => setFocus(true)}
+      onFocus={(e) => {
+        e.target.select();
+        setFocus(true);
+      }}
       onBlur={() => {
         setFocus(false);
       }}
       value={value.text}
-      onChange={(e) => setValue((prev) => ({
-        ...prev,
-        text: e.target.value,
-        isTextCorrect: false,
-        error:""
-      }))
-    }
+      onChange={(e) =>
+        setValue((prev) => ({
+          ...prev,
+          text: e.target.value,
+          isTextCorrect: false,
+          error: "",
+        }))
+      }
       placeholder={placeholder}
     />
   );
@@ -49,7 +53,7 @@ AirportInput.propTypes = {
   value: PropTypes.object,
 };
 
-export default function MainHeader({setAPISearch,setIsReturn}) {
+export default function MainHeader({ setAPISearch, setIsReturn, isReturn }) {
   const { sharedData, setSharedData } = useData();
   const [dates, setDates] = useState(
     sharedData.departure.date
@@ -71,9 +75,16 @@ export default function MainHeader({setAPISearch,setIsReturn}) {
           adults: 1,
           children: 0,
           infants: 0,
-          class: { value: "ALL", text: "All" },
+          class: { value: "ECONOMY", text: "Economy" },
         }
   );
+  useEffect(() => {
+    if (sharedData.departure && !isReturn) {
+      setOrigin(sharedData.departure.origin);
+      setDest(sharedData.departure.dest);
+    }
+  }, [isReturn, sharedData]);
+
   const [passengerClassFocus, setPassengerClassFocus] = useState(false);
   const popupRef = useRef(null);
   const inputRef = useRef(null);
@@ -120,56 +131,77 @@ export default function MainHeader({setAPISearch,setIsReturn}) {
     event.preventDefault();
     if (event.nativeEvent.submitter?.name === "flightSubmit") {
       if (
-        origin.text.trim() == "" ||
-        dest.text.trim() == "" ||
+        (origin.text.trim() == "" && !origin.airport) ||
+        (dest.text.trim() == "" && !dest.airport) ||
         !origin.airport ||
-        !dest.airport || !origin.isTextCorrect ||!dest.isTextCorrect
+        !dest.airport ||
+        !origin.isTextCorrect ||
+        !dest.isTextCorrect
       ) {
-        if (origin.text.trim() == "")
-          {
-            setOrigin({
+        if (origin.text.trim() == "") {
+          setOrigin({
             ...origin,
             error: "Empty field! Please select an airport from the list.",
-          });}
+          });
+        }
         if (dest.text.trim() == "")
           setDest({
             ...dest,
             error: "Empty field! Please select an airport from the list.",
           });
-        if ((!origin.airport || !origin.isTextCorrect) && origin.text.trim() != "")
+        if (
+          (!origin.airport || !origin.isTextCorrect) &&
+          origin.text.trim() != ""
+        )
           setOrigin({
             ...origin,
-            error: "Incorrect Airport! Please select a valid airport from the list.",
+            error:
+              "Incorrect Airport! Please select a valid airport from the list.",
           });
-        if ((!dest.airport|| !dest.isTextCorrect) && dest.text.trim() != "")
-        {
+        if ((!dest.airport || !dest.isTextCorrect) && dest.text.trim() != "") {
           setDest({
-          ...dest,
-          error: "Incorrect Airport! Please select a valid airport from the list.",
-        });}
+            ...dest,
+            error:
+              "Incorrect Airport! Please select a valid airport from the list.",
+          });
+        }
         return;
       }
       if (origin.airport && dest.airport && dates.departure && !dates.return) {
-        setSharedData((prev)=>({...prev,
+        setSharedData((prev) => ({
+          ...prev,
           departure: { date: dates.departure, dest, origin },
           return: null,
           passengerClass,
         }));
         setIsReturn(false);
-        setAPISearch({date: dates.departure, dest, origin ,passengerClass,currency:sharedData.currency});
+        setAPISearch({
+          date: dates.departure,
+          dest,
+          origin,
+          passengerClass,
+          currency: sharedData.currency,
+        });
       } else if (
         origin.airport &&
         dest.airport &&
         dates.departure &&
         dates.return
       ) {
-        setSharedData((prev)=> ({...prev,
+        setSharedData((prev) => ({
+          ...prev,
           departure: { date: dates.departure, dest, origin },
           return: { date: dates.return, dest: origin, origin: dest },
           passengerClass,
         }));
         setIsReturn(false);
-        setAPISearch({date: dates.departure, dest, origin ,passengerClass,currency:sharedData.currency});
+        setAPISearch({
+          date: dates.departure,
+          dest,
+          origin,
+          passengerClass,
+          currency: sharedData.currency,
+        });
       }
     }
   }
@@ -269,11 +301,11 @@ export default function MainHeader({setAPISearch,setIsReturn}) {
           </button>
         </div>
       </form>
-
     </div>
   );
 }
 MainHeader.propTypes = {
   setAPISearch: PropTypes.func,
   setIsReturn: PropTypes.func,
-}
+  isReturn: PropTypes.bool,
+};

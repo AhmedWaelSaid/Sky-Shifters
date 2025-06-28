@@ -132,7 +132,7 @@ export default function Container() {
   if (loading) return <Loading />;
   if (error && error.name !== "AbortError") return <Error />;
   if (!flightsData || flightsData.data.length === 0 || !flightsData.data)
-    return <EmptyData setIsReturn={setIsReturn} setAPISearch={setAPISearch} />;
+    return <EmptyData setIsReturn={setIsReturn} setAPISearch={setAPISearch} isReturn={isReturn}/>;
 
   function getStops() {
     const stops = { direct: false, stop1: false, stop2: false };
@@ -211,7 +211,7 @@ export default function Container() {
   }
   return (
     <div className={styles.container}>
-      <MainHeader setIsReturn={setIsReturn} setAPISearch={setAPISearch} />
+      <MainHeader setIsReturn={setIsReturn} setAPISearch={setAPISearch} isReturn={isReturn}/>
       {sharedData.return && !isReturn && (
         <div className={styles.flightTextContainer}>
           <h2>Choose your departure flight!</h2>
