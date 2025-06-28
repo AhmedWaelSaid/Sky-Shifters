@@ -53,7 +53,7 @@ const isoDurationToMs = (isoDuration) => {
 };
 
 const FlightMap = ({ flight }) => {
-  console.log('%c[FlightMap] Received flight prop:', 'color: #22c55e; font-weight: bold;', flight);
+  console.log('DURATION FROM PROPS:', flight?.duration, 'FLIGHT OBJECT:', flight);
 
   const mapContainer = useRef(null);
   const map = useRef(null);
