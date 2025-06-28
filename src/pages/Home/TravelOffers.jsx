@@ -578,7 +578,7 @@ export default function TravelOffers() {
             1024: { slidesPerView: 2 },
           }}
         >
-          {offersDataReal.map((offer) => (
+          {offersDataReal.slice(0, 5).map((offer) => (
             <SwiperSlide key={offer.id}>
               <div
                 className="offer-card"
@@ -652,7 +652,7 @@ export default function TravelOffers() {
               1024: { slidesPerView: 4 },
             }}
           >
-            {memoizedAdOffers.map((offer, idx) => (
+            {memoizedAdOffers.slice(0, 5).map((offer, idx) => (
               <SwiperSlide key={idx}> {/* Using idx as key is fine if array content doesn't change order */}
                 <div
                   className="more-offers-card"
