@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { FaEnvelope } from 'react-icons/fa'; // أيقونة للـ email
-import './ForgotPassword.css'; // هتكون مشابهة لـ SignIn.css
+import { FaEnvelope, FaArrowLeft } from 'react-icons/fa';
+import './ForgotPassword.css';
 
 const requestPasswordReset = async ({ email }) => {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/users/request-password-reset`, {
+  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/request-password-reset`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
@@ -23,48 +23,87 @@ const requestPasswordReset = async ({ email }) => {
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
 
   const { mutate, isPending, error } = useMutation({
     mutationFn: requestPasswordReset,
-    onSuccess: () => {
+    onSuccess: (data) => {
       setMessage('A password reset link has been sent to your email.');
+      setIsSuccess(true);
       setTimeout(() => {
-        navigate('/sign-in');
-      }, 3000);
+        navigate('/auth');
+      }, 5000);
+    },
+    onError: (error) => {
+      setMessage(error.message);
+      setIsSuccess(false);
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!email.trim()) {
+      setMessage('Please enter a valid email address');
+      setIsSuccess(false);
+      return;
+    }
     setMessage('');
     mutate({ email });
+  };
+
+  const handleBackToSignIn = () => {
+    navigate('/auth');
   };
 
   return (
     <div className="container__form container--forgot-password">
       <form className="form" onSubmit={handleSubmit}>
-        <h2 className="form__title">Forgot Password</h2>
-        <p>Enter your email address to receive a password reset link.</p>
+        <div className="form-header">
+          <button 
+            type="button" 
+            className="back-button" 
+            onClick={handleBackToSignIn}
+          >
+            <FaArrowLeft />
+          </button>
+          <h2 className="form__title">Forgot Password?</h2>
+        </div>
+        
+        <p className="form-description">
+          Enter your email address and we'll send you a link to reset your password
+        </p>
+        
         <div className="input-container">
           <FaEnvelope className="input-icon" />
           <input
             type="email"
             id="forgotPasswordEmail"
-            placeholder="Email"
+            placeholder="Email Address"
             className="input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={isPending}
           />
         </div>
-        {error && <p className="error">{error.message}</p>}
-        {message && <p className="success">{message}</p>}
-        <button type="submit" className="btn" disabled={isPending}>
-          {isPending ? 'Loading...' : 'Send Reset Link'}
+        
+        {message && (
+          <p className={isSuccess ? 'success' : 'error'}>
+            {message}
+          </p>
+        )}
+        
+        <button 
+          type="submit" 
+          className="btn" 
+          disabled={isPending}
+        >
+          {isPending ? 'Sending...' : 'Send Reset Link'}
         </button>
+        
         <p className="auth-link">
-          <a href="/sign-in" className="link">
+          <a href="/auth" className="link">
             Back to Sign In
           </a>
         </p>
