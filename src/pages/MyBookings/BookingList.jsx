@@ -101,6 +101,8 @@ const BookingList = () => {
             }
           });
 
+          console.log('DEBUG BOOKINGS:', augmentedBookings);
+
           setBookings(augmentedBookings);
         } else {
           setBookings([]);
