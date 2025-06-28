@@ -6,7 +6,7 @@ const DataContext = createContext();
 export function DataProvider({ children }) {
   // --- 1. التعامل مع بيانات البحث (sharedData) كما هي ---
   const storedSearch = JSON.parse(localStorage.getItem("sharedData"));
-  const [sharedData, setSharedData] = useState(storedSearch);
+  const [sharedData, setSharedData] = useState(storedSearch || { currency: "USD" });
   useEffect(() => {
     localStorage.setItem("sharedData", JSON.stringify(sharedData));
   }, [sharedData]);
