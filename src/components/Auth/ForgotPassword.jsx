@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { FaEnvelope, FaArrowLeft } from 'react-icons/fa';
-import './ForgotPassword.css';
+import './VerifyEmail.css';
+import signphoto from '../../assets/pexels-pixabay-237272.jpg';
 
 const requestPasswordReset = async ({ email }) => {
   const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/request-password-reset`, {
@@ -26,14 +26,14 @@ export default function ForgotPassword() {
   const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
 
-  const { mutate, isPending, error } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: requestPasswordReset,
-    onSuccess: (data) => {
+    onSuccess: () => {
       setMessage('A password reset link has been sent to your email.');
       setIsSuccess(true);
       setTimeout(() => {
-        navigate('/auth/reset-password');
-      }, 3000);
+        navigate('/auth/reset-password', { state: { email } });
+      }, 2000);
     },
     onError: (error) => {
       setMessage(error.message);
@@ -52,62 +52,45 @@ export default function ForgotPassword() {
     mutate({ email });
   };
 
-  const handleBackToSignIn = () => {
-    navigate('/auth');
-  };
-
   return (
-    <div className="container__form container--forgot-password">
-      <form className="form" onSubmit={handleSubmit}>
-        <div className="form-header">
-          <button 
-            type="button" 
-            className="back-button" 
-            onClick={handleBackToSignIn}
-          >
-            <FaArrowLeft />
-          </button>
-          <h2 className="form__title">Forgot Password?</h2>
+    <div className="verify-sec">
+      <img src={signphoto} alt="" className="signphoto" />
+      <div className="verify-container">
+        <div className="verify-container__form">
+          <form className="verify-form" onSubmit={handleSubmit}>
+            <h2 className="verify-form__title">Forgot Password?</h2>
+            <p>Enter your email address and we'll send you a link to reset your password.</p>
+            <input
+              type="email"
+              placeholder="Email Address"
+              className="verify-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={isPending}
+            />
+            {message && (
+              <p className={isSuccess ? 'verify-success' : 'verify-error'}>{message}</p>
+            )}
+            <button type="submit" className="verify-btn" disabled={isPending}>
+              {isPending ? 'Sending...' : 'Send Reset Link'}
+            </button>
+            <p className="verify-auth-link">
+              <a href="/auth" onClick={e => { e.preventDefault(); navigate('/auth'); }}>
+                Back to Sign In
+              </a>
+            </p>
+          </form>
         </div>
-        
-        <p className="form-description">
-          Enter your email address and we'll send you a link to reset your password
-        </p>
-        
-        <div className="input-container">
-          <FaEnvelope className="input-icon" />
-          <input
-            type="email"
-            id="forgotPasswordEmail"
-            placeholder="Email Address"
-            className="input"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            disabled={isPending}
-          />
+        <div className="verify-container__overlay">
+          <div className="verify-overlay">
+            <div className="verify-overlay__panel verify-overlay--left"></div>
+            <div className="verify-overlay__panel verify-overlay--right">
+              <button className="verify-btn" onClick={() => navigate('/auth')}>Sign Up</button>
+            </div>
+          </div>
         </div>
-        
-        {message && (
-          <p className={isSuccess ? 'success' : 'error'}>
-            {message}
-          </p>
-        )}
-        
-        <button 
-          type="submit" 
-          className="btn" 
-          disabled={isPending}
-        >
-          {isPending ? 'Sending...' : 'Send Reset Link'}
-        </button>
-        
-        <p className="auth-link">
-          <a href="/auth" className="link">
-            Back to Sign In
-          </a>
-        </p>
-      </form>
+      </div>
     </div>
   );
 }
