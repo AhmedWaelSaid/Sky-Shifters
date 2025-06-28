@@ -68,8 +68,8 @@ export default function UserProfile() {
 
   // عند الضغط على View all
   const handleViewAll = () => {
-    console.log('[UserProfile] handleViewAll: navigate to /UserProfile?tab=notifications');
-    navigate('/UserProfile?tab=notifications');
+    console.log('[UserProfile] handleViewAll: navigate to /profile?tab=notifications');
+    navigate('/profile?tab=notifications');
     setIsNotificationsOpen(false);
   };
 
