@@ -19,7 +19,7 @@ async function getFlightsFromAPI(input, signal) {
     originLocationCode: input.origin.airport.iata,
     destinationLocationCode: input.dest.airport.iata,
     departureDate: format(input.date, "u-LL-dd"),
-    currencyCode: "USD",
+    currencyCode: input.currency,
   });
   // Add passengers
   if (input.passengerClass) {
@@ -100,6 +100,7 @@ export default function Container() {
   const [APISearch, setAPISearch] = useState({
     ...sharedData.departure,
     passengerClass: sharedData.passengerClass,
+    currency:sharedData.currency,
   });
   const { data: flightsData, loading, error } = useSearchData(APISearch);
   const [stop, setStop] = useState("");
@@ -110,9 +111,10 @@ export default function Container() {
   const [priceAndDuration, setPriceAndDuration] = useState({});
   const [isReturn, setIsReturn] = useState(false);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [airLinesChecked, stop, flightDuration, price]);
+  useEffect(()=>{
+    setAPISearch((prev)=>({...prev,currency:sharedData.currency}))
+    setIsReturn(false);
+  },[sharedData.currency])
 
   useEffect(() => {
     if (
@@ -227,6 +229,7 @@ export default function Container() {
                 text: "Change departure",
                 className: "selectDepFlightBtn",
               }}
+              currency={sharedData.currency}
             />
           </div>
         </div>
