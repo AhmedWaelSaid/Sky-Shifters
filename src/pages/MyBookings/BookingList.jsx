@@ -76,11 +76,14 @@ const BookingList = () => {
                 const airline = getAirlineName(booking, storedDetails.departure);
                 const carrierCode = getCarrierCode(booking, storedDetails.departure);
                 const airlineLogo = getAirlineLogo(carrierCode);
+                // تأكد من نقل numberOfStops من الحجز الأصلي إذا لم تكن موجودة في التفاصيل
+                const numberOfStops = storedDetails.departure.numberOfStops ?? booking.numberOfStops;
                 return {
                   ...booking,
                   ...storedDetails.departure,
                   airline,
-                  airlineLogo
+                  airlineLogo,
+                  numberOfStops
                 };
               }
             }

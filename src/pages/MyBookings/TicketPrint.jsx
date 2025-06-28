@@ -42,6 +42,10 @@ const TicketPrint = ({ booking, onClose }) => {
   const isRoundTrip = flights.length > 1;
   const activeFlight = flights[activeFlightIndex] || {};
 
+  const stops = typeof activeFlight.numberOfStops === 'number'
+    ? activeFlight.numberOfStops
+    : (booking.numberOfStops ?? 0);
+
   const handlePrint = () => {
     const printContent = ticketRef.current;
     if (printContent) {
@@ -149,11 +153,7 @@ const TicketPrint = ({ booking, onClose }) => {
               
               <div className={styles.flightPath}>
                 <div className={styles.stops}>
-                  {typeof activeFlight.numberOfStops === 'number'
-                    ? (activeFlight.numberOfStops > 0
-                        ? `${activeFlight.numberOfStops} Stop${activeFlight.numberOfStops > 1 ? 's' : ''}`
-                        : 'Direct')
-                    : 'Direct'}
+                  {stops > 0 ? `${stops} Stop${stops > 1 ? 's' : ''}` : 'Direct'}
                 </div>
                 <div className={styles.pathLine}></div>
                 <div className={styles.plane}>✈</div>
