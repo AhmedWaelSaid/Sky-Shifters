@@ -11,7 +11,7 @@ const FareBreakdown = ({
   showBackButton = false,
   showContinueButton = true,
 }) => {
-  let { flight } = useData();
+  let { flight,sharedData } = useData();
   // حساب سعر الحقيبة من formData فقط
   const extraBaggagePrice = formData?.baggageSelection?.price || 0;
 
@@ -126,9 +126,8 @@ const FareBreakdown = ({
   };
 
   const priceDetails = calculateTotal();
-
   const formatPrice = (price) => {
-    return `$${price.toFixed(2)}`;
+    return `${sharedData.currency} ${price.toFixed(2)}`;
   };
 
   // Group passengers by type and age group for display

@@ -389,6 +389,7 @@ FlightsUI.propTypes = {
   btnHandler2: PropTypes.func,
   button: PropTypes.object,
   button2: PropTypes.object,
+  currency: PropTypes.string,
 };
 Airline.propTypes = {
   carriers: PropTypes.object,
