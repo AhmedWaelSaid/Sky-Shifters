@@ -94,16 +94,28 @@ const Index = () => {
       return;
     }
       if (currentStep === 3) {
-        const travellersInfoForApi = passengers.map((p) => ({
-          firstName: p.details.firstName,
-          lastName: p.details.lastName,
-          birthDate: p.details.dateOfBirth,
-          travelerType: p.type,
-          nationality: p.details.nationality,
-          passportNumber: p.details.passportNumber,
-          issuingCountry: p.details.issuingCountry,
-          expiryDate: p.details.passportExpiry,
-        }));
+        const travellersInfoForApi = passengers.map((p) => {
+          // معالجة تاريخ الميلاد
+          let birthDate = p.details.dateOfBirth;
+          if (!birthDate && p.details.day && p.details.month && p.details.year) {
+            const monthIndex = {
+              January: 0, February: 1, March: 2, April: 3, May: 4, June: 5, July: 6, August: 7, September: 8, October: 9, November: 10, December: 11
+            }[p.details.month];
+            if (monthIndex !== undefined) {
+              birthDate = `${p.details.year}-${String(monthIndex + 1).padStart(2, '0')}-${String(p.details.day).padStart(2, '0')}`;
+            }
+          }
+          return {
+            firstName: p.details.firstName,
+            lastName: p.details.lastName,
+            birthDate: birthDate,
+            travelerType: p.type,
+            nationality: p.details.nationality,
+            passportNumber: p.details.passportNumber,
+            issuingCountry: p.details.issuingCountry,
+            expiryDate: p.details.passportExpiry,
+          };
+        });
 
         const baggageDataFromState = formData.baggageSelection || {};
         let baggagePrice = 0;
@@ -265,16 +277,27 @@ const Index = () => {
   useEffect(() => {
     if (currentStep === 4) {
       // إعادة بناء finalBookingData بنفس منطق handleContinue
-      const travellersInfoForApi = passengers.map((p) => ({
-        firstName: p.details.firstName,
-        lastName: p.details.lastName,
-        birthDate: p.details.dateOfBirth,
-        travelerType: p.type,
-        nationality: p.details.nationality,
-        passportNumber: p.details.passportNumber,
-        issuingCountry: p.details.issuingCountry,
-        expiryDate: p.details.passportExpiry,
-      }));
+      const travellersInfoForApi = passengers.map((p) => {
+        let birthDate = p.details.dateOfBirth;
+        if (!birthDate && p.details.day && p.details.month && p.details.year) {
+          const monthIndex = {
+            January: 0, February: 1, March: 2, April: 3, May: 4, June: 5, July: 6, August: 7, September: 8, October: 9, November: 10, December: 11
+          }[p.details.month];
+          if (monthIndex !== undefined) {
+            birthDate = `${p.details.year}-${String(monthIndex + 1).padStart(2, '0')}-${String(p.details.day).padStart(2, '0')}`;
+          }
+        }
+        return {
+          firstName: p.details.firstName,
+          lastName: p.details.lastName,
+          birthDate: birthDate,
+          travelerType: p.type,
+          nationality: p.details.nationality,
+          passportNumber: p.details.passportNumber,
+          issuingCountry: p.details.issuingCountry,
+          expiryDate: p.details.passportExpiry,
+        };
+      });
       const baggageDataFromState = formData.baggageSelection || {};
       let baggagePrice = 0;
       if (formData.baggageSelection) {
