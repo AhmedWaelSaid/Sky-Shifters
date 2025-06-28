@@ -151,9 +151,13 @@ const TicketPrint = ({ booking, onClose }) => {
                 <div className={styles.pathLine}></div>
                 <div className={styles.plane}>✈</div>
                 <div className={styles.duration}>{formatDuration(activeFlight.duration) || '--'}</div>
-                {activeFlight.numberOfStops > 0 && (
-                  <div className={styles.stops}>{activeFlight.numberOfStops} Stop{activeFlight.numberOfStops > 1 ? 's' : ''}</div>
-                )}
+                <div className={styles.stops}>
+                  {typeof activeFlight.numberOfStops === 'number'
+                    ? (activeFlight.numberOfStops > 0
+                        ? `${activeFlight.numberOfStops} Stop${activeFlight.numberOfStops > 1 ? 's' : ''}`
+                        : 'Direct')
+                    : 'Direct'}
+                </div>
               </div>
               
               <div className={styles.arrival}>
