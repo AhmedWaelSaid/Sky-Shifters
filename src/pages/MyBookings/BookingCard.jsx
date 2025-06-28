@@ -227,7 +227,19 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                   <div className={styles.airlineSection}>
                     <div className={styles.airlineIcon}>
                       <div className={styles.airlineLogo}>
-                        {(flight.airline || 'F').charAt(0)}
+                        {flight.airlineLogo ? (
+                          <img
+                            src={flight.airlineLogo}
+                            alt={flight.airline || 'Airline Logo'}
+                            onError={e => {
+                              e.target.onerror = null;
+                              e.target.src = 'src/assets/no-logo.jpg';
+                            }}
+                            style={{ width: 40, height: 40, borderRadius: '50%' }}
+                          />
+                        ) : (
+                          (flight.airline || 'F').charAt(0)
+                        )}
                       </div>
                     </div>
                     <div className={styles.airlineInfo}>
@@ -276,7 +288,19 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
                 <div className={styles.airlineSection}>
                   <div className={styles.airlineIcon}>
                     <div className={styles.airlineLogo}>
-                      {(booking.airline || 'F').charAt(0)}
+                      {booking.airlineLogo ? (
+                        <img
+                          src={booking.airlineLogo}
+                          alt={booking.airline || 'Airline Logo'}
+                          onError={e => {
+                            e.target.onerror = null;
+                            e.target.src = 'src/assets/no-logo.jpg';
+                          }}
+                          style={{ width: 40, height: 40, borderRadius: '50%' }}
+                        />
+                      ) : (
+                        (booking.airline || 'F').charAt(0)
+                      )}
                     </div>
                   </div>
                   <div className={styles.airlineInfo}>

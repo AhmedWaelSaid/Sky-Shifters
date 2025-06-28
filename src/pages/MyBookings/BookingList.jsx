@@ -43,31 +43,62 @@ const BookingList = () => {
             // Use bookingRef if available, otherwise fall back to _id
             const bookingKey = booking.bookingRef || booking._id;
             const storedDetailsRaw = localStorage.getItem(`flightDetails_${bookingKey}`);
-            
+            // Helper to get airline logo from carrier code
+            const getAirlineLogo = (carrierCode) => carrierCode ? `https://pics.avs.io/40/40/${carrierCode}.png` : undefined;
+            // Helper to get airline name from booking or details
+            const getAirlineName = (flightLeg, details) => {
+              // Try details first, then flightLeg, then booking
+              return (details && details.airline) || flightLeg.airline || booking.airline || 'Unknown Airline';
+            };
+            // Helper to get carrier code
+            const getCarrierCode = (flightLeg, details) => {
+              return (details && details.carrierCode) || flightLeg.carrierCode || flightLeg.airlineCode || undefined;
+            };
             if (storedDetailsRaw) {
               const storedDetails = JSON.parse(storedDetailsRaw);
-              
               // Handle round-trip bookings (they have a flightData array)
               if (booking.flightData && booking.flightData.length > 0) {
                 const newFlightData = booking.flightData.map(flightLeg => {
                   const legType = flightLeg.typeOfFlight === 'GO' ? 'departure' : 'return';
                   const details = storedDetails[legType];
+                  const airline = getAirlineName(flightLeg, details);
+                  const carrierCode = getCarrierCode(flightLeg, details);
+                  const airlineLogo = getAirlineLogo(carrierCode);
                   if (details) {
-                    return { ...flightLeg, ...details };
+                    return { ...flightLeg, ...details, airline, airlineLogo };
                   }
-                  return flightLeg;
+                  return { ...flightLeg, airline, airlineLogo };
                 });
                 return { ...booking, flightData: newFlightData };
               } 
               // Handle one-way bookings (data is on the root object)
               else if (storedDetails.departure) {
+                const airline = getAirlineName(booking, storedDetails.departure);
+                const carrierCode = getCarrierCode(booking, storedDetails.departure);
+                const airlineLogo = getAirlineLogo(carrierCode);
                 return {
                   ...booking,
-                  ...storedDetails.departure
+                  ...storedDetails.departure,
+                  airline,
+                  airlineLogo
                 };
               }
             }
-            return booking;
+            // fallback: add airline info if possible
+            if (booking.flightData && booking.flightData.length > 0) {
+              const newFlightData = booking.flightData.map(flightLeg => {
+                const airline = getAirlineName(flightLeg);
+                const carrierCode = getCarrierCode(flightLeg);
+                const airlineLogo = getAirlineLogo(carrierCode);
+                return { ...flightLeg, airline, airlineLogo };
+              });
+              return { ...booking, flightData: newFlightData };
+            } else {
+              const airline = getAirlineName(booking);
+              const carrierCode = getCarrierCode(booking);
+              const airlineLogo = getAirlineLogo(carrierCode);
+              return { ...booking, airline, airlineLogo };
+            }
           });
 
           setBookings(augmentedBookings);
