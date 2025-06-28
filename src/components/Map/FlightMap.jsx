@@ -164,6 +164,22 @@ const FlightMap = ({ flight }) => {
     const totalFlightDurationMs = isoDurationToMs(duration);
     const arrivalTimeMs = departureTimeMs + totalFlightDurationMs;
 
+    // --- مكان بناء مربع المعلومات الرئيسي ---
+    // اجمع كل المعلومات في مربع واحد
+    let infoBoxHtml = `<div style="text-align:left;color:white;min-width:220px;">
+      <div style="font-weight:bold;font-size:1.1rem;">Flight Duration: ${formatDuration(duration)}</div>
+      <div style="font-size:0.95rem;margin-top:4px;">✈️ ${originAirport.name}</div>
+      <div style="font-size:0.95rem;">✈️ ${destinationAirport.name}</div>
+      <div style="font-size:0.95rem;">🛫 ${flight.airline?.toUpperCase() || ''}</div>`;
+    // أضف الوقت المتبقي إذا الرحلة جارية
+    if (Date.now() >= departureTimeMs && Date.now() < arrivalTimeMs) {
+      const remainingTime = arrivalTimeMs - Date.now();
+      infoBoxHtml += `<div style='margin-top:8px;font-size:1rem;font-weight:bold;'>⏳ Remaining: ${formatDuration(msToISODuration(remainingTime))}</div>`;
+    }
+    infoBoxHtml += '</div>';
+    // ثم استخدم infoBoxHtml في popup الرئيسي
+    popup.setLngLat(originCoords).setHTML(infoBoxHtml).addTo(map.current);
+
     const animate = () => {
         const now = Date.now();
         let currentCoords, htmlContent;

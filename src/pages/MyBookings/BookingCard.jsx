@@ -110,6 +110,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
         ...flight,
         originAirport,
         destinationAirport,
+        duration: flight.duration,
         flightId: flight.flightID // Ensure a unique ID for toggling
       });
       setShowMap(true);
