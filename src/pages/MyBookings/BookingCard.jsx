@@ -93,6 +93,7 @@ const BookingCard = ({ booking, onCancel, onPrintTicket, onCompletePayment, onDe
   };
 
   const handleShowMap = async (flight) => {
+    console.log('CARD DURATION:', flight.duration);
     // If map for the same flight is already shown, hide it
     if (showMap && flightDetailsForMap?.flightId === flight.flightID) {
       setShowMap(false);

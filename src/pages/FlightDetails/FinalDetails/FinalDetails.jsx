@@ -130,6 +130,10 @@ const FinalDetails = ({ passengers, formData, onBack, sharedData }) => {
                     // Fallback in case bookingRef is not returned, though it should be.
                     localStorage.setItem(`flightDetails_${newBookingId}`, JSON.stringify(flightDetailsToStore));
                   }
+                  console.log('STORED DURATION (departure):', flight.departure.data.itineraries[0].duration);
+                  if (isRoundTrip) {
+                    console.log('STORED DURATION (return):', flight.return.data.itineraries[0].duration);
+                  }
                 } catch (e) {
                     console.error("Failed to store flight details in localStorage", e);
                 }

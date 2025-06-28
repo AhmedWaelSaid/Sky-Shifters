@@ -47,6 +47,7 @@ const TicketPrint = ({ booking, onClose }) => {
   const stops = typeof activeFlight.numberOfStops === 'number'
     ? activeFlight.numberOfStops
     : (booking.numberOfStops ?? 0);
+  console.log('TICKET DURATION:', activeFlight.duration);
 
   const handlePrint = () => {
     const printContent = ticketRef.current;

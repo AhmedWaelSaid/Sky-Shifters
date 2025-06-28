@@ -64,10 +64,11 @@ const BookingList = () => {
                   const airline = getAirlineName(flightLeg, details);
                   const carrierCode = getCarrierCode(flightLeg, details);
                   const airlineLogo = getAirlineLogo(carrierCode);
+                  const duration = details?.duration || flightLeg.duration;
                   if (details) {
-                    return { ...flightLeg, ...details, airline, airlineLogo };
+                    return { ...flightLeg, ...details, airline, airlineLogo, duration };
                   }
-                  return { ...flightLeg, airline, airlineLogo };
+                  return { ...flightLeg, airline, airlineLogo, duration };
                 });
                 return { ...booking, flightData: newFlightData };
               } 
@@ -76,14 +77,15 @@ const BookingList = () => {
                 const airline = getAirlineName(booking, storedDetails.departure);
                 const carrierCode = getCarrierCode(booking, storedDetails.departure);
                 const airlineLogo = getAirlineLogo(carrierCode);
-                // تأكد من نقل numberOfStops من الحجز الأصلي إذا لم تكن موجودة في التفاصيل
                 const numberOfStops = storedDetails.departure.numberOfStops ?? booking.numberOfStops;
+                const duration = storedDetails.departure.duration || booking.duration;
                 return {
                   ...booking,
                   ...storedDetails.departure,
                   airline,
                   airlineLogo,
-                  numberOfStops
+                  numberOfStops,
+                  duration
                 };
               }
             }
