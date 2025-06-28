@@ -32,8 +32,8 @@ export default function ForgotPassword() {
       setMessage('A password reset link has been sent to your email.');
       setIsSuccess(true);
       setTimeout(() => {
-        navigate('/auth');
-      }, 5000);
+        navigate('/auth/reset-password');
+      }, 3000);
     },
     onError: (error) => {
       setMessage(error.message);
