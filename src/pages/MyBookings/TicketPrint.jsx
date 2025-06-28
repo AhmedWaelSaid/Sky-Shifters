@@ -37,6 +37,8 @@ const TicketPrint = ({ booking, onClose }) => {
         arrivalDate: booking.arrivalDate || booking.arrival?.date,
         airline: booking.airline,
         duration: booking.duration,
+        airlineLogo: booking.airlineLogo,
+        carrierCode: booking.carrierCode
       }];
 
   const isRoundTrip = flights.length > 1;
