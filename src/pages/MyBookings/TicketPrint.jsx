@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './TicketPrint.module.css';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { formatDuration } from '../SelectedFlights/someFun';
 
 const toTitleCase = (str) => {
   if (!str || typeof str !== 'string') return '';
@@ -117,7 +118,19 @@ const TicketPrint = ({ booking, onClose }) => {
             <div className={styles.ticketInfo}>
               <div className={styles.airline}>
                 <div className={styles.airlineLogo}>
-                  {(activeFlight.airline || 'F').charAt(0)}
+                  {activeFlight.airlineLogo ? (
+                    <img
+                      src={activeFlight.airlineLogo}
+                      alt={activeFlight.airline || 'Airline Logo'}
+                      onError={e => {
+                        e.target.onerror = null;
+                        e.target.src = 'src/assets/no-logo.jpg';
+                      }}
+                      style={{ width: 40, height: 40, borderRadius: '50%' }}
+                    />
+                  ) : (
+                    (activeFlight.airline || 'F').charAt(0)
+                  )}
                 </div>
                 <div>
                   <div className={styles.airlineName}>{toTitleCase(activeFlight.airline) || 'Flight'}</div>
@@ -137,7 +150,7 @@ const TicketPrint = ({ booking, onClose }) => {
               <div className={styles.flightPath}>
                 <div className={styles.pathLine}></div>
                 <div className={styles.plane}>✈</div>
-                <div className={styles.duration}>{activeFlight.duration || '--'}</div>
+                <div className={styles.duration}>{formatDuration(activeFlight.duration) || '--'}</div>
                 {activeFlight.numberOfStops > 0 && (
                   <div className={styles.stops}>{activeFlight.numberOfStops} Stop{activeFlight.numberOfStops > 1 ? 's' : ''}</div>
                 )}
