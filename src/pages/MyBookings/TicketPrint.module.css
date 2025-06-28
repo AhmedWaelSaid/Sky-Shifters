@@ -508,9 +508,10 @@
   }
   
   .airlineLogo {
-    background-color: rgba(255, 255, 255, 0.2) !important;
-    color: white !important;
-    border-color: rgba(255, 255, 255, 0.3) !important;
+    background-color: #fff !important;
+    color: #007bff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   
   .pathLine {
