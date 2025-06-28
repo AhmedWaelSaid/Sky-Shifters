@@ -150,26 +150,26 @@ export default function MainHeader({setAPISearch,setIsReturn}) {
         return;
       }
       if (origin.airport && dest.airport && dates.departure && !dates.return) {
-        setSharedData({
+        setSharedData((prev)=>({...prev,
           departure: { date: dates.departure, dest, origin },
           return: null,
           passengerClass,
-        });
+        }));
         setIsReturn(false);
-        setAPISearch({date: dates.departure, dest, origin ,passengerClass});
+        setAPISearch({date: dates.departure, dest, origin ,passengerClass,currency:sharedData.currency});
       } else if (
         origin.airport &&
         dest.airport &&
         dates.departure &&
         dates.return
       ) {
-        setSharedData({
+        setSharedData((prev)=> ({...prev,
           departure: { date: dates.departure, dest, origin },
           return: { date: dates.return, dest: origin, origin: dest },
           passengerClass,
-        });
+        }));
         setIsReturn(false);
-        setAPISearch({date: dates.departure, dest, origin ,passengerClass});
+        setAPISearch({date: dates.departure, dest, origin ,passengerClass,currency:sharedData.currency});
       }
     }
   }

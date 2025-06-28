@@ -9,6 +9,7 @@ import { formatDuration } from "./someFun";
 import DetailsOfTheFlight from "../FlightDetails/DetailsOfTheFlight/DetailsOfTheFlight";
 import { useState, useEffect } from "react";
 import { dayDifference } from "./someFun";
+import Portal from "../../components/Portal/Portal";
 function capitalizeWords(str) {
   if (typeof str !== "string") return "";
   return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
@@ -89,11 +90,12 @@ export function FlightsUI({
   carriers,
   button,
   button2 = { exist: false },
+  currency,
 }) {
   const [showPlusTime, setShowPlusTime] = useState(false);
   return (
     <div className={styles.flight}>
-      <Airline  flight={flight} carriers={carriers} />
+      <Airline flight={flight} carriers={carriers} />
       <div className={styles.flightTime}>
         <div
           className={styles.plusDays}
@@ -164,7 +166,9 @@ export function FlightsUI({
             : flight.itineraries[0].segments[0].arrival.iataCode}
         </div>
       </div>
-      <div className={styles.flightPrice}>{flight.price.total} USD</div>
+      <div className={styles.flightPrice}>
+        {flight.price.total} {currency}
+      </div>
       <button
         className={styles[button.className]}
         onClick={() => btnHandler(flight)}
@@ -246,6 +250,7 @@ export function Main({
     setAPISearch({
       ...sharedData.return,
       passengerClass: sharedData.passengerClass,
+      currency: sharedData.currency,
     });
     setTimeout(() => {
       setIsReturn(true);
@@ -275,21 +280,30 @@ export function Main({
       {tempFlight && (
         <div
           className={`${styles.detailsPanel} ${isDetailsOpen ? styles.open : ""}`}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) toggleDetails();
+          }}
         >
-          <div className={styles.detailsPanelContent}>
-            <DetailsOfTheFlight
-              onClose={toggleDetails}
-              onUpdateForm={setFakeForm}
-              formData={fakeForm}
-              flight={tempFlight}
-            />
-          </div>
+          <Portal>
+            {isDetailsOpen&&<div
+              className={styles.detailsPanelContent}
+              
+            >
+              <DetailsOfTheFlight
+                onClose={toggleDetails}
+                onUpdateForm={setFakeForm}
+                formData={fakeForm}
+                flight={tempFlight}
+              />
+            </div>}
+          </Portal>
         </div>
       )}
       <div className={styles.mainBody}>
         {currentFlights.map((flight) => {
           const carriers = flightsData.dictionaries.carriers;
           const aircraft = flightsData.dictionaries.aircraft;
+          const currency = sharedData.currency;
           let btnHandler;
           let button;
           let button2 = { exist: false };
@@ -336,6 +350,7 @@ export function Main({
                 carriers={carriers}
                 button={button}
                 button2={button2}
+                currency={currency}
               />
             </>
           );
@@ -375,7 +390,7 @@ FlightsUI.propTypes = {
   button: PropTypes.object,
   button2: PropTypes.object,
 };
-Airline.propTypes= {
+Airline.propTypes = {
   carriers: PropTypes.object,
-  flight:PropTypes.object,
-}
+  flight: PropTypes.object,
+};

@@ -1,0 +1,43 @@
+.currency {
+    display: flex;
+    justify-content: center;
+    color:var(--DarkyellowText-color); 
+    position: relative;
+}
+.currency svg {
+    width: 25px;
+    height: 25px;
+    text-align: center;
+    fill: var(--DarkyellowText-color);
+}
+.currency:hover {
+    cursor: pointer;
+}
+.listContainer{
+    position: absolute;
+    top: 55px;
+    right: 320px;
+    background-color: white;
+    z-index: 25;
+    border: 1px solid #9E9E9E;
+    border-radius: 5px;
+}
+.listContainer div+div{
+    margin-top: 5px;
+}
+.listContainer div:hover {
+    background-color: #E0E0E0;
+    cursor: pointer;
+}
+.listContainer div {
+    padding:7px 10px;
+}
+.container{
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 21;
+}

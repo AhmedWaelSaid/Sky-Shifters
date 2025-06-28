@@ -34,7 +34,7 @@ export function AirportInput({
           ...prev,
           text: e.target.value,
           isTextCorrect: false,
-          error:""
+          error: "",
         }))
       }
       placeholder={placeholder}
@@ -98,38 +98,46 @@ export default function FlightSearchForm() {
         origin.text.trim() == "" ||
         dest.text.trim() == "" ||
         !origin.airport ||
-        !dest.airport || !origin.isTextCorrect ||!dest.isTextCorrect
+        !dest.airport ||
+        !origin.isTextCorrect ||
+        !dest.isTextCorrect
       ) {
-        if (origin.text.trim() == "")
-          {
-            setOrigin({
+        if (origin.text.trim() == "") {
+          setOrigin({
             ...origin,
             error: "Empty field! Please select an airport from the list.",
-          });}
+          });
+        }
         if (dest.text.trim() == "")
           setDest({
             ...dest,
             error: "Empty field! Please select an airport from the list.",
           });
-        if ((!origin.airport || !origin.isTextCorrect) && origin.text.trim() != "")
+        if (
+          (!origin.airport || !origin.isTextCorrect) &&
+          origin.text.trim() != ""
+        )
           setOrigin({
             ...origin,
-            error: "Incorrect Airport! Please select a valid airport from the list.",
+            error:
+              "Incorrect Airport! Please select a valid airport from the list.",
           });
-        if ((!dest.airport|| !dest.isTextCorrect) && dest.text.trim() != "")
-        {
+        if ((!dest.airport || !dest.isTextCorrect) && dest.text.trim() != "") {
           setDest({
-          ...dest,
-          error: "Incorrect Airport! Please select a valid airport from the list.",
-        });}
+            ...dest,
+            error:
+              "Incorrect Airport! Please select a valid airport from the list.",
+          });
+        }
         return;
       }
       if (origin.airport && dest.airport && dates.departure && !dates.return) {
-        setSharedData({
+        setSharedData((prev) => ({
+          ...prev,
           departure: { date: dates.departure, dest, origin },
           return: null,
           passengerClass,
-        });
+        }));
         navigate("/selected-flights");
       } else if (
         origin.airport &&
@@ -137,11 +145,12 @@ export default function FlightSearchForm() {
         dates.departure &&
         dates.return
       ) {
-        setSharedData({
+        setSharedData((prev) => ({
+          ...prev,
           departure: { date: dates.departure, dest, origin },
           return: { date: dates.return, dest: origin, origin: dest },
           passengerClass,
-        });
+        }));
         navigate("/selected-flights");
       }
     }
