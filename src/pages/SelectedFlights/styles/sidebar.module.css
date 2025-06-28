@@ -135,6 +135,16 @@ hr {
     margin:var(--sub-body-margin);
     
 }
+.airLineIcon{
+  border-radius: 50%;
+    border: 0.5px solid rgb(216, 220, 222);
+    vertical-align: -7px;
+    margin-right: 10px;
+    margin-left: 5px;
+}
+.airlineInput{
+  margin-top: 10px;
+}
 .filter h3 {
   margin-bottom: 10px;
   

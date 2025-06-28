@@ -7,7 +7,7 @@ import "./FlightDetails.css";
 import { useData } from "../../components/context/DataContext";
 
 const Index = () => {
-  const { sharedData, flight } = useData();
+  const { sharedData, flight} = useData();
   const passengerRefs = useRef({}); // key: passengerId, value: form ref
 
   const getPassengerArr = () => {
@@ -41,6 +41,7 @@ const Index = () => {
     finalBookingData: null,
   });
 
+
   useEffect(() => {
     passengers.forEach((p) => {
       if (!passengerRefs.current[p.id]) {
@@ -48,7 +49,6 @@ const Index = () => {
       }
     });
   }, [passengers]);
-
   const updatePassengerDetails = (id, newDetails) => {
     setPassengers(
       passengers.map((passenger) =>

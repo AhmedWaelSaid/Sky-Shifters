@@ -3,8 +3,12 @@ import PropTypes from "prop-types";
 import { useEffect, useRef, useState } from "react";
 
 function InputCheckBox({ value, name, airLinesChecked, airLinesHandler }) {
+  function capitalizeWords(str) {
+    if (typeof str !== "string") return "";
+    return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+  }
   return (
-    <div>
+    <div className={styles.airlineInput}>
       <input
         type="checkbox"
         id={name}
@@ -13,7 +17,20 @@ function InputCheckBox({ value, name, airLinesChecked, airLinesHandler }) {
         checked={airLinesChecked ? !!airLinesChecked[value] : false}
         onChange={(e) => airLinesHandler(e)}
       />
-      <label htmlFor={name}>{name}</label>
+
+      <label htmlFor={name}>
+        <img
+          className={styles.airLineIcon}
+          src={`https://pics.avs.io/30/30/${value}.png`}
+          alt={name}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "src/assets/no-logo.jpg"; // fallback
+            console.warn("Logo failed to load:", e.target.src);
+          }}
+        />
+        {capitalizeWords(name)}
+      </label>
     </div>
   );
 }
@@ -233,13 +250,15 @@ export default function SideBar({
             <form>
               {airLinesArr.length > 0 &&
                 airLinesArr.map((airline) => (
-                  <InputCheckBox
-                    key={airline.code}
-                    value={airline.code}
-                    name={airline.name}
-                    airLinesChecked={airLinesChecked}
-                    airLinesHandler={airLinesHandler}
-                  />
+                  <>
+                    <InputCheckBox
+                      key={airline.code}
+                      value={airline.code}
+                      name={airline.name}
+                      airLinesChecked={airLinesChecked}
+                      airLinesHandler={airLinesHandler}
+                    />
+                  </>
                 ))}
             </form>
           </div>
