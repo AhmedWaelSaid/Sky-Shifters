@@ -42,7 +42,7 @@ const requestPasswordReset = async ({ email }) => {
   if (!response.ok) {
     const errorData = await response.json();
     console.error('Error response from server:', errorData);
-    throw new Error(errorData.message || 'Failed to send reset link');
+    throw new Error(errorData.message || 'Failed to send reset code');
   }
 
   const data = await response.json();
@@ -96,7 +96,7 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
   const { mutate: resetMutate, isPending: isResetPending, error: resetError } = useMutation({
     mutationFn: requestPasswordReset,
     onSuccess: () => {
-      setResendMessage('A password reset link has been sent to your email.');
+      setResendMessage('A password reset code has been sent to your email.');
       setTimeout(() => {
         setShowForgotPassword(false);
         setEmail('');
@@ -177,7 +177,7 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
       ) : (
         <form className="form" onSubmit={handleForgotPasswordSubmit}>
           <h2 className="form__title">Forgot Password</h2>
-          <p>Enter your email address to receive a password reset link.</p>
+          <p>Enter your email address to receive a password reset code.</p>
           <div className="input-container">
             <FaEnvelope className="input-icon" />
             <input
@@ -193,7 +193,7 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
           {resetError && <p className="error">{resetError.message}</p>}
           {resendMessage && <p className="success">{resendMessage}</p>}
           <button type="submit" className="btn" disabled={isResetPending}>
-            {isResetPending ? 'Loading...' : 'Send Reset Link'}
+            {isResetPending ? 'Loading...' : 'Send Reset Code'}
           </button>
           <p className="auth-link">
             <a href="#" className="link" onClick={(e) => { e.preventDefault(); toggleForm(); }}>
