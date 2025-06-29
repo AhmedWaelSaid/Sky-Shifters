@@ -20,7 +20,7 @@ const requestPasswordReset = async ({ email }) => {
 
 // منطق reset password
 const resetPassword = async ({ code, newPassword }) => {
-  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/reset-password`, {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/users/reset-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ code, newPassword }),
@@ -42,17 +42,17 @@ export default function ForgotPassword() {
 
   const { mutate, isPending, error } = useMutation({
     mutationFn: requestPasswordReset,
-    onSuccess: () => {
+    onSuccess: (data) => {
       setShowReset(true);
-      setMsg('');
+      setMsg(data.data?.message || 'Reset code sent successfully!');
     },
     onError: (err) => setMsg(err.message),
   });
 
   const { mutate: resetMutate, isPending: isResetting, error: resetError } = useMutation({
     mutationFn: resetPassword,
-    onSuccess: () => {
-      setMsg('Password reset successfully! You can now sign in.');
+    onSuccess: (data) => {
+      setMsg(data.data?.message || 'Password reset successfully! You can now sign in.');
       setTimeout(() => navigate('/auth'), 2000);
     },
     onError: (err) => setMsg(err.message),
@@ -68,7 +68,15 @@ export default function ForgotPassword() {
     e.preventDefault();
     setMsg('');
     if (!code) {
-      setMsg('No reset code provided.');
+      setMsg('Please enter the reset code.');
+      return;
+    }
+    if (!newPassword) {
+      setMsg('Please enter a new password.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setMsg('Password must be at least 6 characters long.');
       return;
     }
     resetMutate({ code, newPassword });
@@ -94,7 +102,7 @@ export default function ForgotPassword() {
           {error && <p className="error">{error.message}</p>}
           {msg && <p className={error ? 'error' : 'success'}>{msg}</p>}
           <button type="submit" className="btn" disabled={isPending}>
-            {isPending ? 'Loading...' : 'Send Reset Code'}
+            {isPending ? 'Sending...' : 'Send Reset Code'}
           </button>
           <p className="auth-link">
             <a href="/sign-in" className="link">Back to Sign In</a>
@@ -104,22 +112,27 @@ export default function ForgotPassword() {
         <form className="form" onSubmit={handleResetSubmit}>
           <h2 className="form__title">Reset Password</h2>
           <p>Enter the code sent to your email and your new password below.</p>
-          <input
-            type="text"
-            placeholder="Reset Code"
-            className="input"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="New Password"
-            className="input"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            required
-          />
+          <div className="input-container">
+            <input
+              type="text"
+              placeholder="Reset Code"
+              className="input"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              required
+            />
+          </div>
+          <div className="input-container">
+            <input
+              type="password"
+              placeholder="New Password"
+              className="input"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+              minLength={6}
+            />
+          </div>
           {resetError && <p className="error">{resetError.message}</p>}
           {msg && <p className={resetError ? 'error' : 'success'}>{msg}</p>}
           <button type="submit" className="btn" disabled={isResetting}>
