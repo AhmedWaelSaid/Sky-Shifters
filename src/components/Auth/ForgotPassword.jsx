@@ -6,7 +6,7 @@ import signphoto from '../../assets/pexels-pixabay-237272.jpg';
 import './ForgotPassword.css';
 
 const requestPasswordReset = async ({ email }) => {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/users/request-password-reset`, {
+  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/request-password-reset`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
@@ -19,7 +19,7 @@ const requestPasswordReset = async ({ email }) => {
 };
 
 const resetPassword = async ({ code, newPassword }) => {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/users/reset-password`, {
+  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/reset-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ code, newPassword }),
