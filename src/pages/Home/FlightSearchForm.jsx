@@ -24,7 +24,10 @@ export function AirportInput({
       name={name}
       id={name}
       className={`${styles[className]} ${value.isTextCorrect ? "" : styles.invalid}`}
-      onFocus={() => setFocus(true)}
+      onFocus={(e) => {
+        e.target.select();
+        setFocus(true);
+      }}
       onBlur={() => {
         setFocus(false);
       }}

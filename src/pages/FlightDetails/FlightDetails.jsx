@@ -226,7 +226,7 @@ const Index = () => {
               },
             ],
             totalPrice: parseFloat(finalTotalPrice.toFixed(2)),
-            currency: flight.departure.data.price.currency || "USD",
+            currency: sharedData.currency || "USD",
             travellersInfo: travellersInfoForApi,
             contactDetails: {
               email: formData.contactInfo.email,
@@ -432,7 +432,7 @@ const Index = () => {
             ?.arrival?.at?.split("T")[0],
           selectedBaggageOption: baggageObjectForApi,
           totalPrice: parseFloat(finalTotalPrice.toFixed(2)),
-          currency: flight?.departure?.data?.price?.currency || "USD",
+          currency: sharedData.currency || "USD",
           travellersInfo: travellersInfoForApi,
           contactDetails: {
             email: formData.contactInfo.email,

@@ -1,8 +1,9 @@
 import styles from "./styles/sidebar.module.css";
 import PropTypes from "prop-types";
 import { useEffect, useRef, useState } from "react";
+import { useData } from "../../components/context/DataContext";
 
-function InputCheckBox({ value, name, airLinesChecked, airLinesHandler }) {
+function InputCheckBox({ value, name, airLinesChecked, airLinesHandler,onImageLoad }) {
   function capitalizeWords(str) {
     if (typeof str !== "string") return "";
     return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
@@ -23,6 +24,7 @@ function InputCheckBox({ value, name, airLinesChecked, airLinesHandler }) {
           className={styles.airLineIcon}
           src={`https://pics.avs.io/30/30/${value}.png`}
           alt={name}
+          onLoad={onImageLoad}
           onError={(e) => {
             e.target.onerror = null;
             e.target.src = "src/assets/no-logo.jpg"; // fallback
@@ -39,6 +41,7 @@ InputCheckBox.propTypes = {
   name: PropTypes.string,
   airLinesChecked: PropTypes.object,
   airLinesHandler: PropTypes.func,
+  onImageLoad:PropTypes.func,
 };
 export default function SideBar({
   stop,
@@ -60,18 +63,21 @@ export default function SideBar({
     airlines: true,
     flightDuration: true,
   });
+  const [logosLoaded, setLogosLoaded] = useState(0);
   const [airlinesHeight, setAirlinesHeight] = useState(0);
+  const {sharedData} = useData();
   const airlinesRef = useRef(null);
-  useEffect(() => {
-    if (airlinesRef.current) {
-      setAirlinesHeight(airlinesRef.current.scrollHeight);
-    }
-  }, [airLinesChecked]);
-  if (!flightsData) return null;
   let airLinesArr = [];
   for (const key in airLines) {
     airLinesArr.push({ code: key, name: airLines[key] });
   }
+  useEffect(() => {
+    if (logosLoaded== airLinesArr.length && airlinesRef.current) {
+      setAirlinesHeight(airlinesRef.current.scrollHeight);
+    }
+  }, [logosLoaded, airLinesArr.length]);
+  if (!flightsData) return null;
+  
   function readableNum(num) {
     const string = String(num);
     if (string.includes(".")) {
@@ -139,10 +145,10 @@ export default function SideBar({
             />
             <div className={styles.indicatorContainer}>
               <div className={styles["price-range-indicator-low"]}>
-                {priceAndDuration.lowestPrice} USD
+                {priceAndDuration.lowestPrice} {sharedData.currency ? sharedData.currency : "USD"}
               </div>
               <div className={styles["price-range-indicator-high"]}>
-                {price} USD
+                {price} {sharedData.currency ? sharedData.currency : "USD"}
               </div>
             </div>
           </div>
@@ -257,6 +263,7 @@ export default function SideBar({
                       name={airline.name}
                       airLinesChecked={airLinesChecked}
                       airLinesHandler={airLinesHandler}
+                      onImageLoad={() => setLogosLoaded((prev) => prev + 1)}
                     />
                   </>
                 ))}
