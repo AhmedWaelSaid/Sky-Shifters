@@ -43,11 +43,8 @@ export default function ForgotPassword() {
   const { mutate, isPending, error } = useMutation({
     mutationFn: requestPasswordReset,
     onSuccess: () => {
-      setMsg('Password reset code sent to your email.');
-      setTimeout(() => {
-        setShowReset(true);
-        setMsg('');
-      }, 1000);
+      setShowReset(true);
+      setMsg('');
     },
     onError: (err) => setMsg(err.message),
   });
