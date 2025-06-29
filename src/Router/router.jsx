@@ -9,7 +9,6 @@ import SelectedFlights from "../pages/SelectedFlights/Container";
 import Flights from '../pages/SelectedFlights/Flights';
 import Auth from '../components/Auth/Auth';
 import ForgotPassword from '../components/Auth/ForgotPassword';
-import ResetPassword from '../components/Auth/ResetPassword';
 import VerifyEmail from '../components/Auth/VerifyEmail';
 import UserProfile from '../components/UserProfile/UserProfile';
 import FlightDetails from '../pages/FlightDetails/FlightDetails';
@@ -47,10 +46,6 @@ const router = createBrowserRouter([
       {
         path: 'auth/forgot-password',
         element: <ForgotPassword />,
-      },
-      {
-        path: 'auth/reset-password',
-        element: <ResetPassword />,
       },
       {
         path: 'auth/verify-email',
