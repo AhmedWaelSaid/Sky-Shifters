@@ -161,15 +161,18 @@ body.dark .verify-form {
 }
 
 .verify-input {
-  background-color: #fff;
-  border: none;
+  background-color: var(--profile-input-bg);
+  color: var(--profile-input-text);
+  border: 1px solid var(--profile-input-border);
   padding: 0.9rem 0.9rem;
   margin: 0.5rem 0;
   width: 100%;
-  color: #000000;
   font-size: 16px;
   font-weight: 600;
-  border-bottom: 1px solid #ccc;
+}
+
+.verify-input:focus {
+  border-color: var(--AuthBtn-color);
 }
 
 .verify-input[readonly] {
@@ -184,7 +187,7 @@ body.dark .verify-form {
 }
 
 .verify-auth-link {
-  color: var(--LightDarktext-color);
+  color: var(--DarkyellowText-color);
   font-size: 0.9rem;
   margin: 1.5rem 0;
 }
@@ -219,4 +222,9 @@ body.dark .resend-btn {
   background-color: #fbd684;
   background-image: linear-gradient(90deg, var(--AuthBtn-color) 0%, var(--AuthBtn-color) 74%);
   color: #000000;
+}
+
+.verify-btn:disabled {
+  background: #ccc;
+  color: #888;
 }

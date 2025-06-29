@@ -3,7 +3,7 @@
   left: 0;
 	width: 50%;
 	z-index: 2;
-  
+  background: var(--bg-color);
 }
 
 
@@ -16,4 +16,47 @@ text-decoration: none;
 color: var(--Btnbg-color);
 
 } 
+
+/* Example for input and button */
+.input {
+  background-color: var(--profile-input-bg);
+  color: var(--profile-input-text);
+  border: 1px solid var(--profile-input-border);
+}
+.input:focus {
+  border-color: var(--AuthBtn-color);
+}
+.btn {
+  background: var(--Btnbg-color);
+  color: var(--blackText-color);
+}
+.btn:disabled {
+  background: #ccc;
+  color: #888;
+}
+.form__title {
+  color: var(--DarkyellowText-color);
+}
+.auth-link, .link {
+  color: var(--DarkyellowText-color);
+}
+/* Add more as needed for your design */
+
+body.dark .container__form.container--signin {
+  background: var(--bg-color);
+}
+body.dark .form__title,
+body.dark .auth-link, 
+body.dark .link {
+  color: var(--DarkyellowText-color);
+}
+body.dark .input {
+  background-color: var(--profile-input-bg);
+  color: var(--profile-input-text);
+  border: 1px solid var(--profile-input-border);
+}
+body.dark .btn {
+  background: var(--Btnbg-color);
+  color: var(--blackText-color);
+}
 

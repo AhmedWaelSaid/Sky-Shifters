@@ -37,6 +37,7 @@ html {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
+  --bgform-color: #ffffff;
   --Btnbg-color: #0085FF;
   --AuthBtn-color : #1a9ff1 ;
   --DarkyellowText-color: black;
@@ -76,6 +77,7 @@ html {
 
 
 body.dark {
+  --bgform-color: #2a2a2a;
   --AuthBtn-color : #fbd684 ;
   --bg-color: #222127;     
   --DarkyellowText-color: #fbd684;        

@@ -4,6 +4,7 @@
 	opacity: 0;
 	width: 50%;
 	z-index: 1;
+  background: var(--bg-color);
 }
 /* @keyframes show {
 	0%,
@@ -25,8 +26,23 @@
 	z-index: 5;
 }
 
-
-
+body.dark .container__form.container--signup {
+  background: var(--bg-color);
+}
+body.dark .form__title,
+body.dark .auth-link, 
+body.dark .link {
+  color: var(--DarkyellowText-color);
+}
+body.dark .input {
+  background-color: var(--profile-input-bg);
+  color: var(--profile-input-text);
+  border: 1px solid var(--profile-input-border);
+}
+body.dark .btn {
+  background: var(--Btnbg-color);
+  color: var(--blackText-color);
+}
 
 .input-container {
   position: relative;
@@ -53,7 +69,7 @@
    width: 400px;
   height: 55px;
   padding: 8px 35px; /* نفس الـ padding بتاع الـ input الأصلي مع مساحة للأيقونة */
-  border: 1px solid #ccc;
+  border: 1px solid var(--profile-input-border);
   border-radius: 5px;
   font-size: 14px;
   font-weight: 500;
@@ -65,9 +81,14 @@
   overflow-wrap: break-word;
   display: block;
   transition: border-color 0.3s ease-in-out;
-  
+  background-color: var(--profile-input-bg);
+  color: var(--profile-input-text);
 }
 
+.input:focus {
+  outline: none;
+  border-color: var(--AuthBtn-color);
+}
 
 .date-picker {
   appearance: none;
@@ -144,4 +165,21 @@ body.dark .react-select-container .react-select__option {
 }
 body.dark .react-select-container .react-select__dropdown-indicator {
   color: var(--profile-button-bg) !important;
+}
+
+.btn {
+  background: var(--Btnbg-color);
+  color: var(--blackText-color);
+}
+.btn:disabled {
+  background: #ccc;
+  color: #888;
+}
+
+.form__title {
+  color: var(--DarkyellowText-color);
+}
+
+.auth-link, .link {
+  color: var(--DarkyellowText-color);
 }

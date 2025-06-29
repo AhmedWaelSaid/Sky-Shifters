@@ -48,6 +48,7 @@ const SignUp = memo(function SignUp({ onToggle }) {
   const [country, setCountry] = useState(null);
   const [birthdate, setBirthdate] = useState(null); // تغيير birthdate لتخزين Date object
   const [resendMessage, setResendMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -127,14 +128,22 @@ const SignUp = memo(function SignUp({ onToggle }) {
         <div className="input-container">
           <FaLock className="input-icon" />
           <input
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             id="signupPassword"
             placeholder="Password"
             className="input"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            style={{paddingRight:'40px'}}
           />
+          <span onClick={()=>setShowPassword(v=>!v)} style={{position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', cursor:'pointer'}}>
+            {showPassword ? (
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" strokeWidth="2"/><line x1="4" y1="20" x2="20" y2="4" stroke="#888" strokeWidth="2"/></svg>
+            ) : (
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" strokeWidth="2"/></svg>
+            )}
+          </span>
         </div>
 
         {/* Phone Number */}

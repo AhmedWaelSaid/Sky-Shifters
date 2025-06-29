@@ -38,6 +38,8 @@ export default function ForgotPassword() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [msg, setMsg] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   const { mutate, isPending, error } = useMutation({
@@ -79,14 +81,22 @@ export default function ForgotPassword() {
       setMsg('Please enter a new password.');
       return;
     }
-    if (newPassword.length < 6) {
-      setMsg('Password must be at least 6 characters long.');
+    if (newPassword.length < 10) {
+      setMsg('Password must be at least 10 characters long.');
       return;
     }
     if (newPassword !== confirmPassword) {
       setMsg('Passwords do not match.');
       return;
     }
+    // Password validation rules
+    const hasLower = /[a-z]/.test(newPassword);
+    const hasUpper = /[A-Z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+    const hasSymbol = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(newPassword);
+    const hasLength = newPassword.length >= 10;
+    const noSpaces = newPassword === newPassword.trim();
+    const canSubmit = hasLower && hasUpper && hasNumber && hasSymbol && hasLength && noSpaces && newPassword === confirmPassword && code;
     resetMutate({ code, newPassword });
   };
 
@@ -140,27 +150,55 @@ export default function ForgotPassword() {
                 maxLength={5}
                 required
               />
-              <input
-                type="password"
-                placeholder="Enter new password"
-                className="verify-input"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                minLength={6}
-                required
-              />
-              <input
-                type="password"
-                placeholder="Confirm new password"
-                className="verify-input"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                minLength={6}
-                required
-              />
+              <div style={{position:'relative', width:'100%'}}>
+                <input
+                  type={showNewPassword ? 'text' : 'password'}
+                  placeholder="Enter new password"
+                  className="verify-input"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  minLength={10}
+                  required
+                  style={{paddingRight:'40px'}}
+                />
+                <span onClick={()=>setShowNewPassword(v=>!v)} style={{position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', cursor:'pointer'}}>
+                  {showNewPassword ? (
+                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" strokeWidth="2"/><line x1="4" y1="20" x2="20" y2="4" stroke="#888" strokeWidth="2"/></svg>
+                  ) : (
+                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" strokeWidth="2"/></svg>
+                  )}
+                </span>
+              </div>
+              <div style={{position:'relative', width:'100%'}}>
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="Confirm new password"
+                  className="verify-input"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  minLength={10}
+                  required
+                  style={{paddingRight:'40px'}}
+                />
+                <span onClick={()=>setShowConfirmPassword(v=>!v)} style={{position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', cursor:'pointer'}}>
+                  {showConfirmPassword ? (
+                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" strokeWidth="2"/><line x1="4" y1="20" x2="20" y2="4" stroke="#888" strokeWidth="2"/></svg>
+                  ) : (
+                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" strokeWidth="2"/></svg>
+                  )}
+                </span>
+              </div>
+              <ul style={{margin: '8px 0 0 0', padding: 0, listStyle: 'none', color: '#aaa', fontSize: 14, textAlign: 'left'}}>
+                <li style={{color: (!newPassword || /[a-z]/.test(newPassword)) ? '#4caf50' : '#d32f2f'}}>{(!newPassword || /[a-z]/.test(newPassword)) ? '✔' : '✖'} Password must contain a lowercase letter</li>
+                <li style={{color: (!newPassword || /[A-Z]/.test(newPassword)) ? '#4caf50' : '#d32f2f'}}>{(!newPassword || /[A-Z]/.test(newPassword)) ? '✔' : '✖'} Password must contain an uppercase letter</li>
+                <li style={{color: (!newPassword || /[0-9]/.test(newPassword)) ? '#4caf50' : '#d32f2f'}}>{(!newPassword || /[0-9]/.test(newPassword)) ? '✔' : '✖'} Password must contain a number</li>
+                <li style={{color: (!newPassword || /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(newPassword)) ? '#4caf50' : '#d32f2f'}}>{(!newPassword || /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(newPassword)) ? '✔' : '✖'} Password must contain at least 1 symbol (e.g. @, #, $, !, ...)</li>
+                <li style={{color: (!newPassword || newPassword.length >= 10) ? '#4caf50' : '#d32f2f'}}>{(!newPassword || newPassword.length >= 10) ? '✔' : '✖'} Password must be at least 10 characters long</li>
+                <li style={{color: (!newPassword || newPassword === newPassword.trim()) ? '#4caf50' : '#d32f2f'}}>{(!newPassword || newPassword === newPassword.trim()) ? '✔' : '✖'} Password must not contain leading or trailing spaces</li>
+              </ul>
               {resetError && <p className="verify-error">{resetError.message}</p>}
               {msg && <p className={resetError ? 'verify-error' : 'verify-success'}>{msg}</p>}
-              <button type="submit" className="verify-btn" disabled={isResetting}>
+              <button type="submit" className="verify-btn" disabled={isResetting || !canSubmit}>
                 {isResetting ? 'Resetting...' : 'Reset Password'}
               </button>
               <p className="verify-auth-link">
