@@ -155,7 +155,7 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
           </div>
           {loginError && !resendMessage && <p className="error">{loginError.message}</p>}
           {resendMessage && <p className={resendMessage.includes('Error') ? 'error' : 'success'}>{resendMessage}</p>}
-          <a href="#" className="link" onClick={(e) => { e.preventDefault(); toggleForm(); }}>
+          <a href="#" className="link" onClick={(e) => { e.preventDefault(); navigate('/auth/forgot-password'); }}>
             Forgot your password?
           </a>
           <button type="submit" className="btn" disabled={isLoginPending}>

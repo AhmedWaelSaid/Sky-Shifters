@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { FaEnvelope, FaKey, FaLock } from 'react-icons/fa';
+import signphoto from '../../assets/pexels-pixabay-237272.jpg';
 import './ForgotPassword.css';
 
 const requestPasswordReset = async ({ email }) => {
@@ -71,27 +71,22 @@ export default function ForgotPassword() {
   const handleResetSubmit = (e) => {
     e.preventDefault();
     setMsg('');
-    
     if (!code.trim()) {
       setMsg('Please enter the reset code.');
       return;
     }
-    
     if (!newPassword.trim()) {
       setMsg('Please enter a new password.');
       return;
     }
-    
     if (newPassword.length < 6) {
       setMsg('Password must be at least 6 characters long.');
       return;
     }
-    
     if (newPassword !== confirmPassword) {
       setMsg('Passwords do not match.');
       return;
     }
-    
     resetMutate({ code, newPassword });
   };
 
@@ -105,89 +100,78 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="container__form container--forgot-password">
-      {!showReset ? (
-        <form className="form" onSubmit={handleSubmit}>
-          <h2 className="form__title">Forgot Password?</h2>
-          <p className="form__description">
-            Enter your email address to receive a password reset code.
-          </p>
-          <div className="input-container">
-            <FaEnvelope className="input-icon" />
-            <input
-              type="email"
-              placeholder="Enter your email address"
-              className="input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          {error && <p className="error">{error.message}</p>}
-          {msg && <p className={error ? 'error' : 'success'}>{msg}</p>}
-          <button type="submit" className="btn" disabled={isPending}>
-            {isPending ? 'Sending...' : 'Send Reset Code'}
-          </button>
-          <p className="auth-link">
-            <a href="/auth" className="link" onClick={handleBackToSignIn}>
-              Back to Sign In
-            </a>
-          </p>
-        </form>
-      ) : (
-        <form className="form" onSubmit={handleResetSubmit}>
-          <h2 className="form__title">Reset Your Password</h2>
-          <p className="form__description">
-            Enter the 5-digit code we sent to your email and create a new password.
-          </p>
-          <div className="input-container">
-            <FaKey className="input-icon" />
-            <input
-              type="text"
-              placeholder="Enter reset code (e.g., ABC12)"
-              className="input"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              maxLength={5}
-              required
-            />
-          </div>
-          <div className="input-container">
-            <FaLock className="input-icon" />
-            <input
-              type="password"
-              placeholder="Enter new password"
-              className="input"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              minLength={6}
-              required
-            />
-          </div>
-          <div className="input-container">
-            <FaLock className="input-icon" />
-            <input
-              type="password"
-              placeholder="Confirm new password"
-              className="input"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              minLength={6}
-              required
-            />
-          </div>
-          {resetError && <p className="error">{resetError.message}</p>}
-          {msg && <p className={resetError ? 'error' : 'success'}>{msg}</p>}
-          <button type="submit" className="btn" disabled={isResetting}>
-            {isResetting ? 'Resetting...' : 'Reset Password'}
-          </button>
-          <p className="auth-link">
-            <a href="/auth" className="link" onClick={handleBackToSignIn}>
-              Back to Sign In
-            </a>
-          </p>
-        </form>
-      )}
+    <div className="verify-sec">
+      <img src={signphoto} alt="background" className="signphoto" />
+      <div className="verify-container">
+        <div className="verify-container__form">
+          {!showReset ? (
+            <form className="verify-form" onSubmit={handleSubmit}>
+              <h2 className="verify-form__title">Forgot Password?</h2>
+              <p>Enter your email address to receive a password reset code.</p>
+              <input
+                type="email"
+                placeholder="Enter your email address"
+                className="verify-input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              {error && <p className="verify-error">{error.message}</p>}
+              {msg && <p className={error ? 'verify-error' : 'verify-success'}>{msg}</p>}
+              <button type="submit" className="verify-btn" disabled={isPending}>
+                {isPending ? 'Sending...' : 'Send Reset Code'}
+              </button>
+              <p className="verify-auth-link">
+                <a href="/auth" onClick={e => { e.preventDefault(); handleBackToSignIn(); navigate('/auth'); }}>
+                  Back to Sign In
+                </a>
+              </p>
+            </form>
+          ) : (
+            <form className="verify-form" onSubmit={handleResetSubmit}>
+              <h2 className="verify-form__title">Reset Your Password</h2>
+              <p>Enter the 5-digit code we sent to your email and create a new password.</p>
+              <input
+                type="text"
+                placeholder="Enter reset code (e.g., ABC12)"
+                className="verify-input"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                maxLength={5}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Enter new password"
+                className="verify-input"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                minLength={6}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Confirm new password"
+                className="verify-input"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                minLength={6}
+                required
+              />
+              {resetError && <p className="verify-error">{resetError.message}</p>}
+              {msg && <p className={resetError ? 'verify-error' : 'verify-success'}>{msg}</p>}
+              <button type="submit" className="verify-btn" disabled={isResetting}>
+                {isResetting ? 'Resetting...' : 'Reset Password'}
+              </button>
+              <p className="verify-auth-link">
+                <a href="/auth" onClick={e => { e.preventDefault(); handleBackToSignIn(); navigate('/auth'); }}>
+                  Back to Sign In
+                </a>
+              </p>
+            </form>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
