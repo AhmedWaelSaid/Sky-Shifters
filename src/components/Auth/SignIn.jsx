@@ -50,7 +50,7 @@ const requestPasswordReset = async ({ email }) => {
   return data;
 };
 
-const SignIn = memo(function SignIn({ onToggle, onLogin, onForgot }) {
+const SignIn = memo(function SignIn({ onToggle, onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resendMessage, setResendMessage] = useState('');
@@ -155,7 +155,7 @@ const SignIn = memo(function SignIn({ onToggle, onLogin, onForgot }) {
           </div>
           {loginError && !resendMessage && <p className="error">{loginError.message}</p>}
           {resendMessage && <p className={resendMessage.includes('Error') ? 'error' : 'success'}>{resendMessage}</p>}
-          <a href="#" className="link" onClick={(e) => { e.preventDefault(); if(onForgot) onForgot(); }}>
+          <a href="#" className="link" onClick={(e) => { e.preventDefault(); toggleForm(); }}>
             Forgot your password?
           </a>
           <button type="submit" className="btn" disabled={isLoginPending}>
@@ -209,7 +209,6 @@ const SignIn = memo(function SignIn({ onToggle, onLogin, onForgot }) {
 SignIn.propTypes = {
   onToggle: PropTypes.func.isRequired,
   onLogin: PropTypes.func.isRequired,
-  onForgot: PropTypes.func.isRequired,
 };
 
 export default SignIn;
