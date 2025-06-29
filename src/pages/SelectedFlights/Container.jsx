@@ -95,12 +95,67 @@ function useSearchData(searchData) {
   }, [searchData]);
   return { data, loading, error };
 }
+function parseDuration(durationStr) {
+  const match = durationStr.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+  const hours = parseInt(match?.[1]) || 0;
+  const minutes = parseInt(match?.[2]) || 0;
+  return hours * 60 + minutes;
+}
+function getFlights(flights) {
+  const groupMap = {};
+
+  for (const flight of flights.data) {
+    const segments = flight.itineraries[0].segments;
+    const stops = segments.length - 1;
+    const price = flight.price.total;
+
+    // Get all unique airline codes in the segments
+    const airlineCombo = [
+      ...new Set(segments.map((seg) => seg.carrierCode)),
+    ].sort(); // sort to avoid ["MS", "SV"] vs ["SV", "MS"] mismatch
+
+    const airlineKey = airlineCombo.join("-");
+    const groupKey = `${stops}_stops_${airlineKey}_${price}`;
+
+    if (!groupMap[groupKey]) {
+      groupMap[groupKey] = {
+        stops,
+        airlineCombo,
+        price,
+        flights: [],
+      };
+    }
+
+    groupMap[groupKey].flights.push(flight);
+  }
+
+  // Format into list
+  const groupedFlights = Object.values(groupMap).map((group) => {
+    const sortedByDuration = group.flights.sort((a, b) => {
+      const durA = parseDuration(a.itineraries[0].duration);
+      const durB = parseDuration(b.itineraries[0].duration);
+      return durA - durB;
+    });
+
+    return {
+      stops: group.stops,
+      price: group.price,
+      airlineCombo: group.airlineCombo,
+      main: sortedByDuration[0],
+      others: sortedByDuration.slice(1),
+    };
+  });
+
+  groupedFlights.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+
+  return groupedFlights;
+}
 export default function Container() {
   const { sharedData, flight } = useData();
   const [APISearch, setAPISearch] = useState({
     ...sharedData.departure,
     passengerClass: sharedData.passengerClass,
-    currency:sharedData.currency,
+    currency: sharedData.currency,
   });
   const { data: flightsData, loading, error } = useSearchData(APISearch);
   const [stop, setStop] = useState("");
@@ -111,10 +166,14 @@ export default function Container() {
   const [priceAndDuration, setPriceAndDuration] = useState({});
   const [isReturn, setIsReturn] = useState(false);
 
-  useEffect(()=>{
-    setAPISearch((prev)=>({...prev,currency:sharedData.currency}))
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [stop, price, airLinesChecked, flightDuration]);
+
+  useEffect(() => {
+    setAPISearch((prev) => ({ ...prev, currency: sharedData.currency }));
     setIsReturn(false);
-  },[sharedData.currency])
+  }, [sharedData.currency]);
 
   useEffect(() => {
     if (
@@ -129,10 +188,23 @@ export default function Container() {
     }
   }, [flightsData]);
 
-  if (loading) return <Loading />;
-  if (error && error.name !== "AbortError") return <Error />;
+  if (loading ) return <Loading />;
+  if (error && error.name !== "AbortError")
+    return (
+      <Error
+        setIsReturn={setIsReturn}
+        setAPISearch={setAPISearch}
+        isReturn={isReturn}
+      />
+    );
   if (!flightsData || flightsData.data.length === 0 || !flightsData.data)
-    return <EmptyData setIsReturn={setIsReturn} setAPISearch={setAPISearch} isReturn={isReturn}/>;
+    return (
+      <EmptyData
+        setIsReturn={setIsReturn}
+        setAPISearch={setAPISearch}
+        isReturn={isReturn}
+      />
+    );
 
   function getStops() {
     const stops = { direct: false, stop1: false, stop2: false };
@@ -157,13 +229,13 @@ export default function Container() {
     const uniqueCodes = [...new Set(airlinesCode)];
     const newCarriers = {};
     const carriers = flightsData.dictionaries.carriers;
-    for (let code in carriers){
-      if (uniqueCodes.includes(code))
-        newCarriers[code]= carriers[code];
+    for (let code in carriers) {
+      if (uniqueCodes.includes(code)) newCarriers[code] = carriers[code];
     }
     return newCarriers;
   }
   const airlines = getAirlines();
+
   function filteredData(flights) {
     if (!flights) return null;
     let filteredFlights = { ...flights };
@@ -200,6 +272,9 @@ export default function Container() {
   }
 
   let filteredFlights = filteredData(flightsData);
+  const groupedFlights = getFlights(filteredFlights);
+  console.log(groupedFlights);
+
   function ChangeDepHandler() {
     setAPISearch({
       ...sharedData.departure,
@@ -211,7 +286,11 @@ export default function Container() {
   }
   return (
     <div className={styles.container}>
-      <MainHeader setIsReturn={setIsReturn} setAPISearch={setAPISearch} isReturn={isReturn}/>
+      <MainHeader
+        setIsReturn={setIsReturn}
+        setAPISearch={setAPISearch}
+        isReturn={isReturn}
+      />
       {sharedData.return && !isReturn && (
         <div className={styles.flightTextContainer}>
           <h2>Choose your departure flight!</h2>
@@ -234,28 +313,31 @@ export default function Container() {
           </div>
         </div>
       )}
-      <SideBar
-        flightsData={filteredFlights}
-        stop={stop}
-        setStop={setStop}
-        airLinesChecked={airLinesChecked}
-        setAirLinesChecked={setAirLinesChecked}
-        setPrice={setPrice}
-        price={price}
-        setFlightDuration={setFlightDuration}
-        flightDuration={flightDuration}
-        priceAndDuration={priceAndDuration}
-        airLines={airlines}
-        getStops={getStops}
-      />
-      <Main
-        setCurrentPage={setCurrentPage}
-        currentPage={currentPage}
-        flightsData={filteredFlights}
-        setAPISearch={setAPISearch}
-        setIsReturn={setIsReturn}
-        isReturn={isReturn}
-      />
+      <div className={styles.bodyContainer}>
+        <SideBar
+          flightsData={filteredFlights}
+          stop={stop}
+          setStop={setStop}
+          airLinesChecked={airLinesChecked}
+          setAirLinesChecked={setAirLinesChecked}
+          setPrice={setPrice}
+          price={price}
+          setFlightDuration={setFlightDuration}
+          flightDuration={flightDuration}
+          priceAndDuration={priceAndDuration}
+          airLines={airlines}
+          getStops={getStops}
+        />
+        <Main
+          setCurrentPage={setCurrentPage}
+          currentPage={currentPage}
+          flightsData={filteredFlights}
+          setAPISearch={setAPISearch}
+          setIsReturn={setIsReturn}
+          isReturn={isReturn}
+          groupedFlights={groupedFlights}
+        />
+      </div>
     </div>
   );
 }

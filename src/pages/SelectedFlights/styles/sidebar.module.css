@@ -13,6 +13,10 @@
   --header-icons-left: 13px;
   --sub-body-margin: 15px 20px 0 15px;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif ; 
+  position: sticky;
+  top: 0px;
+  height: max-content;
+  transition: top 0.3s ease-in-out;
 }
 .side-bar h2 {
   font-size: 1.25rem; /*cards title (sort by and filters)*/

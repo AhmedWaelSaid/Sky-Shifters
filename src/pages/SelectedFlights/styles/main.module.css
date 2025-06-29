@@ -4,11 +4,10 @@
 }
 /**************Main-body******************/
 .mainBody {
-  margin-top: 24px;
   display: flex;
   flex-direction: column;
   gap: 40px;
-  margin-bottom: 200px;
+  margin-bottom: 40px;
   position: relative;
   padding-bottom: 50px;
   color:var(--blackText-color);
@@ -21,8 +20,23 @@
   position: relative;
   min-height: 104px;
   max-width: 100%;
-  border: 1px solid #9E9E9E;
-  border-radius: 20px;
+}
+.groupedFlight{
+  border: 1px solid rgb(216, 220, 222);
+  padding-top: 20px;
+  border-radius: 12px;
+}
+.groupedFlight .showBtn {
+  width: 100%;
+  background-color: #F5F5F5;
+  border: none;
+  border-radius: 0px 0px 12px 12px;
+  height: 40px;
+  margin-top: 10px;
+  font-size: 0.875rem;
+}
+.groupedFlight .showBtn:hover {
+  cursor: pointer;
 }
 .airLineContainer {
   display: flex;
@@ -106,22 +120,20 @@
 .stops {
   position: relative;
   display: flex;
-  padding-left: 30px;
+  gap: 5px;
 }
 .stops img{
   width: 80px;
 }
 .departureName{
-  position: absolute;
-  left: -8px;
+  position: relative;
   top: 3px;
 }
 .departureName, .arrivalName{
   opacity: 0.7;
 }
 .arrivalName {
-  position: absolute;
-  right: 45px;
+  position: relative;
   top: 3px;
 }
 .stops .stop {
@@ -166,6 +178,7 @@ color: var(--LightText-color);
 .selectDepFlightBtn{
   composes: selectFlightBtn;
   width: 160px;
+  right: 70px;
   font-size: 0.875rem;
 }
 .pagination .active {
@@ -174,10 +187,7 @@ color: var(--LightText-color);
   border: none;
 }
 .pagination {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  top:100%;
+  text-align: center;
 }
 .pagination button {
   width: 36px;
@@ -198,8 +208,8 @@ color: var(--LightText-color);
 }
 .moreThanADay {
   position: absolute;
-  right: 5px;
-  top: -18px;
+  right: 10px;
+  top: -15px;
   font-size: 0.875em;
 }
 .moreThanADay:hover {

@@ -53,7 +53,7 @@ AirportInput.propTypes = {
   value: PropTypes.object,
 };
 
-export default function MainHeader({ setAPISearch, setIsReturn, isReturn }) {
+export default function MainHeader({ setAPISearch, setIsReturn }) {
   const { sharedData, setSharedData } = useData();
   const [dates, setDates] = useState(
     sharedData.departure.date
@@ -79,11 +79,11 @@ export default function MainHeader({ setAPISearch, setIsReturn, isReturn }) {
         }
   );
   useEffect(() => {
-    if (sharedData.departure && !isReturn) {
+    if (sharedData.departure ) {
       setOrigin(sharedData.departure.origin);
       setDest(sharedData.departure.dest);
     }
-  }, [isReturn, sharedData]);
+  }, [ sharedData]);
 
   const [passengerClassFocus, setPassengerClassFocus] = useState(false);
   const popupRef = useRef(null);

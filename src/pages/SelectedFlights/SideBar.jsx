@@ -57,6 +57,30 @@ export default function SideBar({
   flightsData,
   getStops,
 }) {
+  const sidebarRef = useRef(null);
+const [lastScrollY, setLastScrollY] = useState(0);
+
+useEffect(() => {
+  const handleScroll = () => {
+    const currentScrollY = window.scrollY;
+    const sidebar = sidebarRef.current;
+
+    if (!sidebar) return;
+
+    if (currentScrollY > lastScrollY) {
+      // Scrolling Down – stick
+      sidebar.style.top = "-90px"; 
+    } else {
+      // Scrolling Up – reveal more
+      sidebar.style.top = "200px"; // reset to default
+    }
+
+    setLastScrollY(currentScrollY);
+  };
+
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, [lastScrollY]);
   const [isExpandable, setIsExpandable] = useState({
     price: true,
     stops: true,
@@ -76,6 +100,7 @@ export default function SideBar({
       setAirlinesHeight(airlinesRef.current.scrollHeight);
     }
   }, [logosLoaded, airLinesArr.length]);
+
   if (!flightsData) return null;
   
   function readableNum(num) {
@@ -110,7 +135,7 @@ export default function SideBar({
   };
   const stops = getStops();
   return (
-    <div className={styles["side-bar"]}>
+    <div className={styles["side-bar"]} ref={sidebarRef}>
       <div className={styles.sort}>
         <h2>Sort By</h2>
         <button className={styles.reset} onClick={sortResetHandler}>

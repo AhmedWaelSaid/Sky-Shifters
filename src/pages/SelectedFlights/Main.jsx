@@ -194,25 +194,27 @@ export function Main({
   setAPISearch,
   setIsReturn,
   isReturn,
+  groupedFlights,
 }) {
   const navigate = useNavigate();
   const { sharedData, flight, setFlight, tempFlight, setTempFlight } =
     useData();
+  const [expandedGroups, setExpandedGroups] = useState({});
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [fakeForm, setFakeForm] = useState({
     baggageSelection: {},
     fakeForm: true,
   });
-  const flightsPerPage = 12;
+  const flightsPerPage = 16;
   useEffect(() => {
     if (tempFlight) setTempFlight(null);
   }, []);
   if (!flightsData) return "Data not here";
-  const totalPages = Math.ceil(flightsData.data.length / flightsPerPage);
+  const totalPages = Math.ceil(groupedFlights.length / flightsPerPage);
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
   const startIndex = (currentPage - 1) * flightsPerPage;
   const endIndex = startIndex + flightsPerPage;
-  const currentFlights = flightsData.data.slice(startIndex, endIndex);
+  const currentFlights = groupedFlights.slice(startIndex, endIndex);
   function selectBtnHandler(data) {
     const carriers = flightsData.dictionaries.carriers;
     const aircraft = flightsData.dictionaries.aircraft;
@@ -235,6 +237,7 @@ export function Main({
     setFlight(newFlight);
     navigate("./flight-details");
   }
+
 
   function returnBtnHandler(data) {
     const carriers = flightsData.dictionaries.carriers;
@@ -285,25 +288,27 @@ export function Main({
           }}
         >
           <Portal>
-            {isDetailsOpen&&<div
-              className={styles.detailsPanelContent}
-              
-            >
-              <DetailsOfTheFlight
-                onClose={toggleDetails}
-                onUpdateForm={setFakeForm}
-                formData={fakeForm}
-                flight={tempFlight}
-              />
-            </div>}
+            {isDetailsOpen && (
+              <div className={styles.detailsPanelContent}>
+                <DetailsOfTheFlight
+                  onClose={toggleDetails}
+                  onUpdateForm={setFakeForm}
+                  formData={fakeForm}
+                  flight={tempFlight}
+                />
+              </div>
+            )}
           </Portal>
         </div>
       )}
       <div className={styles.mainBody}>
-        {currentFlights.map((flight) => {
+        {currentFlights.map((group) => {
           const carriers = flightsData.dictionaries.carriers;
           const aircraft = flightsData.dictionaries.aircraft;
           const currency = sharedData.currency;
+          const key = `${group.airline}_${group.price}`;
+          const isExpanded = expandedGroups[key];
+
           let btnHandler;
           let button;
           let button2 = { exist: false };
@@ -311,7 +316,7 @@ export function Main({
 
           if (sharedData.return) {
             if (isReturn) {
-              btnHandler = () => toggleDetails(flight, carriers, aircraft);
+              btnHandler = () => toggleDetails(group.main, carriers, aircraft);
               button = { text: "View Details", className: "detailsBtn" };
               btnHandler2 = selectBtnHandler;
               button2 = {
@@ -326,11 +331,11 @@ export function Main({
                 className: "selectFlightBtn",
                 exist: true,
               };
-              btnHandler = () => toggleDetails(flight, carriers, aircraft);
+              btnHandler = () => toggleDetails(group.main, carriers, aircraft);
               button = { text: "View Details", className: "detailsBtn" };
             }
           } else {
-            btnHandler = () => toggleDetails(flight, carriers, aircraft);
+            btnHandler = () => toggleDetails(group.main, carriers, aircraft);
             btnHandler2 = selectBtnHandler;
             button = { text: "View Details", className: "detailsBtn" };
             button2 = {
@@ -342,16 +347,90 @@ export function Main({
 
           return (
             <>
-              <FlightsUI
-                key={flight.id}
-                flight={flight}
-                btnHandler={btnHandler}
-                btnHandler2={btnHandler2}
-                carriers={carriers}
-                button={button}
-                button2={button2}
-                currency={currency}
-              />
+              <div className={styles.groupedFlight}>
+                <FlightsUI
+                  key={group.main.id}
+                  flight={group.main}
+                  btnHandler={btnHandler}
+                  btnHandler2={btnHandler2}
+                  carriers={carriers}
+                  button={button}
+                  button2={button2}
+                  currency={currency}
+                />
+                {isExpanded &&
+                  group.others.map((flight, index) => {
+                    if (sharedData.return) {
+                      if (isReturn) {
+                        btnHandler = () =>
+                          toggleDetails(flight, carriers, aircraft);
+                        button = {
+                          text: "View Details",
+                          className: "detailsBtn",
+                        };
+                        btnHandler2 = selectBtnHandler;
+                        button2 = {
+                          text: "Select flight",
+                          className: "selectFlightBtn",
+                          exist: true,
+                        };
+                      } else {
+                        btnHandler2 = returnBtnHandler;
+                        button2 = {
+                          text: "Select flight",
+                          className: "selectFlightBtn",
+                          exist: true,
+                        };
+                        btnHandler = () =>
+                          toggleDetails(flight, carriers, aircraft);
+                        button = {
+                          text: "View Details",
+                          className: "detailsBtn",
+                        };
+                      }
+                    } else {
+                      btnHandler = () =>
+                        toggleDetails(flight, carriers, aircraft);
+                      btnHandler2 = selectBtnHandler;
+                      button = {
+                        text: "View Details",
+                        className: "detailsBtn",
+                      };
+                      button2 = {
+                        text: "Select flight",
+                        className: "selectFlightBtn",
+                        exist: true,
+                      };
+                    }
+                    return (
+                      <FlightsUI
+                        key={flight.id || index}
+                        flight={flight}
+                        btnHandler={btnHandler}
+                        btnHandler2={btnHandler2}
+                        carriers={carriers}
+                        button={button}
+                        button2={button2}
+                        currency={currency}
+                      />
+                    );
+                  })}
+                {group.others.length > 0 && (
+                  <button
+                    onClick={() =>
+                      setExpandedGroups((prev) => ({
+                        ...prev,
+                        [key]: !isExpanded,
+                      }))
+                    }
+                    className={styles.showBtn}
+                  >
+                    {isExpanded
+                      ? "Show Less"
+                      : `Show More (${group.others.length})`}
+                  </button>
+                )}
+              </div>
             </>
           );
         })}
@@ -381,6 +460,7 @@ Main.propTypes = {
   setAPISearch: PropTypes.func.isRequired,
   setIsReturn: PropTypes.func.isRequired,
   isReturn: PropTypes.bool,
+  groupedFlights: PropTypes.array,
 };
 FlightsUI.propTypes = {
   carriers: PropTypes.object,

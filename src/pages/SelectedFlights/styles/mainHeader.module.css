@@ -10,7 +10,14 @@
   --second-row-width: 229px;
   --text-padding: 5px;
   --border-width: 1px;
-  grid-area: 1/1/2/3;
+  position: fixed;
+  background-color: white;
+  z-index: 30;
+  margin: 0 auto;
+  width: 100%;
+  padding-top: 5px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgb(216, 220, 222);
 }
 .main-header-container select {
   display: inline-block;
