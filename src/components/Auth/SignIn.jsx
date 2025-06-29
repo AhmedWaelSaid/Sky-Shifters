@@ -54,6 +54,7 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resendMessage, setResendMessage] = useState('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
 
   // Mutation لتسجيل الدخول
@@ -97,6 +98,7 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
     onSuccess: () => {
       setResendMessage('A password reset link has been sent to your email.');
       setTimeout(() => {
+        setShowForgotPassword(false);
         setEmail('');
         setResendMessage('');
       }, 3000);
@@ -108,56 +110,98 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
     setResendMessage('');
     loginMutate({ email, password });
   };
+  
+  const handleForgotPasswordSubmit = (e) => {
+    e.preventDefault();
+    setResendMessage('');
+    resetMutate({ email });
+  };
+  
+  const toggleForm = () => {
+    setShowForgotPassword(!showForgotPassword);
+    setEmail('');
+    setPassword('');
+    setResendMessage('');
+  };
 
   return (
     <div className="container__form container--signin">
-      <form className="form" onSubmit={handleSignInSubmit}>
-        <h2 className="form__title">Sign In</h2>
-        <div className="input-container">
-          <FaEnvelope className="input-icon" />
-          <input
-            type="email"
-            id="signinEmail"
-            placeholder="Email"
-            className="input"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div className="input-container">
-          <FaLock className="input-icon" />
-          <input
-            type="password"
-            id="signinPassword"
-            placeholder="Password"
-            className="input"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        {loginError && !resendMessage && <p className="error">{loginError.message}</p>}
-        {resendMessage && <p className={resendMessage.includes('Error') ? 'error' : 'success'}>{resendMessage}</p>}
-        <a href="#" className="link" onClick={(e) => { e.preventDefault(); navigate('/auth/forgot-password'); }}>
-          Forgot your password?
-        </a>
-        <button type="submit" className="btn" disabled={isLoginPending}>
-          {isLoginPending ? 'Loading...' : 'Sign In'}
-        </button>
-        <p className="auth-link">
-          Don't have an account?{' '}
-          <a href="#" onClick={(e) => { e.preventDefault(); onToggle(); }}>
-            Sign Up
+      {!showForgotPassword ? (
+        <form className="form" onSubmit={handleSignInSubmit}>
+          <h2 className="form__title">Sign In</h2>
+          <div className="input-container">
+            <FaEnvelope className="input-icon" />
+            <input
+              type="email"
+              id="signinEmail"
+              placeholder="Email"
+              className="input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="input-container">
+            <FaLock className="input-icon" />
+            <input
+              type="password"
+              id="signinPassword"
+              placeholder="Password"
+              className="input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          {loginError && !resendMessage && <p className="error">{loginError.message}</p>}
+          {resendMessage && <p className={resendMessage.includes('Error') ? 'error' : 'success'}>{resendMessage}</p>}
+          <a href="#" className="link" onClick={(e) => { e.preventDefault(); toggleForm(); }}>
+            Forgot your password?
           </a>
-        </p>
-        <p className="auth-link">
-          Haven't verified your email?{' '}
-          <a href="#" onClick={(e) => { e.preventDefault(); if(email) navigate('/auth/verify-email', { state: { email } }); else alert('Please enter your email above first.'); }}>
-            Verify Email
-          </a>
-        </p>
-      </form>
+          <button type="submit" className="btn" disabled={isLoginPending}>
+            {isLoginPending ? 'Loading...' : 'Sign In'}
+          </button>
+          <p className="auth-link">
+            Don't have an account?{' '}
+            <a href="#" onClick={(e) => { e.preventDefault(); onToggle(); }}>
+              Sign Up
+            </a>
+          </p>
+          <p className="auth-link">
+            Haven't verified your email?{' '}
+            <a href="#" onClick={(e) => { e.preventDefault(); if(email) navigate('/auth/verify-email', { state: { email } }); else alert('Please enter your email above first.'); }}>
+              Verify Email
+            </a>
+          </p>
+        </form>
+      ) : (
+        <form className="form" onSubmit={handleForgotPasswordSubmit}>
+          <h2 className="form__title">Forgot Password</h2>
+          <p>Enter your email address to receive a password reset link.</p>
+          <div className="input-container">
+            <FaEnvelope className="input-icon" />
+            <input
+              type="email"
+              id="forgotPasswordEmail"
+              placeholder="Email"
+              className="input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          {resetError && <p className="error">{resetError.message}</p>}
+          {resendMessage && <p className="success">{resendMessage}</p>}
+          <button type="submit" className="btn" disabled={isResetPending}>
+            {isResetPending ? 'Loading...' : 'Send Reset Link'}
+          </button>
+          <p className="auth-link">
+            <a href="#" className="link" onClick={(e) => { e.preventDefault(); toggleForm(); }}>
+              Back to Sign In
+            </a>
+          </p>
+        </form>
+      )}
     </div>
   );
 });
