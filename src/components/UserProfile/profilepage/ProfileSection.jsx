@@ -447,7 +447,7 @@ const ProfileSection = () => {
             </p>
           </div>
           {/* Phone Number */}
-          <div className={styles.formGroup}>
+          <div className={styles.formGroup} style={{ gridColumn: '1 / 2' }}>
             <label className={styles.label}><Phone size={16} style={{marginRight:8,verticalAlign:'middle'}} />Phone Number:</label>
             <div className={styles.inputContainer}>
               {showPhoneForm ? (
@@ -469,6 +469,29 @@ const ProfileSection = () => {
             <p className={styles.helpText}>
               Your primary contact number.
             </p>
+            {/* زر حذف الحساب */}
+            <div style={{marginTop: 24, textAlign: 'center'}}>
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                style={{
+                  background: '#ff0000',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 6,
+                  padding: '12px 32px',
+                  fontWeight: 600,
+                  fontSize: 16,
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                  transition: 'background 0.2s',
+                }}
+                onMouseOver={e => e.currentTarget.style.background = '#c40000'}
+                onMouseOut={e => e.currentTarget.style.background = '#ff0000'}
+              >
+                Delete Account
+              </button>
+              <p style={{color:'#d32f2f',marginTop:8,fontSize:13}}>This action is irreversible. All your data will be deleted.</p>
+            </div>
           </div>
           {/* Country */}
           <div className={styles.formGroup}>
@@ -495,29 +518,6 @@ const ProfileSection = () => {
             </p>
           </div>
         </div>
-      </div>
-      {/* زر حذف الحساب */}
-      <div style={{marginTop: 40, textAlign: 'center'}}>
-        <button
-          onClick={() => setShowDeleteModal(true)}
-          style={{
-            background: '#ff0000',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 6,
-            padding: '12px 32px',
-            fontWeight: 600,
-            fontSize: 16,
-            cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-            transition: 'background 0.2s',
-          }}
-          onMouseOver={e => e.currentTarget.style.background = '#c40000'}
-          onMouseOut={e => e.currentTarget.style.background = '#ff0000'}
-        >
-          Delete Account
-        </button>
-        <p style={{color:'#d32f2f',marginTop:8,fontSize:13}}>This action is irreversible. All your data will be deleted.</p>
       </div>
       {/* Modal تأكيد الحذف */}
       <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
