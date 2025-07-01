@@ -105,8 +105,9 @@ const VerifyEmail = () => {
               onChange={(e) => setCode(e.target.value.toUpperCase())}
               required
             />
-            {error && <p className="verify-error">{error}</p>}
-            {resendMessage && <p className={resendMessage.includes('success') ? 'verify-success' : 'verify-error'}>{resendMessage}</p>}
+            {error && <p className="error">{error}</p>}
+            {resendMessage && resendMessage.toLowerCase().includes('error') && <p className="error">{resendMessage}</p>}
+            {resendMessage && !resendMessage.toLowerCase().includes('error') && <p className="success">{resendMessage}</p>}
             <button type="submit" className="verify-btn" disabled={isPending}>
               {isPending ? 'Verifying...' : 'Verify Email'}
             </button>

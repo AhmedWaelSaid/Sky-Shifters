@@ -163,7 +163,8 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
             </span>
           </div>
           {loginError && !resendMessage && <p className="error">{loginError.message}</p>}
-          {resendMessage && <p className={resendMessage.includes('Error') ? 'error' : 'success'}>{resendMessage}</p>}
+          {resendMessage && resendMessage.toLowerCase().includes('error') && <p className="error">{resendMessage}</p>}
+          {resendMessage && !resendMessage.toLowerCase().includes('error') && <p className="success">{resendMessage}</p>}
           <a href="#" className="link" onClick={(e) => { e.preventDefault(); navigate('/auth/forgot-password'); }}>
             Forgot your password?
           </a>
@@ -200,7 +201,7 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
             />
           </div>
           {resetError && <p className="error">{resetError.message}</p>}
-          {resendMessage && <p className="success">{resendMessage}</p>}
+          {resendMessage && !resetError && !resendMessage.toLowerCase().includes('error') && <p className="success">{resendMessage}</p>}
           <button type="submit" className="btn" disabled={isResetPending}>
             {isResetPending ? 'Loading...' : 'Send Reset Code'}
           </button>

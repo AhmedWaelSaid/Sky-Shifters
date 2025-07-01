@@ -128,8 +128,9 @@ export default function ForgotPassword() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-              {error && <p className="verify-error">{error.message}</p>}
-              {msg && <p className={error ? 'verify-error' : 'verify-success'}>{msg}</p>}
+              {error && <p className="error">{error.message || error}</p>}
+              {msg && msg.toLowerCase().includes('error') && <p className="error">{msg}</p>}
+              {msg && !msg.toLowerCase().includes('error') && <p className="success">{msg}</p>}
               <button type="submit" className="verify-btn" disabled={isPending}>
                 {isPending ? 'Sending...' : 'Send Reset Code'}
               </button>
@@ -198,8 +199,9 @@ export default function ForgotPassword() {
                 <li style={{color: (!newPassword || newPassword.length >= 10) ? '#4caf50' : '#d32f2f'}}>{(!newPassword || newPassword.length >= 10) ? '✔' : '✖'} Password must be at least 10 characters long</li>
                 <li style={{color: (!newPassword || newPassword === newPassword.trim()) ? '#4caf50' : '#d32f2f'}}>{(!newPassword || newPassword === newPassword.trim()) ? '✔' : '✖'} Password must not contain leading or trailing spaces</li>
               </ul>
-              {resetError && <p className="verify-error">{resetError.message}</p>}
-              {msg && <p className={resetError ? 'verify-error' : 'verify-success'}>{msg}</p>}
+              {resetError && <p className="error">{resetError.message}</p>}
+              {msg && msg.toLowerCase().includes('error') && <p className="error">{msg}</p>}
+              {msg && !msg.toLowerCase().includes('error') && <p className="success">{msg}</p>}
               <button type="submit" className="verify-btn" disabled={isResetting || !canSubmit}>
                 {isResetting ? 'Resetting...' : 'Reset Password'}
               </button>

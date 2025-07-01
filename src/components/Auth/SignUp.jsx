@@ -194,7 +194,8 @@ const SignUp = memo(function SignUp({ onToggle }) {
         </div>
 
         {registerError && <p className="error">{registerError.message}</p>}
-        {resendMessage && <p className={resendMessage.includes('Error') ? 'error' : 'success'}>{resendMessage}</p>}
+        {resendMessage && resendMessage.toLowerCase().includes('error') && <p className="error">{resendMessage}</p>}
+        {resendMessage && !resendMessage.toLowerCase().includes('error') && <p className="success">{resendMessage}</p>}
         <button type="submit" className="btn" disabled={isRegisterPending}>
           {isRegisterPending ? 'Loading...' : 'Sign Up'}
         </button>
