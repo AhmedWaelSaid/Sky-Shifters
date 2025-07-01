@@ -186,4 +186,13 @@ body.dark .btn {
   text-decoration: none;
 }
 
+.error {
+  color: #d32f2f !important;
+  font-weight: 600;
+  margin: 8px 0 0 0;
+  font-size: 1.05rem;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
 
