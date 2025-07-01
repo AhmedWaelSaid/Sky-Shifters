@@ -48,9 +48,9 @@ export default function Notifications() {
                 borderRadius: '10px',
                 cursor: 'pointer',
                 boxShadow: '0 2px 8px rgba(33,150,243,0.08)',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
+                whiteSpace: 'normal',
+                overflow: 'visible',
+                textOverflow: 'unset',
                 direction: 'ltr',
                 textAlign: 'left',
                 color: '#1565c0',
@@ -60,7 +60,13 @@ export default function Notifications() {
               }}
               onClick={() => handleNotificationClick(notif)}
             >
-              Your flight is approaching. Please check the flight details.
+              <span style={{whiteSpace:'normal',overflow:'visible',textOverflow:'unset',display:'block',width:'100%'}}>
+                Your flight is approaching. Please check the flight details.
+                <br />
+                <span className="booking-id">
+                  Booking ID: {notif.bookingId}
+                </span>
+              </span>
               {notif.state === 0 && <span className="new-badge"> New</span>}
             </li>
           ))}

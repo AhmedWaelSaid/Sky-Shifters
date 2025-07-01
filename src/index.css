@@ -68,6 +68,10 @@ html {
   --profile-label-color: #222;
   --profile-title-color: #222;
   --profile-avatar-bg: #fff;
+  --notification-bg: #e3f2fd;
+  --notification-border: #2196f3;
+  --notification-text: #1565c0;
+  --notification-id: #888;
 
     font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -109,6 +113,10 @@ body.dark {
   --profile-label-color: #fff;
   --profile-title-color: #fff;
   --profile-avatar-bg: #18181b;
+  --notification-bg: #232326;
+  --notification-border: #fbd684;
+  --notification-text: #fbd684;
+  --notification-id: #aaa;
 }
 
 .react-select__menu {
