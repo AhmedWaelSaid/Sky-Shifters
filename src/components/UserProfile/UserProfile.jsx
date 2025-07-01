@@ -145,8 +145,8 @@ export default function UserProfile() {
                 </>
               ) : (
                 <>
-                  <h3>Notifications</h3>
-                  <ul className="notifications-list" style={{padding:0, margin:0}}>
+                  
+                  <ul className="notifications-list" style={{padding:0, margin:0, width:'100%'}}>
                     {notifications.map((notif, idx) => (
                       <li
                         key={idx}
@@ -154,7 +154,7 @@ export default function UserProfile() {
                         style={{
                           background: '#e3f2fd',
                           border: '1.5px solid #2196f3',
-                          marginBottom: '0.7rem',
+                          margin: '0 0 0.7rem 0',
                           padding: '0.7rem 1rem',
                           borderRadius: '10px',
                           cursor: 'pointer',
@@ -163,12 +163,16 @@ export default function UserProfile() {
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           direction: 'ltr',
-                          textAlign: 'left',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          textAlign: 'center',
                           color: '#1565c0',
-                          fontWeight: 500,
-                          fontSize: '0.93em',
+                          fontWeight: 'normal',
+                          fontSize: '0.60em',
                           transition: 'box-shadow 0.2s',
                           width: '100%',
+                          boxSizing: 'border-box',
                         }}
                         onClick={() => handleNotificationClick(notif)}
                       >
