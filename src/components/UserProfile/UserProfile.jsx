@@ -151,12 +151,31 @@ export default function UserProfile() {
                       <li
                         key={idx}
                         className={notif.state === 0 ? 'notification-item new' : 'notification-item'}
-                        style={notif.state === 0 ? { background: '#e6f0ff', cursor: 'pointer' } : { cursor: 'pointer' }}
+                        style={{
+                          background: '#e3f2fd',
+                          border: '1.5px solid #2196f3',
+                          marginBottom: '0.7rem',
+                          padding: '0.9rem 1.2rem',
+                          borderRadius: '10px',
+                          cursor: 'pointer',
+                          boxShadow: '0 2px 8px rgba(33,150,243,0.08)',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          direction: 'ltr',
+                          textAlign: 'left',
+                          color: '#1565c0',
+                          fontWeight: 500,
+                          fontSize: '1.05rem',
+                          transition: 'box-shadow 0.2s',
+                        }}
                         onClick={() => handleNotificationClick(notif)}
                       >
-                        <strong>{notif.title}</strong>
-                        <div>{notif.body}</div>
-                        {notif.state === 0 && <span className="new-badge">New</span>}
+                        Your flight is approaching. Please check the flight details.
+                        <div style={{ fontSize: '0.92em', color: '#888', marginTop: 2 }}>
+                          Booking ID: {notif.bookingId}
+                        </div>
+                        {notif.state === 0 && <span className="new-badge"> New</span>}
                       </li>
                     ))}
                   </ul>
