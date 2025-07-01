@@ -169,7 +169,7 @@ export default function UserProfile() {
                           textAlign: 'center',
                           color: '#1565c0',
                           fontWeight: 'normal',
-                          fontSize: '0.60em',
+                          fontSize: '0.78em',
                           transition: 'box-shadow 0.2s',
                           width: '100%',
                           boxSizing: 'border-box',

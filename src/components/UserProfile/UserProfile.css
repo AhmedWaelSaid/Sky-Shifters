@@ -329,3 +329,16 @@
     }
   }
   
+.notification-item {
+  white-space: normal !important;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  text-overflow: unset;
+  overflow: visible;
+  display: block;
+  width: 100%;
+  font-size: 12px;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+  
