@@ -11,6 +11,9 @@ export default function Navigation() {
           Home
         </span>
       </Link>
+      <Link to="/about" className={styles.navLink} aria-label="Go to About Page">
+        <span className={styles.navLink}>About</span>
+      </Link>
     </div>
   );
 }

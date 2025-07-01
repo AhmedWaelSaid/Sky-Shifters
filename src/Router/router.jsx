@@ -16,6 +16,7 @@ import ErrorPage from '../components/ErrorPage';
 import BookingList from '../pages/MyBookings/BookingList';
 import AirplaneSeatMap from '../pages/MyBookings/AirplaneSeatMap/AirplaneSeatMap';
 import Settings from '../components/UserProfile/profilepage/Settings';
+import About from '../pages/About/About';
 
 const router = createBrowserRouter([
   {
@@ -80,6 +81,10 @@ const router = createBrowserRouter([
       {
         path: 'profile',
         element: <Settings />,
+      },
+      {
+        path: 'about',
+        element: <About />,
       },
     ],
   },
