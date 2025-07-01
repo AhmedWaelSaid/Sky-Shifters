@@ -9,6 +9,7 @@ import axios from 'axios';
 import paymentStyles from '../FlightDetails/PaymentSection/paymentsection.module.css';
 import FlightMap from '../../components/Map/FlightMap';
 import { getAirportDetails } from '../../services/airportService';
+import { formatDuration } from '../../pages/SelectedFlights/someFun';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -20,21 +21,6 @@ const toTitleCase = (str) => {
     if (word.length === 0) return '';
     return word.charAt(0).toUpperCase() + word.slice(1);
   }).join(' ');
-};
-
-// Helper function to format ISO 8601 duration
-const formatDuration = (isoDuration) => {
-  if (!isoDuration || typeof isoDuration !== 'string') return '--';
-  const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
-  if (!match) return '--';
-  
-  const hours = match[1] ? parseInt(match[1], 10) : 0;
-  const minutes = match[2] ? parseInt(match[2], 10) : 0;
-
-  if (hours > 0 && minutes > 0) return `${hours}h ${minutes}m`;
-  if (hours > 0) return `${hours}h`;
-  if (minutes > 0) return `${minutes}m`;
-  return '--';
 };
 
 // Helper function to format time
