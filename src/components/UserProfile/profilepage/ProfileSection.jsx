@@ -338,7 +338,7 @@ const ProfileSection = () => {
         progress: undefined,
       });
       setTimeout(() => {
-        navigate('/login');
+        navigate('/auth');
       }, 1500);
     } catch (err) {
       setError('Failed to delete account. Please try again.');
