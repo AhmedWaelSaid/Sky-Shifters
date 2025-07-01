@@ -30,7 +30,6 @@ export default function Notifications() {
 
   return (
     <div style={{ padding: '2rem' }}>
-      <h2>Notifications</h2>
       {loading ? (
         <p>Loading notifications...</p>
       ) : notifications.length === 0 ? (
@@ -42,18 +41,27 @@ export default function Notifications() {
               key={idx}
               className={notif.state === 0 ? 'notification-item new' : 'notification-item'}
               style={{
-                background: notif.state === 0 ? '#e6f0ff' : 'white',
+                background: '#e3f2fd',
+                border: '1.5px solid #2196f3',
                 marginBottom: '1rem',
-                padding: '1rem',
-                borderRadius: '8px',
+                padding: '1.1rem 1.5rem',
+                borderRadius: '10px',
                 cursor: 'pointer',
-                boxShadow: '0 1px 4px #0001'
+                boxShadow: '0 2px 8px rgba(33,150,243,0.08)',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                direction: 'ltr',
+                textAlign: 'left',
+                color: '#1565c0',
+                fontWeight: 500,
+                fontSize: '1.08rem',
+                transition: 'box-shadow 0.2s',
               }}
               onClick={() => handleNotificationClick(notif)}
             >
-              <strong>{notif.title}</strong>
-              <div>{notif.body}</div>
-              {notif.state === 0 && <span className="new-badge">New</span>}
+              Your flight is approaching. Please check the flight details.
+              {notif.state === 0 && <span className="new-badge"> New</span>}
             </li>
           ))}
         </ul>
