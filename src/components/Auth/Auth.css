@@ -6,6 +6,8 @@
   --blue: #1a9ff1;
   --lightblue: #088abd;
   
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
   /* RADII */
   --button-radius: 0.7rem;
 
@@ -123,7 +125,7 @@ body.dark .container {
   background-image: linear-gradient(90deg, var(--blue) 0%, var(--lightblue) 74%);
   border-radius: 20px;
   border: 1px solid var(--blue);
-  color: var(--white);
+  color: var(--LightText-color) !important;   
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
@@ -137,7 +139,7 @@ body.dark .btn {
   background-color: #fbd684;
   background-image: linear-gradient(90deg, var(--AuthBtn-color) 0%, var(--AuthBtn-color) 74%);
   border: 1px solid #fbd684;
-  color: #000000;
+  
 }
 
 .btn:active {

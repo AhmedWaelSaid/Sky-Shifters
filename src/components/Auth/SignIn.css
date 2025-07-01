@@ -1,4 +1,7 @@
 /* src/components/Auth/SignIn.css */
+:root{
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
 .container__form.container--signin {
   left: 0;
 	width: 50%;
