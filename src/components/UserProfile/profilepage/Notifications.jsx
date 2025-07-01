@@ -46,7 +46,7 @@ export default function Notifications() {
                 marginBottom: '1rem',
                 padding: '1.1rem 1.5rem',
                 borderRadius: '10px',
-                cursor: 'pointer',
+                cursor: 'default',
                 boxShadow: '0 2px 8px rgba(33,150,243,0.08)',
                 whiteSpace: 'normal',
                 overflow: 'visible',
@@ -58,7 +58,6 @@ export default function Notifications() {
                 fontSize: '1.08rem',
                 transition: 'box-shadow 0.2s',
               }}
-              onClick={() => handleNotificationClick(notif)}
             >
               <span style={{whiteSpace:'normal',overflow:'visible',textOverflow:'unset',display:'block',width:'100%'}}>
                 Your flight is approaching. Please check the flight details.
