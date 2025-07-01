@@ -8,6 +8,9 @@ import { Mail, Lock, User, Phone, Globe } from 'lucide-react';
 import { getUserProfile, updateUserProfile, changeUserPassword, deleteUserAccount } from '../../../services/userProfileService';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from '../../../pages/MyBookings/ui/dialog.jsx';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 countries.registerLocale(en);
 const countryOptions = Object.entries(countries.getNames('en', { select: 'official' })).map(([code, name]) => ({
@@ -245,6 +248,7 @@ const ProfileSection = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // فورمات التعديل
   const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -314,7 +318,6 @@ const ProfileSection = () => {
   };
 
   const handleDeleteAccount = async () => {
-    if (!window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) return;
     try {
       setLoading(true);
       setError(null);
@@ -323,14 +326,25 @@ const ProfileSection = () => {
       const userData = userString ? JSON.parse(userString) : null;
       const token = userData?.token;
       await deleteUserAccount(token);
-      // Logout and redirect
       if (logout) logout();
       localStorage.removeItem('user');
-      navigate('/');
+      toast.success('Account deleted successfully', {
+        position: 'top-right',
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: false,
+        progress: undefined,
+      });
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
     } catch (err) {
       setError('Failed to delete account. Please try again.');
     } finally {
       setLoading(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -485,7 +499,7 @@ const ProfileSection = () => {
       {/* زر حذف الحساب */}
       <div style={{marginTop: 40, textAlign: 'center'}}>
         <button
-          onClick={handleDeleteAccount}
+          onClick={() => setShowDeleteModal(true)}
           style={{
             background: '#ff0000',
             color: '#fff',
@@ -505,6 +519,50 @@ const ProfileSection = () => {
         </button>
         <p style={{color:'#d32f2f',marginTop:8,fontSize:13}}>This action is irreversible. All your data will be deleted.</p>
       </div>
+      {/* Modal تأكيد الحذف */}
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent>
+          <DialogTitle style={{textAlign:'center'}}>Delete Account</DialogTitle>
+          <DialogDescription style={{textAlign:'center',marginBottom:16}}>
+            Are you sure you want to delete your account? This action cannot be undone.
+          </DialogDescription>
+          <DialogFooter style={{justifyContent:'center',gap:16}}>
+            <button
+              onClick={() => setShowDeleteModal(false)}
+              style={{
+                background: '#f3f3f3',
+                color: '#222',
+                border: 'none',
+                borderRadius: 6,
+                padding: '10px 28px',
+                fontWeight: 600,
+                fontSize: 15,
+                cursor: 'pointer',
+                marginRight: 8
+              }}
+            >
+              Back
+            </button>
+            <button
+              onClick={handleDeleteAccount}
+              style={{
+                background: '#ff0000',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 6,
+                padding: '10px 28px',
+                fontWeight: 600,
+                fontSize: 15,
+                cursor: 'pointer',
+              }}
+              disabled={loading}
+            >
+              {loading ? 'Deleting...' : 'Yes, Delete'}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <ToastContainer />
     </div>
   );
 };
