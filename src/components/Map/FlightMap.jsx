@@ -3,23 +3,9 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import * as turf from '@turf/turf';
 import styles from './FlightMap.module.css'; // Import a CSS module for styling
+import { formatDuration } from '../../pages/SelectedFlights/someFun';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
-
-// Helper to format duration from ISO string (e.g., PT5H30M)
-const formatDuration = (isoDuration) => {
-  if (!isoDuration || typeof isoDuration !== 'string') return '--';
-  const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
-  if (!match) return '--';
-  
-  const hours = match[1] ? parseInt(match[1], 10) : 0;
-  const minutes = match[2] ? parseInt(match[2], 10) : 0;
-
-  if (hours > 0 && minutes > 0) return `${hours}h ${minutes}m`;
-  if (hours > 0) return `${hours}h`;
-  if (minutes > 0) return `${minutes}m`;
-  return '--';
-};
 
 // Helper to format milliseconds into HH:MM:SS
 const formatRemainingTime = (ms) => {
