@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { ThemeContext } from '../../components/context/ThemeContext';
+import logoLight from '../../assets/Asset 22@2x.png';
+import logoDark from '../../assets/Asset 24@2x.png';
 import './About.css';
 
 export default function About() {
+  const { theme } = useContext(ThemeContext);
+  const logo = theme === 'dark' ? logoDark : logoLight;
   return (
     <div className="about-container">
+      <div className="about-logo"><img src={logo} alt="taier logo" /></div>
       <h1 className="about-title">About taier</h1>
       <p className="about-desc">
         taier is an advanced flight booking platform designed to simplify the process of searching for and booking flights.

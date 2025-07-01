@@ -40,4 +40,17 @@
   font-size: 1.13rem;
   color: var(--profile-sidebar-subtext, #888);
   margin-top: 0.5rem;
+}
+
+.help-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.help-logo img {
+  max-width: 160px;
+  height: auto;
+  display: block;
 } 

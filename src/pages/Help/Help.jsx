@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { ThemeContext } from '../../components/context/ThemeContext';
+import logoLight from '../../assets/Asset 22@2x.png';
+import logoDark from '../../assets/Asset 24@2x.png';
 import './Help.css';
 
 export default function Help() {
+  const { theme } = useContext(ThemeContext);
+  const logo = theme === 'dark' ? logoDark : logoLight;
   return (
     <div className="help-container">
+      <div className="help-logo"><img src={logo} alt="taier logo" /></div>
       <h1 className="help-title">Help &amp; Support</h1>
       <h2 className="help-section-title">Frequently Asked Questions</h2>
       <ul className="help-faq">
@@ -23,7 +29,6 @@ export default function Help() {
       <h2 className="help-section-title">Quick Access</h2>
       <p className="help-desc">You can access all services from the sidebar menu which includes:</p>
       <ul className="help-faq">
-        <li>Favorites</li>
         <li>My Bookings</li>
         <li>Settings</li>
         <li>Contact Us</li>
