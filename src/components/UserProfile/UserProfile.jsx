@@ -146,7 +146,7 @@ export default function UserProfile() {
               ) : (
                 <>
                   <h3>Notifications</h3>
-                  <ul className="notifications-list">
+                  <ul className="notifications-list" style={{padding:0, margin:0}}>
                     {notifications.map((notif, idx) => (
                       <li
                         key={idx}
@@ -155,7 +155,7 @@ export default function UserProfile() {
                           background: '#e3f2fd',
                           border: '1.5px solid #2196f3',
                           marginBottom: '0.7rem',
-                          padding: '0.9rem 1.2rem',
+                          padding: '0.7rem 1rem',
                           borderRadius: '10px',
                           cursor: 'pointer',
                           boxShadow: '0 2px 8px rgba(33,150,243,0.08)',
@@ -166,15 +166,18 @@ export default function UserProfile() {
                           textAlign: 'left',
                           color: '#1565c0',
                           fontWeight: 500,
-                          fontSize: '1.05rem',
+                          fontSize: '0.93em',
                           transition: 'box-shadow 0.2s',
+                          width: '100%',
                         }}
                         onClick={() => handleNotificationClick(notif)}
                       >
-                        Your flight is approaching. Please check the flight details.
-                        <div style={{ fontSize: '0.92em', color: '#888', marginTop: 2 }}>
-                          Booking ID: {notif.bookingId}
-                        </div>
+                        <span style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',width:'100%'}}>
+                          Your flight is approaching. Please check the flight details.
+                          <span style={{ fontSize: '0.82em', color: '#888', marginLeft: 8 }}>
+                            Booking ID: {notif.bookingId}
+                          </span>
+                        </span>
                         {notif.state === 0 && <span className="new-badge"> New</span>}
                       </li>
                     ))}
