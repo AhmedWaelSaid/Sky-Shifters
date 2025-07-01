@@ -70,6 +70,15 @@ export default function ForgotPassword() {
     mutate({ email });
   };
 
+  // Move canSubmit logic here so it's accessible in JSX
+  const hasLower = /[a-z]/.test(newPassword);
+  const hasUpper = /[A-Z]/.test(newPassword);
+  const hasNumber = /[0-9]/.test(newPassword);
+  const hasSymbol = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(newPassword);
+  const hasLength = newPassword.length >= 10;
+  const noSpaces = newPassword === newPassword.trim();
+  const canSubmit = hasLower && hasUpper && hasNumber && hasSymbol && hasLength && noSpaces && newPassword === confirmPassword && code;
+
   const handleResetSubmit = (e) => {
     e.preventDefault();
     setMsg('');
@@ -89,14 +98,7 @@ export default function ForgotPassword() {
       setMsg('Passwords do not match.');
       return;
     }
-    // Password validation rules
-    const hasLower = /[a-z]/.test(newPassword);
-    const hasUpper = /[A-Z]/.test(newPassword);
-    const hasNumber = /[0-9]/.test(newPassword);
-    const hasSymbol = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(newPassword);
-    const hasLength = newPassword.length >= 10;
-    const noSpaces = newPassword === newPassword.trim();
-    const canSubmit = hasLower && hasUpper && hasNumber && hasSymbol && hasLength && noSpaces && newPassword === confirmPassword && code;
+    // Password validation rules (already handled by canSubmit in main body)
     resetMutate({ code, newPassword });
   };
 
