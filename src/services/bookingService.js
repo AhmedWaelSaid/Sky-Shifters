@@ -81,21 +81,11 @@ export const bookingService = {
   async getBookingDetails(bookingId) {
     try {
       const response = await apiClient.get(`/booking/${bookingId}`);
-      // إذا كانت البيانات عبارة عن مصفوفة bookings
-      if (response.data?.data?.bookings && Array.isArray(response.data.data.bookings)) {
-        return response.data.data.bookings[0] || null;
-      }
-      // fallback: إذا كانت البيانات مباشرة
       return response.data?.data || null;
     } catch (error) {
       console.warn('Failed to fetch booking details:', bookingId, error.message);
       return null;
     }
-  },
-
-  // جلب حجز واحد بالمعرف
-  async getBookingById(bookingId) {
-    return this.getBookingDetails(bookingId);
   }
 };
 
