@@ -132,7 +132,6 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
 
   return (
     <div className="auth-container">
-      <div className="auth-logo"><img src={logo} alt="taier logo" /></div>
       <div className="container__form container--signin">
         {!showForgotPassword ? (
           <form className="form" onSubmit={handleSignInSubmit}>

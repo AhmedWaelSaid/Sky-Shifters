@@ -1,15 +1,20 @@
 import './Auth.css';
-import { useState, memo, useEffect } from 'react';
+import { useState, memo, useEffect, useContext } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
 import { useAuth } from '../context/AuthContext'; // Import useAuth
 import signphoto from '../../assets/pexels-pixabay-237272.jpg'
+import { ThemeContext } from '../context/ThemeContext';
+import logoLight from '../../assets/Asset 22@2x.png';
+import logoDark from '../../assets/Asset 24@2x.png';
 
 const Auth = memo(function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const { login } = useAuth(); // Get the login function from AuthContext
+  const { theme } = useContext(ThemeContext);
+  const logo = theme === 'dark' ? logoDark : logoLight;
 
   useEffect(() => {
     const panel = searchParams.get('panel');
@@ -27,7 +32,8 @@ const Auth = memo(function Auth() {
 
   return (
     <section className='sign-sec'>
-    <img src={signphoto} alt="" className='signphoto' />
+      <div className="auth-logo"><img src={logo} alt="taier logo" /></div>
+      <img src={signphoto} alt="" className='signphoto' />
       <div className={`container ${isSignUp ? 'right-panel-active' : ''}`}>
         <SignUp onToggle={handleToggle} onLogin={login} />
         <SignIn onToggle={handleToggle} onLogin={login} />

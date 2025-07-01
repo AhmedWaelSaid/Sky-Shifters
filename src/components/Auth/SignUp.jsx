@@ -86,7 +86,6 @@ const SignUp = memo(function SignUp({ onToggle }) {
 
   return (
     <div className="auth-container">
-      <div className="auth-logo"><img src={logo} alt="taier logo" /></div>
       <div className="container__form container--signup">
         <form className="form" onSubmit={handleSubmit}>
           {/* First Name */}
