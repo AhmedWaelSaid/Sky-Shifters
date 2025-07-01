@@ -17,6 +17,7 @@ import BookingList from '../pages/MyBookings/BookingList';
 import AirplaneSeatMap from '../pages/MyBookings/AirplaneSeatMap/AirplaneSeatMap';
 import Settings from '../components/UserProfile/profilepage/Settings';
 import About from '../pages/About/About';
+import Help from '../pages/Help/Help';
 
 const router = createBrowserRouter([
   {
@@ -85,6 +86,10 @@ const router = createBrowserRouter([
       {
         path: 'about',
         element: <About />,
+      },
+      {
+        path: 'help',
+        element: <Help />,
       },
     ],
   },

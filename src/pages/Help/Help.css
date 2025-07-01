@@ -1,4 +1,4 @@
-.about-container {
+.help-container {
   max-width: 700px;
   margin: 2.5rem auto;
   background: var(--profile-bg, #fff);
@@ -10,39 +10,33 @@
   margin-top: 100px;
 }
 
-.about-title {
+.help-title {
   font-size: 2.2rem;
   font-weight: bold;
   margin-bottom: 1.2rem;
   color: var(--profile-title-color, #1565c0);
 }
 
-.about-desc {
-  font-size: 1.15rem;
-  margin-bottom: 1.5rem;
-  color: var(--profile-sidebar-label, #333);
-}
-
-.about-section-title {
+.help-section-title {
   font-size: 1.3rem;
   font-weight: 600;
   margin: 1.7rem 0 0.7rem 0;
   color: var(--Btnbg-color, #0085FF);
 }
 
-.about-features {
+.help-faq {
   list-style: disc inside;
   margin-bottom: 1.5rem;
   color: var(--profile-sidebar-label, #333);
   padding-left: 1.2rem;
 }
 
-.about-features li {
+.help-faq li {
   margin-bottom: 0.7rem;
   font-size: 1.05rem;
 }
 
-.about-vision {
+.help-desc {
   font-size: 1.13rem;
   color: var(--profile-sidebar-subtext, #888);
   margin-top: 0.5rem;
