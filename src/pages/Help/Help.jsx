@@ -25,8 +25,6 @@ export default function Help() {
       <ul className="help-faq">
         <li>Favorites</li>
         <li>My Bookings</li>
-        <li>Payment Methods</li>
-        <li>Security</li>
         <li>Settings</li>
         <li>Contact Us</li>
       </ul>

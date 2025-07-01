@@ -39,23 +39,8 @@ export default function SidebarMenu() {
         {/* قايمة العناصر */}
         <ul className={styles.menuList}>
           <li className={styles.menuItem}>
-            <FaHeart className={styles.icon} />
-            <Link to="/favorites" className={styles.link}>Favorites</Link>
-            <span className={styles.arrow}>›</span>
-          </li>
-          <li className={styles.menuItem}>
             <FaCalendarCheck className={styles.icon} />
             <Link to="/my-bookings" className={styles.link}>MyBooking</Link>
-            <span className={styles.arrow}>›</span>
-          </li>
-          <li className={styles.menuItem}>
-            <FaCreditCard className={styles.icon} />
-            <Link to="/payment-methods" className={styles.link}>Payment Methods</Link>
-            <span className={styles.arrow}>›</span>
-          </li>
-          <li className={styles.menuItem}>
-            <FaLock className={styles.icon} />
-            <Link to="/security" className={styles.link}>Security</Link>
             <span className={styles.arrow}>›</span>
           </li>
           <li className={styles.menuItem}>
