@@ -55,7 +55,8 @@ export async function deleteUserAccount(token) {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
-    }
+    },
+    body: JSON.stringify({})
   });
   if (!res.ok) {
     const text = await res.text();
