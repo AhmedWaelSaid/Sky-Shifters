@@ -86,6 +86,11 @@ export const bookingService = {
       console.warn('Failed to fetch booking details:', bookingId, error.message);
       return null;
     }
+  },
+
+  // جلب حجز واحد بالمعرف
+  async getBookingById(bookingId) {
+    return this.getBookingDetails(bookingId);
   }
 };
 

@@ -16,6 +16,7 @@ import ErrorPage from '../components/ErrorPage';
 import BookingList from '../pages/MyBookings/BookingList';
 import AirplaneSeatMap from '../pages/MyBookings/AirplaneSeatMap/AirplaneSeatMap';
 import Settings from '../components/UserProfile/profilepage/Settings';
+import BookingDetailsPage from '../pages/MyBookings/BookingDetailsPage';
 
 const router = createBrowserRouter([
   {
@@ -68,6 +69,10 @@ const router = createBrowserRouter([
       {
         path: 'my-bookings',
         element: <BookingList />,
+      },
+      {
+        path: 'my-bookings/:bookingId',
+        element: <BookingDetailsPage />,
       },
       {
         path: 'seat-map',
