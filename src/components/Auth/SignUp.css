@@ -186,3 +186,15 @@ body.dark .react-select-container .react-select__dropdown-indicator {
 .auth-link, .link {
   color: var(--DarkyellowText-color);
 }
+
+.auth-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.auth-logo img {
+  max-width: 160px;
+  height: auto;
+  display: block;
+}

@@ -1,10 +1,13 @@
 // src/components/SignIn.jsx
 import './SignIn.css';
-import { useState, memo } from 'react';
+import { useState, memo, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
+import { ThemeContext } from '../../components/context/ThemeContext';
+import logoLight from '../../assets/Asset 22@2x.png';
+import logoDark from '../../assets/Asset 24@2x.png';
 
 // دالة تسجيل الدخول
 const loginUser = async ({ email, password }) => {
@@ -57,6 +60,8 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { theme } = useContext(ThemeContext);
+  const logo = theme === 'dark' ? logoDark : logoLight;
 
   // Mutation لتسجيل الدخول
   const { mutate: loginMutate, isPending: isLoginPending, error: loginError } = useMutation({
@@ -126,92 +131,95 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
   };
 
   return (
-    <div className="container__form container--signin">
-      {!showForgotPassword ? (
-        <form className="form" onSubmit={handleSignInSubmit}>
-          <h2 className="form__title">Sign In</h2>
-          <div className="input-container">
-            <FaEnvelope className="input-icon" />
-            <input
-              type="email"
-              id="signinEmail"
-              placeholder="Email"
-              className="input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="input-container">
-            <FaLock className="input-icon" />
-            <input
-              type={showPassword ? 'text' : 'password'}
-              id="signinPassword"
-              placeholder="Password"
-              className="input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              style={{paddingRight:'40px'}}
-            />
-            <span onClick={()=>setShowPassword(v=>!v)} style={{position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', cursor:'pointer'}}>
-              {showPassword ? (
-                <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" strokeWidth="2"/><line x1="4" y1="20" x2="20" y2="4" stroke="#888" strokeWidth="2"/></svg>
-              ) : (
-                <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" strokeWidth="2"/></svg>
-              )}
-            </span>
-          </div>
-          {loginError && !resendMessage && <p className="error">{loginError.message}</p>}
-          {resendMessage && resendMessage.toLowerCase().includes('error') && <p className="error">{resendMessage}</p>}
-          {resendMessage && !resendMessage.toLowerCase().includes('error') && <p className="success">{resendMessage}</p>}
-          <a href="#" className="link" onClick={(e) => { e.preventDefault(); navigate('/auth/forgot-password'); }}>
-            Forgot your password?
-          </a>
-          <button type="submit" className="btn" disabled={isLoginPending}>
-            {isLoginPending ? 'Loading...' : 'Sign In'}
-          </button>
-          <p className="auth-link">
-            Don't have an account?{' '}
-            <a href="#" onClick={(e) => { e.preventDefault(); onToggle(); }}>
-              Sign Up
+    <div className="auth-container">
+      <div className="auth-logo"><img src={logo} alt="taier logo" /></div>
+      <div className="container__form container--signin">
+        {!showForgotPassword ? (
+          <form className="form" onSubmit={handleSignInSubmit}>
+            <h2 className="form__title">Sign In</h2>
+            <div className="input-container">
+              <FaEnvelope className="input-icon" />
+              <input
+                type="email"
+                id="signinEmail"
+                placeholder="Email"
+                className="input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="input-container">
+              <FaLock className="input-icon" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="signinPassword"
+                placeholder="Password"
+                className="input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                style={{paddingRight:'40px'}}
+              />
+              <span onClick={()=>setShowPassword(v=>!v)} style={{position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', cursor:'pointer'}}>
+                {showPassword ? (
+                  <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" strokeWidth="2"/><line x1="4" y1="20" x2="20" y2="4" stroke="#888" strokeWidth="2"/></svg>
+                ) : (
+                  <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" strokeWidth="2"/></svg>
+                )}
+              </span>
+            </div>
+            {loginError && !resendMessage && <p className="error">{loginError.message}</p>}
+            {resendMessage && resendMessage.toLowerCase().includes('error') && <p className="error">{resendMessage}</p>}
+            {resendMessage && !resendMessage.toLowerCase().includes('error') && <p className="success">{resendMessage}</p>}
+            <a href="#" className="link" onClick={(e) => { e.preventDefault(); navigate('/auth/forgot-password'); }}>
+              Forgot your password?
             </a>
-          </p>
-          <p className="auth-link">
-            Haven't verified your email?{' '}
-            <a href="#" onClick={(e) => { e.preventDefault(); if(email) navigate('/auth/verify-email', { state: { email } }); else alert('Please enter your email above first.'); }}>
-              Verify Email
-            </a>
-          </p>
-        </form>
-      ) : (
-        <form className="form" onSubmit={handleForgotPasswordSubmit}>
-          <h2 className="form__title">Forgot Password</h2>
-          <p>Enter your email address to receive a password reset code.</p>
-          <div className="input-container">
-            <FaEnvelope className="input-icon" />
-            <input
-              type="email"
-              id="forgotPasswordEmail"
-              placeholder="Email"
-              className="input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          {resetError && <p className="error">{resetError.message}</p>}
-          {resendMessage && !resetError && !resendMessage.toLowerCase().includes('error') && <p className="success">{resendMessage}</p>}
-          <button type="submit" className="btn" disabled={isResetPending}>
-            {isResetPending ? 'Loading...' : 'Send Reset Code'}
-          </button>
-          <p className="auth-link">
-            <a href="#" className="link" onClick={(e) => { e.preventDefault(); toggleForm(); }}>
-              Back to Sign In
-            </a>
-          </p>
-        </form>
-      )}
+            <button type="submit" className="btn" disabled={isLoginPending}>
+              {isLoginPending ? 'Loading...' : 'Sign In'}
+            </button>
+            <p className="auth-link">
+              Don't have an account?{' '}
+              <a href="#" onClick={(e) => { e.preventDefault(); onToggle(); }}>
+                Sign Up
+              </a>
+            </p>
+            <p className="auth-link">
+              Haven't verified your email?{' '}
+              <a href="#" onClick={(e) => { e.preventDefault(); if(email) navigate('/auth/verify-email', { state: { email } }); else alert('Please enter your email above first.'); }}>
+                Verify Email
+              </a>
+            </p>
+          </form>
+        ) : (
+          <form className="form" onSubmit={handleForgotPasswordSubmit}>
+            <h2 className="form__title">Forgot Password</h2>
+            <p>Enter your email address to receive a password reset code.</p>
+            <div className="input-container">
+              <FaEnvelope className="input-icon" />
+              <input
+                type="email"
+                id="forgotPasswordEmail"
+                placeholder="Email"
+                className="input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            {resetError && <p className="error">{resetError.message}</p>}
+            {resendMessage && !resetError && !resendMessage.toLowerCase().includes('error') && <p className="success">{resendMessage}</p>}
+            <button type="submit" className="btn" disabled={isResetPending}>
+              {isResetPending ? 'Loading...' : 'Send Reset Code'}
+            </button>
+            <p className="auth-link">
+              <a href="#" className="link" onClick={(e) => { e.preventDefault(); toggleForm(); }}>
+                Back to Sign In
+              </a>
+            </p>
+          </form>
+        )}
+      </div>
     </div>
   );
 });

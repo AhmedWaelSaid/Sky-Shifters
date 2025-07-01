@@ -1,6 +1,6 @@
 // src/components/SignUp.jsx
 import './SignUp.css';
-import { useState, memo } from 'react';
+import { useState, memo, useContext } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import countries from 'i18n-iso-countries';
@@ -10,6 +10,9 @@ import { useMutation } from '@tanstack/react-query';
 import { FaUser, FaEnvelope, FaLock, FaPhone, FaGlobe, FaCalendarAlt } from 'react-icons/fa'; // استيراد الأيقونات
 import DatePicker from 'react-datepicker'; // استيراد DatePicker
 import 'react-datepicker/dist/react-datepicker.css'; // استيراد الـ CSS بتاع DatePicker
+import { ThemeContext } from '../../components/context/ThemeContext';
+import logoLight from '../../assets/Asset 22@2x.png';
+import logoDark from '../../assets/Asset 24@2x.png';
 
 countries.registerLocale(en);
 const countryOptions = Object.entries(countries.getNames('en', { select: 'official' })).map(([code, name]) => ({
@@ -51,6 +54,8 @@ const SignUp = memo(function SignUp({ onToggle }) {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
+  const { theme } = useContext(ThemeContext);
+  const logo = theme === 'dark' ? logoDark : logoLight;
 
   const { mutate: registerMutate, isPending: isRegisterPending, error: registerError } = useMutation({
     mutationFn: registerUser,
@@ -80,130 +85,133 @@ const SignUp = memo(function SignUp({ onToggle }) {
   };
 
   return (
-    <div className="container__form container--signup">
-      <form className="form" onSubmit={handleSubmit}>
-        {/* First Name */}
-        <div className="input-container">
-          <FaUser className="input-icon" />
-          <input
-            type="text"
-            id="signupFirstName"
-            placeholder="First Name"
-            className="input"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-          />
-        </div>
+    <div className="auth-container">
+      <div className="auth-logo"><img src={logo} alt="taier logo" /></div>
+      <div className="container__form container--signup">
+        <form className="form" onSubmit={handleSubmit}>
+          {/* First Name */}
+          <div className="input-container">
+            <FaUser className="input-icon" />
+            <input
+              type="text"
+              id="signupFirstName"
+              placeholder="First Name"
+              className="input"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+            />
+          </div>
 
-        {/* Last Name */}
-        <div className="input-container">
-          <FaUser className="input-icon" />
-          <input
-            type="text"
-            id="signupLastName"
-            placeholder="Last Name"
-            className="input"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-          />
-        </div>
+          {/* Last Name */}
+          <div className="input-container">
+            <FaUser className="input-icon" />
+            <input
+              type="text"
+              id="signupLastName"
+              placeholder="Last Name"
+              className="input"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+            />
+          </div>
 
-        {/* Email */}
-        <div className="input-container">
-          <FaEnvelope className="input-icon" />
-          <input
-            type="email"
-            id="signupEmail"
-            placeholder="Email"
-            className="input"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
+          {/* Email */}
+          <div className="input-container">
+            <FaEnvelope className="input-icon" />
+            <input
+              type="email"
+              id="signupEmail"
+              placeholder="Email"
+              className="input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
 
-        {/* Password */}
-        <div className="input-container">
-          <FaLock className="input-icon" />
-          <input
-            type={showPassword ? 'text' : 'password'}
-            id="signupPassword"
-            placeholder="Password"
-            className="input"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{paddingRight:'40px'}}
-          />
-          <span onClick={()=>setShowPassword(v=>!v)} style={{position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', cursor:'pointer'}}>
-            {showPassword ? (
-              <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" strokeWidth="2"/><line x1="4" y1="20" x2="20" y2="4" stroke="#888" strokeWidth="2"/></svg>
-            ) : (
-              <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" strokeWidth="2"/></svg>
-            )}
-          </span>
-        </div>
+          {/* Password */}
+          <div className="input-container">
+            <FaLock className="input-icon" />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              id="signupPassword"
+              placeholder="Password"
+              className="input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              style={{paddingRight:'40px'}}
+            />
+            <span onClick={()=>setShowPassword(v=>!v)} style={{position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', cursor:'pointer'}}>
+              {showPassword ? (
+                <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" strokeWidth="2"/><line x1="4" y1="20" x2="20" y2="4" stroke="#888" strokeWidth="2"/></svg>
+              ) : (
+                <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" strokeWidth="2"/></svg>
+              )}
+            </span>
+          </div>
 
-        {/* Phone Number */}
-        <div className="input-container">
-          <FaPhone className="input-icon" />
-          <input
-            type="tel"
-            id="signupPhoneNumber"
-            placeholder="Phone Number"
-            className="input"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            required
-          />
-        </div>
+          {/* Phone Number */}
+          <div className="input-container">
+            <FaPhone className="input-icon" />
+            <input
+              type="tel"
+              id="signupPhoneNumber"
+              placeholder="Phone Number"
+              className="input"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              required
+            />
+          </div>
 
-        {/* Country */}
-        <div className="input-container selectcountry">
-          <FaGlobe className="input-icon" />
-          <Select
-            id="signupCountry"
-            options={countryOptions}
-            value={country}
-            onChange={(selectedOption) => setCountry(selectedOption)}
-            placeholder="Select Country"
-            className="input react-select-container"
-            classNamePrefix="react-select"
-            isSearchable={true}
-          />
-        </div>
+          {/* Country */}
+          <div className="input-container selectcountry">
+            <FaGlobe className="input-icon" />
+            <Select
+              id="signupCountry"
+              options={countryOptions}
+              value={country}
+              onChange={(selectedOption) => setCountry(selectedOption)}
+              placeholder="Select Country"
+              className="input react-select-container"
+              classNamePrefix="react-select"
+              isSearchable={true}
+            />
+          </div>
 
-        {/* Birthdate */}
-        <div className="input-container">
-          <FaCalendarAlt className="input-icon" />
-          <DatePicker
-            id="signupBirthdate"
-            selected={birthdate}
-            onChange={(date) => setBirthdate(date)}
-            placeholderText="Birth Date"
-            className="input date-picker"
-            dateFormat="yyyy-MM-dd"
-            showYearDropdown
-            scrollableYearDropdown
-            yearDropdownItemNumber={100}
-            maxDate={new Date()} // ما ينفعش يختار تاريخ مستقبلي
-            required
-          />
-        </div>
+          {/* Birthdate */}
+          <div className="input-container">
+            <FaCalendarAlt className="input-icon" />
+            <DatePicker
+              id="signupBirthdate"
+              selected={birthdate}
+              onChange={(date) => setBirthdate(date)}
+              placeholderText="Birth Date"
+              className="input date-picker"
+              dateFormat="yyyy-MM-dd"
+              showYearDropdown
+              scrollableYearDropdown
+              yearDropdownItemNumber={100}
+              maxDate={new Date()} // ما ينفعش يختار تاريخ مستقبلي
+              required
+            />
+          </div>
 
-        {registerError && <p className="error">{registerError.message}</p>}
-        {resendMessage && resendMessage.toLowerCase().includes('error') && <p className="error">{resendMessage}</p>}
-        {resendMessage && !resendMessage.toLowerCase().includes('error') && <p className="success">{resendMessage}</p>}
-        <button type="submit" className="btn" disabled={isRegisterPending}>
-          {isRegisterPending ? 'Loading...' : 'Sign Up'}
-        </button>
-        <p className="auth-link">
-          Already have an account?{' '}
-          <a href="#" onClick={(e) => { e.preventDefault(); onToggle(); }}>Sign In</a>
-        </p>
-      </form>
+          {registerError && <p className="error">{registerError.message}</p>}
+          {resendMessage && resendMessage.toLowerCase().includes('error') && <p className="error">{resendMessage}</p>}
+          {resendMessage && !resendMessage.toLowerCase().includes('error') && <p className="success">{resendMessage}</p>}
+          <button type="submit" className="btn" disabled={isRegisterPending}>
+            {isRegisterPending ? 'Loading...' : 'Sign Up'}
+          </button>
+          <p className="auth-link">
+            Already have an account?{' '}
+            <a href="#" onClick={(e) => { e.preventDefault(); onToggle(); }}>Sign In</a>
+          </p>
+        </form>
+      </div>
     </div>
   );
 });
