@@ -8,9 +8,9 @@ import { Mail, Lock, User, Phone, Globe } from 'lucide-react';
 import { getUserProfile, updateUserProfile, changeUserPassword, deleteUserAccount } from '../../../services/userProfileService';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from '../../../pages/MyBookings/ui/dialog.jsx';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import modalStyles from '../../../pages/MyBookings/ConfirmModal.module.css';
 
 countries.registerLocale(en);
 const countryOptions = Object.entries(countries.getNames('en', { select: 'official' })).map(([code, name]) => ({
@@ -519,49 +519,21 @@ const ProfileSection = () => {
           </div>
         </div>
       </div>
-      {/* Modal تأكيد الحذف */}
-      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-        <DialogContent>
-          <DialogTitle style={{textAlign:'center'}}>Delete Account</DialogTitle>
-          <DialogDescription style={{textAlign:'center',marginBottom:16}}>
-            Are you sure you want to delete your account? This action cannot be undone.
-          </DialogDescription>
-          <DialogFooter style={{justifyContent:'center',gap:16}}>
-            <button
-              onClick={() => setShowDeleteModal(false)}
-              style={{
-                background: '#f3f3f3',
-                color: '#222',
-                border: 'none',
-                borderRadius: 6,
-                padding: '10px 28px',
-                fontWeight: 600,
-                fontSize: 15,
-                cursor: 'pointer',
-                marginRight: 8
-              }}
-            >
-              Back
-            </button>
-            <button
-              onClick={handleDeleteAccount}
-              style={{
-                background: '#ff0000',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 6,
-                padding: '10px 28px',
-                fontWeight: 600,
-                fontSize: 15,
-                cursor: 'pointer',
-              }}
-              disabled={loading}
-            >
-              {loading ? 'Deleting...' : 'Yes, Delete'}
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* مودال تأكيد الحذف بنفس ستايل MyBookings */}
+      {showDeleteModal && (
+        <div className={modalStyles.overlay}>
+          <div className={modalStyles.modal}>
+            <div className={modalStyles.modalTitle}>Delete Account</div>
+            <div>Are you sure you want to delete your account? This action cannot be undone.</div>
+            <div className={modalStyles.modalActions}>
+              <button className={modalStyles.cancelBtn} onClick={() => setShowDeleteModal(false)}>Back</button>
+              <button className={modalStyles.confirmBtn} onClick={handleDeleteAccount} disabled={loading} style={{background:'#ff0000',color:'#fff'}}>
+                {loading ? 'Deleting...' : 'Yes, Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <ToastContainer />
     </div>
   );
