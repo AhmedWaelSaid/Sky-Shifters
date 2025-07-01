@@ -5,8 +5,9 @@ import Select from 'react-select';
 import countries from 'i18n-iso-countries';
 import en from 'i18n-iso-countries/langs/en.json';
 import { Mail, Lock, User, Phone, Globe } from 'lucide-react';
-import { getUserProfile, updateUserProfile, changeUserPassword } from '../../../services/userProfileService';
+import { getUserProfile, updateUserProfile, changeUserPassword, deleteUserAccount } from '../../../services/userProfileService';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 countries.registerLocale(en);
 const countryOptions = Object.entries(countries.getNames('en', { select: 'official' })).map(([code, name]) => ({
@@ -238,7 +239,8 @@ function CountryChangeForm({ value, onCancel, onSave }) {
 }
 
 const ProfileSection = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -308,6 +310,27 @@ const ProfileSection = () => {
       setShowLastNameForm(false);
       setShowPhoneForm(false);
       setShowCountryForm(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) return;
+    try {
+      setLoading(true);
+      setError(null);
+      setSuccess(null);
+      const userString = localStorage.getItem('user');
+      const userData = userString ? JSON.parse(userString) : null;
+      const token = userData?.token;
+      await deleteUserAccount(token);
+      // Logout and redirect
+      if (logout) logout();
+      localStorage.removeItem('user');
+      navigate('/');
+    } catch (err) {
+      setError('Failed to delete account. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -458,6 +481,29 @@ const ProfileSection = () => {
             </p>
           </div>
         </div>
+      </div>
+      {/* زر حذف الحساب */}
+      <div style={{marginTop: 40, textAlign: 'center'}}>
+        <button
+          onClick={handleDeleteAccount}
+          style={{
+            background: '#ff0000',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 6,
+            padding: '12px 32px',
+            fontWeight: 600,
+            fontSize: 16,
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+            transition: 'background 0.2s',
+          }}
+          onMouseOver={e => e.currentTarget.style.background = '#c40000'}
+          onMouseOut={e => e.currentTarget.style.background = '#ff0000'}
+        >
+          Delete Account
+        </button>
+        <p style={{color:'#d32f2f',marginTop:8,fontSize:13}}>This action is irreversible. All your data will be deleted.</p>
       </div>
     </div>
   );

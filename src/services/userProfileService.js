@@ -47,4 +47,20 @@ export async function changeUserPassword(oldPassword, newPassword, token) {
     throw new Error('Failed to change password');
   }
   return res.json();
+}
+
+export async function deleteUserAccount(token) {
+  const res = await fetch(`${BASE_URL}/users/delete-account`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    console.error('API response (deleteUserAccount):', text);
+    throw new Error('Failed to delete user account');
+  }
+  return res.json();
 } 
