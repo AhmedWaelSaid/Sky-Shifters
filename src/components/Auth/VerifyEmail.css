@@ -228,15 +228,3 @@ body.dark .resend-btn {
   background: #ccc;
   color: #888;
 }
-
-.auth-logo {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-.auth-logo img {
-  max-width: 160px;
-  height: auto;
-  display: block;
-}
