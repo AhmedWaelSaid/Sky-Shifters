@@ -66,6 +66,8 @@ export default function Notifications() {
                 <span className="booking-id">
                   Booking ID: {notif.bookingId}
                 </span>
+                <br />
+                <span className="notification-hint" style={{fontSize:'0.85em',color:'var(--notification-id, #888)'}}>Go to My Bookings page to see details.</span>
               </span>
               {notif.state === 0 && <span className="new-badge"> New</span>}
             </li>

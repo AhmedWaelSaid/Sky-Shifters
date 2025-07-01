@@ -157,7 +157,7 @@ export default function UserProfile() {
                           margin: '0 0 0.7rem 0',
                           padding: '0.7rem 1rem',
                           borderRadius: '10px',
-                          cursor: 'pointer',
+                          cursor: 'default',
                           boxShadow: '0 2px 8px rgba(33,150,243,0.08)',
                           whiteSpace: 'normal',
                           overflow: 'visible',
@@ -174,13 +174,15 @@ export default function UserProfile() {
                           width: '100%',
                           boxSizing: 'border-box',
                         }}
-                        onClick={() => handleNotificationClick(notif)}
                       >
-                        <span style={{whiteSpace:'normal',overflow:'visible',textOverflow:'unset',display:'inline',width:'100%'}}>
+                        <span style={{whiteSpace:'normal',overflow:'visible',textOverflow:'unset',display:'block',width:'100%'}}>
                           Your flight is approaching. Please check the flight details.
-                          <span style={{ fontSize: '0.82em', color: '#888', marginLeft: 8 }}>
+                          <br />
+                          <span className="booking-id">
                             Booking ID: {notif.bookingId}
                           </span>
+                          <br />
+                          <span className="notification-hint" style={{fontSize:'0.85em',color:'var(--notification-id, #888)'}}>Go to My Bookings page to see details.</span>
                         </span>
                         {notif.state === 0 && <span className="new-badge"> New</span>}
                       </li>
