@@ -110,7 +110,7 @@
   flex-shrink: 0;
 }
 .userLogo{
-  background-image: url("src/assets/Asset\ 18@2x.png");
+  background-image: url("/src/assets/Asset\ 18@2x.png");
 }
 .aiLogo{
   background-image: var(--chatbot-logo);

@@ -63,7 +63,7 @@ export default function Chatbot() {
       {/* زرار فتح/إغلاق الـ Chatbot */}
       <button className={styles.chatbotButton} onClick={toggleChatbot}>
         <img
-          src={`${theme === "dark" ? "/assets/chatbot-dark.png" : "/src/assets/chatbot.png"}`}
+          src={`${theme === "dark" ? "/assets/chatbot-dark.png" : "/assets/chatbot.png"}`}
           alt="chatbot"
           className={styles.chatbotLogo}
         />
