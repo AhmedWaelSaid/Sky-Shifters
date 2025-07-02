@@ -18,6 +18,9 @@ async function sendRequest(body) {
   const result = await fetch("https://chatbot-sky-shifters.duckdns.org/chat", {
     method: "POST",
     body: JSON.stringify(body),
+    headers: {
+      "Content-Type": "application/json", 
+    },
   })
     .then((res) => res.json())
     .catch((e) => console.error(e));
