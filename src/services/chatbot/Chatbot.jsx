@@ -1,6 +1,8 @@
 import { useState, useContext, useRef, useEffect } from "react";
 import styles from "./Chatbot.module.css";
 import { useAuth } from "../../components/context/AuthContext";
+import chatbotDark from "../../assets/chatbot-dark.png";
+import chatbotLight from "../../assets/chatbot.png";
 import { ThemeContext } from "../../components/context/ThemeContext"; // نفس الـ ThemeContext المستخدم في الـ Header
 const InitialMessages = [
   { id: 0, text: "hello, from user.", sender: "user" },
@@ -63,7 +65,7 @@ export default function Chatbot() {
       {/* زرار فتح/إغلاق الـ Chatbot */}
       <button className={styles.chatbotButton} onClick={toggleChatbot}>
         <img
-          src={`${theme === "dark" ? "/assets/chatbot-dark.png" : "/assets/chatbot.png"}`}
+          src={`${theme === "dark" ?  chatbotDark:chatbotLight }`}
           alt="chatbot"
           className={styles.chatbotLogo}
         />
