@@ -6,12 +6,11 @@
   bottom: 30px;
   right: 30px;
   z-index: 1000;
-  --taier-logo:url("/src/assets/Asset\ 22@2x.png");
-  --chatbot-logo:url("/src/assets/chatbot.png");
+  --taier-logo:url("../../assets/taierLogoNoText.png");
+  --chatbot-logo:url("../../assets/chatbot.png");
 }
 .chatbotContainer.dark {
-  --taier-logo:url("/src/assets/Asset\ 24@2x.png");
-  --chatbot-logo:url("/src/assets/chatbot-dark.png");
+  --chatbot-logo:url("../../assets/chatbot-dark.png");
 }
 
 .chatbotButton {
@@ -110,7 +109,7 @@
   flex-shrink: 0;
 }
 .userLogo{
-  background-image: url("/src/assets/Asset\ 18@2x.png");
+  background-image: var(--taier-logo);
 }
 .aiLogo{
   background-image: var(--chatbot-logo);
@@ -118,7 +117,7 @@
 .messageText {
   background-color: var(--Btnbg-color);
   color: var(--LightText-color);
-  padding: 5px;
+  padding: 10px;
   position: relative;
   border-radius: 10px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
