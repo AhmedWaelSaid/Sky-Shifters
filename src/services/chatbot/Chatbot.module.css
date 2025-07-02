@@ -10,7 +10,7 @@
   --chatbot-logo:url("/src/assets/chatbot.png");
 }
 .chatbotContainer.dark {
-  --taier-logo:url("src/assets/Asset\ 24@2x.png");
+  --taier-logo:url("/src/assets/Asset\ 24@2x.png");
   --chatbot-logo:url("/src/assets/chatbot-dark.png");
 }
 
