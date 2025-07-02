@@ -29,7 +29,7 @@ export default function Chatbot() {
   const { theme } = useContext(ThemeContext); // نجيب الـ Theme الحالي (light أو dark)
   const [messages, setMessages] = useState(InitialMessages);
   const [userMessage, setUserMessage] = useState("");
-  const user = localStorage.getItem("user");
+  const user = JSON.parse(localStorage.getItem("user"));
   console.log(user)
   const textareaRef = useRef(null);
   const { isAuthenticated } = useAuth();
