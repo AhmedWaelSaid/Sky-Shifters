@@ -41,24 +41,23 @@ export default function Notifications() {
               key={idx}
               className={notif.state === 0 ? 'notification-item new' : 'notification-item'}
               style={{
-                background: notif.state === 0 ? 'var(--notification-bg, #e3f2fd)' : 'var(--bg-color, #181818)',
-                border: notif.state === 0 ? '1.5px solid var(--notification-border, #2196f3)' : '1.5px solid var(--notification-border, #333)',
+                background: '#e3f2fd',
+                border: '1.5px solid #2196f3',
                 marginBottom: '1rem',
                 padding: '1.1rem 1.5rem',
                 borderRadius: '10px',
-                cursor: notif.bookingId ? 'pointer' : 'default',
+                cursor: 'default',
                 boxShadow: '0 2px 8px rgba(33,150,243,0.08)',
                 whiteSpace: 'normal',
                 overflow: 'visible',
                 textOverflow: 'unset',
                 direction: 'ltr',
                 textAlign: 'left',
-                color: 'var(--notification-text, #1565c0)',
+                color: '#1565c0',
                 fontWeight: 500,
                 fontSize: '1.08rem',
                 transition: 'box-shadow 0.2s',
               }}
-              onClick={() => handleNotificationClick(notif)}
             >
               <span style={{whiteSpace:'normal',overflow:'visible',textOverflow:'unset',display:'block',width:'100%'}}>
                 Your flight is approaching. Please check the flight details.

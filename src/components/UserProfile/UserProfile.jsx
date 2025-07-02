@@ -2,10 +2,8 @@
 import "./UserProfile.css";
 import { useState, useContext, useEffect } from "react";
 import { ThemeContext } from "../context/ThemeContext";
-import { getNotifications, getNotificationCount, markNotificationsAsRead } from '../../services/notificationService';
+import { getNotifications, getNotificationCount } from '../../services/notificationService';
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 export default function UserProfile() {
   const { theme, toggleTheme } = useContext(ThemeContext);
@@ -45,14 +43,9 @@ export default function UserProfile() {
       setLoading(true);
       try {
         const res = await getNotifications();
-        // فلترة الإشعارات الجديدة فقط
-        const newNotifs = (res.data || []).filter(n => n.state === 0);
-        setNotifications(newNotifs);
+        console.log('[UserProfile] getNotifications result:', res);
+        setNotifications(res.data || []);
         setNewCount(0);
-        // تحديث حالة الإشعارات الجديدة إلى قديمة
-        if (newNotifs.length > 0) {
-          await markNotificationsAsRead();
-        }
       } catch (e) {
         console.error('[UserProfile] getNotifications error:', e);
         setNotifications([]);
@@ -66,22 +59,9 @@ export default function UserProfile() {
 
   // عند الضغط على إشعار
   const handleNotificationClick = (notif) => {
+    console.log('[UserProfile] handleNotificationClick:', notif);
     if (notif.bookingId) {
-      toast.info(
-        <div style={{textAlign:'left'}}>
-          <div style={{fontWeight:600, color:'#1565c0', marginBottom:4}}>Your flight is approaching. Please check the flight details.</div>
-          <div style={{color:'#888', fontSize:'0.98em', marginBottom:2}}>Booking ID: {notif.bookingId}</div>
-          <div style={{color:'#888', fontSize:'0.95em'}}>Go to My Bookings page to see details.</div>
-          <button style={{marginTop:10, background:'#0085FF', color:'#fff', border:'none', borderRadius:6, padding:'6px 18px', cursor:'pointer', fontWeight:500, fontSize:'1em'}} onClick={() => { toast.dismiss(); navigate(`/my-bookings/${notif.bookingId}`); }}>Go to Booking</button>
-        </div>,
-        {
-          position: 'top-center',
-          autoClose: false,
-          closeOnClick: false,
-          draggable: false,
-          hideProgressBar: false,
-        }
-      );
+      navigate(`/my-bookings/${notif.bookingId}`);
     }
     setIsNotificationsOpen(false);
   };
@@ -157,7 +137,7 @@ export default function UserProfile() {
             <div className="dropdown-content">
               {loading ? (
                 <p>Loading notifications...</p>
-              ) : notifications.length === 0 ? (
+              ) : notifications.filter(n => n.state === 0).length === 0 ? (
                 <>
                   <h3>You are all caught up!</h3>
                   <p>You have no new notifications. Notifications are deleted after 30 days</p>
@@ -166,7 +146,7 @@ export default function UserProfile() {
               ) : (
                 <>
                   <ul className="notifications-list" style={{padding:0, margin:0, width:'100%'}}>
-                    {notifications.map((notif, idx) => (
+                    {notifications.filter(n => n.state === 0).map((notif, idx) => (
                       <li
                         key={idx}
                         className={notif.state === 0 ? 'notification-item new' : 'notification-item'}
@@ -176,7 +156,7 @@ export default function UserProfile() {
                           margin: '0 0 0.7rem 0',
                           padding: '0.7rem 1rem',
                           borderRadius: '10px',
-                          cursor: notif.bookingId ? 'pointer' : 'default',
+                          cursor: 'default',
                           boxShadow: '0 2px 8px rgba(33,150,243,0.08)',
                           whiteSpace: 'normal',
                           overflow: 'visible',
@@ -193,7 +173,6 @@ export default function UserProfile() {
                           width: '100%',
                           boxSizing: 'border-box',
                         }}
-                        onClick={() => handleNotificationClick(notif)}
                       >
                         <span style={{whiteSpace:'normal',overflow:'visible',textOverflow:'unset',display:'block',width:'100%'}}>
                           Your flight is approaching. Please check the flight details.
@@ -215,7 +194,6 @@ export default function UserProfile() {
           </div>
         )}
       </div>
-      <ToastContainer />
     </div>
   );
 }
