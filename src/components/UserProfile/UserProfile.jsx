@@ -4,6 +4,8 @@ import { useState, useContext, useEffect } from "react";
 import { ThemeContext } from "../context/ThemeContext";
 import { getNotifications, getNotificationCount, markNotificationsAsRead } from '../../services/notificationService';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function UserProfile() {
   const { theme, toggleTheme } = useContext(ThemeContext);
@@ -64,9 +66,22 @@ export default function UserProfile() {
 
   // عند الضغط على إشعار
   const handleNotificationClick = (notif) => {
-    console.log('[UserProfile] handleNotificationClick:', notif);
     if (notif.bookingId) {
-      navigate(`/my-bookings/${notif.bookingId}`);
+      toast.info(
+        <div style={{textAlign:'left'}}>
+          <div style={{fontWeight:600, color:'#1565c0', marginBottom:4}}>Your flight is approaching. Please check the flight details.</div>
+          <div style={{color:'#888', fontSize:'0.98em', marginBottom:2}}>Booking ID: {notif.bookingId}</div>
+          <div style={{color:'#888', fontSize:'0.95em'}}>Go to My Bookings page to see details.</div>
+          <button style={{marginTop:10, background:'#0085FF', color:'#fff', border:'none', borderRadius:6, padding:'6px 18px', cursor:'pointer', fontWeight:500, fontSize:'1em'}} onClick={() => { toast.dismiss(); navigate(`/my-bookings/${notif.bookingId}`); }}>Go to Booking</button>
+        </div>,
+        {
+          position: 'top-center',
+          autoClose: false,
+          closeOnClick: false,
+          draggable: false,
+          hideProgressBar: false,
+        }
+      );
     }
     setIsNotificationsOpen(false);
   };
@@ -200,6 +215,7 @@ export default function UserProfile() {
           </div>
         )}
       </div>
+      <ToastContainer />
     </div>
   );
 }
