@@ -55,7 +55,7 @@ export default function Chatbot() {
         message: userMessage,
         access_token: user.token,
         user_id: user.userId,
-        session_id: messages.length - 1,
+        session_id: `${messages.length - 1}`,
       };
       sendRequest(body);
       setMessages((prev)=>([...prev,{id:messages.length-1,text:userMessage,sender:"user"}]))
