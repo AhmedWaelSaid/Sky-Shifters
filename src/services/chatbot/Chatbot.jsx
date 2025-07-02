@@ -1,95 +1,141 @@
-import { useState, useEffect, useContext } from 'react';
-import styles from './Chatbot.module.css';
-import { FaSearch, FaHeart, FaCommentAlt, FaTimes, FaHome, FaQuestionCircle, FaTicketAlt, FaEnvelope } from 'react-icons/fa';
-import { ThemeContext } from '../../components/context/ThemeContext'; // نفس الـ ThemeContext المستخدم في الـ Header
+import { useState, useContext, useRef, useEffect } from "react";
+import styles from "./Chatbot.module.css";
+import { useAuth } from "../../components/context/AuthContext";
+import { ThemeContext } from "../../components/context/ThemeContext"; // نفس الـ ThemeContext المستخدم في الـ Header
+const InitialMessages = [
+  { id: 0, text: "hello, from user.", sender: "user" },
+  {
+    id: 1,
+    text: "hello, from AI.",
+    sender: "AI",
+  },
+];
+async function sendRequest(body) {
+  if (!body) return;
+  const result = await fetch("https://chatbot-sky-shifters.duckdns.org/chat", {
+    method: "POST",
+    body: JSON.stringify(body),
+  })
+    .then((res) => res.json())
+    .catch((e) => console.error(e));
 
+  console.log(result);
+}
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
   const { theme } = useContext(ThemeContext); // نجيب الـ Theme الحالي (light أو dark)
+  const [messages, setMessages] = useState(InitialMessages);
+  const [userMessage, setUserMessage] = useState("");
+  const textareaRef = useRef(null);
+  const { isAuthenticated } = useAuth();
 
-  // التحكم في الـ Animation
   useEffect(() => {
-    if (isOpen) {
-      setIsVisible(true);
-    } else {
-      const timer = setTimeout(() => setIsVisible(false), 300); // نفس مدة الـ transition
-      return () => clearTimeout(timer);
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height =
+        textareaRef.current.scrollHeight + "px";
     }
-  }, [isOpen]);
+  }, [userMessage]);
 
   const toggleChatbot = () => {
     setIsOpen(!isOpen);
   };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (isAuthenticated) {
+      const user = localStorage.getItem("user");
+      const body = {
+        message: userMessage,
+        access_token: user.accessToken,
+        user_id: user.userId,
+        session_id: messages.length - 1,
+      };
+      alert("success");
+      sendRequest(body);
+      setUserMessage("");
+    } else return;
+  };
 
   return (
-    <div className={`${styles.chatbotContainer} ${theme === 'dark' ? styles.dark : ''}`}>
+    <div
+      className={`${styles.chatbotContainer} ${theme === "dark" ? styles.dark : ""}`}
+    >
       {/* زرار فتح/إغلاق الـ Chatbot */}
       <button className={styles.chatbotButton} onClick={toggleChatbot}>
-        {isOpen ? <FaTimes /> : <FaCommentAlt />}
+        <img
+          src={`${theme === "dark" ? "src/assets/chatbot-dark.png" : "src/assets/chatbot.png"}`}
+          alt="chatbot"
+          className={styles.chatbotLogo}
+        />
       </button>
-
-      {/* نافذة الـ Chatbot مع الـ Animation */}
-      {isVisible && (
-        <div className={`${styles.chatbotWindow} ${isOpen ? styles.open : styles.close}`}>
-          {/* الجزء العلوي (Header + Greeting) */}
-          <div className={styles.topSection}>
-            <div className={`${styles.header} ${isOpen ? styles.fadeIn : styles.fadeOut}`}>
-              <span className={styles.logo}>SkyShifters</span>
+      {isOpen && (
+        <form action="" onSubmit={handleSubmit}>
+          <div className={styles.chatbot}>
+            <div className={styles.chatbotStatus}>
+              <div className={styles.logoTaierContainer}>
+                <div className={`${styles.logo} ${styles.taier}`}></div>
+                <div>
+                  <span>Taier AI</span>
+                  <div className={styles.online}>
+                    <span className={styles.dot}></span>
+                    <span>Online</span>
+                  </div>
+                </div>
+              </div>
             </div>
-
-            <div className={`${styles.greeting} ${isOpen ? styles.fadeIn : styles.fadeOut}`}>
-              <h2>
-                Hi Traveler <FaHeart className={styles.heartIcon} />
-              </h2>
-              <p>How can we help with your journey?</p>
+            <div className={styles.chatbotMessages}>
+              {messages.map((msg) => (
+                <>
+                  <div
+                    key={msg.id}
+                    className={`${styles.message} ${msg.sender === "user" ? styles.fromUser : styles.fromAI}`}
+                  >
+                    {msg.sender === "user" ? (
+                      <>
+                        <div
+                          className={`${styles.messageText} ${msg.sender === "user" ? styles.userMessageText : styles.aiMessageText}`}
+                        >
+                          {msg.text}
+                        </div>
+                        <div
+                          className={`${msg.sender === "user" ? styles.userLogo : styles.aiLogo}`}
+                        ></div>
+                      </>
+                    ) : (
+                      <>
+                        <div
+                          className={`${msg.sender === "user" ? styles.userLogo : styles.aiLogo}`}
+                        ></div>
+                        <div
+                          className={`${styles.messageText} ${msg.sender === "user" ? styles.userMessageText : styles.aiMessageText}`}
+                        >
+                          {msg.text}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </>
+              ))}
+            </div>
+            <div className={styles.chatbotInputContainer}>
+              <textarea
+                name="user_message"
+                id="user_message"
+                placeholder="Ask anything"
+                required
+                ref={textareaRef}
+                value={userMessage}
+                onChange={(e) => setUserMessage(e.target.value)}
+              ></textarea>
+              <button type="submit" className={styles.submitBtn}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <title>Send</title>
+                  <path d="M3 20V14L11 12L3 10V4L22 12Z" />
+                </svg>
+              </button>
             </div>
           </div>
-
-          {/* باقي المحتوى (يتأثر بالـ Dark Mode) */}
-          <div className={styles.bottomSection}>
-            {/* شريط البحث */}
-            <div className={`${styles.searchBar} ${isOpen ? styles.fadeIn : styles.fadeOut}`}>
-              <FaSearch className={styles.searchIcon} />
-              <input type="text" placeholder="Search for flight help" />
-            </div>
-
-            {/* قائمة الخيارات الخاصة بالطيران */}
-            <ul className={`${styles.optionsList} ${isOpen ? styles.fadeIn : styles.fadeOut}`}>
-              <li>Flight Booking</li>
-              <li>Cancel Flight</li>
-              <li>Check-In Process</li>
-              <li>Baggage Policy</li>
-              <li>Flight Status</li>
-            </ul>
-
-            {/* زرار Start a conversation */}
-            <div className={`${styles.startConversation} ${isOpen ? styles.fadeIn : styles.fadeOut}`}>
-              <button>Start a conversation</button>
-              <p>We typically reply in under 3 minutes</p>
-            </div>
-
-            {/* الـ Footer (السطر اللي تحت) */}
-            <div className={`${styles.footer} ${isOpen ? styles.fadeIn : styles.fadeOut}`}>
-              <button className={styles.footerButton}>
-                <FaHome />
-                <span>Home</span>
-              </button>
-              <button className={styles.footerButton}>
-                <FaQuestionCircle />
-                <span>Help</span>
-              </button>
-              <button className={styles.footerButton}>
-                <FaTicketAlt />
-                <span>Tickets</span>
-              </button>
-              <button className={styles.footerButton}>
-                <FaEnvelope />
-                <span>Messages</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        </form>
       )}
     </div>
   );

@@ -69,11 +69,12 @@
 }
 .containerError,
 .containerNoData {
-  margin-top: 150px;
+  margin-top: 90px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  height: 80vh;
 }
 .noDataText {
   height: 300px;

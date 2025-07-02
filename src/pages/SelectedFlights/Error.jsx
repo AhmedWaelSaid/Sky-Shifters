@@ -3,10 +3,12 @@ import styles from "./styles/container.module.css"
 import PropTypes from "prop-types";
 export default function Error({setIsReturn, setAPISearch,isReturn}) {
     return (
+        <>
+        <MainHeader setAPISearch={setAPISearch} setIsReturn={setIsReturn} isReturn={isReturn}/>
         <div className={styles.containerError}>
-            <MainHeader setAPISearch={setAPISearch} setIsReturn={setIsReturn} isReturn={isReturn}/>
             <div className={styles.error}>Network error detected!</div>
         </div>
+        </>
     );
 }
 Error.propTypes = {

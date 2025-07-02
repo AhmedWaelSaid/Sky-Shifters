@@ -2,247 +2,190 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 .chatbotContainer {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    z-index: 1000;
-    
-  }
-  
-  .chatbotButton {
-    background-color: var(--Btnbg-color); /* استخدام لون الزر من الـ Variables */
-    border: none;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--LightText-color); /* لون الأيقونة */
-    font-size: 24px;
-    cursor: pointer;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s;
-  }
-  
-  .chatbotButton:hover {
-    background-color: var(--AuthBtn-color); /* لون الـ hover */
-  }
-  
-  .chatbotWindow {
-    position: absolute;
-    bottom: 80px;
-    right: 0;
-    width: 350px;
-    border-radius: 10px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-  }
-  
-  .chatbotWindow.open {
-    opacity: 1;
-    transform: scale(1);
-    
-  }
-  
-  .chatbotWindow.close {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  
-  /* الجزء العلوي (لونه ثابت أزرق/سماوي) */
-  .topSection {
-    background-color: var(--Btnbg-color);
-    padding-bottom: 30px;
-    color: var(--LightDarktext-color);
-    
-  }
-  
-  .header {
-    padding: 20px 20px 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .logo {
-    color: var(--LightText-color);
-    font-size: 20px;
-    font-weight: bold;
-  }
-  
-  .greeting {
-    padding: 0 20px 0;
-    text-align: left;
-    color: var(--LightText-color);
-  }
-  
-  .greeting h2 {
-    font-size: 20px;
-    margin: 0;
-    color: var(--LightText-color);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    
-  }
-  
-  .heartIcon {
-    color: var(--AuthBtn-color); /* لون القلب ثابت */
-  }
-  
-  .greeting p {
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--LightText-color); 
-    margin: 5px 0 0;
-  }
-  
-  /* الجزء السفلي (يتأثر بالـ Dark Mode) */
-  .bottomSection {
-    background-color: var(--bg-color); /* الخلفية هتتغير حسب الـ Theme */
-  }
-  
-  .searchBar {
-    display: flex;
-    align-items: center;
-    margin: 0 20px 20px;
-    padding: 12px;
-    background-color: #fff; /* خلفية شريط البحث بيضاء دائمًا */
-    border-radius: 5px;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .searchIcon {
-    color: var(--LightDarktext-color); /* لون الأيقونة يتغير حسب الـ Theme */
-    margin-right: 10px;
-  }
-  
-  .searchBar input {
-    border: none;
-    background: none;
-    outline: none;
-    flex: 1;
-    font-size: 14px;
-    color: var(--LightDarktext-color); /* لون النص يتغير حسب الـ Theme */
-  }
-  
-  .optionsList {
-    list-style: none;
-    padding: 0 20px;
-    margin: 0;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .optionsList li {
-    padding: 12px 0;
-    font-size: 14px;
-    color: var(--Btnbg-color); /* لون الخيارات يتغير حسب الـ Theme */
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .optionsList li::after {
-    content: '>';
-    color: var(--Btnbg-color); /* لون السهم يتغير حسب الـ Theme */
-  }
-  
-  .startConversation {
-    padding: 15px;
-    background-color: #fff; /* خلفية الزر بيضاء دائمًا */
-    border-radius: 5px;
-    margin: 20px;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .startConversation button {
-    background-color: var(--Btnbg-color); /* لون الزر يتغير حسب الـ Theme */
-    color: var(--LightText-color); /* لون النص يتغير حسب الـ Theme */
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    width: 100%;
-    margin-bottom: 5px;
-  }
-  
-  .startConversation button:hover {
-    background-color: var(--AuthBtn-color); /* لون الـ hover يتغير حسب الـ Theme */
-  }
-  
-  .startConversation p {
-    font-size: 12px;
-    color: var(--LightDarktext-color); /* لون النص يتغير حسب الـ Theme */
-    margin: 0;
-    text-align: left;
-  }
-  
-  .footer {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 10px 0;
-    background-color: #fff; /* خلفية الـ Footer بيضاء دائمًا */
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-  }
-  
-  .footerButton {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: none;
-    border: none;
-    color: var(--LightDarktext-color); /* لون النص يتغير حسب الـ Theme */
-    font-size: 12px;
-    cursor: pointer;
-  }
-  
-  .footerButton svg {
-    margin-bottom: 5px;
-    font-size: 18px;
-  }
-  
-  .footerButton:hover {
-    color: var(--Btnbg-color); /* لون الـ hover يتغير حسب الـ Theme */
-  }
-  
-  .footerButton:hover svg {
-    color: var(--Btnbg-color); /* لون الأيقونة يتغير حسب الـ Theme */
-  }
-  
-  /* الـ Transition للعناصر الداخلية */
-  .fadeIn {
-    opacity: 1;
-    transition: opacity 0.5s ease;
-  }
-  
-  .fadeOut {
-    opacity: 0;
-    transition: opacity 0.5s ease;
-  }
-  
-  /* تعديلات الـ Dark Mode */
-  .dark .chatbotButton {
-    background-color: var(--Btnbg-color); /* #fbd684 في الـ Dark Mode */
-  }
-  
-  .dark .chatbotButton:hover {
-    background-color: var(--AuthBtn-color); /* #fbd684 في الـ Dark Mode */
-  }
-  
-  .dark .searchBar {
-    background-color: #333; /* خلفية شريط البحث في الـ Dark Mode */
-  }
-  
-  .dark .startConversation {
-    background-color: #333; /* خلفية الزر في الـ Dark Mode */
-  }
-  
-  .dark .footer {
-    background-color: #333; /* خلفية الـ Footer في الـ Dark Mode */
-  }
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+  --taier-logo:url("src/assets/Asset\ 22@2x.png");
+  --chatbot-logo:url("src/assets/chatbot.png");
+}
+.chatbotContainer.dark {
+  --taier-logo:url("src/assets/Asset\ 24@2x.png");
+  --chatbot-logo:url("src/assets/chatbot-dark.png");
+}
+
+.chatbotButton {
+  /* استخدام لون الزر من الـ Variables */
+  border-radius: 50%;
+  margin: 0;
+  padding: 0;
+  width: 60px;
+  height: 60px;
+  color: inherit;
+  border: none;
+  background-color: inherit;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+.chatbotLogo {
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+}
+.chatbotButton:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+}
+.chatbot {
+  position: absolute;
+  top: -510px;
+  left: -450px;
+  width: 500px;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  z-index: 50;
+  background-color: white;
+}
+.logoTaierContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.taier {
+  background-image: var(--chatbot-logo);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+.online {
+  font-size: 0.8rem;
+}
+.online .dot {
+  display: inline-block;
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  background-color: #4caf50;
+  margin-right: 3px;
+}
+.chatbotStatus {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+  padding: 16px 0;
+  padding-left: 10px;
+}
+.chatbotMessages {
+  height: 250px;
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+.message {
+  display: flex;
+  gap: 5px;
+  max-width: 90%;
+}
+.fromUser {
+  align-self: flex-end;
+}
+.fromAI {
+  align-self: flex-start;
+}
+.userLogo,.aiLogo {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  align-self: flex-end;
+  flex-shrink: 0;
+}
+.userLogo{
+  background-image: url("src/assets/Asset\ 18@2x.png");
+}
+.aiLogo{
+  background-image: var(--chatbot-logo);
+}
+.messageText {
+  background-color: var(--Btnbg-color);
+  color: var(--LightText-color);
+  padding: 5px;
+  position: relative;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.messageText.userMessageText{
+  background-color:#EEEEEE;
+  color:black;
+}
+.messageText.userMessageText::before {
+  content: "";
+  position: absolute;
+    border-left: 3px solid #EEEEEE;
+    border-right: 10px solid transparent;
+    border-top: 0px solid transparent;
+    border-bottom: 30px solid #EEEEEE;
+  right: -5px;
+  bottom: 0px;
+}
+.messageText.aiMessageText::before {
+  content: "";
+  position: absolute;
+  border-left: 7px solid transparent;
+  border-right: 5px solid transparent;
+  /* border-top: 3px solid var(--Btnbg-color); */
+  border-bottom: 15px solid var(--Btnbg-color);
+  left: -4px;
+  bottom: 0px;
+}
+.chatbotInputContainer{
+  border-top: 1px solid rgba(0, 0, 0, 0.5);
+  display: flex;
+  max-height: 150px;
+  padding: 10px;
+}
+.chatbotInputContainer textarea {
+  display: block;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 100%;
+  height: 50px;
+  border: none;
+  overflow: auto;
+  background: none;
+  resize: none;
+  width: 90%;
+  max-height: 150px;
+  padding-right: 10px;
+}
+.chatbotInputContainer textarea:focus {
+  outline: none;
+}
+.submitBtn{
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  align-self: flex-end;
+  background-color: var(--Btnbg-color);
+  border: none;
+}
+.submitBtn:hover {
+  cursor: pointer;
+  transform: scale(1.08);
+}
+.submitBtn svg {
+  fill: white;
+  width: 30px;
+  height: auto;
+}
