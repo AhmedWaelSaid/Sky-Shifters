@@ -83,4 +83,20 @@ export async function getNotificationCount() {
     console.error('[notificationService] getNotificationCount: error', err);
     throw err;
   }
+}
+
+export async function markNotificationsAsRead() {
+  const token = getToken();
+  try {
+    const res = await axiosWithAutoRefresh({
+      method: 'patch',
+      url: `${API_BASE}/notification`,
+      headers: { Authorization: `Bearer ${token}` },
+      data: {}, // body فارغ حسب الدوكيومنت
+    });
+    return res.data;
+  } catch (err) {
+    console.error('[notificationService] markNotificationsAsRead: error', err);
+    throw err;
+  }
 } 

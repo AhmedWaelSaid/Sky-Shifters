@@ -2,7 +2,7 @@
 import "./UserProfile.css";
 import { useState, useContext, useEffect } from "react";
 import { ThemeContext } from "../context/ThemeContext";
-import { getNotifications, getNotificationCount } from '../../services/notificationService';
+import { getNotifications, getNotificationCount, markNotificationsAsRead } from '../../services/notificationService';
 import { useNavigate } from 'react-router-dom';
 
 export default function UserProfile() {
@@ -43,9 +43,14 @@ export default function UserProfile() {
       setLoading(true);
       try {
         const res = await getNotifications();
-        console.log('[UserProfile] getNotifications result:', res);
-        setNotifications(res.data || []);
+        // فلترة الإشعارات الجديدة فقط
+        const newNotifs = (res.data || []).filter(n => n.state === 0);
+        setNotifications(newNotifs);
         setNewCount(0);
+        // تحديث حالة الإشعارات الجديدة إلى قديمة
+        if (newNotifs.length > 0) {
+          await markNotificationsAsRead();
+        }
       } catch (e) {
         console.error('[UserProfile] getNotifications error:', e);
         setNotifications([]);
@@ -145,7 +150,6 @@ export default function UserProfile() {
                 </>
               ) : (
                 <>
-                  
                   <ul className="notifications-list" style={{padding:0, margin:0, width:'100%'}}>
                     {notifications.map((notif, idx) => (
                       <li
@@ -157,7 +161,7 @@ export default function UserProfile() {
                           margin: '0 0 0.7rem 0',
                           padding: '0.7rem 1rem',
                           borderRadius: '10px',
-                          cursor: 'default',
+                          cursor: notif.bookingId ? 'pointer' : 'default',
                           boxShadow: '0 2px 8px rgba(33,150,243,0.08)',
                           whiteSpace: 'normal',
                           overflow: 'visible',
@@ -174,6 +178,7 @@ export default function UserProfile() {
                           width: '100%',
                           boxSizing: 'border-box',
                         }}
+                        onClick={() => handleNotificationClick(notif)}
                       >
                         <span style={{whiteSpace:'normal',overflow:'visible',textOverflow:'unset',display:'block',width:'100%'}}>
                           Your flight is approaching. Please check the flight details.
