@@ -72,6 +72,7 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
         country: data.user?.country || '',
         birthdate: data.user?.birthdate || '',
         token: data.data.accessToken,
+        userId: data.data.userId,
         refreshToken: data.data.refreshToken
       };
       // حفظ التوكن في localStorage

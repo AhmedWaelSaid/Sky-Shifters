@@ -50,7 +50,7 @@ export default function Chatbot() {
     if (isAuthenticated) {
       const body = {
         message: userMessage,
-        access_token: user.accessToken,
+        access_token: user.token,
         user_id: user.userId,
         session_id: messages.length - 1,
       };
