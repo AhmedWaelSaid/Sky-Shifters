@@ -26,7 +26,7 @@ export default defineConfig({
         "style-src 'self' 'unsafe-inline' https://api.mapbox.com https://fonts.googleapis.com",
         "img-src 'self' data: https://*.mapbox.com https://*.avs.io https://pics.avs.io;",
         "font-src 'self' https://fonts.gstatic.com data:",
-        "connect-src 'self' https://api.mapbox.com https://events.mapbox.com https://api.stripe.com https://sky-shifters.duckdns.org https://api.amadeus.com https://infird.com https://overbridgenet.com https://www.google-analytics.com",
+        "connect-src 'self' https://api.mapbox.com https://events.mapbox.com https://api.stripe.com https://sky-shifters.duckdns.org https://chatbot-sky-shifters.duckdns.org https://api.amadeus.com https://infird.com https://overbridgenet.com https://www.google-analytics.com",
         "frame-src 'self' https://js.stripe.com https://hooks.stripe.com"
       ].join('; ')
     },

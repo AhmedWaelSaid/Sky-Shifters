@@ -6,12 +6,12 @@
   bottom: 30px;
   right: 30px;
   z-index: 1000;
-  --taier-logo:url("src/assets/Asset\ 22@2x.png");
-  --chatbot-logo:url("src/assets/chatbot.png");
+  --taier-logo:url("/src/assets/Asset\ 22@2x.png");
+  --chatbot-logo:url("/src/assets/chatbot.png");
 }
 .chatbotContainer.dark {
   --taier-logo:url("src/assets/Asset\ 24@2x.png");
-  --chatbot-logo:url("src/assets/chatbot-dark.png");
+  --chatbot-logo:url("/src/assets/chatbot-dark.png");
 }
 
 .chatbotButton {
