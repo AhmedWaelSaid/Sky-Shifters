@@ -5,6 +5,7 @@ import { ChevronLeft, User, CreditCard, Calendar, Lock, AlertTriangle } from 'lu
 import { useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcElement } from '@stripe/react-stripe-js';
 import PropTypes from 'prop-types';
 import { useData } from '../../../components/context/DataContext.jsx';
+import { refreshAccessToken } from '../../../services/authService';
 
 // Helper function to safely get price from pricing info
 const getPriceFromPricingInfo = (pricingInfo) => {
@@ -56,6 +57,26 @@ export function calculateTotalPrice(flightData, bookingData) {
 
   const total = baseFareTotal + addOns + specialServices + totalBaggageCost;
   return total;
+}
+
+// Axios wrapper with auto-refresh
+async function axiosWithAutoRefresh(config, retry = true) {
+  try {
+    return await axios(config);
+  } catch (err) {
+    if ((err.response?.status === 401 || err.response?.status === 403) && retry) {
+      // Try to refresh token
+      const newTokens = await refreshAccessToken();
+      if (newTokens && newTokens.accessToken) {
+        config.headers = {
+          ...config.headers,
+          Authorization: `Bearer ${newTokens.accessToken}`,
+        };
+        return axiosWithAutoRefresh(config, false);
+      }
+    }
+    throw err;
+  }
 }
 
 const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clientSecret: initialClientSecret, bookingId: initialBookingId, hideCardPreview }) => {
@@ -246,11 +267,21 @@ const PaymentSection = ({ bookingData, onPaymentSuccess, onBack, isLoading, clie
       });
 
       const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
-      const intentResponse = await axios.post(paymentIntentUrl, {
-        bookingId,
-        amount,
-        currency: currency.toLowerCase(),
-      }, { headers: { 'Authorization': `Bearer ${token}` } });
+      const intentResponse = await axiosWithAutoRefresh(
+        {
+          method: 'POST',
+          url: paymentIntentUrl,
+          data: {
+            bookingId,
+            amount,
+            currency: currency.toLowerCase(),
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+        true
+      );
       
       // 🔍 LOG: Full response from the backend after attempting to create a new Payment Intent.
       console.log("🔍 handleRetry: Received response from server:", intentResponse);

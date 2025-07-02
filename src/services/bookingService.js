@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { refreshAccessToken } from './authService';
 
 const API_BASE_URL = 'https://sky-shifters.duckdns.org';
 
@@ -28,16 +29,29 @@ apiClient.interceptors.request.use(
 // Response interceptor to handle common errors
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response?.status === 404) {
       console.warn('Resource not found:', error.config.url);
       // Don't throw for 404s, just log them
       return Promise.resolve({ data: null, status: 404 });
     }
     if (error.response?.status === 401 || error.response?.status === 403) {
-      // Clear invalid token
-      localStorage.removeItem('user');
-      window.location.href = '/auth';
+      // Try to refresh token
+      try {
+        const newTokens = await refreshAccessToken();
+        if (newTokens && newTokens.accessToken) {
+          // Update the original request with new token
+          error.config.headers['Authorization'] = `Bearer ${newTokens.accessToken}`;
+          // Retry the original request
+          return apiClient.request(error.config);
+        }
+      } catch (refreshError) {
+        // Refresh failed, logout
+        localStorage.removeItem('user');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        window.location.href = '/auth';
+      }
     }
     return Promise.reject(error);
   }

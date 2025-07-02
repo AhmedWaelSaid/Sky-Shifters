@@ -71,13 +71,17 @@ const SignIn = memo(function SignIn({ onToggle, onLogin }) {
         phoneNumber: data.user?.phoneNumber || '',
         country: data.user?.country || '',
         birthdate: data.user?.birthdate || '',
-        token: data.data.accessToken ,
+        token: data.data.accessToken,
+        refreshToken: data.data.refreshToken
       };
       // حفظ التوكن في localStorage
       if (data.data?.accessToken) {
         localStorage.setItem('access_token', data.data.accessToken);
       }
-      localStorage.setItem('user', JSON.stringify(data.data));
+      if (data.data?.refreshToken) {
+        localStorage.setItem('refresh_token', data.data.refreshToken);
+      }
+      localStorage.setItem('user', JSON.stringify({ ...data.data, refreshToken: data.data.refreshToken }));
       // ----------------------------------------------------
       onLogin(userData);
       navigate('/');

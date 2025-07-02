@@ -8,9 +8,30 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { useData } from '../../../components/context/DataContext.jsx';
 import { calculateTotalPrice } from '../PaymentSection/PaymentSection';
+import { refreshAccessToken } from '../../../services/authService';
 
 // تهيئة Stripe مرة واحدة خارج المكون
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+// Axios wrapper with auto-refresh
+async function axiosWithAutoRefresh(config, retry = true) {
+  try {
+    return await axios(config);
+  } catch (err) {
+    if ((err.response?.status === 401 || err.response?.status === 403) && retry) {
+      // Try to refresh token
+      const newTokens = await refreshAccessToken();
+      if (newTokens && newTokens.accessToken) {
+        config.headers = {
+          ...config.headers,
+          Authorization: `Bearer ${newTokens.accessToken}`,
+        };
+        return axiosWithAutoRefresh(config, false);
+      }
+    }
+    throw err;
+  }
+}
 
 const FinalDetails = ({ passengers, formData, onBack, sharedData }) => {
     const { flight } = useData();
@@ -22,16 +43,20 @@ const FinalDetails = ({ passengers, formData, onBack, sharedData }) => {
     const [bookingId, setBookingId] = useState(null);
     const intervalRef = useRef(null);
 
-    // ... (دوال createPaymentIntent, pollPaymentStatus, handlePaymentSuccess تبقى كما هي)
     const createPaymentIntent = async (bookingId, amount, currency, token) => {
         try {
             const paymentIntentUrl = new URL('/payment/create-payment-intent', import.meta.env.VITE_API_BASE_URL).toString();
             console.log('🔵 Sending payment intent request to:', paymentIntentUrl, 'with amount:', amount, 'and currency:', currency);
-            const intentResponse = await axios.post(paymentIntentUrl, {
-                bookingId,
-                amount,
-                currency: currency.toLowerCase(),
-            }, { headers: { 'Authorization': `Bearer ${token}` } });
+            const intentResponse = await axiosWithAutoRefresh({
+                method: 'post',
+                url: paymentIntentUrl,
+                data: {
+                    bookingId,
+                    amount,
+                    currency: currency.toLowerCase(),
+                },
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
 
             if (!intentResponse.data.success) {
                 throw new Error(intentResponse.data.message || 'Failed to create payment intent.');
@@ -79,7 +104,10 @@ const FinalDetails = ({ passengers, formData, onBack, sharedData }) => {
             try {
                 // 1. إنشاء الحجز
                 const bookingUrl = new URL('/booking/book-flight', import.meta.env.VITE_API_BASE_URL).toString();
-                const bookingResponse = await axios.post(bookingUrl, formData.finalBookingData, {
+                const bookingResponse = await axiosWithAutoRefresh({
+                    method: 'post',
+                    url: bookingUrl,
+                    data: formData.finalBookingData,
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 });
 
