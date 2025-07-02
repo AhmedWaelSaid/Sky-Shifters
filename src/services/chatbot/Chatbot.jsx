@@ -14,6 +14,7 @@ const InitialMessages = [
 ];
 async function sendRequest(body) {
   if (!body) return;
+  console.log(body)
   const result = await fetch("https://chatbot-sky-shifters.duckdns.org/chat", {
     method: "POST",
     body: JSON.stringify(body),
