@@ -30,7 +30,7 @@ export default function Chatbot() {
   const [userMessage, setUserMessage] = useState("");
   const textareaRef = useRef(null);
   const { isAuthenticated } = useAuth();
-
+  console.log(messages)
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -52,8 +52,8 @@ export default function Chatbot() {
         user_id: user.userId,
         session_id: messages.length - 1,
       };
-      alert("success");
       sendRequest(body);
+      setMessages((prev)=>([...prev,{id:messages.length-1,text:userMessage,sender:"user"}]))
       setUserMessage("");
     } else return;
   };

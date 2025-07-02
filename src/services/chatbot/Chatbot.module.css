@@ -6,7 +6,7 @@
   bottom: 30px;
   right: 30px;
   z-index: 1000;
-  --taier-logo:url("../../assets/Asset\ 18@2x.png");
+  --taier-logo:url("../../assets/taierLogoNoText.png");
   --chatbot-logo:url("../../assets/chatbot.png");
 }
 .chatbotContainer.dark {
@@ -117,7 +117,7 @@
 .messageText {
   background-color: var(--Btnbg-color);
   color: var(--LightText-color);
-  padding: 5px;
+  padding: 10px;
   position: relative;
   border-radius: 10px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
