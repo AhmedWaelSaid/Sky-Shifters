@@ -183,7 +183,6 @@ export default function UserProfile() {
                           <br />
                           <span className="notification-hint" style={{fontSize:'0.85em',color:'var(--notification-id, #888)'}}>Go to My Bookings page to see details.</span>
                         </span>
-                        {notif.state === 0 && <span className="new-badge"> New</span>}
                       </li>
                     ))}
                   </ul>
