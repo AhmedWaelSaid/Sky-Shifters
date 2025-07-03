@@ -74,7 +74,6 @@ export default function Chatbot() {
       ]);
 
       setUserMessage("");
-      console.log(1231);
       const body = {
         message: userMessage,
         access_token: user.token,
@@ -82,9 +81,8 @@ export default function Chatbot() {
         session_id: `${messages.length - 1}`,
       };
       setIsLoading(true);
-      const result = sendRequest(body);
+      const result = await sendRequest(body);
       setIsLoading(false);
-      console.log(result);
       if (result?.response?.message) {
         setMessages((prev) => [
           ...prev,
