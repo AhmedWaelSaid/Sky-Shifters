@@ -83,12 +83,21 @@ export default function Chatbot() {
       setIsLoading(true);
       const result = await sendRequest(body);
       setIsLoading(false);
-      console.log(result)
+      console.log(result);
       if (result?.response?.message) {
-        setMessages((prev) => [
-          ...prev,
-          { id: prev.length, text: result.response.message, sender: "ai" },
-        ]);
+        if (
+          result.response.type === "search_flights" &&
+          result.response.data == null
+        )
+          setMessages((prev) => [
+            ...prev,
+            { id: prev.length, text: "The AI couldn`t return the flights data.", sender: "ai" },
+          ]);
+        else
+          setMessages((prev) => [
+            ...prev,
+            { id: prev.length, text: result.response.message, sender: "ai" },
+          ]);
       } else {
         setMessages((prev) => [
           ...prev,
@@ -103,109 +112,116 @@ export default function Chatbot() {
   };
 
   return (
-        <div
-          className={`${styles.chatbotContainer} ${theme === "dark" ? styles.dark : ""}`}
-        >
-          {/* زرار فتح/إغلاق الـ Chatbot */}
-          <button className={styles.chatbotButton} onClick={toggleChatbot}>
-            <img
-              src={`${theme === "dark" ? chatbotDark : chatbotLight}`}
-              alt="chatbot"
-              className={styles.chatbotLogo}
-            />
-          </button>
-          {isOpen && (
-            <form action="" onSubmit={handleSubmit}>
-              <div className={styles.chatbot}>
-                <div className={styles.chatbotStatus}>
-                  <div className={styles.logoTaierContainer}>
-                    <div className={`${styles.logo} ${styles.taier}`}></div>
-                    <div>
-                      <span>Taier AI</span>
-                      <div className={styles.online}>
-                        <span className={styles.dot}></span>
-                        <span>Online</span>
-                      </div>
-                    </div>
+    <div
+      className={`${styles.chatbotContainer} ${theme === "dark" ? styles.dark : ""}`}
+    >
+      {/* زرار فتح/إغلاق الـ Chatbot */}
+      <button className={styles.chatbotButton} onClick={toggleChatbot}>
+        <img
+          src={`${theme === "dark" ? chatbotDark : chatbotLight}`}
+          alt="chatbot"
+          className={styles.chatbotLogo}
+        />
+      </button>
+      {isOpen && (
+        <form action="" onSubmit={handleSubmit}>
+          <div className={styles.chatbot}>
+            <div className={styles.chatbotStatus}>
+              <div className={styles.logoTaierContainer}>
+                <div className={`${styles.logo} ${styles.taier}`}></div>
+                <div>
+                  <span>Taier AI</span>
+                  <div className={styles.online}>
+                    <span className={styles.dot}></span>
+                    <span>Online</span>
                   </div>
-                  <button className={styles.exitChat} onClick={()=>{setIsOpen(false)}}>X</button>
-                </div>
-                <div className={styles.chatbotMessages}>
-                  {messages.map((msg) => (
-                    <>
-                      <div
-                        key={msg.id}
-                        className={`${styles.message} ${msg.sender === "user" ? styles.fromUser : styles.fromAI}`}
-                      >
-                        {msg.sender === "user" ? (
-                          <>
-                            <div
-                              className={`${styles.messageText} ${msg.sender === "user" ? styles.userMessageText : styles.aiMessageText}`}
-                            >
-                              {msg.text}
-                            </div>
-                            <div
-                              className={`${msg.sender === "user" ? styles.userLogo : styles.aiLogo}`}
-                            ></div>
-                          </>
-                        ) : (
-                          <>
-                            <div
-                              className={`${msg.sender === "user" ? styles.userLogo : styles.aiLogo}`}
-                            ></div>
-                            <div
-                              className={`${styles.messageText} ${msg.sender === "user" ? styles.userMessageText : styles.aiMessageText}`}
-                            >
-                              {msg.text}
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </>
-                  ))}
-                  {isLoading && (
-                    <div className={`${styles.message} ${styles.fromAI}`}>
-                      <div className={styles.aiLogo}></div>
-                      <div className={styles.messageText}>
-                        <div className={styles.spinner}></div>
-                      </div>
-                    </div>
-                  )}
-                  <div ref={messageEndRef}></div>
-                </div>
-                <div className={styles.chatbotInputContainer}>
-                  <textarea
-                    name="user_message"
-                    id="user_message"
-                    placeholder="Ask anything"
-                    required
-                    ref={textareaRef}
-                    value={userMessage}
-                    onChange={(e) => setUserMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        if (isLoading) {
-                          return;
-                        } else {
-                          handleSubmit(e);
-                        }
-                      }
-                    }}
-                  ></textarea>
-                  <button
-                    type="submit"
-                    className={`${styles.submitBtn} ${isLoading ? styles.disabled : ""}`}
-                    title="Send"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                      <path d="M3 20V14L11 12L3 10V4L22 12Z" />
-                    </svg>
-                  </button>
                 </div>
               </div>
-            </form>
-          )}
-        </div>
+              <button
+                className={styles.exitChat}
+                onClick={() => {
+                  setIsOpen(false);
+                }}
+              >
+                X
+              </button>
+            </div>
+            <div className={styles.chatbotMessages}>
+              {messages.map((msg) => (
+                <>
+                  <div
+                    key={msg.id}
+                    className={`${styles.message} ${msg.sender === "user" ? styles.fromUser : styles.fromAI}`}
+                  >
+                    {msg.sender === "user" ? (
+                      <>
+                        <div
+                          className={`${styles.messageText} ${msg.sender === "user" ? styles.userMessageText : styles.aiMessageText}`}
+                        >
+                          {msg.text}
+                        </div>
+                        <div
+                          className={`${msg.sender === "user" ? styles.userLogo : styles.aiLogo}`}
+                        ></div>
+                      </>
+                    ) : (
+                      <>
+                        <div
+                          className={`${msg.sender === "user" ? styles.userLogo : styles.aiLogo}`}
+                        ></div>
+                        <div
+                          className={`${styles.messageText} ${msg.sender === "user" ? styles.userMessageText : styles.aiMessageText}`}
+                        >
+                          {msg.text}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </>
+              ))}
+              {isLoading && (
+                <div className={`${styles.message} ${styles.fromAI}`}>
+                  <div className={styles.aiLogo}></div>
+                  <div className={styles.messageText}>
+                    <div className={styles.spinner}></div>
+                  </div>
+                </div>
+              )}
+              <div ref={messageEndRef}></div>
+            </div>
+            <div className={styles.chatbotInputContainer}>
+              <textarea
+                name="user_message"
+                id="user_message"
+                placeholder="Ask anything"
+                required
+                ref={textareaRef}
+                value={userMessage}
+                onChange={(e) => setUserMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (isLoading) {
+                      return;
+                    } else {
+                      handleSubmit(e);
+                    }
+                  }
+                }}
+              ></textarea>
+              <button
+                type="submit"
+                className={`${styles.submitBtn} ${isLoading ? styles.disabled : ""}`}
+                title="Send"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path d="M3 20V14L11 12L3 10V4L22 12Z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </form>
+      )}
+    </div>
   );
 }
