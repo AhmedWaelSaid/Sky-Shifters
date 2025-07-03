@@ -1,11 +1,13 @@
 // src/context/ThemeContext.jsx
-import { createContext, useState, useEffect } from 'react';
-
+import { createContext } from 'react';
+import { useLocalStorageState } from '../../services/useLocalStorageState';
+import React, { useEffect } from 'react';
 
 export const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState('light'); // الـ theme الافتراضي هو Light Mode
+  // استخدم هوك التخزين المحلي
+  const [theme, setTheme] = useLocalStorageState('light', 'theme');
 
   // دالة لتغيير الـ theme
   const toggleTheme = () => {
@@ -15,6 +17,7 @@ export const ThemeProvider = ({ children }) => {
   };
 
   // تطبيق الـ theme عند التحميل الأولي
+  // لو theme اتغير في localStorage أو أول تحميل
   useEffect(() => {
     document.body.className = theme;
   }, [theme]);
