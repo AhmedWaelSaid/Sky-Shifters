@@ -1,7 +1,10 @@
 import PropTypes from "prop-types";
 import styles from "./styles/Passenger.module.css";
+import { ThemeContext } from "../../components/context/ThemeContext";
+import { useContext } from "react";
 
 export default function PassengerClass({ passengerClass, setPassengerClass }) {
+  const {theme} = useContext(ThemeContext);
   function adultsPlusChildrenCon() {
     if (passengerClass.adults + passengerClass.children == 9) return false;
     else return true;
@@ -11,9 +14,9 @@ export default function PassengerClass({ passengerClass, setPassengerClass }) {
     if (passengerClass.adults == passengerClass.infants) return false;
     else return true;
   }
-
+  
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${theme === "dark" ? styles.dark : ""}`}>
       <div className={styles.passengerTitle}>Travelers</div>
       <div>
         <div>Adults (12+ years)</div>
@@ -142,7 +145,7 @@ export default function PassengerClass({ passengerClass, setPassengerClass }) {
             { value: "BUSINESS", label: "Business" },
             { value: "FIRST", label: "First Class" },
           ].map((option) => (
-            <label key={option.value} className={styles.radioOption}>
+            <label key={option.value} className={`${styles.radioOption} ${styles.label}`}>
               <input
                 type="radio"
                 name="travel-class"

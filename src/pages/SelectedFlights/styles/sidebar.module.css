@@ -17,6 +17,7 @@
   top: 0px;
   height: max-content;
   transition: top 0.4s ease;
+  color: var(--blackText-color);;
 }
 .hidden {
   top: -200px !important;
@@ -25,7 +26,7 @@
   font-size: 1.25rem; /*cards title (sort by and filters)*/
 }
 hr {
-  border: 1px solid #dee1e6; /*horizontal line*/
+  border: 1px solid var(--border-color); /*horizontal line*/
 }
 .side-bar .reset { /*reset buttons*/
   position: absolute;
@@ -41,7 +42,7 @@ hr {
   
 }
 .reset:hover {
-    background-color: var(--AuthBtn-color);
+    transform: scale(1.1);
     cursor: pointer;
 }
 .side-bar input[type="checkbox"],.side-bar input[type="radio"]{
@@ -75,7 +76,6 @@ hr {
   border-radius: var(--card-border-radius);
   margin-bottom: 16px;
   padding-bottom: 10px;
-  color: var(--blackText-color);
 }
 .side-bar .sort::after {
   content: "";
@@ -89,12 +89,11 @@ hr {
 }
 .side-bar .sort h2 {
   margin: var(--card-title-margin);
-  color: var(--blackText-color);
+  color: var(--DarkyellowText-color);
 }
 .side-bar .price {
   margin: var(--sub-body-margin);
   position: relative;
-  color: var(--DarkyellowText-color);
 }
 .side-bar .price h3 {
   font-size: 1rem;
@@ -118,11 +117,11 @@ hr {
   box-shadow: 0px 0px 1px 0px #171a1f12, 0px 0px 2px 0px #171a1f1f;
   border-radius: var(--card-border-radius);
   overflow: hidden;
-  color: var(--DarkyellowText-color);
+  border: 1px solid var(--whiteyellowText-color);
 }
 .filter h2 {
   margin: var(--card-title-margin);
-  color: var(--blackText-color);
+  color: var(--DarkyellowText-color);
 }
 .disabled{
   opacity: 0.4;
@@ -154,6 +153,7 @@ hr {
 }
 .filter h3 {
   margin-bottom: 10px;
+  color: var(--DarkyellowText-color);
   
 }
 .filter > div{

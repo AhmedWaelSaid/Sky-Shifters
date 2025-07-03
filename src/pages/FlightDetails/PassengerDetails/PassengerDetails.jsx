@@ -1,33 +1,38 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef,useImperativeHandle } from "react";
 import styles from "./PassengerDetails.module.css";
 import { X, User, Baby, ChevronDown, ChevronUp } from "lucide-react";
 import { getNames } from "country-list";
+import { forwardRef } from "react";
 
-const PassengerDetails = ({
-  passengerId,
+const PassengerDetails = forwardRef(({
   passengerType,
   passengerIndex,
   updateDetails,
-  formRef,
   passenger,
-}) => {
-  const [details, setDetails] = useState(passenger.details? passenger.details :{
-    title: "",
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    ageGroup: passengerType === "child" ? "child" : "",
-    dateOfBirth: "",
-    nationality: "",
-    issuingCountry: "",
-    passportNumber: "",
-    passportExpiry: "",
-    day:"",
-    month:"",
-    year:"",
-  });
-
-
+  passengerId,
+  formData,
+  
+},ref) => {
+  const formRef = useRef(null);
+  const [details, setDetails] = useState(
+    passenger.details
+      ? passenger.details
+      : {
+          title: "",
+          firstName: "",
+          middleName: "",
+          lastName: "",
+          ageGroup: passengerType === "child" ? "child" : "",
+          dateOfBirth: "",
+          nationality: "",
+          issuingCountry: "",
+          passportNumber: "",
+          passportExpiry: "",
+          day: "",
+          month: "",
+          year: "",
+        }
+  );
 
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -41,7 +46,10 @@ const PassengerDetails = ({
   const handleToggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
-
+  useImperativeHandle(ref, () => formRef.current);
+  useEffect(() => {
+    console.log(`Form ref for passenger ${passengerId}:`, formRef.current);
+  }, [formRef.current]);
   const handleDobChange = (e) => {
     const { name, value } = e.target;
     const updatedDetails = { ...details, [name]: value };
@@ -51,7 +59,11 @@ const PassengerDetails = ({
     // Only update the full date if all fields are filled
     if (name === "day" || name === "month" || name === "year") {
       // Check if we have all fields to make a date
-      if (passenger.details.day && passenger.details.month && passenger.details.year) {
+      if (
+        passenger.details.day &&
+        passenger.details.month &&
+        passenger.details.year
+      ) {
         const monthIndex = {
           January: 0,
           February: 1,
@@ -110,21 +122,19 @@ const PassengerDetails = ({
     month: "",
     year: "",
   });
-  useEffect(()=>{
-    if (passenger.details){
+  useEffect(() => {
+    if (passenger.details) {
       const expiryDate = passenger.details.passportExpiry.split("-");
       let year = expiryDate[0];
       let month = expiryDate[1];
-      let day =expiryDate[2];
-      if (month.split("")[0] == "0")
-        month = month.split("")[1];
-      if (day.includes(0))
-        day = day.split("")[1];
-      month =month-1;
-      console.log(month)
-      setExpiryFields({day,month:months[month],year})
+      let day = expiryDate[2];
+      if (month.split("")[0] == "0") month = month.split("")[1];
+      if (day.includes(0)) day = day.split("")[1];
+      month = month - 1;
+      console.log(month);
+      setExpiryFields({ day, month: months[month], year });
     }
-  },[])
+  }, []);
   const handleExpiryChange = (e) => {
     const { name, value } = e.target;
     const newExpiryFields = { ...expiryFields, [name]: value };
@@ -420,6 +430,6 @@ const PassengerDetails = ({
       </form>
     </div>
   );
-};
-
+});
+PassengerDetails.displayName = 'PassengerDetails';
 export default PassengerDetails;

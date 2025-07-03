@@ -1,3 +1,20 @@
+.container {
+  color:var(--Darktext-color);
+  --radio-input-bg:white;
+  background-color: var(--bg-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 1rem;
+  position: absolute;
+  top: 105%;
+  left: 0;
+  z-index: 1000;
+  min-width: 250px;
+}
+.container.dark{
+  --radio-input-bg: rgb(85, 85, 85);
+}
 .container div {
   display: flex;
   justify-content: space-between;
@@ -27,6 +44,7 @@
 
 .passengerTitle {
   margin-bottom: 10px;
+  color: var(--Darktext-color);
 }
 
 .travelClassContainer {
@@ -37,7 +55,7 @@
 .travelClassLabel {
   font-size: 1rem;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: var(--Darktext-color);
 }
 
 .travelClassOptions {
@@ -53,7 +71,9 @@
   cursor: pointer;
   padding: 0.5rem 0;
 }
-
+.radioOption.label {
+  color:var(--Darktext-color);
+}
 .radioInput {
   position: absolute;
   opacity: 0;
@@ -68,10 +88,11 @@
   position: relative;
   transition: all 0.3s;
   background: transparent;
+  background-color: var(--radio-input-bg);
 }
 
 .radioInput:checked + .radioCustom {
-  border-color: #2563eb;
+  border-color: var(--Btnbg-color);
   background: transparent;
 }
 
@@ -79,7 +100,7 @@
   content: "";
   width: 0.6rem;
   height: 0.6rem;
-  background: #2563eb;
+  background: var(--Btnbg-color);
   position: absolute;
   top: 50%;
   left: 50%;
@@ -89,11 +110,11 @@
 }
 
 .radioOption:hover .radioCustom {
-  border-color: #2563eb;
+  border-color: var(--Btnbg-color);
 }
 
 .radioOption:hover .radioInput:checked + .radioCustom::after {
-  background: #1d4ed8;
+  background: var(--Btnbg-color);
 }
 
 .container .travelClassContainer {
