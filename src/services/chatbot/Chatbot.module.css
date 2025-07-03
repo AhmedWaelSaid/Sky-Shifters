@@ -8,9 +8,22 @@
   z-index: 1000;
   --taier-logo:url("../../assets/taierLogoNoText.png");
   --chatbot-logo:url("../../assets/chatbot.png");
+  --user-bubble-bg:#EEEEEE;
+  --user-bubble-color:black;
+  --text-color:black;
+  --message-bg: var(--bg-color);
+  --border-color:rgba(0, 0, 0, 0.5);
+  --exit-bg:rgba(0, 0, 0, 0.1);
+  color: var(--text-color);
 }
 .chatbotContainer.dark {
   --chatbot-logo:url("../../assets/chatbot-dark.png");
+  --user-bubble-bg:	#757575;
+  --user-bubble-color:white;
+  --text-color:white;
+  --message-bg: #302f34;
+  --border-color:rgba(255, 255, 255, 0.5);
+  --exit-bg:#fbd684;
 }
 
 .chatbotButton {
@@ -44,7 +57,7 @@
   flex-direction: column;
   border: 1px solid rgba(0, 0, 0, 0.2);
   z-index: 50;
-  background-color: white;
+  background-color: var(--bg-color);
 }
 .logoTaierContainer {
   display: flex;
@@ -72,10 +85,27 @@
   background-color: #4caf50;
   margin-right: 3px;
 }
+.exitChat{
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  width: 30px;
+  height: 30px;
+  font-size: 1rem;
+  background-color: var(--Btnbg-color);
+  border-radius: 50%;
+  border: none;
+  color: var(--LightText-color);
+}
+.exitChat:hover {
+  cursor: pointer;
+  transform: scale(1.08);
+}
 .chatbotStatus {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid var(--border-color);
   padding: 16px 0;
   padding-left: 10px;
+  position: relative;
 }
 .chatbotMessages {
   height: 250px;
@@ -85,6 +115,7 @@
   flex-direction: column;
   gap: 12px;
   flex: 1;
+  background-color: var(--message-bg);
 }
 .message {
   display: flex;
@@ -123,16 +154,16 @@
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
 .messageText.userMessageText{
-  background-color:#EEEEEE;
-  color:black;
+  background-color:var(--user-bubble-bg);
+  color:var(--user-bubble-color)
 }
 .messageText.userMessageText::before {
   content: "";
   position: absolute;
-    border-left: 3px solid #EEEEEE;
+    border-left: 3px solid var(--user-bubble-bg);
     border-right: 10px solid transparent;
     border-top: 0px solid transparent;
-    border-bottom: 30px solid #EEEEEE;
+    border-bottom: 30px solid var(--user-bubble-bg);
   right: -5px;
   bottom: 0px;
 }
@@ -140,14 +171,14 @@
   content: "";
   position: absolute;
   border-left: 7px solid transparent;
-  border-right: 5px solid transparent;
+  border-right: 7px solid transparent;
   /* border-top: 3px solid var(--Btnbg-color); */
   border-bottom: 15px solid var(--Btnbg-color);
   left: -4px;
   bottom: 0px;
 }
 .chatbotInputContainer{
-  border-top: 1px solid rgba(0, 0, 0, 0.5);
+  border-top: 1px solid var(--border-color);
   display: flex;
   max-height: 150px;
   padding: 10px;
@@ -167,6 +198,7 @@
   width: 90%;
   max-height: 150px;
   padding-right: 10px;
+  color: var(--text-color);
 }
 .chatbotInputContainer textarea:focus {
   outline: none;
@@ -184,7 +216,26 @@
   transform: scale(1.08);
 }
 .submitBtn svg {
-  fill: white;
+  fill: var(--LightText-color);;
   width: 30px;
   height: auto;
+}
+.disabled{
+  pointer-events: none;
+  opacity: 0.3;
+}
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.2); /* semi-transparent white */
+  border-left-color: var(--LightText-color); /* high contrast white */
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

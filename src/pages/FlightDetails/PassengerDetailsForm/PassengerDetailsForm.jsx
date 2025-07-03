@@ -1,4 +1,4 @@
-import { useState  } from "react";
+import { useState,useEffect  } from "react";
 import "./PassengerDetailsForm.css";
 import FlightSummary from "../FlightSummary/FlightSummary";
 import { ChevronRight, Plus } from "lucide-react";
@@ -12,6 +12,7 @@ const PassengerDetailsForm = ({
   formData,
   onContinue,
   passengerRefs,
+  setPassengerRef,
 }) => {
   const [contactData, setContactData] = useState({
     email: "",
@@ -37,7 +38,10 @@ const PassengerDetailsForm = ({
     e.preventDefault();
     onContinue();
   };
-
+  useEffect(() => {
+    // This ensures all child components are mounted with their refs
+    console.log("PassengerDetails mounted with refs:", passengerRefs.current);
+  }, [passengerRefs]);
   // Calculate counts for displaying
   console.log(passengers);
   const adultCount = passengers.filter((p) => p.type === "adult").length;
@@ -69,7 +73,6 @@ const PassengerDetailsForm = ({
     value: name,
     label: name,
   }));
-console.log(passengerRefs)
   return (
     <div className="passenger-details-container">
       <div className="main-content">
@@ -100,7 +103,7 @@ console.log(passengerRefs)
                     : infantIndices[passenger.id]
               }
               updateDetails={(id, details) => onUpdatePassenger(id, details)}
-              formRef={passengerRefs.current[passenger.id]}
+              ref={setPassengerRef(passenger.id)}
               formData={formData}
             />
           ))}

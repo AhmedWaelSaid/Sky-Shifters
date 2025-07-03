@@ -9,28 +9,45 @@ const InitialMessages = [
   {
     id: 1,
     text: "hello, from AI.",
-    sender: "AI",
+    sender: "ai",
   },
 ];
 async function sendRequest(body) {
   if (!body) return;
-  const result = await fetch("https://chatbot-sky-shifters.duckdns.org/chat", {
-    method: "POST",
-    body: JSON.stringify(body),
-  })
-    .then((res) => res.json())
-    .catch((e) => console.error(e));
-
-  console.log(result);
+  try {
+    console.log(body);
+    const result = await fetch(
+      "https://chatbot-sky-shifters.duckdns.org/chat",
+      {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!result.ok) {
+      throw new Error(`Server responded with status ${result.status}`);
+    }
+    return await result.json();
+  } catch (err) {
+    console.error("Something went wrong:", err);
+    return null;
+  }
 }
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { theme } = useContext(ThemeContext); // نجيب الـ Theme الحالي (light أو dark)
   const [messages, setMessages] = useState(InitialMessages);
   const [userMessage, setUserMessage] = useState("");
+  const user = JSON.parse(localStorage.getItem("user"));
+  console.log(user);
   const textareaRef = useRef(null);
+  const messageEndRef = useRef(null);
   const { isAuthenticated } = useAuth();
-  console.log(messages)
+  console.log(messages);
+
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -39,22 +56,58 @@ export default function Chatbot() {
     }
   }, [userMessage]);
 
+  useEffect(() => {
+    if (messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
   const toggleChatbot = () => {
     setIsOpen(!isOpen);
   };
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isAuthenticated) {
-      const user = localStorage.getItem("user");
+      setMessages((prev) => [
+        ...prev,
+        { id: prev.length, text: userMessage, sender: "user" },
+      ]);
+
+      setUserMessage("");
       const body = {
         message: userMessage,
-        access_token: user.accessToken,
+        access_token: user.token,
         user_id: user.userId,
-        session_id: messages.length - 1,
+        session_id: `${messages.length - 1}`,
       };
-      sendRequest(body);
-      setMessages((prev)=>([...prev,{id:messages.length-1,text:userMessage,sender:"user"}]))
-      setUserMessage("");
+      setIsLoading(true);
+      const result = await sendRequest(body);
+      setIsLoading(false);
+      console.log(result);
+      if (result?.response?.message) {
+        if (
+          result.response.type === "search_flights" &&
+          result.response.data == null
+        )
+          setMessages((prev) => [
+            ...prev,
+            { id: prev.length, text: "The AI couldn`t return the flights data.", sender: "ai" },
+          ]);
+        else
+          setMessages((prev) => [
+            ...prev,
+            { id: prev.length, text: result.response.message, sender: "ai" },
+          ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: prev.length,
+            text: "Sorry, something went wrong.",
+            sender: "ai",
+          },
+        ]);
+      }
     } else return;
   };
 
@@ -65,7 +118,7 @@ export default function Chatbot() {
       {/* زرار فتح/إغلاق الـ Chatbot */}
       <button className={styles.chatbotButton} onClick={toggleChatbot}>
         <img
-          src={`${theme === "dark" ?  chatbotDark:chatbotLight }`}
+          src={`${theme === "dark" ? chatbotDark : chatbotLight}`}
           alt="chatbot"
           className={styles.chatbotLogo}
         />
@@ -84,6 +137,14 @@ export default function Chatbot() {
                   </div>
                 </div>
               </div>
+              <button
+                className={styles.exitChat}
+                onClick={() => {
+                  setIsOpen(false);
+                }}
+              >
+                X
+              </button>
             </div>
             <div className={styles.chatbotMessages}>
               {messages.map((msg) => (
@@ -118,6 +179,15 @@ export default function Chatbot() {
                   </div>
                 </>
               ))}
+              {isLoading && (
+                <div className={`${styles.message} ${styles.fromAI}`}>
+                  <div className={styles.aiLogo}></div>
+                  <div className={styles.messageText}>
+                    <div className={styles.spinner}></div>
+                  </div>
+                </div>
+              )}
+              <div ref={messageEndRef}></div>
             </div>
             <div className={styles.chatbotInputContainer}>
               <textarea
@@ -128,10 +198,23 @@ export default function Chatbot() {
                 ref={textareaRef}
                 value={userMessage}
                 onChange={(e) => setUserMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (isLoading) {
+                      return;
+                    } else {
+                      handleSubmit(e);
+                    }
+                  }
+                }}
               ></textarea>
-              <button type="submit" className={styles.submitBtn}>
+              <button
+                type="submit"
+                className={`${styles.submitBtn} ${isLoading ? styles.disabled : ""}`}
+                title="Send"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <title>Send</title>
                   <path d="M3 20V14L11 12L3 10V4L22 12Z" />
                 </svg>
               </button>

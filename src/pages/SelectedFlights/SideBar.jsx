@@ -3,7 +3,13 @@ import PropTypes from "prop-types";
 import { useEffect, useRef, useState } from "react";
 import { useData } from "../../components/context/DataContext";
 
-function InputCheckBox({ value, name, airLinesChecked, airLinesHandler,onImageLoad }) {
+function InputCheckBox({
+  value,
+  name,
+  airLinesChecked,
+  airLinesHandler,
+  onImageLoad,
+}) {
   function capitalizeWords(str) {
     if (typeof str !== "string") return "";
     return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
@@ -41,7 +47,7 @@ InputCheckBox.propTypes = {
   name: PropTypes.string,
   airLinesChecked: PropTypes.object,
   airLinesHandler: PropTypes.func,
-  onImageLoad:PropTypes.func,
+  onImageLoad: PropTypes.func,
 };
 export default function SideBar({
   stop,
@@ -58,29 +64,37 @@ export default function SideBar({
   getStops,
 }) {
   const sidebarRef = useRef(null);
-const [lastScrollY, setLastScrollY] = useState(0);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
-useEffect(() => {
-  const handleScroll = () => {
-    const currentScrollY = window.scrollY;
+  useEffect(() => {
     const sidebar = sidebarRef.current;
-
     if (!sidebar) return;
-
-    if (currentScrollY > lastScrollY) {
-      // Scrolling Down – stick
-      sidebar.style.top = "-90px"; 
-    } else {
-      // Scrolling Up – reveal more
-      sidebar.style.top = "200px"; // reset to default
-    }
-
-    setLastScrollY(currentScrollY);
-  };
-
-  window.addEventListener("scroll", handleScroll);
-  return () => window.removeEventListener("scroll", handleScroll);
-}, [lastScrollY]);
+  
+    let ticking = false;
+  
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const isScrollingDown = currentScrollY > lastScrollY;
+  
+          if (isScrollingDown) {
+            sidebar.classList.add(styles.hidden);
+          } else {
+            sidebar.classList.remove(styles.hidden);
+          }
+  
+          setLastScrollY(currentScrollY);
+          ticking = false;
+        });
+  
+        ticking = true;
+      }
+    };
+  
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
   const [isExpandable, setIsExpandable] = useState({
     price: true,
     stops: true,
@@ -89,20 +103,20 @@ useEffect(() => {
   });
   const [logosLoaded, setLogosLoaded] = useState(0);
   const [airlinesHeight, setAirlinesHeight] = useState(0);
-  const {sharedData} = useData();
+  const { sharedData } = useData();
   const airlinesRef = useRef(null);
   let airLinesArr = [];
   for (const key in airLines) {
     airLinesArr.push({ code: key, name: airLines[key] });
   }
   useEffect(() => {
-    if (logosLoaded== airLinesArr.length && airlinesRef.current) {
+    if (logosLoaded == airLinesArr.length && airlinesRef.current) {
       setAirlinesHeight(airlinesRef.current.scrollHeight);
     }
   }, [logosLoaded, airLinesArr.length]);
 
   if (!flightsData) return null;
-  
+
   function readableNum(num) {
     const string = String(num);
     if (string.includes(".")) {
@@ -170,7 +184,8 @@ useEffect(() => {
             />
             <div className={styles.indicatorContainer}>
               <div className={styles["price-range-indicator-low"]}>
-                {priceAndDuration.lowestPrice} {sharedData.currency ? sharedData.currency : "USD"}
+                {priceAndDuration.lowestPrice}{" "}
+                {sharedData.currency ? sharedData.currency : "USD"}
               </div>
               <div className={styles["price-range-indicator-high"]}>
                 {price} {sharedData.currency ? sharedData.currency : "USD"}

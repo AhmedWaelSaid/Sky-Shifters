@@ -161,9 +161,11 @@ export function FlightsUI({
           </div>
         </div>
         <div className={styles.arrivalName}>
-          {flight.itineraries[0].segments.length > 1
-            ? flight.itineraries[0].segments[1].arrival.iataCode
-            : flight.itineraries[0].segments[0].arrival.iataCode}
+          {(flight.itineraries[0].segments.length == 3 &&
+            flight.itineraries[0].segments[2].arrival.iataCode) ||
+            (flight.itineraries[0].segments.length == 2 &&
+              flight.itineraries[0].segments[1].arrival.iataCode) ||
+            flight.itineraries[0].segments[0].arrival.iataCode}
         </div>
       </div>
       <div className={styles.flightPrice}>
@@ -237,7 +239,6 @@ export function Main({
     setFlight(newFlight);
     navigate("./flight-details");
   }
-
 
   function returnBtnHandler(data) {
     const carriers = flightsData.dictionaries.carriers;

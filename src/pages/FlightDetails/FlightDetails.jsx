@@ -41,14 +41,12 @@ const Index = () => {
     finalBookingData: null,
   });
 
-
-  useEffect(() => {
-    passengers.forEach((p) => {
-      if (!passengerRefs.current[p.id]) {
-        passengerRefs.current[p.id] = { current: null };
-      }
-    });
-  }, [passengers]);
+  console.log(passengers)
+  const setPassengerRef = (id) => (el) => {
+    if (el) {
+      passengerRefs.current[id] = el;
+    }
+  };
   const updatePassengerDetails = (id, newDetails) => {
     setPassengers(
       passengers.map((passenger) =>
@@ -74,25 +72,24 @@ const Index = () => {
   };
 
   const handleContinue = () => {
-    let allValid = true;
-  let firstInvalidForm = null;
-
-  // Validate all forms
-  Object.values(passengerRefs.current).forEach(ref => {
-    if (ref.current && !ref.current.checkValidity()) {
-      allValid = false;
-      if (!firstInvalidForm) {
-        firstInvalidForm = ref.current;
-      }
-    }
-  });
-    if (!allValid) {
-      // Force show validation messages
-      firstInvalidForm.reportValidity();
-      
-      
+    const allRefsSet = passengers.every(p => passengerRefs.current[p.id]);
+  
+    if (!allRefsSet) {
+      console.error("Some form refs not set yet!");
       return;
     }
+  
+    // Validate all forms
+    let allValid = true;
+    passengers.forEach(passenger => {
+      const form = passengerRefs.current[passenger.id];
+      if (!form.checkValidity()) {
+        allValid = false;
+        form.reportValidity();
+      }
+    });
+  
+    if (!allValid) return;
       if (currentStep === 3) {
         const travellersInfoForApi = passengers.map((p) => {
           // معالجة تاريخ الميلاد
@@ -463,6 +460,7 @@ const Index = () => {
             formData={formData}
             onContinue={handleContinue}
             passengerRefs={passengerRefs}
+            setPassengerRef={setPassengerRef}
           />
         )}
         {currentStep === 3 && (
