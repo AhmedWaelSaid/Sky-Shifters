@@ -83,6 +83,7 @@ export default function Chatbot() {
       setIsLoading(true);
       const result = await sendRequest(body);
       setIsLoading(false);
+      console.log(result)
       if (result?.response?.message) {
         setMessages((prev) => [
           ...prev,
