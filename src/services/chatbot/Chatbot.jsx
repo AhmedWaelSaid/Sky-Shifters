@@ -5,6 +5,7 @@ import chatbotDark from "../../assets/chatbot-dark.png";
 import chatbotLight from "../../assets/chatbot.png";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
+import { v4 as uuidv4 } from "uuid";
 import { ThemeContext } from "../../components/context/ThemeContext"; // نفس الـ ThemeContext المستخدم في الـ Header
 const InitialMessages = [
   {
@@ -41,6 +42,7 @@ export default function Chatbot({ setChatbotFlights }) {
   const { theme } = useContext(ThemeContext); // نجيب الـ Theme الحالي (light أو dark)
   const [messages, setMessages] = useState(InitialMessages);
   const [userMessage, setUserMessage] = useState("");
+  const [sessionId, setSessionId] = useState(null);
   const [flightsData, setFlightsData] = useState(null);
   const user = JSON.parse(localStorage.getItem("user"));
   const textareaRef = useRef(null);
@@ -62,6 +64,9 @@ export default function Chatbot({ setChatbotFlights }) {
   }, [messages]);
 
   const toggleChatbot = () => {
+    if (!isOpen) {
+      setSessionId(uuidv4()); // generate a new session ID
+    }
     setIsOpen(!isOpen);
   };
   const handleSubmit = async (e) => {
@@ -78,7 +83,7 @@ export default function Chatbot({ setChatbotFlights }) {
       message: userMessage,
       access_token: user.token,
       user_id: user.userId,
-      session_id: `${messages.length - 1}`,
+      session_id: sessionId,
     };
 
     setIsLoading(true);
