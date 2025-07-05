@@ -196,15 +196,15 @@ color: var(--LightText-color);
   width: 36px;
   height: 36px;
   margin-right: 4px;
-  background: #FFFFFF;
-  border: 1px solid #DEE1E6;
-  color: black;
+  background: inherit;
+  border: 1px solid var(--border-color);
+  color: inherit;
 }
 .pagination button:hover {
   cursor: pointer;
 }
 .pagination button:hover:not(.active){
-  background-color: #DEE1E6;
+  background-color: var(--pagination-hover);
 }
 .airLine {
   max-width: 120px;

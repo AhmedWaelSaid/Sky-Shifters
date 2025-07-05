@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import styles from "./FareSelection.module.css";
-import { useEffect, useState } from "react";
+import { useData } from "../context/DataContext";
 
 const ChevronLeft = (props) => (
   <svg
@@ -49,7 +49,12 @@ const economyOptions = [
   {
     id: 1,
     name: "Basic Fare (Included)",
-    price: 0,
+    price: {
+      USD: 0,
+      EGP: 0,
+      SAR: 0,
+      EUR: 0,
+    },
     cabinBaggage: "1 × Cabin Bag (7kg)",
     checkedBaggage: "1 × Checked Bag (23kg)",
     extraLabel: "$0 (included)",
@@ -59,7 +64,12 @@ const economyOptions = [
   {
     id: 2,
     name: "Extra Bag Option",
-    price: 60,
+    price: {
+      USD: 25,
+      EGP: 350,
+      SAR: 40,
+      EUR: 22,
+    },
     cabinBaggage: "1 × Cabin Bag (7kg)",
     checkedBaggage: "2 × Checked Bags (23kg each)",
     extraLabel: "$60 per additional bag",
@@ -69,7 +79,12 @@ const economyOptions = [
   {
     id: 3,
     name: "Heavy Bag Option",
-    price: 85,
+    price: {
+      USD: 40,
+      EGP: 550,
+      SAR: 65,
+      EUR: 38,
+    },
     cabinBaggage: "1 × Cabin Bag (7kg)",
     checkedBaggage: "1 × Checked Bag (32kg)",
     extraLabel: "$85 for overweight",
@@ -78,11 +93,18 @@ const economyOptions = [
   },
 ];
 
+
+
 const premiumOptions = [
   {
     id: 1,
     name: "Standard Premium (Included)",
-    price: 0,
+    price: {
+      USD: 0,
+      EGP: 0,
+      SAR: 0,
+      EUR: 0,
+    },
     cabinBaggage: "2 × Cabin Bags (10kg each)",
     checkedBaggage: "2 × Checked Bags (32kg each)",
     extraLabel: "$0 (included)",
@@ -92,7 +114,12 @@ const premiumOptions = [
   {
     id: 2,
     name: "Extra Premium Bag",
-    price: 100,
+    price: {
+      USD: 60,
+      EGP: 750,
+      SAR: 110,
+      EUR: 55,
+    },
     cabinBaggage: "2 × Cabin Bags (10kg each)",
     checkedBaggage: "3 × Checked Bags (32kg each)",
     extraLabel: "$100 per additional bag",
@@ -102,7 +129,12 @@ const premiumOptions = [
   {
     id: 3,
     name: "Luxury Allowance",
-    price: 150,
+    price: {
+      USD: 75,
+      EGP: 1000,
+      SAR: 130,
+      EUR: 65,
+    },
     cabinBaggage: "2 × Cabin Bags (10kg each)",
     checkedBaggage: "2 × Checked Bags (32kg) + 1 Oversized",
     extraLabel: "$150 for oversized",
@@ -110,6 +142,7 @@ const premiumOptions = [
     weight: "32kg",
   },
 ];
+
 
 const FareSelection = ({
   formData,
@@ -120,6 +153,7 @@ const FareSelection = ({
   setIndex,
 }) => {
   const classStr = (selectedClass || "").toUpperCase();
+  const {sharedData}= useData();
   const fareOptions = classStr.includes("ECONOMY")
     ? economyOptions
     : premiumOptions;
@@ -147,7 +181,7 @@ const FareSelection = ({
           ...formData.baggageSelection,
           [direction]: {
             selectedId: selectedOption.id,
-            price: selectedOption.price,
+            price: selectedOption.price[sharedData.currency],
             description: selectedOption.name,
             type: selectedOption.type,
             weight: selectedOption.weight,
@@ -159,7 +193,7 @@ const FareSelection = ({
         ...formData?.baggageSelection,
         [direction]: {
           selectedId: selectedOption.id,
-          price: selectedOption.price,
+          price: selectedOption.price[sharedData.currency],
           description: selectedOption.name,
           type: selectedOption.type,
           weight: selectedOption.weight,
@@ -230,7 +264,7 @@ const FareSelection = ({
             <div className={styles.fareTypeHeader}>
               <span className={styles.fareName}>{fare.name}</span>
               <div className={styles.farePriceContainer}>
-                <span className={styles.farePrice}>+${fare.price}</span>
+                <span className={styles.farePrice}>+{fare.price[sharedData.currency]} {sharedData.currency}</span>
                 <span className={styles.totalLabel}>{fare.extraLabel}</span>
               </div>
             </div>
@@ -260,7 +294,7 @@ const FareSelection = ({
               onClick={() => handleFareSelect(idx)}
               disabled={idx === activeFareIndex}
             >
-              {idx === activeFareIndex ? "Selected" : "Select"}
+              {idx === activeFareIndex ? "Selected" : "Select"}✓
             </button>
           </div>
         ))}

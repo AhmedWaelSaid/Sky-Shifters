@@ -1,6 +1,6 @@
 import { useEffect, useState,useRef,useImperativeHandle } from "react";
 import styles from "./PassengerDetails.module.css";
-import { X, User, Baby, ChevronDown, ChevronUp } from "lucide-react";
+import {  User, Baby, ChevronDown, ChevronUp } from "lucide-react";
 import { getNames } from "country-list";
 import { forwardRef } from "react";
 
@@ -10,7 +10,6 @@ const PassengerDetails = forwardRef(({
   updateDetails,
   passenger,
   passengerId,
-  formData,
   
 },ref) => {
   const formRef = useRef(null);
@@ -361,7 +360,7 @@ const PassengerDetails = forwardRef(({
 
           <div className={styles.formGroup}>
             <input
-              type="number"
+              type="text"
               name="passportNumber"
               value={details.passportNumber}
               onChange={handleChange}
@@ -432,4 +431,5 @@ const PassengerDetails = forwardRef(({
   );
 });
 PassengerDetails.displayName = 'PassengerDetails';
+
 export default PassengerDetails;

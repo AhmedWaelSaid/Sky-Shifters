@@ -9,6 +9,11 @@ import { useData } from "../../components/context/DataContext";
 const Index = () => {
   const { sharedData, flight} = useData();
   const passengerRefs = useRef({}); // key: passengerId, value: form ref
+  const [fareSelectionIndex, setFareSelectionIndex] = useState({
+    depIndex: 0,
+    retIndex: 0,
+    class: "economy",
+  });
 
   const getPassengerArr = () => {
     const passengerObj = sharedData?.passengerClass || {
@@ -40,7 +45,7 @@ const Index = () => {
     baggageSelection: {},
     finalBookingData: null,
   });
-
+  console.log(formData)
   console.log(passengers)
   const setPassengerRef = (id) => (el) => {
     if (el) {
@@ -58,12 +63,33 @@ const Index = () => {
   };
 
   const updateFormData = (section, data) => {
-    setFormData((prev) => ({
-      ...prev,
-      [section]: { ...prev[section], ...data },
-    }));
+    setFormData((prev) => {
+      const prevSection = prev[section];
+  
+      // If previous value is an object and new data is also an object, merge
+      if (
+        prevSection &&
+        typeof prevSection === "object" &&
+        !Array.isArray(prevSection) &&
+        typeof data === "object" &&
+        !Array.isArray(data)
+      ) {
+        return {
+          ...prev,
+          [section]: {
+            ...prevSection,
+            ...data,
+          },
+        };
+      }
+  
+      // Otherwise, replace directly (for booleans, strings, etc.)
+      return {
+        ...prev,
+        [section]: data,
+      };
+    });
   };
-
   const handleBack = () => {
     if (currentStep > 2) {
       setCurrentStep(currentStep - 1);
@@ -461,6 +487,8 @@ const Index = () => {
             onContinue={handleContinue}
             passengerRefs={passengerRefs}
             setPassengerRef={setPassengerRef}
+            setFareSelectionIndex={setFareSelectionIndex}
+            fareSelectionIndex= {fareSelectionIndex}
           />
         )}
         {currentStep === 3 && (
@@ -470,6 +498,8 @@ const Index = () => {
             onUpdateForm={updateFormData}
             onContinue={handleContinue}
             onBack={handleBack}
+            setFareSelectionIndex={setFareSelectionIndex}
+            fareSelectionIndex={fareSelectionIndex}
           />
         )}
         {currentStep === 4 && (
@@ -478,6 +508,8 @@ const Index = () => {
             formData={formData}
             onBack={handleBack}
             sharedData={sharedData}
+            setFareSelectionIndex={setFareSelectionIndex}
+            fareSelectionIndex={fareSelectionIndex}
           />
         )}
       </div>

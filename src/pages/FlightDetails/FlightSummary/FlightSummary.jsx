@@ -9,7 +9,6 @@ import { formatDuration } from "../../SelectedFlights/someFun";
 import PropTypes from "prop-types";
 import FareBreakdown from "./FareBreakdown";
 import { dayDifference } from "../../SelectedFlights/someFun";
-
 // Helper functions
 function formatted(time) {
   if (!time) return "";
@@ -46,6 +45,8 @@ const FlightSummary = ({
   showBackButton = false,
   showContinueButton = true,
   onUpdateForm,
+  fareSelectionIndex,
+  setFareSelectionIndex,
 }) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const { flight } = useData();
@@ -58,18 +59,18 @@ const FlightSummary = ({
     return <div className={styles.flightSummary}>Loading Summary...</div>;
   }
 
-    let airlineForDeparture = `${dealWithAirline(flight.carriers[flight.departure.data.itineraries[0].segments[0].carrierCode])} ${flight.departure.data.itineraries[0].segments[0].carrierCode}-${flight.departure.data.itineraries[0].segments[0].number}`;
+  let airlineForDeparture = `${dealWithAirline(flight.carriers[flight.departure.data.itineraries[0].segments[0].carrierCode])} ${flight.departure.data.itineraries[0].segments[0].carrierCode}-${flight.departure.data.itineraries[0].segments[0].number}`;
   if (flight.departure.data.itineraries[0].segments.length >= 2)
     airlineForDeparture += `, ${dealWithAirline(flight.carriers[flight.departure.data.itineraries[0].segments[1].carrierCode])} ${flight.departure.data.itineraries[0].segments[1].carrierCode}-${flight.departure.data.itineraries[0].segments[1].number}`;
   if (flight.departure.data.itineraries[0].segments.length >= 3)
     airlineForDeparture += `, ${dealWithAirline(flight.carriers[flight.departure.data.itineraries[0].segments[2].carrierCode])} ${flight.departure.data.itineraries[0].segments[2].carrierCode}-${flight.departure.data.itineraries[0].segments[2].number}`;
-  let airlineForReturn= "";
-  if (flight.return){
-   airlineForReturn = `${dealWithAirline(flight.carriers[flight.return.data.itineraries[0].segments[0].carrierCode])} ${flight.return.data.itineraries[0].segments[0].carrierCode}-${flight.return.data.itineraries[0].segments[0].number}`;
-  if (flight.return.data.itineraries[0].segments.length >= 2)
-    airlineForReturn += `, ${dealWithAirline(flight.carriers[flight.return.data.itineraries[0].segments[1].carrierCode])} ${flight.return.data.itineraries[0].segments[1].carrierCode}-${flight.return.data.itineraries[0].segments[1].number}`;
-  if (flight.return.data.itineraries[0].segments.length >= 3)
-    airlineForReturn += `, ${dealWithAirline(flight.carriers[flight.return.data.itineraries[0].segments[2].carrierCode])} ${flight.return.data.itineraries[0].segments[2].carrierCode}-${flight.return.data.itineraries[0].segments[2].number}`;
+  let airlineForReturn = "";
+  if (flight.return) {
+    airlineForReturn = `${dealWithAirline(flight.carriers[flight.return.data.itineraries[0].segments[0].carrierCode])} ${flight.return.data.itineraries[0].segments[0].carrierCode}-${flight.return.data.itineraries[0].segments[0].number}`;
+    if (flight.return.data.itineraries[0].segments.length >= 2)
+      airlineForReturn += `, ${dealWithAirline(flight.carriers[flight.return.data.itineraries[0].segments[1].carrierCode])} ${flight.return.data.itineraries[0].segments[1].carrierCode}-${flight.return.data.itineraries[0].segments[1].number}`;
+    if (flight.return.data.itineraries[0].segments.length >= 3)
+      airlineForReturn += `, ${dealWithAirline(flight.carriers[flight.return.data.itineraries[0].segments[2].carrierCode])} ${flight.return.data.itineraries[0].segments[2].carrierCode}-${flight.return.data.itineraries[0].segments[2].number}`;
   }
   return (
     <div className={styles.flightSummary}>
@@ -88,6 +89,8 @@ const FlightSummary = ({
             onUpdateForm={onUpdateForm}
             formData={formData}
             flight={flight}
+            fareSelectionIndex={fareSelectionIndex}
+            setFareSelectionIndex={setFareSelectionIndex}
           />
         </div>
       </div>
@@ -216,6 +219,8 @@ FlightSummary.propTypes = {
   showBackButton: PropTypes.bool,
   showContinueButton: PropTypes.bool,
   onUpdateForm: PropTypes.func,
+  fareSelectionIndex: PropTypes.object,
+  setFareSelectionIndex: PropTypes.func,
 };
 
 export default FlightSummary;

@@ -2,18 +2,18 @@ body {
   margin: 0;
   padding: 0;
   font-size: 16px;
-  background-color:var(--bg-color);
+  background-color: var(--bg-color);
   color: #000000;
   width: 100%;
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
-  
-
 }
 
 * {
   box-sizing: border-box;
-  transition: background-color .5s ease, color .5s ease;
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease;
 }
 
 html {
@@ -25,7 +25,7 @@ html {
   body {
     forced-color-adjust: none;
   }
-  
+
   * {
     forced-color-adjust: auto;
   }
@@ -36,21 +36,21 @@ html {
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   --bgform-color: #ffffff;
-  --Btnbg-color: #0085FF;
-  --AuthBtn-color : #1a9ff1 ;
+  --Btnbg-color: #0085ff;
+  --AuthBtn-color: #1a9ff1;
   --DarkyellowText-color: black;
   --whiteyellowText-color: rgb(255, 255, 255);
-  --LightDarktext-color:  #333;
+  --LightDarktext-color: #333;
   --LightText-color: white;
   --blackText-color: rgb(0, 0, 0);
   --bg-color: white;
-  --menuHover-color:   #f5f5f5 ;
+  --menuHover-color: #f5f5f5;
   --profile-bg: #ffffff;
   --profile-text: #222;
   --profile-header-bg: #fff;
   --profile-header-border: #ddd;
   --profile-header-title: #222;
-  --profile-button-bg: #0085FF;
+  --profile-button-bg: #0085ff;
   --profile-button-text: #fff;
   --profile-sidebar-bg: #ffffff;
   --profile-sidebar-text: #222;
@@ -70,39 +70,40 @@ html {
   --notification-border: #2196f3;
   --notification-text: #1565c0;
   --notification-id: #888;
-  --border-color:rgba(0,0,0,0.2);
-  --title-color:#333;
-  --hover-bg:#E0E0E0;
-  --hover-date-bg:white;
-    font-synthesis: none;
-    --inRange-day:#e6f2ff;
-    --showBtn-bg:#EEEEEE;
-    --plusTime--bg:black;
+  --border-color: rgba(0, 0, 0, 0.2);
+  --title-color: #333;
+  --hover-bg: #e0e0e0;
+  --hover-date-bg: white;
+  font-synthesis: none;
+  --inRange-day: #e6f2ff;
+  --showBtn-bg: #eeeeee;
+  --plusTime--bg: black;
+  --pagination-hover: #dee1e6;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-
 body.dark {
-  --plusTime--bg:#fbd684;
-  --showBtn-bg:#424242;
-  --hover-bg:#3e3e41;
-  --inRange-day:#d4960c;
-  --hover-date-bg:#3e3e41;
-  --title-color:#ffb000;
+  --pagination-hover:#424242;
+  --plusTime--bg: #fbd684;
+  --showBtn-bg: #424242;
+  --hover-bg: #3e3e41;
+  --inRange-day: #d4960c;
+  --hover-date-bg: #3e3e41;
+  --title-color: #ffb000;
   --border-color: #3e3e41;
   --bgform-color: #2a2a2a;
-  --AuthBtn-color : #fbd684 ;
-  --bg-color: #222127;     
-  --DarkyellowText-color: #fbd684;        
-  --whiteyellowText-color :  #fbd684 ; 
-  --Btnbg-color:#fbd684;            
-  --Darktext-color: white;    
-  --LightDarktext-color: #a0a0a0;  
-  --LightText-color: #000000;     
-  --blackText-color: rgb(255, 255, 255);  
-  --menuHover-color:   #333 ;
+  --AuthBtn-color: #fbd684;
+  --bg-color: #222127;
+  --DarkyellowText-color: #fbd684;
+  --whiteyellowText-color: #fbd684;
+  --Btnbg-color: #fbd684;
+  --Darktext-color: white;
+  --LightDarktext-color: #a0a0a0;
+  --LightText-color: #000000;
+  --blackText-color: rgb(255, 255, 255);
+  --menuHover-color: #333;
   --profile-bg: #1a1a1a;
   --profile-text: #fff;
   --profile-header-bg: #222;
@@ -201,6 +202,3 @@ body.dark {
 .react-select__dropdown-indicator:hover {
   color: var(--profile-button-bg) !important;
 }
-
-
-

@@ -33,7 +33,7 @@ async function axiosWithAutoRefresh(config, retry = true) {
   }
 }
 
-const FinalDetails = ({ passengers, formData, onBack, sharedData }) => {
+const FinalDetails = ({ passengers, formData, onBack, sharedData,setFareSelectionIndex,fareSelectionIndex}) => {
     const { flight } = useData();
     const [paymentStatus, setPaymentStatus] = useState('idle'); // idle, pending, succeeded, failed
     const [paymentError, setPaymentError] = useState('');
@@ -254,6 +254,8 @@ const FinalDetails = ({ passengers, formData, onBack, sharedData }) => {
                     formData={formData}
                     showBackButton={false}
                     showContinueButton={false}
+                    setFareSelectionIndex={setFareSelectionIndex}
+                    fareSelectionIndex={fareSelectionIndex}
                 />
             </div>
         </div>
@@ -264,7 +266,9 @@ FinalDetails.propTypes = {
     passengers: PropTypes.array.isRequired,
     formData: PropTypes.object.isRequired,
     onBack: PropTypes.func.isRequired,
-    sharedData: PropTypes.object.isRequired
+    sharedData: PropTypes.object.isRequired,
+      fareSelectionIndex: PropTypes.object,
+      setFareSelectionIndex: PropTypes.func,
 };
 
 export default FinalDetails;

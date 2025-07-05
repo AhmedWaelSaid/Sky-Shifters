@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useMemo } from "react";
 import styles from "./DetailsOfTheFlight.module.css";
 import baggageCabin from "../../../assets/baggage-cabin.png";
 import baggageChecked from "../../../assets/baggage-checked.png";
@@ -64,46 +64,51 @@ function Cancellation({ openCancellationDialog, amenities, route }) {
     </div>
   );
 }
-function BaggageDialog({ setBaggageDialogOpen, index, direction }) {
-  let checkedBaggageText;
-  let maxCheckedBaggage;
-  if (index.class == "economy") {
-    if (direction == "departure") {
-      checkedBaggageText =
-        index.depIndex == 0
-          ? "23 kg checked baggage, 1 piece"
-          : index.depIndex == 1
-            ? "23 kg checked baggage, 2 piece"
+export function BaggageDialog({ setBaggageDialogOpen, index, direction }) {
+  const { checkedBaggageText, maxCheckedBaggage } = useMemo(() => {
+    let text, max;
+    if (index.class === "economy") {
+      const weight = "23 kg checked baggage";
+      if (direction === "departure") {
+        text =
+          index.depIndex === 0
+            ? `${weight}, 1 piece`
+            : index.depIndex === 1
+            ? `${weight}, 2 piece`
             : "32 kg checked baggage, 1 piece";
-      maxCheckedBaggage = index.depIndex > 1 ? "32kg" : "23kg";
-    } else {
-      checkedBaggageText =
-        index.retIndex == 0
-          ? "23 kg checked baggage, 1 piece"
-          : index.retIndex == 1
-            ? "23 kg checked baggage, 2 piece"
+        max = index.depIndex > 1 ? "32kg" : "23kg";
+      } else {
+        text =
+          index.retIndex === 0
+            ? `${weight}, 1 piece`
+            : index.retIndex === 1
+            ? `${weight}, 2 piece`
             : "32 kg checked baggage, 1 piece";
-      maxCheckedBaggage = index.retIndex > 1 ? "32kg" : "23kg";
-    }
-  } else {
-    if (direction == "departure") {
-      checkedBaggageText =
-        index.depIndex == 0
-          ? "32 kg checked baggage, 2 piece"
-          : index.depIndex == 1
-            ? "32 kg checked baggage, 3 piece"
-            : "32 kg checked baggage, 2 piece + 1 oversized";
-      maxCheckedBaggage = "32kg";
+        max = index.retIndex > 1 ? "32kg" : "23kg";
+      }
     } else {
-      checkedBaggageText =
-        index.retIndex == 0
-          ? "32 kg checked baggage, 2 piece"
-          : index.retIndex == 1
-            ? "32 kg checked baggage, 3 piece"
-            : "32 kg checked baggage, 2 piece + 1 oversized";
-      maxCheckedBaggage = "32kg";
+      const weight = "32 kg checked baggage";
+      if (direction === "departure") {
+        text =
+          index.depIndex === 0
+            ? `${weight}, 2 piece`
+            : index.depIndex === 1
+            ? `${weight}, 3 piece`
+            : `${weight}, 2 piece + 1 oversized`;
+      } else {
+        text =
+          index.retIndex === 0
+            ? `${weight}, 2 piece`
+            : index.retIndex === 1
+            ? `${weight}, 3 piece`
+            : `${weight}, 2 piece + 1 oversized`;
+      }
+      max = "32kg";
     }
-  }
+    return { checkedBaggageText: text, maxCheckedBaggage: max };
+  }, [index, direction]);
+  console.log(checkedBaggageText)
+  console.log(index)
   return (
     <div className={styles.dialogOverlay}>
       <div className={styles.detailsDialog}>
@@ -311,7 +316,7 @@ function getTimeOfWaiting(arrival, departure) {
   const mins = totalMinutes % 60;
   return hours + "h " + mins + "m";
 }
-const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
+const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight,fareSelectionIndex,setFareSelectionIndex }) => {
   const { airports } = useAirports();
   const [expandedStops, setExpandedStops] = useState(false);
   const [expandedReturnStops, setExpandedReturnStops] = useState(false);
@@ -319,11 +324,6 @@ const DetailsOfTheFlight = ({ onClose, onUpdateForm, formData, flight }) => {
   const [baggageDialogOpen2, setBaggageDialogOpen2] = useState(false);
   const [cancellationDialogOpen, setCancellationDialogOpen] = useState(false);
   const { sharedData } = useData();
-  const [fareSelectionIndex, setFareSelectionIndex] = useState({
-    depIndex: 0,
-    retIndex: 0,
-    class: "economy",
-  });
   if (!flight) return;
   const departureClass = sharedData?.passengerClass.class.text || "ECONOMY";
   const returnClass = sharedData?.passengerClass.class.text || departureClass;
@@ -1890,6 +1890,8 @@ DetailsOfTheFlight.propTypes = {
   onUpdateForm: PropTypes.func,
   formData: PropTypes.object,
   flight: PropTypes.object,
+  fareSelectionIndex: PropTypes.object,
+  setFareSelectionIndex: PropTypes.func,
 };
 Cancellation.propTypes = {
   openCancellationDialog: PropTypes.func,

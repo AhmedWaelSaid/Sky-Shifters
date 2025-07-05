@@ -2,7 +2,18 @@ import { useData } from "../../../components/context/DataContext";
 import styles from "./FlightSummary.module.css";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import PropTypes from "prop-types";
-
+const priorityBoardingPrices = {
+  USD: 6.99,
+  EGP: 100,
+  SAR: 25,
+  EUR: 6.5,
+};
+const insurancePrices = {
+  USD: 27,
+  EGP: 400,
+  SAR: 95,
+  EUR: 24,
+};
 const FareBreakdown = ({
   passengers = [],
   formData = {},
@@ -73,12 +84,12 @@ const FareBreakdown = ({
 
     // Calculate insurance cost if selected
     if (formData.addOns?.insurance) {
-      addOns += 27 * passengers.filter(p => p.type !== 'infant').length;
+      addOns += insurancePrices[sharedData.currency] * passengers.filter(p => p.type !== 'infant').length;
     }
 
     // Calculate priority boarding cost if selected
     if (formData.priorityBoarding) {
-      addOns += 6.99 * passengers.length;
+      addOns +=priorityBoardingPrices[sharedData.currency] * passengers.length;
     }
 
     // Calculate stay discount cost if selected
@@ -127,7 +138,7 @@ const FareBreakdown = ({
 
   const priceDetails = calculateTotal();
   const formatPrice = (price) => {
-    return `${sharedData.currency} ${price.toFixed(2)}`;
+    return `${price.toFixed(2)} ${sharedData.currency} `;
   };
 
   // Group passengers by type and age group for display

@@ -7,17 +7,15 @@ import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { ThemeContext } from "../../components/context/ThemeContext"; // نفس الـ ThemeContext المستخدم في الـ Header
 const InitialMessages = [
-  { id: 0, text: "hello, from user.", sender: "user" },
   {
-    id: 1,
-    text: "hello, from AI.",
+    id: 0,
+    text: "Ask me anything you need ex: search flight, cancel flight, change password, etc.",
     sender: "ai",
   },
 ];
 async function sendRequest(body) {
   if (!body) return;
   try {
-    console.log(body);
     const result = await fetch(
       "https://chatbot-sky-shifters.duckdns.org/chat",
       {

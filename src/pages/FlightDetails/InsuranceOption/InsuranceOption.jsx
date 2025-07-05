@@ -1,10 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styles from './InsuranceOption.module.css';
+import { useData } from '../../../components/context/DataContext';
 import { Info } from 'lucide-react';
+const insurancePrices = {
+  USD: 27,
+  EGP: 400,
+  SAR: 95,
+  EUR: 24,
+};
 
-const InsuranceOption = ({ selected = false, onToggle = () => {}, price = "$27.00" }) => {
+const InsuranceOption = ({ selected = false, onToggle = () => {} }) => {
   const [insuranceSelected, setInsuranceSelected] = useState(selected);
   const [showBenefits, setShowBenefits] = useState(false);
+  const {sharedData} = useData();
   
   // Update local state when prop changes
   React.useEffect(() => {
@@ -21,7 +29,7 @@ const InsuranceOption = ({ selected = false, onToggle = () => {}, price = "$27.0
     e.preventDefault();
     setShowBenefits(prev => !prev);
   };
-  
+  const price = insurancePrices[sharedData.currency];
   return (
     <div className={styles.insuranceOption}>
       <div className={styles.insuranceDetails}>
@@ -29,7 +37,7 @@ const InsuranceOption = ({ selected = false, onToggle = () => {}, price = "$27.0
           <div className={styles.insuranceIcon}>$</div>
           <div className={styles.insuranceText}>
             <span>Add insurance to safeguard your trip</span>
-            <span className={styles.price}>{price}</span>
+            <span className={styles.price}>{price} {sharedData.currency}</span>
           </div>
         </div>
         <a href="#" className={styles.viewBenefits} onClick={toggleBenefits}>
