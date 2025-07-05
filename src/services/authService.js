@@ -7,7 +7,11 @@ export async function refreshAccessToken() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     return user.refreshToken;
   })();
-  if (!refreshToken) throw new Error('No refresh token available');
+  if (!refreshToken) {
+    console.error('No refresh token found in localStorage or user object. Redirecting to login.');
+    window.location.href = '/auth';
+    throw new Error('No refresh token available');
+  }
   try {
     const response = await axios.post(`${API_BASE_URL}/users/refresh-token`, { refreshToken });
     const { accessToken, refreshToken: newRefreshToken } = response.data.data;
@@ -21,6 +25,8 @@ export async function refreshAccessToken() {
     localStorage.setItem('user', JSON.stringify(user));
     return { accessToken, refreshToken: newRefreshToken };
   } catch (err) {
+    console.error('Failed to refresh access token:', err.response?.data || err.message);
+    window.location.href = '/auth';
     throw new Error('Failed to refresh access token');
   }
 } 

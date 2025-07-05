@@ -211,7 +211,9 @@ const FinalDetails = ({ passengers, formData, onBack, sharedData }) => {
                 <div className={styles.errorMessage}>
                     <h2>An error occurred.</h2>
                     <p>{paymentError || 'Please try again or contact support.'}</p>
-                    {/* يمكنك إضافة زر لإعادة المحاولة هنا إذا أردت */}
+                    {(paymentError?.toLowerCase().includes('token') || paymentError?.toLowerCase().includes('refresh')) && (
+                      <button onClick={() => window.location.href = '/auth'} style={{marginTop: '1rem'}}>تسجيل الدخول من جديد</button>
+                    )}
                 </div>
             );
         }
