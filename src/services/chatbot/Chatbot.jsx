@@ -202,7 +202,7 @@ export default function Chatbot({ setChatbotFlights }) {
                           className={`${styles.messageText} ${msg.sender === "user" ? styles.userMessageText : styles.aiMessageText}`}
                         >
                           {msg.text+" "} 
-                          {!isAuthenticated && "(Log in needed to start chat)"}
+                          {!isAuthenticated && "(Log in needed to start chat) "}
                           {msg.type == "search_flights" && (
                             <Link
                               to="/selected-flights"
