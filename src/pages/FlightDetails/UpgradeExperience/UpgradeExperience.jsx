@@ -101,7 +101,7 @@ const UpgradeExperience = ({
         )}
 
         <div className={styles.upgradeSection}>
-          <h3 className={styles.sectionTitle}>Insurance & Stay Options</h3>
+          <h3 className={styles.sectionTitle}>Insurance</h3>
           <div className={styles.addOnOptions}>
             <div className={styles.insuranceOptionWrapper}>
               <InsuranceOption
