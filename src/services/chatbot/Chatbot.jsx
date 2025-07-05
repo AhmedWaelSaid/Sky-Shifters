@@ -10,7 +10,7 @@ import { ThemeContext } from "../../components/context/ThemeContext"; // نفس 
 const InitialMessages = [
   {
     id: 0,
-    text: "Ask me anything you need ex: search flight, cancel flight, change password, etc.",
+    text: "Welcome to Taier AI , I'm here to help you , feel free to ask anything flight related , I can do awesome things like search for flights, show your booked flight, cancel any of them, update your info , change password and answer any customer service questions 🛩",
     sender: "ai",
   },
 ];
@@ -202,6 +202,7 @@ export default function Chatbot({ setChatbotFlights }) {
                           className={`${styles.messageText} ${msg.sender === "user" ? styles.userMessageText : styles.aiMessageText}`}
                         >
                           {msg.text+" "} 
+                          {!isAuthenticated && "(Log in needed to start chat)"}
                           {msg.type == "search_flights" && (
                             <Link
                               to="/selected-flights"
