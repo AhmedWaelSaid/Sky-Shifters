@@ -14,6 +14,7 @@
   --message-bg: var(--bg-color);
   --border-color:rgba(0, 0, 0, 0.5);
   --exit-bg:rgba(0, 0, 0, 0.1);
+  --flightsLink: aquamarine;
   color: var(--text-color);
 }
 .chatbotContainer.dark {
@@ -24,6 +25,7 @@
   --message-bg: #302f34;
   --border-color:rgba(255, 255, 255, 0.5);
   --exit-bg:#fbd684;
+  --flightsLink: #FF5722;
 }
 
 .chatbotButton {
@@ -238,4 +240,8 @@
   to {
     transform: rotate(360deg);
   }
+}
+.flightSearchLink{
+  color:var(--flightsLink);
+  text-decoration: none;
 }

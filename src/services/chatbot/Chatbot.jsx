@@ -3,6 +3,8 @@ import styles from "./Chatbot.module.css";
 import { useAuth } from "../../components/context/AuthContext";
 import chatbotDark from "../../assets/chatbot-dark.png";
 import chatbotLight from "../../assets/chatbot.png";
+import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 import { ThemeContext } from "../../components/context/ThemeContext"; // نفس الـ ThemeContext المستخدم في الـ Header
 const InitialMessages = [
   { id: 0, text: "hello, from user.", sender: "user" },
@@ -35,18 +37,17 @@ async function sendRequest(body) {
     return null;
   }
 }
-export default function Chatbot() {
+export default function Chatbot({ setChatbotFlights }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { theme } = useContext(ThemeContext); // نجيب الـ Theme الحالي (light أو dark)
   const [messages, setMessages] = useState(InitialMessages);
   const [userMessage, setUserMessage] = useState("");
+  const [flightsData, setFlightsData] = useState(null);
   const user = JSON.parse(localStorage.getItem("user"));
-  console.log(user);
   const textareaRef = useRef(null);
   const messageEndRef = useRef(null);
   const { isAuthenticated } = useAuth();
-  console.log(messages);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -67,48 +68,73 @@ export default function Chatbot() {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isAuthenticated) {
-      setMessages((prev) => [
-        ...prev,
-        { id: prev.length, text: userMessage, sender: "user" },
-      ]);
+    if (!isAuthenticated) return;
 
-      setUserMessage("");
-      const body = {
-        message: userMessage,
-        access_token: user.token,
-        user_id: user.userId,
-        session_id: `${messages.length - 1}`,
-      };
-      setIsLoading(true);
-      const result = await sendRequest(body);
-      setIsLoading(false);
-      console.log(result);
-      if (result?.response?.message) {
-        if (
-          result.response.type === "search_flights" &&
-          result.response.data == null
-        )
-          setMessages((prev) => [
-            ...prev,
-            { id: prev.length, text: "The AI couldn`t return the flights data.", sender: "ai" },
-          ]);
-        else
-          setMessages((prev) => [
-            ...prev,
-            { id: prev.length, text: result.response.message, sender: "ai" },
-          ]);
-      } else {
+    setMessages((prev) => [
+      ...prev,
+      { id: prev.length, text: userMessage, sender: "user" },
+    ]); // set user message
+    setUserMessage(""); //empty text area
+
+    const body = {
+      message: userMessage,
+      access_token: user.token,
+      user_id: user.userId,
+      session_id: `${messages.length - 1}`,
+    };
+
+    setIsLoading(true);
+    const result = await sendRequest(body);
+    setIsLoading(false);
+    console.log(result);
+    if (result?.response?.message) {
+      //check if response exists
+      if (
+        result.response.type === "search_flights" &&
+        result.response.data == null
+      )
         setMessages((prev) => [
           ...prev,
           {
             id: prev.length,
-            text: "Sorry, something went wrong.",
+            text: "The AI couldn`t return the flights data.",
             sender: "ai",
           },
         ]);
-      }
-    } else return;
+      else if (
+        result.response.type === "search_flights" &&
+        result.response.data.data !== null
+      ) {
+        setFlightsData(result.response.data);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: prev.length,
+            text: result.response.message,
+            sender: "ai",
+            type: result.response.type,
+          },
+        ]);
+      } else
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: prev.length,
+            text: result.response.message,
+            sender: "ai",
+            type: result.response.type,
+          },
+        ]);
+    } else {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: prev.length,
+          text: "Sorry, something went wrong.",
+          sender: "ai",
+        },
+      ]);
+    }
   };
 
   return (
@@ -172,7 +198,18 @@ export default function Chatbot() {
                         <div
                           className={`${styles.messageText} ${msg.sender === "user" ? styles.userMessageText : styles.aiMessageText}`}
                         >
-                          {msg.text}
+                          {msg.text+" "} 
+                          {msg.type == "search_flights" && (
+                            <Link
+                              to="/selected-flights"
+                              onClick={() => {
+                                if (flightsData) setChatbotFlights(flightsData);
+                              }}
+                              className={styles.flightSearchLink}
+                            >
+                              Flights page
+                            </Link>
+                          )}
                         </div>
                       </>
                     )}
@@ -195,6 +232,7 @@ export default function Chatbot() {
                 id="user_message"
                 placeholder="Ask anything"
                 required
+                minLength={10}
                 ref={textareaRef}
                 value={userMessage}
                 onChange={(e) => setUserMessage(e.target.value)}
@@ -224,4 +262,7 @@ export default function Chatbot() {
       )}
     </div>
   );
+}
+Chatbot.propTypes = {
+  setChatbotFlights: PropTypes.func,
 }

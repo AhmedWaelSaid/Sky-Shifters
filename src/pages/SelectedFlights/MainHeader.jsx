@@ -1,6 +1,5 @@
 import styles from "./styles/mainHeader.module.css";
 import { useState, useRef, useEffect } from "react";
-import submitIcon from "../../assets/submit.png";
 import { ShowTopSearch } from "../Home/ShowTopSearch";
 import { useAirports } from "../../helperFun";
 import { useData } from "../../components/context/DataContext";
@@ -53,7 +52,7 @@ AirportInput.propTypes = {
   value: PropTypes.object,
 };
 
-export default function MainHeader({ setAPISearch, setIsReturn }) {
+export default function MainHeader({ setAPISearch, setIsReturn ,setHasUserSearched}) {
   const { sharedData, setSharedData } = useData();
   const [dates, setDates] = useState(
     sharedData.departure.date
@@ -168,6 +167,7 @@ export default function MainHeader({ setAPISearch, setIsReturn }) {
         return;
       }
       if (origin.airport && dest.airport && dates.departure && !dates.return) {
+        setHasUserSearched(true);
         setSharedData((prev) => ({
           ...prev,
           departure: { date: dates.departure, dest, origin },
@@ -188,6 +188,7 @@ export default function MainHeader({ setAPISearch, setIsReturn }) {
         dates.departure &&
         dates.return
       ) {
+        setHasUserSearched(true);
         setSharedData((prev) => ({
           ...prev,
           departure: { date: dates.departure, dest, origin },
@@ -310,5 +311,5 @@ export default function MainHeader({ setAPISearch, setIsReturn }) {
 MainHeader.propTypes = {
   setAPISearch: PropTypes.func,
   setIsReturn: PropTypes.func,
-  isReturn: PropTypes.bool,
+  setHasUserSearched: PropTypes.func,
 };

@@ -11,6 +11,7 @@ import Loading from "./Loading.jsx";
 import Error from "./Error.jsx";
 import EmptyData from "./EmptyData.jsx";
 import { FlightsUI } from "./Main.jsx";
+import { useOutletContext } from "react-router-dom";
 
 async function getFlightsFromAPI(input, signal) {
   const baseUrl = "https://api.amadeus.com/v2/shopping/flight-offers";
@@ -152,12 +153,9 @@ function getFlights(flights) {
 }
 export default function Container() {
   const { sharedData, flight } = useData();
-  const [APISearch, setAPISearch] = useState({
-    ...sharedData.departure,
-    passengerClass: sharedData.passengerClass,
-    currency: sharedData.currency,
-  });
-  const { data: flightsData, loading, error } = useSearchData(APISearch);
+  const [APISearch, setAPISearch] = useState(null);
+  const { data, loading, error } = useSearchData(APISearch);
+  const [flightsData, setFlightsData] = useState(null);
   const [stop, setStop] = useState("");
   const [airLinesChecked, setAirLinesChecked] = useState({});
   const [price, setPrice] = useState(null);
@@ -165,15 +163,40 @@ export default function Container() {
   const [currentPage, setCurrentPage] = useState(1);
   const [priceAndDuration, setPriceAndDuration] = useState({});
   const [isReturn, setIsReturn] = useState(false);
+  const context = useOutletContext();
+  const [hasUserSearched, setHasUserSearched] = useState(false);
+  const [didUseChatbotFlights, setDidUseChatbotFlights] = useState(false);
 
+  useEffect(() => {
+    if (!hasUserSearched && !context.chatbotFlights && !didUseChatbotFlights) {
+      setAPISearch({
+        ...sharedData.departure,
+        passengerClass: sharedData.passengerClass,
+        currency: sharedData.currency,
+      });
+    }
+  }, [hasUserSearched, context.chatbotFlights, didUseChatbotFlights, sharedData]);
+  
   useEffect(() => {
     setCurrentPage(1);
   }, [stop, price, airLinesChecked, flightDuration]);
 
   useEffect(() => {
+    setFlightsData(data);
+  }, [data]);
+
+  useEffect(() => {
     setAPISearch((prev) => ({ ...prev, currency: sharedData.currency }));
     setIsReturn(false);
   }, [sharedData.currency]);
+
+  useEffect(() => {
+    if (context.chatbotFlights && !didUseChatbotFlights) {
+      setFlightsData(context.chatbotFlights);
+      setDidUseChatbotFlights(true); // mark it as handled
+      context.setChatbotFlights(null); // clear context
+    }
+  }, [context.chatbotFlights, didUseChatbotFlights,context]);
 
   useEffect(() => {
     if (
@@ -188,13 +211,14 @@ export default function Container() {
     }
   }, [flightsData]);
 
-  if (loading ) return <Loading />;
+  if (loading) return <Loading />;
   if (error && error.name !== "AbortError")
     return (
       <Error
         setIsReturn={setIsReturn}
         setAPISearch={setAPISearch}
         isReturn={isReturn}
+        setHasUserSearched={setHasUserSearched}
       />
     );
   if (!flightsData || flightsData.data.length === 0 || !flightsData.data)
@@ -203,6 +227,7 @@ export default function Container() {
         setIsReturn={setIsReturn}
         setAPISearch={setAPISearch}
         isReturn={isReturn}
+        setHasUserSearched={setHasUserSearched}
       />
     );
 
@@ -290,6 +315,7 @@ export default function Container() {
         setIsReturn={setIsReturn}
         setAPISearch={setAPISearch}
         isReturn={isReturn}
+        setHasUserSearched={setHasUserSearched}
       />
       {sharedData.return && !isReturn && (
         <div className={styles.flightTextContainer}>
