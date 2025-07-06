@@ -2,9 +2,10 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 .container {
-  padding-top: 79px;
+  padding-top: 78px;
   font-family:
     Inter, system-ui, Avenir, Helvetica, Arial, sans-serif !important;
+    position: relative;
   --skeletonLoadingGradientWidth: 1200px;
   --skeletonLoadingGradient: linear-gradient(
     to right,

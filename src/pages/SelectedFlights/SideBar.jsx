@@ -63,38 +63,6 @@ export default function SideBar({
   flightsData,
   getStops,
 }) {
-  const sidebarRef = useRef(null);
-  const [lastScrollY, setLastScrollY] = useState(0);
-
-  useEffect(() => {
-    const sidebar = sidebarRef.current;
-    if (!sidebar) return;
-  
-    let ticking = false;
-  
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY;
-          const isScrollingDown = currentScrollY > lastScrollY;
-  
-          if (isScrollingDown) {
-            sidebar.classList.add(styles.hidden);
-          } else {
-            sidebar.classList.remove(styles.hidden);
-          }
-  
-          setLastScrollY(currentScrollY);
-          ticking = false;
-        });
-  
-        ticking = true;
-      }
-    };
-  
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
   const [isExpandable, setIsExpandable] = useState({
     price: true,
     stops: true,
@@ -129,9 +97,6 @@ export default function SideBar({
   const priceHandler = (e) => {
     setPrice(e.target.value);
   };
-  const sortResetHandler = () => {
-    setPrice(priceAndDuration.highestPrice);
-  };
   const stopHandler = (e) => {
     setStop(() => e.target.value);
   };
@@ -143,16 +108,17 @@ export default function SideBar({
     setFlightDuration(e.target.value);
   };
   const filterResetHandler = () => {
+    setPrice(priceAndDuration.highestPrice);
     setStop("");
     setAirLinesChecked({});
     setFlightDuration(priceAndDuration.highestFlightDuration);
   };
   const stops = getStops();
   return (
-    <div className={styles["side-bar"]} ref={sidebarRef}>
-      <div className={styles.sort}>
-        <h2>Sort By</h2>
-        <button className={styles.reset} onClick={sortResetHandler}>
+    <div className={styles["side-bar"]} >
+      <div className={styles.filter}>
+        <h2>Filters</h2>
+        <button className={styles.reset} onClick={filterResetHandler}>
           Reset
         </button>
         <hr />
@@ -193,12 +159,6 @@ export default function SideBar({
             </div>
           </div>
         </div>
-      </div>
-      <div className={styles.filter}>
-        <h2>Filters</h2>
-        <button className={styles.reset} onClick={filterResetHandler}>
-          Reset
-        </button>
         <hr />
         <div className={styles.stops}>
           <div
