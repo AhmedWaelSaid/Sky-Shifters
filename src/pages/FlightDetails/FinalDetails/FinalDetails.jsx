@@ -121,7 +121,15 @@ const FinalDetails = ({ passengers, formData, onBack, sharedData,setFareSelectio
 
                 // Store detailed flight data in localStorage
                 try {
-                  const isRoundTrip = flight?.return?.data;
+                  // استخدم منطق أوضح لتحديد نوع الرحلة
+                  const isRoundTrip = formData.finalBookingData?.bookingType === "ROUND_TRIP";
+                  console.log('--- FLIGHT DETAILS TO STORE ---');
+                  console.log('flight:', flight);
+                  console.log('sharedData:', sharedData);
+                  console.log('formData.finalBookingData:', formData.finalBookingData);
+                  console.log('isRoundTrip:', isRoundTrip);
+                  console.log('newBookingRef:', newBookingRef);
+                  console.log('newBookingId:', newBookingId);
                   const flightDetailsToStore = {
                       departure: {
                           duration: flight.departure.data.itineraries[0].duration,
@@ -151,11 +159,6 @@ const FinalDetails = ({ passengers, formData, onBack, sharedData,setFareSelectio
                           destinationAirportCode: sharedData?.return?.dest?.airport?.iata,
                       };
                   }
-                  // LOG: Print all details before storing
-                  console.log('--- FLIGHT DETAILS TO STORE ---');
-                  console.log('isRoundTrip:', isRoundTrip);
-                  console.log('newBookingRef:', newBookingRef);
-                  console.log('newBookingId:', newBookingId);
                   console.log('flightDetailsToStore:', JSON.stringify(flightDetailsToStore, null, 2));
                   // NOTE: using bookingRef from backend response as the key.
                   if (newBookingRef) {
