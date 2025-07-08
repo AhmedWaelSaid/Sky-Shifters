@@ -43,6 +43,9 @@ const BookingList = () => {
             // Use bookingRef if available, otherwise fall back to _id
             const bookingKey = booking.bookingRef || booking._id;
             const storedDetailsRaw = localStorage.getItem(`flightDetails_${bookingKey}`);
+            console.log('--- LOADING FLIGHT DETAILS FROM LOCALSTORAGE ---');
+            console.log('bookingKey:', bookingKey);
+            console.log('storedDetailsRaw:', storedDetailsRaw);
             // Helper to get airline logo from carrier code
             const getAirlineLogo = (carrierCode) => carrierCode ? `https://pics.avs.io/40/40/${carrierCode}.png` : undefined;
             // Helper to get airline name from booking or details
@@ -56,20 +59,28 @@ const BookingList = () => {
             };
             if (storedDetailsRaw) {
               const storedDetails = JSON.parse(storedDetailsRaw);
+              console.log('storedDetails:', storedDetails);
               // Handle round-trip bookings (they have a flightData array)
               if (booking.flightData && booking.flightData.length > 0) {
+                console.log('booking.flightData:', booking.flightData);
                 const newFlightData = booking.flightData.map(flightLeg => {
                   const legType = flightLeg.typeOfFlight === 'GO' ? 'departure' : 'return';
                   const details = storedDetails[legType];
+                  console.log('flightLeg:', flightLeg, 'legType:', legType, 'details:', details);
                   const airline = getAirlineName(flightLeg, details);
                   const carrierCode = getCarrierCode(flightLeg, details);
                   const airlineLogo = getAirlineLogo(carrierCode);
                   const duration = details?.duration || flightLeg.duration;
                   if (details) {
-                    return { ...flightLeg, ...details, airline, airlineLogo, duration };
+                    const merged = { ...flightLeg, ...details, airline, airlineLogo, duration };
+                    console.log('Merged flightLeg + details:', merged);
+                    return merged;
                   }
-                  return { ...flightLeg, airline, airlineLogo, duration };
+                  const fallback = { ...flightLeg, airline, airlineLogo, duration };
+                  console.log('Fallback flightLeg:', fallback);
+                  return fallback;
                 });
+                console.log('newFlightData:', newFlightData);
                 return { ...booking, flightData: newFlightData };
               } 
               // Handle one-way bookings (data is on the root object)
@@ -79,7 +90,7 @@ const BookingList = () => {
                 const airlineLogo = getAirlineLogo(carrierCode);
                 const numberOfStops = storedDetails.departure.numberOfStops ?? booking.numberOfStops;
                 const duration = storedDetails.departure.duration || booking.duration;
-                return {
+                const merged = {
                   ...booking,
                   ...storedDetails.departure,
                   airline,
@@ -87,6 +98,8 @@ const BookingList = () => {
                   numberOfStops,
                   duration
                 };
+                console.log('Merged one-way booking:', merged);
+                return merged;
               }
             }
             // fallback: add airline info if possible

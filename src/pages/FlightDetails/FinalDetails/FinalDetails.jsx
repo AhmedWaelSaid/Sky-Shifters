@@ -151,12 +151,20 @@ const FinalDetails = ({ passengers, formData, onBack, sharedData,setFareSelectio
                           destinationAirportCode: sharedData?.return?.dest?.airport?.iata,
                       };
                   }
+                  // LOG: Print all details before storing
+                  console.log('--- FLIGHT DETAILS TO STORE ---');
+                  console.log('isRoundTrip:', isRoundTrip);
+                  console.log('newBookingRef:', newBookingRef);
+                  console.log('newBookingId:', newBookingId);
+                  console.log('flightDetailsToStore:', JSON.stringify(flightDetailsToStore, null, 2));
                   // NOTE: using bookingRef from backend response as the key.
                   if (newBookingRef) {
                     localStorage.setItem(`flightDetails_${newBookingRef}`, JSON.stringify(flightDetailsToStore));
+                    console.log('Saved flightDetails with bookingRef:', `flightDetails_${newBookingRef}`);
                   } else {
                     // Fallback in case bookingRef is not returned, though it should be.
                     localStorage.setItem(`flightDetails_${newBookingId}`, JSON.stringify(flightDetailsToStore));
+                    console.log('Saved flightDetails with bookingId:', `flightDetails_${newBookingId}`);
                   }
                   console.log('STORED DURATION (departure):', flight.departure.data.itineraries[0].duration);
                   if (isRoundTrip) {
