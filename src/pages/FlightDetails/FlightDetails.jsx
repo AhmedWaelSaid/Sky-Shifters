@@ -284,10 +284,8 @@ const Index = () => {
           };
         }
 
-        console.log(
-          "FINAL BOOKING DATA (All fixes applied):",
-          finalBookingData
-        );
+        // LOG: Print the final booking data before sending to backend
+        console.log('FINAL BOOKING DATA (All fixes applied):', finalBookingData);
         setFormData((prev) => ({ ...prev, finalBookingData }));
       }
       if (currentStep < 4) {
