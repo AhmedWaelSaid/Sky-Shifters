@@ -72,6 +72,7 @@ export default function SideBar({
   const [logosLoaded, setLogosLoaded] = useState(0);
   const [airlinesHeight, setAirlinesHeight] = useState(0);
   const { sharedData } = useData();
+
   const airlinesRef = useRef(null);
   let airLinesArr = [];
   for (const key in airLines) {
@@ -115,7 +116,7 @@ export default function SideBar({
   };
   const stops = getStops();
   return (
-    <div className={styles["side-bar"]} >
+    <div className={styles["side-bar"]}>
       <div className={styles.filter}>
         <h2>Filters</h2>
         <button className={styles.reset} onClick={filterResetHandler}>

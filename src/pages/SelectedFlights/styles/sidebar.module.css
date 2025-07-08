@@ -14,10 +14,12 @@
   --sub-body-margin: 15px 20px 0 15px;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif ; 
   position: sticky;
-  top: 190px;
   height: max-content;
   transition: top 0.4s ease;
   color: var(--blackText-color);;
+  max-height: calc(100vh - 240px);
+  top:190px;
+  overflow-y: auto;
 }
 .side-bar h2 {
   font-size: 1.25rem; /*cards title (sort by and filters)*/
