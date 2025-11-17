@@ -1,8 +1,12 @@
-# React + Vite
+# Graduation Project (Front End)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[Live-Demo](https://sky-shifters.vercel.app/)
 
-Currently, two official plugins are available:
+## Summary
+It's a booking site that allows users to book flights using amadeus api and payment method done via stripe.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+- **React** - Javascript framework
+- **Vanilla css** - styling
+- **Context api** - state management
+- **Vercel** - Deployment
